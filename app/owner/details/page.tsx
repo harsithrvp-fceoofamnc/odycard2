@@ -1,0 +1,201 @@
+"use client";
+
+import { useState, useMemo } from "react";
+import { useRouter } from "next/navigation";
+import { motion } from "framer-motion";
+
+export default function RestaurantDetailsPage() {
+  const router = useRouter();
+
+  const [form, setForm] = useState({
+    restaurantName: "",
+    userName: "",
+    state: "",
+    city: "",
+    restaurantId: "",
+    gmail: "",
+    password: "",
+    rePassword: "",
+  });
+
+  const [showPassword, setShowPassword] = useState(false);
+  const [showRePassword, setShowRePassword] = useState(false);
+
+  const [errors, setErrors] = useState({
+    general: "",
+    gmail: "",
+    password: "",
+  });
+
+  /* ---------- PROGRESS ---------- */
+  const totalFields = Object.keys(form).length;
+
+  const filledCount = useMemo(() => {
+    return Object.values(form).filter(v => v.trim() !== "").length;
+  }, [form]);
+
+  const progress = Math.min((filledCount / totalFields) * 50, 50);
+
+  /* ---------- HANDLERS ---------- */
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+    setErrors({ general: "", gmail: "", password: "" });
+  };
+
+  const handleNext = () => {
+    let hasError = false;
+    const newErrors = { general: "", gmail: "", password: "" };
+
+    for (const value of Object.values(form)) {
+      if (value.trim() === "") {
+        newErrors.general = "Please fill all the fields";
+        hasError = true;
+        break;
+      }
+    }
+
+    if (form.gmail && !form.gmail.endsWith("@gmail.com")) {
+      newErrors.gmail = "Gmail must end with @gmail.com";
+      hasError = true;
+    }
+
+    if (form.password !== form.rePassword) {
+      newErrors.password = "Password does not match";
+      hasError = true;
+    }
+
+    if (hasError) {
+      setErrors(newErrors);
+      return;
+    }
+
+    /* ✅ SAVE ONLY USER NAME */
+    localStorage.setItem("userName", form.userName);
+
+    router.push("/owner/details2");
+  };
+
+  /* ---------- ANIMATION ---------- */
+  const fadeUp = {
+    initial: { y: 24, opacity: 0 },
+    animate: { y: 0, opacity: 1 },
+    transition: { duration: 0.4 },
+  };
+
+  const inputClass = (name: string) =>
+    `w-full border rounded-xl bg-white text-black focus:outline-none 
+     focus:border-black focus:ring-1 focus:ring-black
+     ${
+       errors.general && form[name as keyof typeof form] === ""
+         ? "border-red-500"
+         : "border-gray-300"
+     }`;
+
+  return (
+    <div className="min-h-screen bg-black flex justify-center">
+      <div className="w-full max-w-md bg-white min-h-screen overflow-y-auto">
+        <div className="px-6 pt-10 pb-28">
+
+          {/* TITLE */}
+          <motion.h1
+            {...fadeUp}
+            className="text-black mb-6"
+            style={{ fontSize: "52px", lineHeight: "1.1", fontWeight: 600 }}
+          >
+            Enter Your<br />Details
+          </motion.h1>
+
+          {/* PROGRESS BAR */}
+          <motion.div {...fadeUp} className="mb-10">
+            <div className="h-[6px] w-full bg-gray-200 rounded-full overflow-hidden">
+              <div
+                className="h-full bg-[#0A84C1]"
+                style={{ width: `${progress}%` }}
+              />
+            </div>
+            <p className="text-right text-[13px] text-gray-500 mt-2">
+              {Math.round(progress)}%
+            </p>
+          </motion.div>
+
+          {errors.general && (
+            <p className="text-red-600 text-sm mb-6">{errors.general}</p>
+          )}
+
+          {[
+            ["Restaurant Name", "restaurantName"],
+            ["User Name", "userName"],
+            ["State", "state"],
+            ["City", "city"],
+            ["Restaurant ID", "restaurantId"],
+            ["Gmail", "gmail"],
+          ].map(([label, name]) => (
+            <motion.div key={name} {...fadeUp} className="mb-6">
+              <label className="block mb-2 text-[18px] font-semibold text-black">
+                {label}
+              </label>
+              <input
+                name={name}
+                value={(form as any)[name]}
+                onChange={handleChange}
+                className={inputClass(name)}
+                style={{ fontSize: "18px", padding: "14px 16px" }}
+              />
+              {name === "gmail" && errors.gmail && (
+                <p className="text-red-600 text-sm mt-2">
+                  {errors.gmail}
+                </p>
+              )}
+            </motion.div>
+          ))}
+
+          {/* PASSWORD */}
+          <motion.div {...fadeUp} className="mb-6">
+            <label className="block mb-2 text-[18px] font-semibold text-black">
+              Password
+            </label>
+            <input
+              type={showPassword ? "text" : "password"}
+              name="password"
+              value={form.password}
+              onChange={handleChange}
+              className={inputClass("password")}
+              style={{ fontSize: "18px", padding: "14px 16px" }}
+            />
+          </motion.div>
+
+          {/* RE-PASSWORD */}
+          <motion.div {...fadeUp} className="mb-6">
+            <label className="block mb-2 text-[18px] font-semibold text-black">
+              Re-enter Password
+            </label>
+            <input
+              type={showRePassword ? "text" : "password"}
+              name="rePassword"
+              value={form.rePassword}
+              onChange={handleChange}
+              className={inputClass("rePassword")}
+              style={{ fontSize: "18px", padding: "14px 16px" }}
+            />
+            {errors.password && (
+              <p className="text-red-600 text-sm mt-2">
+                {errors.password}
+              </p>
+            )}
+          </motion.div>
+
+          {/* NEXT */}
+          <motion.button
+            {...fadeUp}
+            onClick={handleNext}
+            className="w-full rounded-full bg-[#0A84C1] text-white font-semibold"
+            style={{ fontSize: "18px", padding: "14px" }}
+          >
+            Next
+          </motion.button>
+
+        </div>
+      </div>
+    </div>
+  );
+}
