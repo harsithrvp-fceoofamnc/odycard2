@@ -3,12 +3,26 @@
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { QRCodeCanvas } from "qrcode.react";
+import { useEffect, useState } from "react";
 
 export default function SuccessPage() {
   const router = useRouter();
 
-  // TEMP — later this will come from backend
-  const ownerPageUrl = "https://odysra.com/demo-restaurant";
+  const [restaurantId, setRestaurantId] = useState<string | null>(null);
+  const [ownerPageUrl, setOwnerPageUrl] = useState<string>("");
+
+  // ✅ Generate or read restaurantId
+  useEffect(() => {
+    let id = localStorage.getItem("restaurantId");
+
+    if (!id) {
+      id = Math.random().toString(36).substring(2, 10); // eg: "k9f3a2xq"
+      localStorage.setItem("restaurantId", id);
+    }
+
+    setRestaurantId(id);
+    setOwnerPageUrl(`${window.location.origin}/hotel/${id}`);
+  }, []);
 
   const downloadQR = () => {
     const canvas = document.getElementById("ody-qr") as HTMLCanvasElement;
@@ -23,6 +37,8 @@ export default function SuccessPage() {
     link.download = "odysra-qr.png";
     link.click();
   };
+
+  if (!restaurantId) return null; // avoid flash before id loads
 
   return (
     <div className="min-h-screen bg-black flex justify-center overflow-hidden">
@@ -67,7 +83,7 @@ export default function SuccessPage() {
           initial={{ scale: 0.9, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ duration: 0.4 }}
-          className="bg-white rounded-3xl p-6 shadow-md mb-10"
+          className="bg-white rounded-3xl p-6 shadow-md mb-6"
         >
           <QRCodeCanvas
             id="ody-qr"
@@ -78,6 +94,11 @@ export default function SuccessPage() {
             level="H"
           />
         </motion.div>
+
+        {/* SHOW URL (nice for testing) */}
+        <p className="text-sm text-gray-500 mb-6 text-center break-all">
+          {ownerPageUrl}
+        </p>
 
         {/* DOWNLOAD QR */}
         <button
