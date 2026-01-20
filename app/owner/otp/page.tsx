@@ -63,7 +63,6 @@ export default function OtpPage() {
     <div className="min-h-screen bg-black flex justify-center overflow-hidden">
       {/* PHONE FRAME */}
       <div className="relative w-full max-w-md min-h-screen overflow-hidden">
-
         {/* DARK BACKGROUND */}
         <div className="absolute inset-0 bg-[#1c1c1c] z-0" />
 
@@ -86,11 +85,11 @@ export default function OtpPage() {
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 1.6, ease: "easeOut" }}
         >
-          {/* ENTER OTP — SMALLER */}
+          {/* ENTER OTP */}
           <h1
             className="text-center mb-10"
             style={{
-              fontSize: "40px",   // 👈 reduced size
+              fontSize: "40px",
               fontWeight: 600,
               color: "#000",
             }}
@@ -103,7 +102,9 @@ export default function OtpPage() {
             {otp.map((digit, index) => (
               <input
                 key={index}
-                ref={(el) => (inputsRef.current[index] = el)}
+                ref={(el) => {
+                  inputsRef.current[index] = el;
+                }}
                 type="tel"
                 inputMode="numeric"
                 maxLength={1}
