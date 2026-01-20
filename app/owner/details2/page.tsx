@@ -89,7 +89,8 @@ export default function DetailsPart2() {
       return;
     }
 
-    router.push("/owner/dashboard");
+    // ✅ GO TO SUCCESS PAGE (not dashboard)
+    router.push("/owner/success");
   };
 
   return (
@@ -105,7 +106,7 @@ export default function DetailsPart2() {
             Upload<br />Logo
           </h1>
 
-          {/* ✅ RESTAURANT NAME DISPLAY */}
+          {/* RESTAURANT NAME */}
           {restaurantName && (
             <p className="text-center text-[18px] font-semibold text-gray-700 mb-10">
               {restaurantName}
