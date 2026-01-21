@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Cropper from "react-easy-crop";
 
@@ -39,7 +39,6 @@ async function getCroppedImg(imageSrc: string, crop: any) {
 export default function DetailsPart2() {
   const router = useRouter();
 
-  const [restaurantName, setRestaurantName] = useState("");
   const [imageSrc, setImageSrc] = useState<string | null>(null);
   const [croppedImage, setCroppedImage] = useState<string | null>(null);
   const [showCrop, setShowCrop] = useState(false);
@@ -47,12 +46,6 @@ export default function DetailsPart2() {
   const [zoom, setZoom] = useState(1);
   const [croppedAreaPixels, setCroppedAreaPixels] = useState<any>(null);
   const [error, setError] = useState("");
-
-  /* ✅ READ RESTAURANT NAME */
-  useEffect(() => {
-    const name = localStorage.getItem("restaurantName");
-    if (name) setRestaurantName(name);
-  }, []);
 
   const progress = croppedImage ? 100 : 50;
 
@@ -76,7 +69,7 @@ export default function DetailsPart2() {
 
     setCroppedImage(cropped);
 
-    /* ✅ SAVE LOGO */
+    /* SAVE LOGO */
     localStorage.setItem("restaurantLogo", cropped);
 
     setShowCrop(false);
@@ -89,7 +82,6 @@ export default function DetailsPart2() {
       return;
     }
 
-    // ✅ GO TO SUCCESS PAGE (not dashboard)
     router.push("/owner/success");
   };
 
@@ -105,13 +97,6 @@ export default function DetailsPart2() {
           >
             Upload<br />Logo
           </h1>
-
-          {/* RESTAURANT NAME */}
-          {restaurantName && (
-            <p className="text-center text-[18px] font-semibold text-gray-700 mb-10">
-              {restaurantName}
-            </p>
-          )}
 
           {/* PROGRESS BAR */}
           <div className="mb-16 relative">

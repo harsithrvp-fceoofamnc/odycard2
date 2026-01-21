@@ -11,17 +11,20 @@ export default function SuccessPage() {
   const [restaurantId, setRestaurantId] = useState<string | null>(null);
   const [ownerPageUrl, setOwnerPageUrl] = useState<string>("");
 
-  // ✅ Generate or read restaurantId
+  // 🔥 READ RESTAURANT ID ENTERED BY OWNER
   useEffect(() => {
-    let id = localStorage.getItem("restaurantId");
+    const id = localStorage.getItem("restaurantId");
 
     if (!id) {
-      id = Math.random().toString(36).substring(2, 10); // eg: "k9f3a2xq"
-      localStorage.setItem("restaurantId", id);
+      // safety fallback (should not happen normally)
+      console.error("Restaurant ID missing");
+      return;
     }
 
     setRestaurantId(id);
-    setOwnerPageUrl(`${window.location.origin}/hotel/${id}`);
+
+    // 🔥 THIS IS THE FINAL PUBLIC HOTEL PAGE URL
+    setOwnerPageUrl(`https://odysra.com/hotel/${id}`);
   }, []);
 
   const downloadQR = () => {
@@ -38,7 +41,7 @@ export default function SuccessPage() {
     link.click();
   };
 
-  if (!restaurantId) return null; // avoid flash before id loads
+  if (!restaurantId) return null;
 
   return (
     <div className="min-h-screen bg-black flex justify-center overflow-hidden">
@@ -78,7 +81,7 @@ export default function SuccessPage() {
           Your restaurant page is live on OdyCard
         </p>
 
-        {/* ✅ REAL QR CODE */}
+        {/* 🔥 REAL QR — OPENS HOTEL PAGE */}
         <motion.div
           initial={{ scale: 0.9, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
@@ -95,7 +98,7 @@ export default function SuccessPage() {
           />
         </motion.div>
 
-        {/* SHOW URL (nice for testing) */}
+        {/* SHOW URL (for your testing only) */}
         <p className="text-sm text-gray-500 mb-6 text-center break-all">
           {ownerPageUrl}
         </p>
@@ -115,7 +118,7 @@ export default function SuccessPage() {
           className="w-full rounded-full bg-[#E5E7EB] text-black font-semibold"
           style={{ fontSize: "18px", padding: "14px" }}
         >
-          Go to Home
+          Home
         </button>
 
       </div>

@@ -69,8 +69,10 @@ export default function RestaurantDetailsPage() {
       return;
     }
 
-    /* ✅ SAVE ONLY USER NAME */
+    /* ✅ SAVE IMPORTANT DATA */
     localStorage.setItem("userName", form.userName);
+    localStorage.setItem("restaurantName", form.restaurantName);
+    localStorage.setItem("restaurantId", form.restaurantId); // 🔥 VERY IMPORTANT
 
     router.push("/owner/details2");
   };
@@ -127,7 +129,7 @@ export default function RestaurantDetailsPage() {
             ["User Name", "userName"],
             ["State", "state"],
             ["City", "city"],
-            ["Restaurant ID", "restaurantId"],
+            ["Restaurant ID", "restaurantId"], // 🔥 THIS IS THE KEY
             ["Gmail", "gmail"],
           ].map(([label, name]) => (
             <motion.div key={name} {...fadeUp} className="mb-6">
