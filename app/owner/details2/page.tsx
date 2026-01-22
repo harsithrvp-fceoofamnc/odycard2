@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import { useRouter } from "next/navigation";
 import Cropper from "react-easy-crop";
 
 /* helpers */
@@ -37,8 +36,6 @@ async function getCroppedImg(imageSrc: string, crop: any) {
 }
 
 export default function DetailsPart2() {
-  const router = useRouter();
-
   const [imageSrc, setImageSrc] = useState<string | null>(null);
   const [croppedImage, setCroppedImage] = useState<string | null>(null);
   const [showCrop, setShowCrop] = useState(false);
@@ -76,13 +73,21 @@ export default function DetailsPart2() {
     setError("");
   };
 
+  // 🔥 FIXED SUBMIT — HARD REDIRECT (WORKS IN VERCEL)
   const handleSubmit = () => {
     if (!croppedImage) {
       setError("Please upload your logo");
       return;
     }
 
-    router.push("/owner/success");
+    const id = localStorage.getItem("restaurantId");
+    if (!id) {
+      alert("Restaurant ID missing");
+      return;
+    }
+
+    // 🔥 IMPORTANT: use hard redirect
+    window.location.href = "/owner/success";
   };
 
   return (
