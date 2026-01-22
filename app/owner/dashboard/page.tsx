@@ -2,8 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
+import { useRouter } from "next/navigation";
 
 export default function OwnerDashboard() {
+  const router = useRouter();
+
   const [userName, setUserName] = useState("");
   const [restaurantLogo, setRestaurantLogo] = useState("");
 
@@ -76,8 +79,11 @@ export default function OwnerDashboard() {
               <p className="text-black text-[22px] font-semibold">—</p>
             </div>
 
-            {/* VIEW QR */}
-            <div className={card}>
+            {/* 🔥 VIEW QR — NOW ALIVE */}
+            <div
+              className={`${card} cursor-pointer hover:shadow-md transition`}
+              onClick={() => router.push("/owner/qr")}
+            >
               <div className="flex items-center justify-center gap-3 h-full">
                 <img
                   src="/qr.png"
@@ -102,7 +108,7 @@ export default function OwnerDashboard() {
               <p className="text-black text-[22px] font-semibold">0</p>
             </div>
 
-            {/* USER DETAILS — UPDATED */}
+            {/* USER DETAILS */}
             <div className={card}>
               <div className="flex items-center justify-center gap-3 h-full">
                 <img

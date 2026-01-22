@@ -18,9 +18,6 @@ export default function RestaurantDetailsPage() {
     rePassword: "",
   });
 
-  const [showPassword, setShowPassword] = useState(false);
-  const [showRePassword, setShowRePassword] = useState(false);
-
   const [errors, setErrors] = useState({
     general: "",
     gmail: "",
@@ -69,15 +66,14 @@ export default function RestaurantDetailsPage() {
       return;
     }
 
-    /* ✅ SAVE IMPORTANT DATA */
+    /* 🔥 SAVE IMPORTANT DATA */
     localStorage.setItem("userName", form.userName);
     localStorage.setItem("restaurantName", form.restaurantName);
-    localStorage.setItem("restaurantId", form.restaurantId); // 🔥 VERY IMPORTANT
+    localStorage.setItem("restaurantId", form.restaurantId); // VERY IMPORTANT
 
     router.push("/owner/details2");
   };
 
-  /* ---------- ANIMATION ---------- */
   const fadeUp = {
     initial: { y: 24, opacity: 0 },
     animate: { y: 0, opacity: 1 },
@@ -98,7 +94,6 @@ export default function RestaurantDetailsPage() {
       <div className="w-full max-w-md bg-white min-h-screen overflow-y-auto">
         <div className="px-6 pt-10 pb-28">
 
-          {/* TITLE */}
           <motion.h1
             {...fadeUp}
             className="text-black mb-6"
@@ -129,7 +124,7 @@ export default function RestaurantDetailsPage() {
             ["User Name", "userName"],
             ["State", "state"],
             ["City", "city"],
-            ["Restaurant ID", "restaurantId"], // 🔥 THIS IS THE KEY
+            ["Restaurant ID", "restaurantId"],   // 🔥 KEY FIELD
             ["Gmail", "gmail"],
           ].map(([label, name]) => (
             <motion.div key={name} {...fadeUp} className="mb-6">
@@ -157,7 +152,7 @@ export default function RestaurantDetailsPage() {
               Password
             </label>
             <input
-              type={showPassword ? "text" : "password"}
+              type="password"
               name="password"
               value={form.password}
               onChange={handleChange}
@@ -172,7 +167,7 @@ export default function RestaurantDetailsPage() {
               Re-enter Password
             </label>
             <input
-              type={showRePassword ? "text" : "password"}
+              type="password"
               name="rePassword"
               value={form.rePassword}
               onChange={handleChange}
