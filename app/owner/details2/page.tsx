@@ -38,55 +38,82 @@ async function getCroppedImg(imageSrc: string, crop: any) {
 export default function DetailsPart2() {
   const [imageSrc, setImageSrc] = useState<string | null>(null);
   const [croppedImage, setCroppedImage] = useState<string | null>(null);
+
+  const [coverSrc, setCoverSrc] = useState<string | null>(null);
+  const [croppedCover, setCroppedCover] = useState<string | null>(null);
+
   const [showCrop, setShowCrop] = useState(false);
+  const [cropType, setCropType] = useState<"logo" | "cover">("logo");
+
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
   const [croppedAreaPixels, setCroppedAreaPixels] = useState<any>(null);
   const [error, setError] = useState("");
 
-  const progress = croppedImage ? 100 : 50;
+  // 🔥 PROGRESS — START 50, LOGO MAKES IT 100
+  let progress = 50;
+  if (croppedImage) progress = 100;
 
   const onCropComplete = useCallback((_: any, area: any) => {
     setCroppedAreaPixels(area);
   }, []);
 
+  // LOGO UPLOAD (REQUIRED)
   const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;
     const file = e.target.files[0];
     if (!file.type.startsWith("image/")) return;
+
     setImageSrc(URL.createObjectURL(file));
+    setCropType("logo");
     setShowCrop(true);
   };
 
+  // COVER UPLOAD (OPTIONAL)
+  const handleCoverUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files) return;
+    const file = e.target.files[0];
+    if (!file.type.startsWith("image/")) return;
+
+    setCoverSrc(URL.createObjectURL(file));
+    setCropType("cover");
+    setShowCrop(true);
+  };
+
+  // SAVE CROP
   const saveCrop = async () => {
-    if (!imageSrc || !croppedAreaPixels) return;
+    if (!croppedAreaPixels) return;
 
-    const cropped = await getCroppedImg(imageSrc, croppedAreaPixels);
-    if (!cropped) return;
+    // LOGO SAVE
+    if (cropType === "logo" && imageSrc) {
+      const cropped = await getCroppedImg(imageSrc, croppedAreaPixels);
+      if (!cropped) return;
 
-    setCroppedImage(cropped);
+      setCroppedImage(cropped);
+      localStorage.setItem("restaurantLogo", cropped);
+    }
 
-    /* SAVE LOGO */
-    localStorage.setItem("restaurantLogo", cropped);
+    // COVER SAVE (ONLY IF USER ADDS)
+    if (cropType === "cover" && coverSrc) {
+      const cropped = await getCroppedImg(coverSrc, croppedAreaPixels);
+      if (!cropped) return;
+
+      setCroppedCover(cropped);
+      localStorage.setItem("restaurantCover", cropped);
+    }
 
     setShowCrop(false);
     setError("");
   };
 
-  // 🔥 FIXED SUBMIT — HARD REDIRECT (WORKS IN VERCEL)
+  // SUBMIT — ONLY LOGO REQUIRED
   const handleSubmit = () => {
     if (!croppedImage) {
       setError("Please upload your logo");
       return;
     }
 
-    const id = localStorage.getItem("restaurantId");
-    if (!id) {
-      alert("Restaurant ID missing");
-      return;
-    }
-
-    // 🔥 IMPORTANT: use hard redirect
+    // 🔥 COVER IS OPTIONAL — NO ERROR
     window.location.href = "/owner/success";
   };
 
@@ -100,14 +127,14 @@ export default function DetailsPart2() {
             className="text-black mb-6"
             style={{ fontSize: "52px", fontWeight: 600, lineHeight: "1.1" }}
           >
-            Upload<br />Logo
+            Set Your<br />OdyCard Look
           </h1>
 
           {/* PROGRESS BAR */}
           <div className="mb-16 relative">
             <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
               <div
-                className="h-full bg-[#0A84C1]"
+                className="h-full bg-[#0A84C1] transition-all"
                 style={{ width: `${progress}%` }}
               />
             </div>
@@ -120,8 +147,12 @@ export default function DetailsPart2() {
             </span>
           </div>
 
-          {/* LOGO UPLOAD */}
+          {/* 🔥 LOGO UPLOAD (REQUIRED) */}
           <div className="flex flex-col items-center mb-16">
+            <p className="text-[18px] font-semibold text-black mb-6">
+              Restaurant Logo
+            </p>
+
             <div className="relative w-44 h-44 rounded-full bg-[#E5E7EB] flex items-center justify-center">
 
               {croppedImage ? (
@@ -131,18 +162,11 @@ export default function DetailsPart2() {
                 />
               ) : (
                 <div className="flex flex-col items-center">
-                  <div className="w-16 h-16 rounded-full bg-[#0A84C1] flex items-center justify-center mb-2">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 24 24"
-                      fill="white"
-                      width="30"
-                      height="30"
-                    >
+                  <div className="w-16 h-16 rounded-full bg-[#0A84C1] flex items-center justify-center mb-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white" width="30" height="30">
                       <path d="M12 3l4 4h-3v6h-2V7H8l4-4zm-7 14v2h14v-2H5z" />
                     </svg>
                   </div>
-
                   <span className="text-[16px] font-medium text-gray-700">
                     Add Logo
                   </span>
@@ -156,26 +180,42 @@ export default function DetailsPart2() {
                 className="absolute inset-0 opacity-0 cursor-pointer"
               />
             </div>
+          </div>
 
-            {croppedImage && (
-              <div className="flex gap-8 mt-6">
-                <button
-                  onClick={() => setShowCrop(true)}
-                  className="text-[#0A84C1] text-lg"
-                >
-                  Edit
-                </button>
-                <button
-                  onClick={() => {
-                    setCroppedImage(null);
-                    localStorage.removeItem("restaurantLogo");
-                  }}
-                  className="text-red-500 text-lg"
-                >
-                  Remove
-                </button>
-              </div>
-            )}
+          {/* 🔥 COVER PHOTO (OPTIONAL) */}
+          <div className="mb-16">
+            <p className="text-[18px] font-semibold text-black mb-1">
+              Cover Photo <span className="text-gray-400">(optional)</span>
+            </p>
+
+            <div className="relative w-full h-52 rounded-2xl bg-[#E5E7EB] flex items-center justify-center overflow-hidden">
+
+              {croppedCover ? (
+                <img
+                  src={croppedCover}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="flex flex-col items-center w-full text-center">
+                  <div className="w-14 h-14 rounded-full bg-[#0A84C1] flex items-center justify-center mb-3 mx-auto">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white" width="26" height="26">
+                      <path d="M12 3l4 4h-3v6h-2V7H8l4-4zm-7 14v2h14v-2H5z" />
+                    </svg>
+                  </div>
+
+                  <span className="text-[15px] font-medium text-gray-700 text-center">
+                    Add Cover Photo
+                  </span>
+                </div>
+              )}
+
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleCoverUpload}
+                className="absolute inset-0 opacity-0 cursor-pointer"
+              />
+            </div>
           </div>
 
           {error && (
@@ -195,16 +235,16 @@ export default function DetailsPart2() {
         </div>
       </div>
 
-      {/* CROP MODAL */}
-      {showCrop && imageSrc && (
+      {/* 🔥 CROP MODAL */}
+      {showCrop && (
         <div className="fixed inset-0 bg-black z-50 flex flex-col">
           <div className="relative flex-1">
             <Cropper
-              image={imageSrc}
+              image={cropType === "logo" ? imageSrc! : coverSrc!}
               crop={crop}
               zoom={zoom}
-              aspect={1}
-              cropShape="round"
+              aspect={cropType === "logo" ? 1 : 4 / 3}
+              cropShape={cropType === "logo" ? "round" : "rect"}
               onCropChange={setCrop}
               onZoomChange={setZoom}
               onCropComplete={onCropComplete}
