@@ -7,14 +7,14 @@ import { motion } from "framer-motion";
 export default function LoginPage() {
   const router = useRouter();
 
-  const [gmail, setGmail] = useState("");
+  const [mobile, setMobile] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
 
   const handleLogin = () => {
-    if (!gmail.endsWith("@gmail.com")) {
-      setError("Gmail not found");
+    if (mobile.length !== 10) {
+      setError("Enter a valid 10 digit mobile number");
       return;
     }
 
@@ -35,7 +35,7 @@ export default function LoginPage() {
         {/* DARK BACKGROUND */}
         <div className="absolute inset-0 bg-[#1c1c1c] z-0" />
 
-        {/* LOGO (STATIC, NO ANIMATION) */}
+        {/* LOGO */}
         <div className="fixed top-0 left-1/2 -translate-x-1/2 w-full max-w-md h-[45vh] flex items-center justify-center z-10">
           <img
             src="/logo.png"
@@ -44,7 +44,6 @@ export default function LoginPage() {
           />
         </div>
 
-        {/* SPACE FOR LOGO */}
         <div className="h-[45vh]" />
 
         {/* WHITE CARD */}
@@ -52,10 +51,7 @@ export default function LoginPage() {
           className="relative z-20 bg-white rounded-t-[36px] px-8 pt-14 pb-24 min-h-screen"
           initial={{ y: 140, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          transition={{
-            duration: 1.8,
-            ease: "easeOut",
-          }}
+          transition={{ duration: 1.8, ease: "easeOut" }}
         >
           {/* TITLE */}
           <h1
@@ -70,15 +66,15 @@ export default function LoginPage() {
             Log In
           </h1>
 
-          {/* GMAIL */}
+          {/* MOBILE NUMBER */}
           <label className="block mb-3 text-[20px] font-semibold text-black">
-            Gmail
+            Mobile Number
           </label>
           <input
-            type="email"
-            value={gmail}
+            type="tel"
+            value={mobile}
             onChange={(e) => {
-              setGmail(e.target.value);
+              setMobile(e.target.value.replace(/\D/g, "").slice(0, 10));
               setError("");
             }}
             className="w-full border border-gray-300 rounded-xl mb-10
