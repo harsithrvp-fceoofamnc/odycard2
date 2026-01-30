@@ -249,7 +249,7 @@ export default function HotelHomePage() {
                 <button
                   key={tab}
                   onClick={() => goToTab(index)}
-                  className={`px-4 py-1.5 rounded-full whitespace-nowrap text-[13px] font-medium transition ${
+                  className={`px-4 py-1.5 rounded-full whitespace-nowrap text-sm font-medium transition ${
                     activeTab === index
                       ? "bg-white text-black shadow-md"
                       : "text-white/80 hover:text-white"
