@@ -266,18 +266,18 @@ export default function HotelHomePage() {
         <div
           ref={containerRef}
           onScroll={handleScroll}
-          className="flex w-full min-h-screen overflow-x-auto overflow-y-hidden snap-x snap-mandatory touch-pan-x scrollbar-hide"
+          className="flex w-full overflow-x-auto snap-x snap-mandatory scrollbar-hide"
         >
 
           {/* ODY MENU */}
-          <div className="min-w-full snap-center px-6 pt-16">
+          <div className="min-w-full snap-center px-6 pt-16 overflow-y-auto">
             <div className="min-h-screen flex flex-col items-center justify-start gap-10">
               <p className="text-white/70 text-xl font-medium mt-40">Coming soon</p>
             </div>
           </div>
 
           {/* MENU */}
-          <div className="relative min-w-full snap-center pt-16">
+          <div className="relative min-w-full snap-center pt-16 overflow-y-auto">
             <div className="absolute top-10 left-0 w-full z-40">
 
               <div className="px-6">
@@ -327,7 +327,7 @@ export default function HotelHomePage() {
           </div>
 
           {/* EAT LATER */}
-          <div className="min-w-full snap-center px-6 pt-16">
+          <div className="min-w-full snap-center px-6 pt-16 overflow-y-auto">
             <div className="min-h-screen flex flex-col items-center justify-start mt-24 gap-5">
               {!user ? (
                 <>
@@ -365,7 +365,7 @@ export default function HotelHomePage() {
           </div>
 
           {/* FAVORITES */}
-          <div className="min-w-full snap-center px-6 pt-16">
+          <div className="min-w-full snap-center px-6 pt-16 overflow-y-auto">
             <div className="min-h-screen flex flex-col items-center justify-start mt-24 gap-5">
               {!user ? (
                 <>
