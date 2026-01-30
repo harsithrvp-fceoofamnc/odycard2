@@ -198,7 +198,7 @@ export default function HotelHomePage() {
 
         {/* 🔥 TOP TASK BAR */}
         <div className="fixed top-0 left-1/2 -translate-x-1/2 w-full max-w-md z-[999]">
-          <div className="h-12 px-4 flex items-center justify-between bg-black/60 backdrop-blur-md">
+          <div className="h-12 pl-4 pr-2 flex items-center justify-between bg-black/60 backdrop-blur-md">
 
             {!user ? (
               <button
@@ -244,7 +244,7 @@ export default function HotelHomePage() {
           </div>
 
           <div className="absolute bottom-0 left-1/2 -translate-x-1/2 z-30 px-4 w-full flex justify-center">
-            <div className="flex gap-2 px-2 py-2 rounded-full bg-black/60 backdrop-blur-md shadow-lg border border-white/10">
+            <div className="flex gap-2 px-3 py-2 rounded-full bg-black/60 backdrop-blur-md shadow-lg border border-white/10">
               {tabs.map((tab, index) => (
                 <button
                   key={tab}
@@ -270,14 +270,14 @@ export default function HotelHomePage() {
         >
 
           {/* ODY MENU */}
-          <div className="min-w-full snap-center px-6 pt-16 overflow-y-auto">
+          <div className="min-w-full snap-center snap-always px-6 pt-16 overflow-y-auto">
             <div className="min-h-screen flex flex-col items-center justify-start gap-10">
               <p className="text-white/70 text-xl font-medium mt-40">Coming soon</p>
             </div>
           </div>
 
           {/* MENU */}
-          <div className="relative min-w-full snap-center pt-16 overflow-y-auto">
+          <div className="relative min-w-full snap-center snap-always pt-16 overflow-y-auto">
             <div className="absolute top-10 left-0 w-full z-40">
 
               <div className="px-6">
@@ -327,8 +327,8 @@ export default function HotelHomePage() {
           </div>
 
           {/* EAT LATER */}
-          <div className="min-w-full snap-center px-6 pt-16 overflow-y-auto">
-            <div className="min-h-screen flex flex-col items-center justify-start mt-24 gap-5">
+          <div className="min-w-full snap-center snap-always px-6 pt-16 overflow-y-auto">
+            <div className="min-h-screen flex flex-col items-center justify-start mt-14 gap-5">
               {!user ? (
                 <>
                   <img src="/User.png" className="w-20 h-20 opacity-90 invert" />
@@ -365,8 +365,8 @@ export default function HotelHomePage() {
           </div>
 
           {/* FAVORITES */}
-          <div className="min-w-full snap-center px-6 pt-16 overflow-y-auto">
-            <div className="min-h-screen flex flex-col items-center justify-start mt-24 gap-5">
+          <div className="min-w-full snap-center snap-always px-6 pt-16 overflow-y-auto">
+            <div className="min-h-screen flex flex-col items-center justify-start mt-14 gap-5">
               {!user ? (
                 <>
                   <img src="/User.png" className="w-20 h-20 opacity-90 invert" />
@@ -405,7 +405,7 @@ export default function HotelHomePage() {
         </div>
 
         {/* 🔥 ASK ODY */}
-        <div className="fixed bottom-6 right-[calc(50%-200px+16px)] z-50">
+        <div className="fixed bottom-6 right-[calc(50%-200px+4px)] z-50">
           <button className="flex items-center gap-3 bg-black/70 backdrop-blur-md text-white px-4 py-3 rounded-full shadow-lg border border-white/10">
             <img src="/ody-face.png" className="w-8 h-8 rounded-full" />
             <span className="text-sm font-medium">Ask Ody</span>
