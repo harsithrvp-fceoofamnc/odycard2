@@ -24,6 +24,10 @@ export default function RestaurantDetailsPage() {
     password: "",
   });
 
+  // 👁️ SHOW / HIDE STATES
+  const [showPassword, setShowPassword] = useState(false);
+  const [showRePassword, setShowRePassword] = useState(false);
+
   /* ---------- PROGRESS ---------- */
   const totalFields = Object.keys(form).length;
 
@@ -69,7 +73,7 @@ export default function RestaurantDetailsPage() {
     /* 🔥 SAVE IMPORTANT DATA */
     localStorage.setItem("userName", form.userName);
     localStorage.setItem("restaurantName", form.restaurantName);
-    localStorage.setItem("restaurantId", form.restaurantId); // VERY IMPORTANT
+    localStorage.setItem("restaurantId", form.restaurantId);
 
     router.push("/owner/details2");
   };
@@ -82,7 +86,7 @@ export default function RestaurantDetailsPage() {
 
   const inputClass = (name: string) =>
     `w-full border rounded-xl bg-white text-black focus:outline-none 
-     focus:border-black focus:ring-1 focus:ring-black
+     focus:border-black focus:ring-1 focus:ring-black pr-12
      ${
        errors.general && form[name as keyof typeof form] === ""
          ? "border-red-500"
@@ -124,7 +128,7 @@ export default function RestaurantDetailsPage() {
             ["User Name", "userName"],
             ["State", "state"],
             ["City", "city"],
-            ["Restaurant ID", "restaurantId"],   // 🔥 KEY FIELD
+            ["Restaurant ID", "restaurantId"],
             ["Gmail", "gmail"],
           ].map(([label, name]) => (
             <motion.div key={name} {...fadeUp} className="mb-6">
@@ -147,33 +151,48 @@ export default function RestaurantDetailsPage() {
           ))}
 
           {/* PASSWORD */}
-          <motion.div {...fadeUp} className="mb-6">
+          <motion.div {...fadeUp} className="mb-6 relative">
             <label className="block mb-2 text-[18px] font-semibold text-black">
               Password
             </label>
             <input
-              type="password"
+              type={showPassword ? "text" : "password"}
               name="password"
               value={form.password}
               onChange={handleChange}
               className={inputClass("password")}
               style={{ fontSize: "18px", padding: "14px 16px" }}
             />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-4 top-[52px] text-sm text-gray-600"
+            >
+              {showPassword ? "Hide" : "Show"}
+            </button>
           </motion.div>
 
           {/* RE-PASSWORD */}
-          <motion.div {...fadeUp} className="mb-6">
+          <motion.div {...fadeUp} className="mb-6 relative">
             <label className="block mb-2 text-[18px] font-semibold text-black">
               Re-enter Password
             </label>
             <input
-              type="password"
+              type={showRePassword ? "text" : "password"}
               name="rePassword"
               value={form.rePassword}
               onChange={handleChange}
               className={inputClass("rePassword")}
               style={{ fontSize: "18px", padding: "14px 16px" }}
             />
+            <button
+              type="button"
+              onClick={() => setShowRePassword(!showRePassword)}
+              className="absolute right-4 top-[52px] text-sm text-gray-600"
+            >
+              {showRePassword ? "Hide" : "Show"}
+            </button>
+
             {errors.password && (
               <p className="text-red-600 text-sm mt-2">
                 {errors.password}

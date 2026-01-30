@@ -194,7 +194,7 @@ export default function HotelHomePage() {
 
   return (
     <div className="min-h-screen bg-black flex justify-center">
-      <div className="relative w-full max-w-md min-h-screen bg-[#1c1c1c] overflow-y-auto">
+      <div className="relative w-full max-w-md min-h-screen bg-[#1c1c1c] overflow-visible">
 
         {/* 🔥 TOP TASK BAR */}
         <div className="fixed top-0 left-1/2 -translate-x-1/2 w-full max-w-md z-[999]">
@@ -206,14 +206,14 @@ export default function HotelHomePage() {
                   setMode("register");
                   setShowPopup(true);
                 }}
-                className="text-white text-sm font-medium"
+                className="text-white text-base font-medium"
               >
                 Register
               </button>
             ) : (
               <button
                 onClick={() => setShowProfile(true)}
-                className="flex items-center gap-2 text-white text-sm font-medium max-w-[160px]"
+                className="flex items-center gap-2 text-white text-base font-medium max-w-[180px]"
               >
                 <img src="/User.png" className="w-7 h-7 rounded-full invert" />
                 <span className="truncate">Hi, {getDisplayName()}</span>
@@ -244,12 +244,12 @@ export default function HotelHomePage() {
           </div>
 
           <div className="absolute bottom-0 left-1/2 -translate-x-1/2 z-30 px-4 w-full flex justify-center">
-            <div className="flex gap-2 px-3 py-2 rounded-full bg-black/60 backdrop-blur-md shadow-lg border border-white/10">
+            <div className="flex gap-2 px-2 py-2 rounded-full bg-black/60 backdrop-blur-md shadow-lg border border-white/10">
               {tabs.map((tab, index) => (
                 <button
                   key={tab}
                   onClick={() => goToTab(index)}
-                  className={`px-5 py-2 rounded-full whitespace-nowrap text-sm font-medium transition ${
+                  className={`px-4 py-1.5 rounded-full whitespace-nowrap text-[13px] font-medium transition ${
                     activeTab === index
                       ? "bg-white text-black shadow-md"
                       : "text-white/80 hover:text-white"
@@ -266,12 +266,12 @@ export default function HotelHomePage() {
         <div
           ref={containerRef}
           onScroll={handleScroll}
-          className="flex w-full min-h-[100vh] overflow-x-auto overflow-y-hidden snap-x snap-mandatory touch-pan-x scrollbar-hide"
+          className="flex w-full min-h-screen overflow-x-auto overflow-y-hidden snap-x snap-mandatory touch-pan-x scrollbar-hide"
         >
 
           {/* ODY MENU */}
           <div className="min-w-full snap-center px-6 pt-16">
-            <div className="min-h-[120vh] flex flex-col items-center justify-start gap-10">
+            <div className="min-h-screen flex flex-col items-center justify-start gap-10">
               <p className="text-white/70 text-xl font-medium mt-40">Coming soon</p>
             </div>
           </div>
@@ -316,7 +316,7 @@ export default function HotelHomePage() {
               </div>
             </div>
 
-            <div className="w-full bg-[#E5E5EA] rounded-t-[36px] pt-20 px-6 min-h-[140vh] mt-28">
+            <div className="w-full bg-[#E5E5EA] rounded-t-[36px] pt-20 px-6 min-h-screen mt-28">
               <div className="flex flex-col gap-12 mt-6 items-center justify-start">
                 <p className="text-gray-600 text-xl font-medium text-center">
                   Coming soon
@@ -328,7 +328,7 @@ export default function HotelHomePage() {
 
           {/* EAT LATER */}
           <div className="min-w-full snap-center px-6 pt-16">
-            <div className="min-h-[100vh] flex flex-col items-center justify-start mt-24 gap-5">
+            <div className="min-h-screen flex flex-col items-center justify-start mt-24 gap-5">
               {!user ? (
                 <>
                   <img src="/User.png" className="w-20 h-20 opacity-90 invert" />
@@ -366,7 +366,7 @@ export default function HotelHomePage() {
 
           {/* FAVORITES */}
           <div className="min-w-full snap-center px-6 pt-16">
-            <div className="min-h-[100vh] flex flex-col items-center justify-start mt-24 gap-5">
+            <div className="min-h-screen flex flex-col items-center justify-start mt-24 gap-5">
               {!user ? (
                 <>
                   <img src="/User.png" className="w-20 h-20 opacity-90 invert" />
