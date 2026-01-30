@@ -244,7 +244,7 @@ export default function HotelHomePage() {
           </div>
 
           <div className="absolute bottom-0 left-1/2 -translate-x-1/2 z-30 px-4 w-full flex justify-center">
-            <div className="flex gap-2 px-3 py-2 rounded-full bg-black/60 backdrop-blur-md shadow-lg border border-white/10">
+            <div className="flex gap-2 px-2 py-2 rounded-full bg-black/60 backdrop-blur-md shadow-lg border border-white/10">
               {tabs.map((tab, index) => (
                 <button
                   key={tab}
