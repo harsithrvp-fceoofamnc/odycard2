@@ -39,16 +39,22 @@ export default function EditCoverPage() {
   const [imageSrc, setImageSrc] = useState<string | null>(null);
   const [croppedCover, setCroppedCover] = useState<string | null>(null);
 
+  // 🔐 SNAPSHOT OF SAVED STATE (for Cancel)
+  const [originalCover, setOriginalCover] = useState<string | null>(null);
+
   const [showCrop, setShowCrop] = useState(false);
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
   const [croppedAreaPixels, setCroppedAreaPixels] = useState<any>(null);
 
-  // 🔥 LOAD CURRENT COVER
+  // 🔥 LOAD CURRENT COVER (ONCE)
   useEffect(() => {
     const savedCover = localStorage.getItem("restaurantCover");
-    if (savedCover) {
+    if (savedCover && savedCover !== "null") {
       setCroppedCover(savedCover);
+      setOriginalCover(savedCover); // snapshot for cancel
+    } else {
+      setOriginalCover(null);
     }
   }, []);
 
@@ -64,39 +70,26 @@ export default function EditCoverPage() {
 
     const src = URL.createObjectURL(file);
 
-    // save original for future edits
-    localStorage.setItem("restaurantCoverOriginal", src);
-
+    // keep original only in memory for editing
     setImageSrc(src);
     setShowCrop(true);
   };
 
-  // 🔥 EDIT CURRENT COVER (ALWAYS WORKS)
+  // 🔥 EDIT CURRENT COVER
   const handleEditCurrent = () => {
-    const original = localStorage.getItem("restaurantCoverOriginal");
-
-    if (original) {
-      setImageSrc(original);
-      setShowCrop(true);
-      return;
-    }
-
     if (croppedCover) {
       setImageSrc(croppedCover);
       setShowCrop(true);
     }
   };
 
-  // 🔥 REMOVE COVER
+  // 🔥 REMOVE (PREVIEW ONLY — NO STORAGE TOUCH)
   const handleRemove = () => {
-    localStorage.removeItem("restaurantCover");
-    localStorage.removeItem("restaurantCoverOriginal");
-
     setCroppedCover(null);
     setImageSrc(null);
   };
 
-  // 🔥 SAVE CROPPED COVER
+  // 🔥 SAVE CROPPED RESULT (DRAFT)
   const saveCrop = async () => {
     if (!croppedAreaPixels || !imageSrc) return;
 
@@ -104,21 +97,26 @@ export default function EditCoverPage() {
     if (!cropped) return;
 
     setCroppedCover(cropped);
-
-    localStorage.setItem("restaurantCover", cropped);
-    localStorage.setItem("restaurantCoverOriginal", imageSrc);
-
     setShowCrop(false);
   };
 
-  // 🔥 SAVE (OPTIONAL COVER)
+  // 🔥 SAVE (COMMIT CHANGES)
   const handleSubmit = () => {
-    // even if no cover → allowed
+    if (croppedCover) {
+      localStorage.setItem("restaurantCover", croppedCover);
+    } else {
+      // user chose to remove cover
+      localStorage.removeItem("restaurantCover");
+      localStorage.removeItem("restaurantCoverOriginal");
+    }
+
     window.location.href = "/owner/dashboard";
   };
 
-  // 🔥 CANCEL
+  // 🔥 CANCEL (ROLLBACK)
   const handleCancel = () => {
+    // restore original state (no commit)
+    setCroppedCover(originalCover);
     window.location.href = "/owner/dashboard";
   };
 
@@ -135,9 +133,8 @@ export default function EditCoverPage() {
             Update<br />Cover Photo
           </h1>
 
-          {/* 🔥 COVER BOX */}
+          {/* COVER BOX */}
           <div className="mb-16">
-
             <div className="relative w-full h-52 rounded-2xl bg-[#E5E7EB] flex items-center justify-center overflow-hidden">
 
               {croppedCover ? (
@@ -167,7 +164,7 @@ export default function EditCoverPage() {
               />
             </div>
 
-            {/* 🔥 EDIT / REMOVE */}
+            {/* EDIT / REMOVE */}
             {croppedCover && (
               <div className="flex justify-center gap-12 mt-6">
                 <button
@@ -187,10 +184,8 @@ export default function EditCoverPage() {
             )}
           </div>
 
-          {/* 🔥 ACTION BUTTONS */}
+          {/* ACTION BUTTONS */}
           <div className="flex flex-col gap-4">
-
-            {/* SAVE */}
             <button
               onClick={handleSubmit}
               className="w-full rounded-full bg-[#0A84C1] text-white font-semibold"
@@ -199,7 +194,6 @@ export default function EditCoverPage() {
               Save
             </button>
 
-            {/* CANCEL */}
             <button
               onClick={handleCancel}
               className="w-full rounded-full bg-gray-100 text-black font-semibold"
@@ -207,12 +201,11 @@ export default function EditCoverPage() {
             >
               Cancel
             </button>
-
           </div>
         </div>
       </div>
 
-      {/* 🔥 CROP MODAL */}
+      {/* CROP MODAL */}
       {showCrop && imageSrc && (
         <div className="fixed inset-0 bg-black z-50 flex flex-col">
           <div className="relative flex-1">

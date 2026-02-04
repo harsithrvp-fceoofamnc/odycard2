@@ -14,30 +14,34 @@ export default function OwnerDashboard() {
   const [showLogoSheet, setShowLogoSheet] = useState(false);
   const [showCoverSheet, setShowCoverSheet] = useState(false);
 
+  // ✅ FIX 2: Re-sync after redirect (restores old behaviour)
   useEffect(() => {
-    setUserName(localStorage.getItem("userName") || "Owner");
-    setRestaurantLogo(localStorage.getItem("restaurantLogo") || "");
+    const syncFromStorage = () => {
+      setUserName(localStorage.getItem("userName") || "Owner");
 
-    const cover = localStorage.getItem("restaurantCover");
-    if (cover && cover !== "null" && cover !== "") {
-      setRestaurantCover(cover);
-    } else {
-      setRestaurantCover("");
-    }
+      const logo = localStorage.getItem("restaurantLogo");
+      setRestaurantLogo(logo && logo !== "null" ? logo : "");
+
+      const cover = localStorage.getItem("restaurantCover");
+      setRestaurantCover(cover && cover !== "null" ? cover : "");
+    };
+
+    syncFromStorage();
+
+    window.addEventListener("focus", syncFromStorage);
+    return () => window.removeEventListener("focus", syncFromStorage);
   }, []);
 
-  const card =
-    "border border-gray-200 rounded-2xl p-4 bg-white";
+  const card = "border border-gray-200 rounded-2xl p-4 bg-white";
 
   return (
     <div className="min-h-screen bg-black flex justify-center">
-      {/* 📱 PHONE FRAME */}
       <div className="relative w-full max-w-md min-h-screen overflow-hidden bg-[#1c1c1c]">
 
         {/* 🔥 COVER + LOGO FIXED SECTION */}
         <div className="fixed top-0 left-1/2 -translate-x-1/2 w-full max-w-md h-[50vh] z-10 overflow-hidden">
 
-          {/* 🔥 COVER PHOTO */}
+          {/* COVER */}
           {restaurantCover ? (
             <>
               <img
@@ -51,73 +55,53 @@ export default function OwnerDashboard() {
             <div className="w-full h-full bg-[#1c1c1c]" />
           )}
 
-          {/* 🔥 COVER TOGGLE — VISIBLE ONLY WHEN LOGO EXISTS */}
-          {restaurantLogo && (
-            <div className="absolute top-4 right-4 z-20">
-              <button
-                onClick={() => setShowCoverSheet(true)}
-                className="px-4 py-2 rounded-full bg-black/60 backdrop-blur-md text-white text-sm shadow-lg"
-              >
-                {restaurantCover ? "Edit Cover" : "Add Cover"}
-              </button>
-            </div>
-          )}
+          {/* ✅ FIX 1: COVER TOGGLE ALWAYS VISIBLE */}
+          <div className="absolute top-4 right-4 z-20">
+            <button
+              onClick={() => setShowCoverSheet(true)}
+              className="px-4 py-2 rounded-full bg-black/60 backdrop-blur-md text-white text-sm shadow-lg"
+            >
+              {restaurantCover ? "Edit Cover" : "Add Cover"}
+            </button>
+          </div>
 
-          {/* 🔥 LOGO */}
+          {/* LOGO + LOGO TOGGLE */}
           <div className="absolute inset-0 flex flex-col items-center justify-center -translate-y-6 gap-4">
-            {restaurantLogo && (
-              <>
-                <div
-                  className="
-                    w-44 h-44
-                    rounded-full
-                    overflow-hidden
-                    shadow-[0_35px_70px_rgba(0,0,0,0.85)]
-                  "
-                >
-                  <img
-                    src={restaurantLogo}
-                    alt="Restaurant Logo"
-                    className="w-full h-full object-cover"
-                  />
-                </div>
 
-                {/* 🔥 EDIT LOGO TOGGLE */}
-                <button
-                  onClick={() => setShowLogoSheet(true)}
-                  className="
-                    px-5 py-2
-                    rounded-full
-                    bg-black/60 backdrop-blur-md
-                    text-white text-sm
-                    shadow-lg
-                  "
-                >
-                  Edit Logo
-                </button>
-              </>
+            {restaurantLogo ? (
+              <div className="w-44 h-44 rounded-full overflow-hidden shadow-[0_35px_70px_rgba(0,0,0,0.85)]">
+                <img
+                  src={restaurantLogo}
+                  alt="Restaurant Logo"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            ) : (
+              <div className="w-44 h-44 rounded-full bg-black/30 flex items-center justify-center">
+                <span className="text-white/60 text-sm">No Logo</span>
+              </div>
             )}
+
+            <button
+              onClick={() => setShowLogoSheet(true)}
+              className="px-5 py-2 rounded-full bg-black/60 backdrop-blur-md text-white text-sm shadow-lg"
+            >
+              {restaurantLogo ? "Edit Logo" : "Add Logo"}
+            </button>
+
           </div>
         </div>
 
-        {/* 🔥 SPACE FOR FIXED AREA */}
+        {/* SPACE FOR FIXED AREA */}
         <div className="h-[47vh]" />
 
-        {/* 🔥 WHITE CARD — FULL CONTENT */}
+        {/* MAIN CONTENT */}
         <motion.div
-          className="
-            relative z-20
-            bg-white
-            rounded-t-[36px]
-            px-6 pt-10 pb-36
-            min-h-screen
-            -mt-10
-          "
+          className="relative z-20 bg-white rounded-t-[36px] px-6 pt-10 pb-36 min-h-screen -mt-10"
           initial={{ y: 140, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 1.6, ease: "easeOut" }}
         >
-          {/* HEADER */}
           <div className="mb-10">
             <p className="text-gray-500 text-[18px] mb-1">Welcome,</p>
             <h1 className="text-black text-[36px] font-semibold">
@@ -128,7 +112,17 @@ export default function OwnerDashboard() {
           {/* GRID */}
           <div className="grid grid-cols-2 gap-4 mb-12">
 
-            <div className={card}>
+            <div
+              className={`${card} cursor-pointer hover:shadow-md transition`}
+              onClick={() => {
+                const restaurantId = localStorage.getItem("restaurantId");
+                if (!restaurantId) {
+                  alert("Restaurant not found");
+                  return;
+                }
+                router.push(`/owner/hotel/${restaurantId}/edit-menu`);
+              }}
+            >
               <div className="flex items-center justify-center gap-3 h-full">
                 <img src="/add.png" className="w-7 h-7" />
                 <p className="text-black text-[16px] font-semibold">
@@ -206,7 +200,7 @@ export default function OwnerDashboard() {
           </div>
         </motion.div>
 
-        {/* 🔥 ASK ODY */}
+        {/* ASK ODY */}
         <div className="fixed bottom-6 right-[calc(50%-200px+16px)] z-50">
           <button className="flex items-center gap-3 bg-black/70 backdrop-blur-md text-white px-4 py-3 rounded-full shadow-lg border border-white/10">
             <img src="/ody-face.png" className="w-8 h-8 rounded-full" />
@@ -214,9 +208,7 @@ export default function OwnerDashboard() {
           </button>
         </div>
 
-        {/* ================= BOTTOM SHEETS ================= */}
-
-        {/* 🔥 LOGO SHEET */}
+        {/* LOGO SHEET */}
         {showLogoSheet && (
           <div className="fixed inset-0 z-50 bg-black/40 flex items-end">
             <div className="w-full max-w-md mx-auto bg-white rounded-t-3xl p-6">
@@ -244,7 +236,7 @@ export default function OwnerDashboard() {
           </div>
         )}
 
-        {/* 🔥 COVER SHEET */}
+        {/* COVER SHEET */}
         {showCoverSheet && (
           <div className="fixed inset-0 z-50 bg-black/40 flex items-end">
             <div className="w-full max-w-md mx-auto bg-white rounded-t-3xl p-6">

@@ -278,7 +278,7 @@ export default function HotelHomePage() {
 
           {/* MENU */}
           <div className="relative min-w-full snap-center snap-always pt-16 overflow-y-auto">
-            <div className="absolute top-10 left-0 w-full z-40">
+            <div className="absolute top-8 left-0 w-full z-40">
 
               <div className="px-6">
               <div className="w-full h-11 rounded-full bg-white flex items-center px-4 shadow-md gap-3">
@@ -293,30 +293,25 @@ export default function HotelHomePage() {
 
               </div>
 
-              <div className="mt-3 px-4 overflow-x-auto scrollbar-hide">
-                <div className="flex gap-3 w-max pb-2">
-                  {filters.map((filter) => {
-                    const selected = activeFilters.includes(filter);
+              {/* TOP DIVIDER */}
+              <div className="mt-8 w-full">
+                <div className="h-px bg-white/20 w-full" />
+              </div>
 
-                    return (
-                      <button
-                        key={filter}
-                        onClick={() => toggleFilter(filter)}
-                        className={`px-4 py-2 rounded-full text-sm whitespace-nowrap transition ${
-                          selected
-                            ? "bg-[#0A84C1] text-white shadow-md"
-                            : "bg-[#2A2A2A] text-white/90"
-                        }`}
-                      >
-                        {filter}
-                      </button>
-                    );
-                  })}
+              {/* FILTER ISLAND */}
+              <div className="relative z-30 mt-4 px-4">
+                <div className="overflow-x-auto scrollbar-hide">
+                  <div className="h-10 w-full" />
                 </div>
+              </div>
+
+              {/* BOTTOM DIVIDER */}
+              <div className="mt-2 w-full">
+                <div className="h-px bg-white/20 w-full" />
               </div>
             </div>
 
-            <div className="w-full bg-[#E5E5EA] rounded-t-[36px] pt-20 px-6 min-h-screen mt-28">
+            <div className="w-full bg-[#DADDE4] rounded-t-[36px] pt-20 px-6 min-h-screen mt-36">
               <div className="flex flex-col gap-12 mt-6 items-center justify-start">
                 <p className="text-gray-600 text-xl font-medium text-center">
                   Coming soon
