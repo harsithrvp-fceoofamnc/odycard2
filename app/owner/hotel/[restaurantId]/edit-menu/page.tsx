@@ -170,7 +170,7 @@ export default function EditMenuPage() {
           <div className="relative min-w-full snap-center pt-16 min-h-screen">
 
             {/* TAG ISLAND */}
-            <div className="absolute top-20 left-0 w-full z-40">
+            <div className="absolute top-20 left-0 w-full z-10">
               <div className="h-px bg-white/20 w-full" />
               <div className="h-16 w-full flex items-center justify-center">
                 <p className="text-white/60 text-sm text-center">

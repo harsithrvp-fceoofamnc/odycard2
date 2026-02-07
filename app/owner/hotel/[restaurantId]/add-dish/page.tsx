@@ -1,30 +1,130 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 
 type DishType = "food_item" | "dessert" | "beverage" | null;
 
 export default function AddDishPage() {
   const router = useRouter();
+  const pathname = usePathname();
+
   const [selectedType, setSelectedType] = useState<DishType>(null);
 
-  const progress = selectedType ? 20 : 0;
+  /* ---------- PAGE / PROGRESS LOGIC ---------- */
+  const TOTAL_PAGES = 3;
+  const CURRENT_PAGE = 1;
 
-  const handleNext = () => {
-    if (!selectedType) return;
-    router.push("?step=media");
-  };
+  // Progress fills ONLY after selection
+  const progress =
+    selectedType !== null
+      ? Math.round((CURRENT_PAGE / TOTAL_PAGES) * 100) // 33%
+      : 0;
 
-  const Card = ({
-    type,
-    label,
-    img,
-  }: {
-    type: DishType;
-    label: string;
-    img: string;
-  }) => (
+  return (
+    <div className="min-h-screen bg-black flex justify-center">
+      <div className="w-full max-w-md min-h-screen bg-white px-6 pt-10 pb-28 relative">
+
+        {/* HEADER */}
+        <h1
+          className="text-black mb-10"
+          style={{ fontSize: 42, fontWeight: 600, lineHeight: "1.1" }}
+        >
+          Set Up <br />
+          Your Dish
+        </h1>
+
+        {/* QUESTION */}
+        <p className="text-black text-xl font-semibold mb-10">
+          What type of dish is this?
+        </p>
+
+        {/* OPTIONS */}
+        <div className="flex flex-col items-center gap-8">
+          <div className="flex gap-8">
+            <DishCard
+              type="food_item"
+              label="Food item"
+              img="/food_item_logo.png"
+              selectedType={selectedType}
+              setSelectedType={setSelectedType}
+            />
+            <DishCard
+              type="dessert"
+              label="Dessert"
+              img="/dessert_logo.png"
+              selectedType={selectedType}
+              setSelectedType={setSelectedType}
+            />
+          </div>
+
+          <DishCard
+            type="beverage"
+            label="Beverage"
+            img="/beverages_logo.png"
+            selectedType={selectedType}
+            setSelectedType={setSelectedType}
+          />
+        </div>
+
+        {/* ---------- GOOGLE FORMS STYLE BOTTOM BAR ---------- */}
+        <div className="absolute bottom-0 left-0 w-full border-t bg-white px-6 py-4">
+          <div className="flex items-center justify-between gap-4">
+
+            {/* NEXT BUTTON (LEFT) */}
+            <button
+              disabled={!selectedType}
+              onClick={() => router.push(`${pathname}/visuals`)}
+              className={`px-6 py-2 rounded-md text-sm font-medium transition
+                ${
+                  selectedType
+                    ? "bg-[#0A84C1] text-white"
+                    : "bg-gray-200 text-gray-400 cursor-not-allowed"
+                }`}
+            >
+              Next
+            </button>
+
+            {/* PROGRESS (RIGHT) */}
+            <div className="flex items-center gap-3 min-w-[140px]">
+              <span className="text-xs text-gray-500 whitespace-nowrap">
+                Page {CURRENT_PAGE} of {TOTAL_PAGES}
+              </span>
+
+              <div className="flex-1 h-[4px] bg-gray-200 rounded-full overflow-hidden">
+                <div
+                  className="h-full rounded-full transition-all duration-300"
+                  style={{
+                    width: `${progress}%`,
+                    backgroundColor: "#0A84C1",
+                  }}
+                />
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ---------- DISH CARD ---------- */
+
+function DishCard({
+  type,
+  label,
+  img,
+  selectedType,
+  setSelectedType,
+}: {
+  type: DishType;
+  label: string;
+  img: string;
+  selectedType: DishType;
+  setSelectedType: (type: DishType) => void;
+}) {
+  return (
     <button
       onClick={() => setSelectedType(type)}
       className={`w-36 h-36 border-2 rounded-3xl flex flex-col items-center justify-center gap-3 transition
@@ -35,83 +135,9 @@ export default function AddDishPage() {
         }`}
     >
       <img src={img} alt={label} className="w-20 h-20" />
-      <span className="text-base font-semibold text-black">{label}</span>
+      <span className="text-base font-semibold text-black">
+        {label}
+      </span>
     </button>
-  );
-
-  return (
-    <div className="min-h-screen bg-black flex justify-center">
-      <div className="w-full max-w-md min-h-screen bg-white px-6 pt-10 pb-24">
-
-        {/* HEADER */}
-        <h1
-          className="text-black mb-6"
-          style={{ fontSize: "42px", fontWeight: 600, lineHeight: "1.1" }}
-        >
-          Set Up <br />
-          Your Dish
-        </h1>
-
-        {/* PROGRESS */}
-        <div className="mb-10">
-          <div className="w-full h-1 bg-gray-200 rounded-full overflow-hidden">
-            <div
-              className="h-full bg-[#0A84C1] transition-all"
-              style={{ width: `${progress}%` }}
-            />
-          </div>
-          <p className="text-sm text-gray-500 mt-2">
-            {progress}% completed
-          </p>
-        </div>
-
-        {/* QUESTION */}
-        <p className="text-black text-xl font-semibold mb-10">
-          What type of dish is this?
-        </p>
-
-        {/* OPTIONS – BOWLING BALL LAYOUT */}
-        <div className="flex flex-col items-center gap-8">
-
-          {/* TOP ROW */}
-          <div className="flex gap-8">
-            <Card
-              type="food_item"
-              label="Food item"
-              img="/food_item_logo.png"
-            />
-            <Card
-              type="dessert"
-              label="Dessert"
-              img="/dessert_logo.png"
-            />
-          </div>
-
-          {/* BOTTOM CENTER */}
-          <Card
-            type="beverage"
-            label="Beverage"
-            img="/beverages_logo.png"
-          />
-        </div>
-
-        {/* NEXT BUTTON */}
-        <div className="mt-16">
-          <button
-            onClick={handleNext}
-            disabled={!selectedType}
-            className={`w-full rounded-full font-semibold text-white py-4 transition
-              ${
-                selectedType
-                  ? "bg-[#0A84C1]"
-                  : "bg-gray-300 cursor-not-allowed"
-              }`}
-          >
-            Next
-          </button>
-        </div>
-
-      </div>
-    </div>
   );
 }
