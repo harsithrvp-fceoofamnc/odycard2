@@ -46,6 +46,7 @@ export default function AddDishPage() {
               type="food_item"
               label="Food item"
               img="/food_item_logo.png"
+              imageClassName="w-32 h-32 object-contain"
               selectedType={selectedType}
               setSelectedType={setSelectedType}
             />
@@ -74,7 +75,12 @@ export default function AddDishPage() {
             {/* NEXT BUTTON (LEFT) */}
             <button
               disabled={!selectedType}
-              onClick={() => router.push(`${pathname}/visuals`)}
+              onClick={() => {
+                if (selectedType) {
+                  localStorage.setItem("addDishType", selectedType);
+                  router.push(`${pathname}/visuals`);
+                }
+              }}
               className={`px-6 py-2 rounded-md text-sm font-medium transition
                 ${
                   selectedType
@@ -115,26 +121,28 @@ function DishCard({
   type,
   label,
   img,
+  imageClassName = "w-28 h-28 object-contain",
   selectedType,
   setSelectedType,
 }: {
   type: DishType;
   label: string;
   img: string;
+  imageClassName?: string;
   selectedType: DishType;
   setSelectedType: (type: DishType) => void;
 }) {
   return (
     <button
       onClick={() => setSelectedType(type)}
-      className={`w-36 h-36 border-2 rounded-3xl flex flex-col items-center justify-center gap-3 transition
+      className={`w-44 h-44 border-2 rounded-3xl flex flex-col items-center justify-center gap-2 transition
         ${
           selectedType === type
             ? "border-[#0A84C1] bg-[#EAF4FB]"
             : "border-gray-200 bg-white"
         }`}
     >
-      <img src={img} alt={label} className="w-20 h-20" />
+      <img src={img} alt={label} className={imageClassName} />
       <span className="text-base font-semibold text-black">
         {label}
       </span>

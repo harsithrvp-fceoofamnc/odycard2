@@ -3,6 +3,7 @@
 import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Cropper from "react-easy-crop";
+import ProgressBar from "@/components/ProgressBar";
 
 /* ---------- IMAGE CROP HELPERS ---------- */
 const createImage = (url: string): Promise<HTMLImageElement> =>
@@ -43,6 +44,7 @@ export default function VisualsPage() {
   /* ---------- VIDEO ---------- */
   const [youtubeInput, setYoutubeInput] = useState("");
   const [uploadedVideoId, setUploadedVideoId] = useState<string | null>(null);
+  const [invalidLinkError, setInvalidLinkError] = useState(false);
 
   /* ---------- PHOTO ---------- */
   const [photoSrc, setPhotoSrc] = useState<string | null>(null);
@@ -54,19 +56,15 @@ export default function VisualsPage() {
   const [zoom, setZoom] = useState(1);
   const [croppedAreaPixels, setCroppedAreaPixels] = useState<any>(null);
 
-  /* ---------- PAGE / PROGRESS ---------- */
-  const TOTAL_PAGES = 3;
-  const CURRENT_PAGE = 2;
+  /* ---------- PROGRESS (base from previous page; step up only when both uploads done) ---------- */
+  const hasVideo = uploadedVideoId !== null;
+  const hasPhoto = croppedPhoto !== null;
+  const BASE_PROGRESS = 33; // from dish type page
+  const VISUALS_COMPLETE_PROGRESS = 66;
+  const computedProgress =
+    hasVideo && hasPhoto ? VISUALS_COMPLETE_PROGRESS : BASE_PROGRESS;
 
-  const progressValid =
-    youtubeInput.trim() === "" || croppedPhoto !== null;
-
-  const progress = progressValid
-    ? Math.round((CURRENT_PAGE / TOTAL_PAGES) * 100)
-    : 0;
-
-  const nextEnabled =
-    uploadedVideoId !== null && croppedPhoto !== null;
+  const nextEnabled = hasVideo && hasPhoto;
 
   /* ---------- VIDEO HELPERS ---------- */
   const extractYouTubeId = (url: string) => {
@@ -78,13 +76,18 @@ export default function VisualsPage() {
 
   const handleUploadVideo = () => {
     const id = extractYouTubeId(youtubeInput);
-    if (!id) return;
+    if (!id) {
+      setInvalidLinkError(true);
+      return;
+    }
+    setInvalidLinkError(false);
     setUploadedVideoId(id);
   };
 
   const handleRemoveVideo = () => {
     setUploadedVideoId(null);
     setYoutubeInput("");
+    setInvalidLinkError(false);
   };
 
   /* ---------- PHOTO HELPERS ---------- */
@@ -147,12 +150,19 @@ export default function VisualsPage() {
                 type="text"
                 placeholder="Paste your YouTube video link here"
                 value={youtubeInput}
-                onChange={(e) => setYoutubeInput(e.target.value)}
+                onChange={(e) => {
+                  setYoutubeInput(e.target.value);
+                  setInvalidLinkError(false);
+                }}
                 className="w-full border border-gray-300 rounded-xl
                            px-4 py-3 text-sm text-black
                            focus:outline-none focus:ring-2
                            focus:ring-[#0A84C1]"
               />
+
+              {invalidLinkError && (
+                <p className="mt-2 text-sm text-red-600">Paste valid link</p>
+              )}
 
               <button
                 onClick={handleUploadVideo}
@@ -251,7 +261,7 @@ export default function VisualsPage() {
 
               <button
                 disabled={!nextEnabled}
-                onClick={() => router.push("preview")}
+                onClick={() => router.push("dish-details")}
                 className={`px-6 py-2 rounded-md text-sm font-medium
                   ${
                     nextEnabled
@@ -263,20 +273,12 @@ export default function VisualsPage() {
               </button>
             </div>
 
+            {/* PROGRESS (RIGHT) — same layout as add-dish page */}
             <div className="flex items-center gap-3 min-w-[140px]">
-              <span className="text-xs text-gray-500">
-                Page {CURRENT_PAGE} of {TOTAL_PAGES}
+              <span className="text-xs text-gray-500 whitespace-nowrap">
+                Page 2 of 3
               </span>
-
-              <div className="flex-1 h-[4px] bg-gray-200 rounded-full">
-                <div
-                  className="h-full rounded-full"
-                  style={{
-                    width: `${progress}%`,
-                    backgroundColor: "#0A84C1",
-                  }}
-                />
-              </div>
+              <ProgressBar progress={computedProgress} className="flex-1 h-[4px]" />
             </div>
 
           </div>
