@@ -46,7 +46,7 @@ export default function AddDishPage() {
               type="food_item"
               label="Food item"
               img="/food_item_logo.png"
-              imageClassName="w-32 h-32 object-contain"
+              imageClassName="w-28 h-28 object-contain"
               selectedType={selectedType}
               setSelectedType={setSelectedType}
             />
@@ -121,7 +121,7 @@ function DishCard({
   type,
   label,
   img,
-  imageClassName = "w-28 h-28 object-contain",
+  imageClassName = "w-24 h-24 object-contain",
   selectedType,
   setSelectedType,
 }: {
@@ -135,7 +135,7 @@ function DishCard({
   return (
     <button
       onClick={() => setSelectedType(type)}
-      className={`w-44 h-44 border-2 rounded-3xl flex flex-col items-center justify-center gap-2 transition
+      className={`w-36 h-36 border-2 rounded-3xl flex flex-col items-center justify-center gap-2 transition
         ${
           selectedType === type
             ? "border-[#0A84C1] bg-[#EAF4FB]"

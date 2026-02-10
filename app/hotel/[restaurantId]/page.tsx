@@ -1,6 +1,29 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
+
+declare global {
+  interface Window {
+    YT?: {
+      Player: new (
+        elementId: string,
+        options: {
+          videoId: string;
+          playerVars?: Record<string, number | string>;
+          events?: { onReady?: (event: { target: YTPlayer }) => void };
+        }
+      ) => YTPlayer;
+      PlayerState?: { PLAYING: number; PAUSED: number; ENDED: number };
+    };
+    onYouTubeIframeAPIReady?: () => void;
+  }
+}
+
+interface YTPlayer {
+  playVideo: () => void;
+  pauseVideo: () => void;
+  destroy: () => void;
+}
 
 const tabs = ["Ody Menu", "Menu", "Eat Later", "Favorites"];
 
@@ -17,11 +40,287 @@ const filters = [
   "Hot & Spicy",
 ];
 
+type OdyDish = {
+  id: string;
+  name: string;
+  price: number;
+  quantity?: string | null;
+  description?: string | null;
+  timing: { from: string; to: string };
+  photoUrl: string;
+  videoUrl?: string | null;
+};
+
+/** Global registry of all active YouTube players on Default Menu page - ensures only one plays at a time. */
+const activePlayers = new Set<YTPlayer>();
+
+/** Currently playing player (only one allowed at a time). */
+let currentlyPlayingPlayer: YTPlayer | null = null;
+
+/** Lock to prevent race conditions when multiple videos try to play simultaneously. */
+let isPlayingLock = false;
+
+/** Pauses ALL players immediately. Used to ensure only one plays at a time. */
+function pauseAllPlayers() {
+  activePlayers.forEach((player) => {
+    try {
+      player.pauseVideo();
+    } catch {
+      // ignore
+    }
+  });
+  currentlyPlayingPlayer = null;
+}
+
+/** Pauses all players except the specified one, then plays that one. Ensures only one video plays at a time. */
+function playOnlyThisPlayer(player: YTPlayer) {
+  // Prevent multiple simultaneous calls
+  if (isPlayingLock) {
+    // If lock is active, still pause this player to be safe
+    try {
+      player.pauseVideo();
+    } catch {
+      // ignore
+    }
+    return;
+  }
+  isPlayingLock = true;
+  
+  // Step 1: Pause ALL players first (including currently playing one)
+  pauseAllPlayers();
+  
+  // Step 2: Use requestAnimationFrame to ensure pause commands are processed before play
+  requestAnimationFrame(() => {
+    try {
+      // Step 3: Double-check - pause all again (defense against race conditions)
+      pauseAllPlayers();
+      
+      // Step 4: Small delay to ensure all pause commands are processed
+      setTimeout(() => {
+        try {
+          // Step 5: Final check - pause all one more time
+          pauseAllPlayers();
+          
+          // Step 6: Now play only this player
+          player.playVideo();
+          currentlyPlayingPlayer = player;
+        } catch {
+          // ignore
+        } finally {
+          isPlayingLock = false;
+        }
+      }, 100);
+    } catch {
+      isPlayingLock = false;
+    }
+  });
+}
+
+/** Loads the YouTube IFrame API script once and resolves when ready. */
+function loadYouTubeAPI(): Promise<void> {
+  if (typeof window === "undefined") return Promise.resolve();
+  if (window.YT?.Player) return Promise.resolve();
+  return new Promise((resolve) => {
+    const prev = window.onYouTubeIframeAPIReady;
+    window.onYouTubeIframeAPIReady = () => {
+      prev?.();
+      resolve();
+    };
+    if (document.querySelector('script[src*="youtube.com/iframe_api"]')) {
+      if (window.YT?.Player) resolve();
+      return;
+    }
+    const s = document.createElement("script");
+    s.src = "https://www.youtube.com/iframe_api";
+    s.async = true;
+    s.onload = () => {
+      if (window.YT?.Player) resolve();
+    };
+    document.head.appendChild(s);
+  });
+}
+
+/** Uses YouTube IFrame API to explicitly pause when card is out of view and play when visible; avoids black screen and background playback. */
+function OdyMenuVideoSlide({
+  videoId,
+  dishName,
+  carouselRoot,
+}: {
+  videoId: string;
+  dishName: string;
+  carouselRoot: HTMLDivElement | null;
+}) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const playerRef = useRef<YTPlayer | null>(null);
+  const playerDivId = useId().replace(/:/g, "");
+  const [inViewport, setInViewport] = useState(false);
+  const [inCarouselView, setInCarouselView] = useState(false);
+
+  // Viewport: card is visible on screen
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(
+      ([e]) => setInViewport(e.isIntersecting),
+      { threshold: 0.25 }
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
+
+  // Carousel: video slide is the active slide
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el || !carouselRoot) {
+      setInCarouselView(false);
+      return;
+    }
+    const obs = new IntersectionObserver(
+      ([e]) => setInCarouselView(e.isIntersecting),
+      { root: carouselRoot, threshold: 0.5 }
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, [carouselRoot]);
+
+  // Create YouTube player once when container and API are ready
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container || !videoId) return;
+    let cancelled = false;
+    loadYouTubeAPI().then(() => {
+      if (cancelled || !window.YT?.Player) return;
+      const el = document.getElementById(playerDivId);
+      if (!el) return;
+      try {
+        const player = new window.YT.Player(playerDivId, {
+          videoId,
+          playerVars: {
+            autoplay: 0,
+            mute: 1,
+            loop: 1,
+            playlist: videoId,
+            rel: 0,
+            modestbranding: 1,
+          },
+          events: {
+            onReady: (e) => {
+              if (!cancelled) {
+                const p = e.target as unknown as YTPlayer;
+                playerRef.current = p;
+                activePlayers.add(p);
+              }
+            },
+          },
+        });
+        if (player && typeof (player as unknown as YTPlayer).pauseVideo === "function") {
+          const p = player as unknown as YTPlayer;
+          playerRef.current = p;
+          activePlayers.add(p);
+        }
+      } catch {
+        // ignore
+      }
+    });
+    return () => {
+      cancelled = true;
+      if (playerRef.current) {
+        const p = playerRef.current;
+        // Pause before removing
+        try {
+          p.pauseVideo();
+        } catch {
+          // ignore
+        }
+        // Remove from registry
+        activePlayers.delete(p);
+        if (currentlyPlayingPlayer === p) {
+          currentlyPlayingPlayer = null;
+        }
+        // Destroy player
+        if (p.destroy) {
+          try {
+            p.destroy();
+          } catch {
+            // ignore
+          }
+        }
+        playerRef.current = null;
+      }
+    };
+  }, [videoId, playerDivId]);
+
+  // Explicitly pause when out of view, play when in view
+  // CRITICAL: When playing, pause ALL other videos FIRST to ensure only one plays at a time
+  const shouldPlay = inViewport && inCarouselView;
+  useEffect(() => {
+    const player = playerRef.current;
+    if (!player) return;
+    
+    if (shouldPlay) {
+      // Use centralized function that ensures only one plays at a time
+      playOnlyThisPlayer(player);
+    } else {
+      // When this player should not play, pause it
+      try {
+        player.pauseVideo();
+        if (currentlyPlayingPlayer === player) {
+          currentlyPlayingPlayer = null;
+        }
+      } catch {
+        // ignore
+      }
+    }
+  }, [shouldPlay]);
+
+  return (
+    <div ref={containerRef} className="w-full h-full min-h-[200px] bg-black">
+      <div
+        id={playerDivId}
+        className="w-full h-full"
+        style={{ minHeight: 200 }}
+        title={dishName}
+      />
+    </div>
+  );
+}
+
+/** Wraps the dish media carousel and provides carousel root ref to OdyMenuVideoSlide for visibility detection. */
+function DishMediaCarousel({
+  dish,
+}: {
+  dish: OdyDish;
+}) {
+  const [carouselEl, setCarouselEl] = useState<HTMLDivElement | null>(null);
+  return (
+    <div
+      ref={setCarouselEl}
+      className="w-full h-full flex overflow-x-auto snap-x snap-mandatory scrollbar-hide"
+    >
+      <div className="flex-[0_0_100%] min-w-0 h-full snap-center snap-always bg-black">
+        <OdyMenuVideoSlide
+          carouselRoot={carouselEl}
+          videoId={dish.videoUrl!.trim()}
+          dishName={dish.name}
+        />
+      </div>
+      <div className="flex-[0_0_100%] min-w-0 h-full snap-center snap-always">
+        <img
+          src={dish.photoUrl || "/food_item_logo.png"}
+          alt={dish.name}
+          className="w-full h-full object-cover"
+        />
+      </div>
+    </div>
+  );
+}
+
 export default function HotelHomePage() {
   const [activeTab, setActiveTab] = useState(0);
   const [logo, setLogo] = useState("");
   const [cover, setCover] = useState("");
   const [activeFilters, setActiveFilters] = useState<string[]>([]);
+  const [dishes, setDishes] = useState<OdyDish[]>([]);
   const containerRef = useRef<HTMLDivElement>(null);
 
   // 🔐 AUTH STATES
@@ -47,6 +346,13 @@ export default function HotelHomePage() {
 
     const saved = localStorage.getItem("odyUser");
     if (saved) setUser(JSON.parse(saved));
+
+    try {
+      const s = localStorage.getItem("ody_dishes");
+      setDishes(s ? JSON.parse(s) : []);
+    } catch {
+      setDishes([]);
+    }
   }, []);
 
   // 🔥 TIMER FOR OTP
@@ -270,10 +576,42 @@ export default function HotelHomePage() {
         >
 
           {/* ODY MENU */}
-          <div className="min-w-full snap-center snap-always px-6 pt-16 overflow-y-auto">
-            <div className="min-h-screen flex flex-col items-center justify-start gap-10">
-              <p className="text-white/70 text-xl font-medium mt-40">Coming soon</p>
-            </div>
+          <div className="min-w-full snap-center snap-always px-6 pt-8 overflow-y-auto min-h-screen pb-12">
+            {dishes.length === 0 ? (
+              <div className="min-h-screen flex flex-col items-center justify-center">
+                <p className="text-white/70 text-xl font-medium">Coming soon</p>
+              </div>
+            ) : (
+              <div className="mb-8">
+                {dishes.map((dish) => (
+                  <div
+                    key={dish.id}
+                    className="w-full rounded-2xl overflow-hidden bg-white border border-gray-200 mb-6"
+                  >
+                    <div className="aspect-[4/3] w-full bg-gray-100 relative">
+                      {dish.videoUrl && dish.videoUrl.trim() ? (
+                        <DishMediaCarousel dish={dish} />
+                      ) : (
+                        <img
+                          src={dish.photoUrl || "/food_item_logo.png"}
+                          alt={dish.name}
+                          className="w-full h-full object-cover"
+                        />
+                      )}
+                    </div>
+                    <div className="p-4">
+                      <div className="flex justify-between items-start mb-2">
+                        <p className="text-lg font-semibold text-black">{dish.name}</p>
+                        <p className="text-lg font-semibold text-black">₹{dish.price}</p>
+                      </div>
+                      {dish.description ? (
+                        <p className="text-sm text-gray-700 mt-2">{dish.description}</p>
+                      ) : null}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* MENU */}

@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import EditMenuDishBlock from "@/components/dish/EditMenuDishBlock";
 
 const tabs = ["Ody Menu", "Menu"];
 
@@ -9,6 +10,27 @@ type Category = {
   id: number;
   name: string;
 };
+
+type DishForBlock = {
+  id: string;
+  name: string;
+  price: number;
+  quantity?: string | null;
+  description?: string | null;
+  timing: { from: string; to: string };
+  photoUrl: string;
+  videoUrl?: string | null;
+};
+
+function loadDishesFromStorage(): DishForBlock[] {
+  if (typeof window === "undefined") return [];
+  try {
+    const s = localStorage.getItem("ody_dishes");
+    return s ? JSON.parse(s) : [];
+  } catch {
+    return [];
+  }
+}
 
 export default function EditMenuPage() {
   const [activeTab, setActiveTab] = useState(0);
@@ -18,6 +40,12 @@ export default function EditMenuPage() {
   const [categories, setCategories] = useState<Category[]>([
     { id: 1, name: "Category - 1" },
   ]);
+
+  const [dishes, setDishes] = useState<DishForBlock[]>(loadDishesFromStorage);
+
+  useEffect(() => {
+    localStorage.setItem("ody_dishes", JSON.stringify(dishes));
+  }, [dishes]);
 
   // EDIT
   const [showEdit, setShowEdit] = useState(false);
@@ -142,10 +170,18 @@ export default function EditMenuPage() {
           className="flex w-full overflow-x-auto snap-x snap-mandatory scrollbar-hide"
         >
           {/* ================= ODY MENU TAB ================= */}
-          <div className="min-w-full snap-center pt-24 min-h-screen">
+          <div className="min-w-full snap-center pt-8 min-h-screen px-6 pb-12">
+            {/* OWNER DISH BLOCKS */}
+            {dishes.length > 0 && (
+              <div className="mb-8">
+                {dishes.map((dish) => (
+                  <EditMenuDishBlock key={dish.id} dish={dish} />
+                ))}
+              </div>
+            )}
 
-            {/* ADD DISH LINK — MOVED UP */}
-            <div className="flex justify-center mt-8">
+            {/* ADD DISH CTA — below dishes if any, else centered alone */}
+            <div className={dishes.length > 0 ? "flex justify-center" : "flex justify-center mt-8"}>
               <button
                 onClick={() => {
                   const restaurantId = localStorage.getItem("restaurantId");

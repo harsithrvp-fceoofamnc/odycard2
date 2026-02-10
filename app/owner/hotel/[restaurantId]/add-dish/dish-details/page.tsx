@@ -19,6 +19,21 @@ const generateTimeOptions = () => {
 
 const TIME_OPTIONS = generateTimeOptions();
 
+const ODY_DISHES_KEY = "ody_dishes";
+const ADD_DISH_PHOTO_KEY = "addDishPhoto";
+const ADD_DISH_VIDEO_ID_KEY = "addDishVideoId";
+
+type StoredDish = {
+  id: string;
+  name: string;
+  price: number;
+  quantity?: string | null;
+  description?: string | null;
+  timing: { from: string; to: string };
+  photoUrl: string;
+  videoUrl?: string | null;
+};
+
 export default function DishDetailsPage() {
   const router = useRouter();
 
@@ -121,14 +136,24 @@ export default function DishDetailsPage() {
           <label className="block text-sm font-medium text-gray-700 mb-1">
             Price (₹) *
           </label>
-          <input
-            type="number"
-            value={price}
-            onChange={(e) => setPrice(e.target.value)}
-            placeholder="Eg: ₹180"
-            className="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm text-black
-                       placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#0A84C1]"
-          />
+          <div className="relative">
+            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm text-gray-600">₹</span>
+            <input
+              type="text"
+              value={price}
+              onChange={(e) => {
+                const value = e.target.value.replace(/\D/g, "");
+                setPrice(value);
+              }}
+              placeholder=""
+              className="w-full border border-gray-300 rounded-xl pl-8 pr-4 py-3 text-sm text-black
+                         placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#0A84C1]"
+              style={{
+                WebkitAppearance: "none",
+                MozAppearance: "textfield",
+              }}
+            />
+          </div>
         </div>
 
         {/* QUANTITY */}
@@ -245,7 +270,46 @@ export default function DishDetailsPage() {
 
               <button
                 disabled={!canProceed}
-                onClick={() => router.push("../create")}
+                onClick={() => {
+                  if (!canProceed) return;
+                  const restaurantId = localStorage.getItem("restaurantId");
+                  if (!restaurantId) return;
+
+                  const photoUrl =
+                    typeof localStorage !== "undefined"
+                      ? localStorage.getItem(ADD_DISH_PHOTO_KEY) || "/food_item_logo.png"
+                      : "/food_item_logo.png";
+
+                  const videoUrl =
+                    typeof localStorage !== "undefined"
+                      ? localStorage.getItem(ADD_DISH_VIDEO_ID_KEY) || null
+                      : null;
+
+                  const newDish: StoredDish = {
+                    id: `dish-${Date.now()}`,
+                    name: name.trim(),
+                    price: parseFloat(price.trim()) || 0,
+                    quantity: quantity.trim() || null,
+                    description: description.trim() || null,
+                    timing: { from: fromTime, to: toTime },
+                    photoUrl,
+                    videoUrl: videoUrl || null,
+                  };
+
+                  let existing: StoredDish[] = [];
+                  try {
+                    const s = localStorage.getItem(ODY_DISHES_KEY);
+                    existing = s ? JSON.parse(s) : [];
+                  } catch {
+                    existing = [];
+                  }
+                  const updated = [...existing, newDish];
+                  localStorage.setItem(ODY_DISHES_KEY, JSON.stringify(updated));
+                  localStorage.removeItem(ADD_DISH_PHOTO_KEY);
+                  localStorage.removeItem(ADD_DISH_VIDEO_ID_KEY);
+
+                  router.push(`/owner/hotel/${restaurantId}/edit-menu`);
+                }}
                 className={`px-6 py-2 rounded-md text-sm font-medium
                   ${
                     canProceed
@@ -253,7 +317,7 @@ export default function DishDetailsPage() {
                       : "bg-gray-200 text-gray-400 cursor-not-allowed"
                   }`}
               >
-                Add Dish
+                Add
               </button>
             </div>
 

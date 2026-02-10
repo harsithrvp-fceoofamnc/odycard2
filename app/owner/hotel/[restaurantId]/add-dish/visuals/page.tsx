@@ -261,7 +261,14 @@ export default function VisualsPage() {
 
               <button
                 disabled={!nextEnabled}
-                onClick={() => router.push("dish-details")}
+                onClick={() => {
+                  if (!nextEnabled || !croppedPhoto) return;
+                  localStorage.setItem("addDishPhoto", croppedPhoto);
+                  if (uploadedVideoId) {
+                    localStorage.setItem("addDishVideoId", uploadedVideoId);
+                  }
+                  router.push("dish-details");
+                }}
                 className={`px-6 py-2 rounded-md text-sm font-medium
                   ${
                     nextEnabled
