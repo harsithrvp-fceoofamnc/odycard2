@@ -89,6 +89,42 @@ export default function EditMenuDishBlock({ dish }: EditMenuDishBlockProps) {
           </p>
         )}
 
+        {/* FAVORITES & EAT LATER COUNTS (DISABLED - OWNER VIEW) */}
+        <div className="flex items-center gap-4 mb-4">
+          <div className="flex items-center gap-2 opacity-50 cursor-not-allowed pointer-events-none">
+            <img src="/heart.png" alt="Favorites" className="w-5 h-5" />
+            <span className="text-sm text-gray-600">
+              {(() => {
+                try {
+                  const favs = localStorage.getItem("ody_favorites");
+                  if (!favs) return 0;
+                  const list = JSON.parse(favs);
+                  return Array.isArray(list) ? list.filter((d: { id: string }) => d.id === dish.id).length : 0;
+                } catch {
+                  return 0;
+                }
+              })()}
+            </span>
+          </div>
+          <div className="flex items-center gap-2 opacity-50 cursor-not-allowed pointer-events-none">
+            <div className="w-8 h-8 rounded-full flex items-center justify-center">
+              <img src="/eat_later.png" alt="Eat Later" className="w-5 h-5" />
+            </div>
+            <span className="text-sm text-gray-600">
+              {(() => {
+                try {
+                  const later = localStorage.getItem("ody_eat_later");
+                  if (!later) return 0;
+                  const list = JSON.parse(later);
+                  return Array.isArray(list) ? list.filter((d: { id: string }) => d.id === dish.id).length : 0;
+                } catch {
+                  return 0;
+                }
+              })()}
+            </span>
+          </div>
+        </div>
+
         {/* ACTIONS */}
         <div className="flex gap-3">
           <button className="flex-1 py-2 rounded-lg border border-gray-300 text-sm font-medium text-gray-700">

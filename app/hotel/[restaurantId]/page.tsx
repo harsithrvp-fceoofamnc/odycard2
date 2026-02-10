@@ -285,6 +285,30 @@ function OdyMenuVideoSlide({
   );
 }
 
+/** Photo-only dish block for Favorites/Eat Later tabs (no video, no carousel, no autoplay). */
+function PhotoOnlyDishBlock({ dish }: { dish: OdyDish }) {
+  return (
+    <div className="w-full rounded-2xl overflow-hidden bg-white border border-gray-200 mb-6">
+      <div className="aspect-[4/3] w-full bg-gray-100">
+        <img
+          src={dish.photoUrl || "/food_item_logo.png"}
+          alt={dish.name}
+          className="w-full h-full object-cover"
+        />
+      </div>
+      <div className="p-4">
+        <div className="flex justify-between items-start mb-2">
+          <p className="text-lg font-semibold text-black">{dish.name}</p>
+          <p className="text-lg font-semibold text-black">₹{dish.price}</p>
+        </div>
+        {dish.description ? (
+          <p className="text-sm text-gray-700 mt-2">{dish.description}</p>
+        ) : null}
+      </div>
+    </div>
+  );
+}
+
 /** Wraps the dish media carousel and provides carousel root ref to OdyMenuVideoSlide for visibility detection. */
 function DishMediaCarousel({
   dish,
@@ -321,6 +345,10 @@ export default function HotelHomePage() {
   const [cover, setCover] = useState("");
   const [activeFilters, setActiveFilters] = useState<string[]>([]);
   const [dishes, setDishes] = useState<OdyDish[]>([]);
+  const [favorites, setFavorites] = useState<OdyDish[]>([]);
+  const [eatLater, setEatLater] = useState<OdyDish[]>([]);
+  const [favoriteCounts, setFavoriteCounts] = useState<Record<string, number>>({});
+  const [eatLaterCounts, setEatLaterCounts] = useState<Record<string, number>>({});
   const containerRef = useRef<HTMLDivElement>(null);
 
   // 🔐 AUTH STATES
@@ -338,6 +366,10 @@ export default function HotelHomePage() {
   const [user, setUser] = useState<{ phone: string; name: string } | null>(null);
   const [showProfile, setShowProfile] = useState(false);
   const [search, setSearch] = useState("");
+  
+  // Eat Later Confirmation Popup
+  const [showEatLaterPopup, setShowEatLaterPopup] = useState(false);
+  const [pendingEatLaterDish, setPendingEatLaterDish] = useState<OdyDish | null>(null);
 
 
   useEffect(() => {
@@ -352,6 +384,34 @@ export default function HotelHomePage() {
       setDishes(s ? JSON.parse(s) : []);
     } catch {
       setDishes([]);
+    }
+
+    try {
+      const favs = localStorage.getItem("ody_favorites");
+      setFavorites(favs ? JSON.parse(favs) : []);
+    } catch {
+      setFavorites([]);
+    }
+
+    try {
+      const later = localStorage.getItem("ody_eat_later");
+      setEatLater(later ? JSON.parse(later) : []);
+    } catch {
+      setEatLater([]);
+    }
+
+    try {
+      const favCounts = localStorage.getItem("ody_dish_favorite_counts");
+      setFavoriteCounts(favCounts ? JSON.parse(favCounts) : {});
+    } catch {
+      setFavoriteCounts({});
+    }
+
+    try {
+      const laterCounts = localStorage.getItem("ody_dish_eat_later_counts");
+      setEatLaterCounts(laterCounts ? JSON.parse(laterCounts) : {});
+    } catch {
+      setEatLaterCounts({});
     }
   }, []);
 
@@ -390,6 +450,80 @@ export default function HotelHomePage() {
       behavior: "smooth",
     });
     setActiveTab(index);
+  };
+
+  // Toggle favorites
+  const toggleFavorite = (dish: OdyDish) => {
+    if (!user) return;
+    const isFavorite = favorites.some((d) => d.id === dish.id);
+    let updated: OdyDish[];
+    if (isFavorite) {
+      updated = favorites.filter((d) => d.id !== dish.id);
+      // Decrement count
+      const newCounts = { ...favoriteCounts };
+      newCounts[dish.id] = Math.max(0, (newCounts[dish.id] || 0) - 1);
+      setFavoriteCounts(newCounts);
+      localStorage.setItem("ody_dish_favorite_counts", JSON.stringify(newCounts));
+    } else {
+      updated = [...favorites, dish];
+      // Increment count
+      const newCounts = { ...favoriteCounts };
+      newCounts[dish.id] = (newCounts[dish.id] || 0) + 1;
+      setFavoriteCounts(newCounts);
+      localStorage.setItem("ody_dish_favorite_counts", JSON.stringify(newCounts));
+    }
+    setFavorites(updated);
+    localStorage.setItem("ody_favorites", JSON.stringify(updated));
+  };
+
+  // Toggle eat later
+  const toggleEatLater = (dish: OdyDish) => {
+    if (!user) return;
+    const isInList = eatLater.some((d) => d.id === dish.id);
+    if (isInList) {
+      // Remove directly without popup
+      const updated = eatLater.filter((d) => d.id !== dish.id);
+      const newCounts = { ...eatLaterCounts };
+      newCounts[dish.id] = Math.max(0, (newCounts[dish.id] || 0) - 1);
+      setEatLaterCounts(newCounts);
+      localStorage.setItem("ody_dish_eat_later_counts", JSON.stringify(newCounts));
+      setEatLater(updated);
+      localStorage.setItem("ody_eat_later", JSON.stringify(updated));
+    } else {
+      // Show popup for confirmation when adding
+      setPendingEatLaterDish(dish);
+      setShowEatLaterPopup(true);
+    }
+  };
+
+  // Confirm eat later action
+  const confirmEatLater = () => {
+    if (!pendingEatLaterDish || !user) return;
+    const updated = [...eatLater, pendingEatLaterDish];
+    const newCounts = { ...eatLaterCounts };
+    newCounts[pendingEatLaterDish.id] = (newCounts[pendingEatLaterDish.id] || 0) + 1;
+    setEatLaterCounts(newCounts);
+    localStorage.setItem("ody_dish_eat_later_counts", JSON.stringify(newCounts));
+    setEatLater(updated);
+    localStorage.setItem("ody_eat_later", JSON.stringify(updated));
+    setShowEatLaterPopup(false);
+    setPendingEatLaterDish(null);
+  };
+
+  // Cancel eat later action
+  const cancelEatLater = () => {
+    setShowEatLaterPopup(false);
+    setPendingEatLaterDish(null);
+  };
+
+  // Check if dish is favorited
+  const isFavorite = (dishId: string) => {
+    return favorites.some((d) => d.id === dishId);
+  };
+
+  // Check if dish is in eat later
+  const isInEatLater = (dishId: string) => {
+    return eatLater.some((d) => d.id === dishId);
   };
 
   // 🔥 FILTER LOGIC (UNCHANGED)
@@ -602,7 +736,47 @@ export default function HotelHomePage() {
                     <div className="p-4">
                       <div className="flex justify-between items-start mb-2">
                         <p className="text-lg font-semibold text-black">{dish.name}</p>
-                        <p className="text-lg font-semibold text-black">₹{dish.price}</p>
+                        <div className="flex flex-col items-end">
+                          <p className="text-lg font-semibold text-black">₹{dish.price}</p>
+                          {/* FAVORITES & EAT LATER ICONS */}
+                          <div className="flex items-center gap-1 mt-1">
+                            <div className="flex flex-col items-center -mt-1">
+                              <button
+                                onClick={() => toggleFavorite(dish)}
+                                className="disabled:opacity-50 disabled:cursor-not-allowed"
+                                disabled={!user}
+                              >
+                                <img
+                                  src={isFavorite(dish.id) ? "/heart2.png" : "/heart.png"}
+                                  alt="Favorite"
+                                  className="w-9 h-9"
+                                />
+                              </button>
+                              <span className="text-xs text-gray-600 mt-2 leading-none">
+                                {favoriteCounts[dish.id] || 0}
+                              </span>
+                            </div>
+                            <div className="flex flex-col items-center -mt-5">
+                              <div className="relative">
+                                <button
+                                  onClick={() => toggleEatLater(dish)}
+                                  className="disabled:opacity-50 disabled:cursor-not-allowed"
+                                  disabled={!user}
+                                >
+                                  <img
+                                    src="/eat_later.png"
+                                    alt="Eat Later"
+                                    className="w-[92px] h-[92px]"
+                                    style={isInEatLater(dish.id) ? { filter: "brightness(0) saturate(100%) invert(42%) sepia(93%) saturate(1352%) hue-rotate(188deg) brightness(97%) contrast(92%)" } : { filter: "brightness(1.1) contrast(1.2)" }}
+                                  />
+                                </button>
+                                <span className="absolute top-[74.5%] left-1/2 -translate-x-1/2 text-xs text-gray-600 leading-none">
+                                  {eatLaterCounts[dish.id] || 0}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
                       </div>
                       {dish.description ? (
                         <p className="text-sm text-gray-700 mt-2">{dish.description}</p>
@@ -660,79 +834,87 @@ export default function HotelHomePage() {
           </div>
 
           {/* EAT LATER */}
-          <div className="min-w-full snap-center snap-always px-6 pt-16 overflow-y-auto">
-            <div className="min-h-screen flex flex-col items-center justify-start mt-14 gap-5">
-              {!user ? (
-                <>
-                  <img src="/User.png" className="w-20 h-20 opacity-90 invert" />
-                  <p className="text-white/70 text-center text-base">
-                    Register or Log in to use Eat Later
-                  </p>
-                  <div className="flex gap-4">
-                    <button
-                      onClick={() => {
-                        setMode("register");
-                        setShowPopup(true);
-                      }}
-                      className="px-7 py-3 rounded-full bg-[#0A84C1] text-white"
-                    >
-                      Register
-                    </button>
-                    <button
-                      onClick={() => {
-                        setMode("login");
-                        setShowPopup(true);
-                      }}
-                      className="px-7 py-3 rounded-full bg-white text-[#0A84C1]"
-                    >
-                      Log In
-                    </button>
-                  </div>
-                </>
-              ) : (
-                <p className="text-white/70 text-xl mt-24">
-                  Your Eat Later list is empty
+          <div className="min-w-full snap-center snap-always px-6 pt-8 overflow-y-auto min-h-screen pb-12">
+            {!user ? (
+              <div className="min-h-screen flex flex-col items-center justify-center gap-5">
+                <img src="/User.png" className="w-20 h-20 opacity-90 invert" />
+                <p className="text-white/70 text-center text-base">
+                  Register or Log in to use Eat Later
                 </p>
-              )}
-            </div>
+                <div className="flex gap-4">
+                  <button
+                    onClick={() => {
+                      setMode("register");
+                      setShowPopup(true);
+                    }}
+                    className="px-7 py-3 rounded-full bg-[#0A84C1] text-white"
+                  >
+                    Register
+                  </button>
+                  <button
+                    onClick={() => {
+                      setMode("login");
+                      setShowPopup(true);
+                    }}
+                    className="px-7 py-3 rounded-full bg-white text-[#0A84C1]"
+                  >
+                    Log In
+                  </button>
+                </div>
+              </div>
+            ) : eatLater.length === 0 ? (
+              <div className="min-h-screen flex flex-col items-center justify-center">
+                <p className="text-white/70 text-xl">Your Eat Later list is empty</p>
+              </div>
+            ) : (
+              <div className="mb-8">
+                {eatLater.map((dish) => (
+                  <PhotoOnlyDishBlock key={dish.id} dish={dish} />
+                ))}
+              </div>
+            )}
           </div>
 
           {/* FAVORITES */}
-          <div className="min-w-full snap-center snap-always px-6 pt-16 overflow-y-auto">
-            <div className="min-h-screen flex flex-col items-center justify-start mt-14 gap-5">
-              {!user ? (
-                <>
-                  <img src="/User.png" className="w-20 h-20 opacity-90 invert" />
-                  <p className="text-white/70 text-center text-base">
-                    Register or Log in to save Favorites
-                  </p>
-                  <div className="flex gap-4">
-                    <button
-                      onClick={() => {
-                        setMode("register");
-                        setShowPopup(true);
-                      }}
-                      className="px-7 py-3 rounded-full bg-[#0A84C1] text-white"
-                    >
-                      Register
-                    </button>
-                    <button
-                      onClick={() => {
-                        setMode("login");
-                        setShowPopup(true);
-                      }}
-                      className="px-7 py-3 rounded-full bg-white text-[#0A84C1]"
-                    >
-                      Log In
-                    </button>
-                  </div>
-                </>
-              ) : (
-                <p className="text-white/70 text-xl mt-24">
-                  Your Favorites list is empty
+          <div className="min-w-full snap-center snap-always px-6 pt-8 overflow-y-auto min-h-screen pb-12">
+            {!user ? (
+              <div className="min-h-screen flex flex-col items-center justify-center gap-5">
+                <img src="/User.png" className="w-20 h-20 opacity-90 invert" />
+                <p className="text-white/70 text-center text-base">
+                  Register or Log in to save Favorites
                 </p>
-              )}
-            </div>
+                <div className="flex gap-4">
+                  <button
+                    onClick={() => {
+                      setMode("register");
+                      setShowPopup(true);
+                    }}
+                    className="px-7 py-3 rounded-full bg-[#0A84C1] text-white"
+                  >
+                    Register
+                  </button>
+                  <button
+                    onClick={() => {
+                      setMode("login");
+                      setShowPopup(true);
+                    }}
+                    className="px-7 py-3 rounded-full bg-white text-[#0A84C1]"
+                  >
+                    Log In
+                  </button>
+                </div>
+              </div>
+            ) : favorites.length === 0 ? (
+              <div className="min-h-screen flex flex-col items-center justify-center">
+                <p className="text-white/70 text-xl">Your Favorites list is empty</p>
+              </div>
+            ) : (
+              <div className="mb-8">
+                {favorites.map((dish) => (
+                  <PhotoOnlyDishBlock key={dish.id} dish={dish} />
+                ))}
+              </div>
+            )}
           </div>
 
         </div>
@@ -890,6 +1072,37 @@ export default function HotelHomePage() {
                 </>
               )}
 
+            </div>
+          </div>
+        )}
+
+        {/* 🔥 EAT LATER CONFIRMATION POPUP */}
+        {showEatLaterPopup && (
+          <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-[2000]">
+            <div className="bg-[#1c1c1c] w-[80%] max-w-xs rounded-2xl p-4 text-white space-y-4">
+              <div className="flex flex-col items-center space-y-3">
+                <h2 className="text-base font-semibold text-center">
+                  Save to Eat Later?
+                </h2>
+                <p className="text-gray-400 text-xs text-center">
+                  This dish will be saved to your Eat Later list
+                </p>
+              </div>
+
+              <div className="flex gap-2">
+                <button
+                  onClick={cancelEatLater}
+                  className="flex-1 py-2.5 rounded-full bg-gray-700 text-white font-medium text-sm"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={confirmEatLater}
+                  className="flex-1 py-2.5 rounded-full bg-[#0A84C1] text-white font-medium text-sm"
+                >
+                  Yes
+                </button>
+              </div>
             </div>
           </div>
         )}
