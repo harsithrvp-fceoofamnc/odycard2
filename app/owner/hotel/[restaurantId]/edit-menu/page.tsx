@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import EditMenuDishBlock from "@/components/dish/EditMenuDishBlock";
+import { API_BASE } from "@/lib/api";
 
 const tabs = ["Ody Menu", "Menu"];
 
@@ -22,30 +23,48 @@ type DishForBlock = {
   videoUrl?: string | null;
 };
 
-function loadDishesFromStorage(): DishForBlock[] {
-  if (typeof window === "undefined") return [];
-  try {
-    const s = localStorage.getItem("ody_dishes");
-    return s ? JSON.parse(s) : [];
-  } catch {
-    return [];
-  }
+function mapDishFromApi(row: {
+  id: number | string;
+  name: string;
+  price: number;
+  quantity?: string | null;
+  description?: string | null;
+  timing_from?: string;
+  timing_to?: string;
+  photo_url?: string | null;
+  video_url?: string | null;
+}): DishForBlock {
+  return {
+    id: String(row.id),
+    name: row.name,
+    price: Number(row.price),
+    quantity: row.quantity ?? null,
+    description: row.description ?? null,
+    timing: {
+      from: row.timing_from ?? "09:00",
+      to: row.timing_to ?? "22:00",
+    },
+    photoUrl: row.photo_url || "/food_item_logo.png",
+    videoUrl: row.video_url ?? null,
+  };
 }
 
 export default function EditMenuPage() {
+  const params = useParams();
+  const restaurantId = params?.restaurantId as string | undefined;
+  const router = useRouter();
+  const containerRef = useRef<HTMLDivElement>(null);
+
   const [activeTab, setActiveTab] = useState(0);
   const [logo, setLogo] = useState("");
   const [cover, setCover] = useState("");
+  const [dishes, setDishes] = useState<DishForBlock[]>([]);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   const [categories, setCategories] = useState<Category[]>([
     { id: 1, name: "Category - 1" },
   ]);
-
-  const [dishes, setDishes] = useState<DishForBlock[]>(loadDishesFromStorage);
-
-  useEffect(() => {
-    localStorage.setItem("ody_dishes", JSON.stringify(dishes));
-  }, [dishes]);
 
   // EDIT
   const [showEdit, setShowEdit] = useState(false);
@@ -59,13 +78,61 @@ export default function EditMenuPage() {
   // ADD CONFIRM
   const [showAddConfirm, setShowAddConfirm] = useState(false);
 
-  const containerRef = useRef<HTMLDivElement>(null);
-  const router = useRouter();
-
+  // Load hotel and dishes from API (hotel scoped by slug)
   useEffect(() => {
-    setLogo(localStorage.getItem("restaurantLogo") || "");
-    setCover(localStorage.getItem("restaurantCover") || "");
-  }, []);
+    if (!restaurantId || typeof restaurantId !== "string") {
+      setIsLoading(false);
+      return;
+    }
+
+    let cancelled = false;
+
+    async function load() {
+      const slug = restaurantId;
+      if (!slug) return;
+      try {
+        const hotelRes = await fetch(
+          `${API_BASE}/api/hotels/${encodeURIComponent(slug)}`
+        );
+        if (!hotelRes.ok) {
+          if (hotelRes.status === 404) {
+            setLoadError("Hotel not found. Please complete signup first.");
+          } else {
+            setLoadError("Failed to load menu");
+          }
+          return;
+        }
+        const hotel = await hotelRes.json();
+
+        if (cancelled) return;
+        setLogo(hotel.logo_url || "");
+        setCover(hotel.cover_url || "");
+
+        const dishesRes = await fetch(
+          `${API_BASE}/api/dishes?hotel_id=${encodeURIComponent(hotel.id)}`
+        );
+        if (!dishesRes.ok) {
+          setLoadError("Failed to load dishes");
+          return;
+        }
+        const rows = await dishesRes.json();
+        if (!cancelled) {
+          setDishes(rows.map(mapDishFromApi));
+          setLoadError(null);
+        }
+      } catch (err) {
+        if (!cancelled) {
+          console.error("Edit menu load error:", err);
+          setLoadError("Failed to load menu");
+        }
+      } finally {
+        if (!cancelled) setIsLoading(false);
+      }
+    }
+
+    load();
+    return () => { cancelled = true; };
+  }, [restaurantId]);
 
   const handleScroll = () => {
     if (!containerRef.current) return;
@@ -119,6 +186,28 @@ export default function EditMenuPage() {
     setShowDelete(false);
     setDeleteCat(null);
   };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <p className="text-white/80">Loading menu...</p>
+      </div>
+    );
+  }
+
+  if (loadError) {
+    return (
+      <div className="min-h-screen bg-black flex flex-col items-center justify-center gap-4 px-6">
+        <p className="text-white/80 text-center">{loadError}</p>
+        <button
+          onClick={() => router.push("/owner/details")}
+          className="px-6 py-2 rounded-full bg-[#0A84C1] text-white"
+        >
+          Complete signup
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-black flex justify-center">
@@ -184,7 +273,6 @@ export default function EditMenuPage() {
             <div className={dishes.length > 0 ? "flex justify-center" : "flex justify-center mt-8"}>
               <button
                 onClick={() => {
-                  const restaurantId = localStorage.getItem("restaurantId");
                   if (!restaurantId) return;
                   router.push(`/owner/hotel/${restaurantId}/add-dish`);
                 }}

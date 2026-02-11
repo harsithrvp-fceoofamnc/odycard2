@@ -1,8 +1,9 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import ProgressBar from "@/components/ProgressBar";
+import { API_BASE } from "@/lib/api";
 
 /* ---------- TIME OPTIONS (30 MIN GAP) ---------- */
 const generateTimeOptions = () => {
@@ -19,23 +20,17 @@ const generateTimeOptions = () => {
 
 const TIME_OPTIONS = generateTimeOptions();
 
-const ODY_DISHES_KEY = "ody_dishes";
 const ADD_DISH_PHOTO_KEY = "addDishPhoto";
 const ADD_DISH_VIDEO_ID_KEY = "addDishVideoId";
-
-type StoredDish = {
-  id: string;
-  name: string;
-  price: number;
-  quantity?: string | null;
-  description?: string | null;
-  timing: { from: string; to: string };
-  photoUrl: string;
-  videoUrl?: string | null;
-};
+const ADD_DISH_TYPE_KEY = "addDishType";
 
 export default function DishDetailsPage() {
   const router = useRouter();
+  const params = useParams();
+  const restaurantId = params?.restaurantId as string | undefined;
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   // later this should come from selected dish type
   const isDrink = false;
@@ -255,6 +250,10 @@ export default function DishDetailsPage() {
           </div>
         </div>
 
+        {submitError && (
+          <p className="mb-4 text-sm text-red-600">{submitError}</p>
+        )}
+
         {/* ---------- BOTTOM BAR ---------- */}
         <div className="absolute bottom-0 left-0 w-full border-t bg-white px-6 py-4">
           <div className="flex items-center justify-between gap-4">
@@ -269,55 +268,81 @@ export default function DishDetailsPage() {
               </button>
 
               <button
-                disabled={!canProceed}
-                onClick={() => {
-                  if (!canProceed) return;
-                  const restaurantId = localStorage.getItem("restaurantId");
-                  if (!restaurantId) return;
+                disabled={!canProceed || isSubmitting}
+                onClick={async () => {
+                  if (!canProceed || !restaurantId) return;
 
-                  const photoUrl =
-                    typeof localStorage !== "undefined"
-                      ? localStorage.getItem(ADD_DISH_PHOTO_KEY) || "/food_item_logo.png"
-                      : "/food_item_logo.png";
+                  setSubmitError(null);
+                  setIsSubmitting(true);
 
-                  const videoUrl =
-                    typeof localStorage !== "undefined"
-                      ? localStorage.getItem(ADD_DISH_VIDEO_ID_KEY) || null
-                      : null;
-
-                  const newDish: StoredDish = {
-                    id: `dish-${Date.now()}`,
-                    name: name.trim(),
-                    price: parseFloat(price.trim()) || 0,
-                    quantity: quantity.trim() || null,
-                    description: description.trim() || null,
-                    timing: { from: fromTime, to: toTime },
-                    photoUrl,
-                    videoUrl: videoUrl || null,
-                  };
-
-                  let existing: StoredDish[] = [];
                   try {
-                    const s = localStorage.getItem(ODY_DISHES_KEY);
-                    existing = s ? JSON.parse(s) : [];
-                  } catch {
-                    existing = [];
-                  }
-                  const updated = [...existing, newDish];
-                  localStorage.setItem(ODY_DISHES_KEY, JSON.stringify(updated));
-                  localStorage.removeItem(ADD_DISH_PHOTO_KEY);
-                  localStorage.removeItem(ADD_DISH_VIDEO_ID_KEY);
+                    // Resolve hotel_id from slug (multi-tenant: URL is source of truth)
+                    const hotelRes = await fetch(
+                      `${API_BASE}/api/hotels/${encodeURIComponent(restaurantId)}`
+                    );
+                    if (!hotelRes.ok) {
+                      throw new Error("Hotel not found");
+                    }
+                    const hotel = await hotelRes.json();
 
-                  router.push(`/owner/hotel/${restaurantId}/edit-menu`);
+                    const photoUrl =
+                      typeof window !== "undefined"
+                        ? localStorage.getItem(ADD_DISH_PHOTO_KEY) || "/food_item_logo.png"
+                        : "/food_item_logo.png";
+                    const videoId =
+                      typeof window !== "undefined"
+                        ? localStorage.getItem(ADD_DISH_VIDEO_ID_KEY)
+                        : null;
+                    const category =
+                      typeof window !== "undefined"
+                        ? localStorage.getItem(ADD_DISH_TYPE_KEY) || "food_item"
+                        : "food_item";
+
+                    const postRes = await fetch(`${API_BASE}/api/dishes`, {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({
+                        hotel_id: hotel.id,
+                        name: name.trim(),
+                        price: parseFloat(price.trim()) || 0,
+                        category,
+                        is_veg: vegType === "veg",
+                        quantity: quantity.trim() || null,
+                        description: description.trim() || null,
+                        timing_from: fromTime,
+                        timing_to: toTime,
+                        photo_url: photoUrl.startsWith("data:") ? photoUrl : null,
+                        video_url: videoId
+                          ? `https://www.youtube.com/watch?v=${videoId}`
+                          : null,
+                      }),
+                    });
+
+                    if (!postRes.ok) {
+                      const data = await postRes.json().catch(() => ({}));
+                      throw new Error(data.error || "Failed to add dish");
+                    }
+
+                    localStorage.removeItem(ADD_DISH_PHOTO_KEY);
+                    localStorage.removeItem(ADD_DISH_VIDEO_ID_KEY);
+                    localStorage.removeItem(ADD_DISH_TYPE_KEY);
+
+                    router.push(`/owner/hotel/${restaurantId}/edit-menu`);
+                  } catch (err) {
+                    setSubmitError(
+                      err instanceof Error ? err.message : "Failed to add dish"
+                    );
+                    setIsSubmitting(false);
+                  }
                 }}
-                className={`px-6 py-2 rounded-md text-sm font-medium
+                className={`px-6 py-2 rounded-md text-sm font-medium disabled:opacity-70
                   ${
-                    canProceed
+                    canProceed && !isSubmitting
                       ? "bg-[#0A84C1] text-white"
                       : "bg-gray-200 text-gray-400 cursor-not-allowed"
                   }`}
               >
-                Add
+                {isSubmitting ? "Adding..." : "Add"}
               </button>
             </div>
 

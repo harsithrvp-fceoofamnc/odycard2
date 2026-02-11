@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useEffect } from "react";
 import Cropper from "react-easy-crop";
+import { API_BASE } from "@/lib/api";
 
 /* helpers */
 const createImage = (url: string): Promise<HTMLImageElement> =>
@@ -45,14 +46,30 @@ export default function EditLogoPage() {
   const [zoom, setZoom] = useState(1);
   const [croppedAreaPixels, setCroppedAreaPixels] = useState<any>(null);
   const [error, setError] = useState("");
+  const [hotelId, setHotelId] = useState<string | null>(null);
 
-  // 🔥 LOAD CURRENT LOGO ON PAGE OPEN (AND STORE ORIGINAL)
+  // Load current logo from API (multi-tenant: hotel-scoped)
   useEffect(() => {
-    const savedLogo = localStorage.getItem("restaurantLogo");
-    if (savedLogo) {
-      setCroppedImage(savedLogo);
-      setOriginalLogo(savedLogo); // important backup
-    }
+    const slug = localStorage.getItem("restaurantId");
+    if (!slug) return;
+
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch(`${API_BASE}/api/hotels/${encodeURIComponent(slug)}`);
+        if (!res.ok) return;
+        const hotel = await res.json();
+        if (cancelled) return;
+        setHotelId(String(hotel.id));
+        if (hotel.logo_url) {
+          setCroppedImage(hotel.logo_url);
+          setOriginalLogo(hotel.logo_url);
+        }
+      } catch {
+        // ignore
+      }
+    })();
+    return () => { cancelled = true; };
   }, []);
 
   const onCropComplete = useCallback((_: any, area: any) => {
@@ -95,24 +112,28 @@ export default function EditLogoPage() {
     setError("");
   };
 
-  // 🔥 SAVE (MANDATORY LOGO)
-  const handleSave = () => {
-    if (!croppedImage) {
+  // 🔥 SAVE — PATCH hotel with logo (multi-tenant)
+  const handleSave = async () => {
+    if (!croppedImage || !hotelId) {
       setError("Please add a logo");
       return;
     }
 
-    // 🔥 COMMIT FINAL LOGO
-    localStorage.setItem("restaurantLogo", croppedImage);
-
-    window.location.href = "/owner/dashboard";
+    try {
+      const res = await fetch(`${API_BASE}/api/hotels/${hotelId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ logo_url: croppedImage }),
+      });
+      if (!res.ok) throw new Error("Failed to save logo");
+      window.location.href = "/owner/dashboard";
+    } catch {
+      setError("Failed to save. Try again.");
+    }
   };
 
-  // 🔥 CANCEL — RESTORE ORIGINAL LOGO
+  // 🔥 CANCEL — no API call, just redirect
   const handleCancel = () => {
-    if (originalLogo) {
-      localStorage.setItem("restaurantLogo", originalLogo);
-    }
     window.location.href = "/owner/dashboard";
   };
 

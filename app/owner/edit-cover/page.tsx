@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useEffect } from "react";
 import Cropper from "react-easy-crop";
+import { API_BASE } from "@/lib/api";
 
 /* helpers */
 const createImage = (url: string): Promise<HTMLImageElement> =>
@@ -46,16 +47,32 @@ export default function EditCoverPage() {
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
   const [croppedAreaPixels, setCroppedAreaPixels] = useState<any>(null);
+  const [hotelId, setHotelId] = useState<string | null>(null);
 
-  // 🔥 LOAD CURRENT COVER (ONCE)
+  // Load current cover from API (multi-tenant: hotel-scoped)
   useEffect(() => {
-    const savedCover = localStorage.getItem("restaurantCover");
-    if (savedCover && savedCover !== "null") {
-      setCroppedCover(savedCover);
-      setOriginalCover(savedCover); // snapshot for cancel
-    } else {
-      setOriginalCover(null);
-    }
+    const slug = localStorage.getItem("restaurantId");
+    if (!slug) return;
+
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch(`${API_BASE}/api/hotels/${encodeURIComponent(slug)}`);
+        if (!res.ok) return;
+        const hotel = await res.json();
+        if (cancelled) return;
+        setHotelId(String(hotel.id));
+        if (hotel.cover_url && hotel.cover_url !== "null") {
+          setCroppedCover(hotel.cover_url);
+          setOriginalCover(hotel.cover_url);
+        } else {
+          setOriginalCover(null);
+        }
+      } catch {
+        // ignore
+      }
+    })();
+    return () => { cancelled = true; };
   }, []);
 
   const onCropComplete = useCallback((_: any, area: any) => {
@@ -100,17 +117,22 @@ export default function EditCoverPage() {
     setShowCrop(false);
   };
 
-  // 🔥 SAVE (COMMIT CHANGES)
-  const handleSubmit = () => {
-    if (croppedCover) {
-      localStorage.setItem("restaurantCover", croppedCover);
-    } else {
-      // user chose to remove cover
-      localStorage.removeItem("restaurantCover");
-      localStorage.removeItem("restaurantCoverOriginal");
-    }
+  // 🔥 SAVE — PATCH hotel with cover (multi-tenant)
+  const handleSubmit = async () => {
+    if (!hotelId) return;
 
-    window.location.href = "/owner/dashboard";
+    try {
+      const res = await fetch(`${API_BASE}/api/hotels/${hotelId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ cover_url: croppedCover || null }),
+      });
+      if (!res.ok) throw new Error("Failed to save cover");
+      window.location.href = "/owner/dashboard";
+    } catch {
+      // show error - for now just redirect
+      window.location.href = "/owner/dashboard";
+    }
   };
 
   // 🔥 CANCEL (ROLLBACK)

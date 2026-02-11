@@ -2,6 +2,7 @@
 
 import { useState, useCallback } from "react";
 import Cropper from "react-easy-crop";
+import { API_BASE } from "@/lib/api";
 
 /* helpers */
 const createImage = (url: string): Promise<HTMLImageElement> =>
@@ -49,6 +50,7 @@ export default function DetailsPart2() {
   const [zoom, setZoom] = useState(1);
   const [croppedAreaPixels, setCroppedAreaPixels] = useState<any>(null);
   const [error, setError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // 🔥 PROGRESS — START 50, LOGO MAKES IT 100
   let progress = 50;
@@ -106,15 +108,79 @@ export default function DetailsPart2() {
     setError("");
   };
 
-  // SUBMIT — ONLY LOGO REQUIRED
-  const handleSubmit = () => {
+  // SUBMIT — create hotel, upload logo/cover, then redirect
+  const handleSubmit = async () => {
     if (!croppedImage) {
       setError("Please upload your logo");
       return;
     }
 
-    // 🔥 COVER IS OPTIONAL — NO ERROR
-    window.location.href = "/owner/success";
+    const restaurantName = localStorage.getItem("restaurantName") || "";
+    const restaurantId = localStorage.getItem("restaurantId") || "";
+
+    if (!restaurantName || !restaurantId) {
+      setError("Missing restaurant details. Please go back and fill the form.");
+      return;
+    }
+
+    setIsSubmitting(true);
+    setError("");
+
+    try {
+      // 1. Create new hotel (unique slug generated server-side)
+      const createRes = await fetch(`${API_BASE}/api/hotels`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: restaurantName,
+          slug: restaurantId,
+        }),
+      });
+
+      if (!createRes.ok) {
+        const text = await createRes.text();
+        let msg = "Failed to create restaurant";
+        try {
+          const data = JSON.parse(text);
+          if (data?.error) msg = data.error;
+        } catch {
+          if (text) msg = `${msg} (${createRes.status}: ${text.slice(0, 80)}…)`;
+          else msg = `${msg} (HTTP ${createRes.status})`;
+        }
+        throw new Error(msg);
+      }
+
+      const hotel = await createRes.json();
+
+      // 2. Update hotel with logo and cover (base64 data URLs supported)
+      const patchRes = await fetch(`${API_BASE}/api/hotels/${hotel.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          logo_url: croppedImage,
+          cover_url: croppedCover || null,
+        }),
+      });
+
+      if (!patchRes.ok) {
+        console.warn("Logo/cover update failed, continuing...");
+      }
+
+      // 3. Clear previous owner data (multi-tenant isolation)
+      localStorage.removeItem("ody_dishes");
+      localStorage.removeItem("restaurantLogo");
+      localStorage.removeItem("restaurantCover");
+
+      // 4. Store this owner's hotel data
+      localStorage.setItem("ody_hotel_id", String(hotel.id));
+      localStorage.setItem("restaurantId", hotel.slug);
+      localStorage.setItem("restaurantName", hotel.name);
+
+      window.location.href = "/owner/success";
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Something went wrong");
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -227,10 +293,11 @@ export default function DetailsPart2() {
           {/* SUBMIT */}
           <button
             onClick={handleSubmit}
-            className="w-full rounded-full bg-[#0A84C1] text-white font-semibold"
+            disabled={isSubmitting}
+            className="w-full rounded-full bg-[#0A84C1] text-white font-semibold disabled:opacity-70 disabled:cursor-not-allowed"
             style={{ fontSize: "18px", padding: "14px" }}
           >
-            Submit
+            {isSubmitting ? "Creating..." : "Submit"}
           </button>
         </div>
       </div>

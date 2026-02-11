@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
+import { API_BASE } from "@/lib/api";
 
 export default function OwnerDashboard() {
   const router = useRouter();
@@ -10,29 +11,86 @@ export default function OwnerDashboard() {
   const [userName, setUserName] = useState("");
   const [restaurantLogo, setRestaurantLogo] = useState("");
   const [restaurantCover, setRestaurantCover] = useState("");
+  const [restaurantId, setRestaurantId] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   const [showLogoSheet, setShowLogoSheet] = useState(false);
   const [showCoverSheet, setShowCoverSheet] = useState(false);
 
-  // ✅ FIX 2: Re-sync after redirect (restores old behaviour)
+  // Load owner's hotel from API (multi-tenant: no localStorage fallbacks)
   useEffect(() => {
-    const syncFromStorage = () => {
-      setUserName(localStorage.getItem("userName") || "Owner");
+    const slug = localStorage.getItem("restaurantId");
+    if (!slug) {
+      setLoadError("No restaurant found. Please complete signup.");
+      setIsLoading(false);
+      return;
+    }
 
-      const logo = localStorage.getItem("restaurantLogo");
-      setRestaurantLogo(logo && logo !== "null" ? logo : "");
+    const slugVal = slug;
+    let cancelled = false;
 
-      const cover = localStorage.getItem("restaurantCover");
-      setRestaurantCover(cover && cover !== "null" ? cover : "");
-    };
+    async function loadHotel() {
+      try {
+        const res = await fetch(
+          `${API_BASE}/api/hotels/${encodeURIComponent(slugVal)}`
+        );
+        if (!res.ok) {
+          if (res.status === 404) {
+            setLoadError("Hotel not found. Please complete signup.");
+          } else {
+            setLoadError("Failed to load dashboard.");
+          }
+          return;
+        }
+        const hotel = await res.json();
+        if (cancelled) return;
 
-    syncFromStorage();
+        setRestaurantId(hotel.slug);
+        setRestaurantLogo(hotel.logo_url && hotel.logo_url !== "null" ? hotel.logo_url : "");
+        setRestaurantCover(hotel.cover_url && hotel.cover_url !== "null" ? hotel.cover_url : "");
+        setLoadError(null);
+      } catch (err) {
+        if (!cancelled) {
+          console.error("Dashboard load error:", err);
+          setLoadError("Failed to load dashboard.");
+        }
+      } finally {
+        if (!cancelled) setIsLoading(false);
+      }
+    }
 
-    window.addEventListener("focus", syncFromStorage);
-    return () => window.removeEventListener("focus", syncFromStorage);
+    loadHotel();
+    return () => { cancelled = true; };
+  }, []);
+
+  useEffect(() => {
+    setUserName(localStorage.getItem("userName") || "Owner");
   }, []);
 
   const card = "border border-gray-200 rounded-2xl p-4 bg-white";
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <p className="text-white/80">Loading dashboard...</p>
+      </div>
+    );
+  }
+
+  if (loadError) {
+    return (
+      <div className="min-h-screen bg-black flex flex-col items-center justify-center gap-4 px-6">
+        <p className="text-white/80 text-center">{loadError}</p>
+        <button
+          onClick={() => router.push("/owner/details")}
+          className="px-6 py-2 rounded-full bg-[#0A84C1] text-white"
+        >
+          Complete signup
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-black flex justify-center">
@@ -115,12 +173,12 @@ export default function OwnerDashboard() {
             <div
               className={`${card} cursor-pointer hover:shadow-md transition`}
               onClick={() => {
-                const restaurantId = localStorage.getItem("restaurantId");
-                if (!restaurantId) {
+                const slug = restaurantId || localStorage.getItem("restaurantId");
+                if (!slug) {
                   alert("Restaurant not found");
                   return;
                 }
-                router.push(`/owner/hotel/${restaurantId}/edit-menu`);
+                router.push(`/owner/hotel/${slug}/edit-menu`);
               }}
             >
               <div className="flex items-center justify-center gap-3 h-full">
