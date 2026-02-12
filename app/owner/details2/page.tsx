@@ -153,7 +153,7 @@ export default function DetailsPart2() {
       const hotel = await createRes.json();
 
       // 2. Update hotel with logo and cover (base64 data URLs supported)
-      const patchRes = await fetch(`${API_BASE}/api/hotels/${hotel.id}`, {
+      const patchRes = await fetch(`${API_BASE}/api/hotels/slug/${encodeURIComponent(hotel.slug)}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

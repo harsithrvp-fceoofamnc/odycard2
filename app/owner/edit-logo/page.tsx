@@ -114,13 +114,14 @@ export default function EditLogoPage() {
 
   // 🔥 SAVE — PATCH hotel with logo (multi-tenant)
   const handleSave = async () => {
-    if (!croppedImage || !hotelId) {
+    const slug = localStorage.getItem("restaurantId");
+    if (!croppedImage || !slug) {
       setError("Please add a logo");
       return;
     }
 
     try {
-      const res = await fetch(`${API_BASE}/api/hotels/${hotelId}`, {
+      const res = await fetch(`${API_BASE}/api/hotels/slug/${encodeURIComponent(slug)}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ logo_url: croppedImage }),

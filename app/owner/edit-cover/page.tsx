@@ -119,10 +119,11 @@ export default function EditCoverPage() {
 
   // 🔥 SAVE — PATCH hotel with cover (multi-tenant)
   const handleSubmit = async () => {
-    if (!hotelId) return;
+    const slug = localStorage.getItem("restaurantId");
+    if (!slug) return;
 
     try {
-      const res = await fetch(`${API_BASE}/api/hotels/${hotelId}`, {
+      const res = await fetch(`${API_BASE}/api/hotels/slug/${encodeURIComponent(slug)}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ cover_url: croppedCover || null }),
