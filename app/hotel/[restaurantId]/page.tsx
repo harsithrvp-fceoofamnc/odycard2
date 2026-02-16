@@ -741,7 +741,7 @@ export default function HotelHomePage() {
         </div>
 
         {/* 🔥 COVER SECTION */}
-        <div className="relative w-full h-48 sm:h-56 md:h-64 overflow-hidden">
+        <div className="relative w-full h-[50vh] overflow-hidden">
           {cover ? (
             <>
               <img src={cover} className="w-full h-full object-cover" alt="" />
@@ -751,16 +751,16 @@ export default function HotelHomePage() {
             <div className="w-full h-full bg-[#1c1c1c]" />
           )}
 
-          <div className="absolute inset-0 flex items-center justify-center -translate-y-4 sm:-translate-y-6">
+          <div className="absolute inset-0 flex items-center justify-center -translate-y-6">
             {logo && (
-              <div className="w-28 h-28 sm:w-36 sm:h-36 md:w-44 md:h-44 rounded-full overflow-hidden shadow-xl">
+              <div className="w-44 h-44 rounded-full overflow-hidden shadow-[0_35px_70px_rgba(0,0,0,0.85)]">
                 <img src={logo} className="w-full h-full object-cover" alt="" />
               </div>
             )}
           </div>
 
-          <div className="absolute bottom-0 left-1/2 -translate-x-1/2 z-30 px-3 sm:px-4 w-full flex justify-center">
-            <div className="flex gap-1.5 sm:gap-2 px-1.5 py-1.5 sm:px-2 sm:py-2 rounded-full bg-black/60 backdrop-blur-md shadow-lg border border-white/10">
+          <div className="absolute bottom-0 left-1/2 -translate-x-1/2 z-30 w-full px-4 flex justify-center">
+            <div className="flex gap-2 px-2 py-2 rounded-full bg-black/60 backdrop-blur-md border border-white/10">
               {tabs.map((tab, index) => (
                 <button
                   key={tab}
