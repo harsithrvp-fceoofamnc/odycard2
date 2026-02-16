@@ -13,6 +13,15 @@ const createImage = (url: string): Promise<HTMLImageElement> =>
     image.src = url;
   });
 
+function fileToBase64(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
 async function getCroppedImg(imageSrc: string, crop: any) {
   const image = await createImage(imageSrc);
   const canvas = document.createElement("canvas");
@@ -42,6 +51,7 @@ export default function DetailsPart2() {
 
   const [coverSrc, setCoverSrc] = useState<string | null>(null);
   const [originalCoverSrc, setOriginalCoverSrc] = useState<string | null>(null);
+  const [originalCoverBase64, setOriginalCoverBase64] = useState<string | null>(null);
   const [croppedCover, setCroppedCover] = useState<string | null>(null);
 
   const [showCrop, setShowCrop] = useState(false);
@@ -78,14 +88,16 @@ export default function DetailsPart2() {
     setShowCrop(true);
   };
 
-  // COVER UPLOAD (OPTIONAL)
-  const handleCoverUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // COVER UPLOAD (OPTIONAL) — store full base64 for cover_original_url on submit
+  const handleCoverUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;
     const file = e.target.files[0];
     if (!file.type.startsWith("image/")) return;
 
     const url = URL.createObjectURL(file);
+    const base64 = await fileToBase64(file);
     setOriginalCoverSrc(url);
+    setOriginalCoverBase64(base64);
     setCoverSrc(url);
     setCropType("cover");
     setZoom(1);
@@ -175,13 +187,17 @@ export default function DetailsPart2() {
       const hotel = await createRes.json();
 
       // 2. Update hotel with logo and cover (base64 data URLs supported)
+      const patchBody: Record<string, string | null> = {
+        logo_url: croppedImage,
+        cover_url: croppedCover || null,
+      };
+      if (originalCoverBase64) {
+        patchBody.cover_original_url = originalCoverBase64;
+      }
       const patchRes = await fetch(`${API_BASE}/api/hotels/${hotel.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          logo_url: croppedImage,
-          cover_url: croppedCover || null,
-        }),
+        body: JSON.stringify(patchBody),
       });
 
       if (!patchRes.ok) {

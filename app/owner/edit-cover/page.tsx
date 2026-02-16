@@ -13,6 +13,15 @@ const createImage = (url: string): Promise<HTMLImageElement> =>
     image.src = url;
   });
 
+function fileToBase64(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
 async function getCroppedImg(imageSrc: string, crop: any) {
   const image = await createImage(imageSrc);
   const canvas = document.createElement("canvas");
@@ -40,8 +49,15 @@ export default function EditCoverPage() {
   const [imageSrc, setImageSrc] = useState<string | null>(null);
   const [croppedCover, setCroppedCover] = useState<string | null>(null);
 
+  // cover_original_url = full image for re-cropping; cover_url = cropped display
+  const [coverOriginalUrl, setCoverOriginalUrl] = useState<string | null>(null);
+
   // 🔐 SNAPSHOT OF SAVED STATE (for Cancel)
   const [originalCover, setOriginalCover] = useState<string | null>(null);
+  const [originalCoverOriginal, setOriginalCoverOriginal] = useState<string | null>(null);
+
+  // New file upload: store full base64 for PATCH on Submit
+  const [newFileBase64, setNewFileBase64] = useState<string | null>(null);
 
   const [showCrop, setShowCrop] = useState(false);
   const [crop, setCrop] = useState({ x: 0, y: 0 });
@@ -68,6 +84,13 @@ export default function EditCoverPage() {
         } else {
           setOriginalCover(null);
         }
+        if (hotel.cover_original_url && hotel.cover_original_url !== "null") {
+          setCoverOriginalUrl(hotel.cover_original_url);
+          setOriginalCoverOriginal(hotel.cover_original_url);
+        } else {
+          setCoverOriginalUrl(null);
+          setOriginalCoverOriginal(null);
+        }
       } catch {
         // ignore
       }
@@ -79,23 +102,30 @@ export default function EditCoverPage() {
     setCroppedAreaPixels(area);
   }, []);
 
-  // 🔥 ADD NEW COVER
-  const handleCoverUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // 🔥 ADD NEW COVER — store full base64 for PATCH on Submit
+  const handleCoverUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;
     const file = e.target.files[0];
     if (!file.type.startsWith("image/")) return;
 
     const src = URL.createObjectURL(file);
+    const base64 = await fileToBase64(file);
 
-    // keep original only in memory for editing
+    setNewFileBase64(base64); // will PATCH both cover_original_url and cover_url on Submit
     setImageSrc(src);
+    setZoom(1);
+    setCrop({ x: 0, y: 0 });
     setShowCrop(true);
   };
 
-  // 🔥 EDIT CURRENT COVER
+  // 🔥 EDIT CURRENT COVER — cropper loads cover_original_url if available, else cover_url
   const handleEditCurrent = () => {
-    if (croppedCover) {
-      setImageSrc(croppedCover);
+    const src = coverOriginalUrl ?? croppedCover;
+    if (src) {
+      setNewFileBase64(null); // re-crop only; PATCH cover_url only on Submit
+      setImageSrc(src);
+      setZoom(1);
+      setCrop({ x: 0, y: 0 });
       setShowCrop(true);
     }
   };
@@ -104,6 +134,7 @@ export default function EditCoverPage() {
   const handleRemove = () => {
     setCroppedCover(null);
     setImageSrc(null);
+    setNewFileBase64(null);
   };
 
   // 🔥 SAVE CROPPED RESULT (DRAFT)
@@ -117,7 +148,7 @@ export default function EditCoverPage() {
     setShowCrop(false);
   };
 
-  // 🔥 SAVE — PATCH hotel with cover (multi-tenant)
+  // 🔥 SAVE — PATCH hotel: new file = both; re-crop = cover_url only
   const handleSubmit = async () => {
     const slug = localStorage.getItem("restaurantId");
     if (!slug) return;
@@ -127,10 +158,20 @@ export default function EditCoverPage() {
       if (!hotelRes.ok) throw new Error("Hotel not found");
       const hotel = await hotelRes.json();
 
+      const body: Record<string, string | null> = { cover_url: croppedCover ?? null };
+      if (newFileBase64) {
+        // New image file: update both original and cropped
+        body.cover_original_url = newFileBase64;
+      } else if (croppedCover === null) {
+        // Remove: clear both
+        body.cover_original_url = null;
+      }
+      // Re-crop only: do not send cover_original_url (leave existing)
+
       const res = await fetch(`${API_BASE}/api/hotels/${hotel.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ cover_url: croppedCover ?? null }),
+        body: JSON.stringify(body),
       });
       if (!res.ok) throw new Error("Failed to save cover");
       setCroppedCover("");
@@ -143,8 +184,9 @@ export default function EditCoverPage() {
 
   // 🔥 CANCEL (ROLLBACK)
   const handleCancel = () => {
-    // restore original state (no commit)
     setCroppedCover(originalCover);
+    setCoverOriginalUrl(originalCoverOriginal);
+    setNewFileBase64(null);
     window.location.href = "/owner/dashboard";
   };
 
