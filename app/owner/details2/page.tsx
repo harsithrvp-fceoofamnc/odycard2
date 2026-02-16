@@ -41,6 +41,7 @@ export default function DetailsPart2() {
   const [croppedImage, setCroppedImage] = useState<string | null>(null);
 
   const [coverSrc, setCoverSrc] = useState<string | null>(null);
+  const [originalCoverSrc, setOriginalCoverSrc] = useState<string | null>(null);
   const [croppedCover, setCroppedCover] = useState<string | null>(null);
 
   const [showCrop, setShowCrop] = useState(false);
@@ -83,8 +84,22 @@ export default function DetailsPart2() {
     const file = e.target.files[0];
     if (!file.type.startsWith("image/")) return;
 
-    setCoverSrc(URL.createObjectURL(file));
+    const url = URL.createObjectURL(file);
+    setOriginalCoverSrc(url);
+    setCoverSrc(url);
     setCropType("cover");
+    setZoom(1);
+    setCrop({ x: 0, y: 0 });
+    setShowCrop(true);
+  };
+
+  // EDIT COVER — reopen cropper with original full image
+  const handleEditCover = () => {
+    if (!originalCoverSrc) return;
+    setCoverSrc(originalCoverSrc);
+    setCropType("cover");
+    setZoom(1);
+    setCrop({ x: 0, y: 0 });
     setShowCrop(true);
   };
 
@@ -101,13 +116,14 @@ export default function DetailsPart2() {
       localStorage.setItem("restaurantLogo", cropped);
     }
 
-    // COVER SAVE (ONLY IF USER ADDS)
+    // COVER SAVE (ONLY IF USER ADDS) — do not overwrite originalCoverSrc
     if (cropType === "cover" && coverSrc) {
       const cropped = await getCroppedImg(coverSrc, croppedAreaPixels);
       if (!cropped) return;
 
       setCroppedCover(cropped);
       localStorage.setItem("restaurantCover", cropped);
+      // originalCoverSrc stays unchanged — cropper always uses full image on next edit
     }
 
     setShowCrop(false);
@@ -266,6 +282,7 @@ export default function DetailsPart2() {
                 <img
                   src={croppedCover}
                   className="w-full h-full object-cover"
+                  alt="Cover preview"
                 />
               ) : (
                 <div className="flex flex-col items-center w-full text-center">
@@ -288,6 +305,19 @@ export default function DetailsPart2() {
                 className="absolute inset-0 opacity-0 cursor-pointer"
               />
             </div>
+
+            {/* EDIT COVER — only when cover exists, opens cropper with full original */}
+            {croppedCover && (
+              <div className="flex justify-center gap-12 mt-6">
+                <button
+                  type="button"
+                  onClick={handleEditCover}
+                  className="text-[#0A84C1] text-lg font-medium"
+                >
+                  Edit Cover
+                </button>
+              </div>
+            )}
           </div>
 
           {error && (
