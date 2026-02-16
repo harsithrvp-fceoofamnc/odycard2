@@ -47,8 +47,8 @@ export default function OwnerDashboard() {
         if (cancelled) return;
 
         setRestaurantId(hotel.slug);
-        setRestaurantLogo(hotel.logo_url && hotel.logo_url !== "null" ? hotel.logo_url : "");
-        setRestaurantCover(hotel.cover_url && hotel.cover_url !== "null" ? hotel.cover_url : "");
+        setRestaurantLogo(hotel.logo_url || "");
+        setRestaurantCover(hotel.cover_url || "");
         setLoadError(null);
       } catch (err) {
         if (!cancelled) {

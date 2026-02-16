@@ -130,9 +130,10 @@ export default function EditCoverPage() {
       const res = await fetch(`${API_BASE}/api/hotels/${hotel.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ cover_url: croppedCover || null }),
+        body: JSON.stringify({ cover_url: croppedCover ?? null }),
       });
       if (!res.ok) throw new Error("Failed to save cover");
+      setCroppedCover("");
       window.location.href = "/owner/dashboard";
     } catch {
       // show error - for now just redirect

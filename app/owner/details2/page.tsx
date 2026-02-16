@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import Cropper from "react-easy-crop";
 import { API_BASE } from "@/lib/api";
 
@@ -59,6 +59,12 @@ export default function DetailsPart2() {
   const onCropComplete = useCallback((_: any, area: any) => {
     setCroppedAreaPixels(area);
   }, []);
+
+  // Reset zoom and crop when switching between logo and cover
+  useEffect(() => {
+    setZoom(1);
+    setCrop({ x: 0, y: 0 });
+  }, [cropType]);
 
   // LOGO UPLOAD (REQUIRED)
   const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -312,6 +318,9 @@ export default function DetailsPart2() {
               zoom={zoom}
               aspect={cropType === "logo" ? 1 : 4 / 3}
               cropShape={cropType === "logo" ? "round" : "rect"}
+              minZoom={1}
+              maxZoom={3}
+              restrictPosition={false}
               onCropChange={setCrop}
               onZoomChange={setZoom}
               onCropComplete={onCropComplete}
