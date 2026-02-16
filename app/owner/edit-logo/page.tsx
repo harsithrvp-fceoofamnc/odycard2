@@ -121,7 +121,11 @@ export default function EditLogoPage() {
     }
 
     try {
-      const res = await fetch(`${API_BASE}/api/hotels/slug/${encodeURIComponent(slug)}`, {
+      const hotelRes = await fetch(`${API_BASE}/api/hotels/${encodeURIComponent(slug)}`);
+      if (!hotelRes.ok) throw new Error("Hotel not found");
+      const hotel = await hotelRes.json();
+
+      const res = await fetch(`${API_BASE}/api/hotels/${hotel.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ logo_url: croppedImage }),
