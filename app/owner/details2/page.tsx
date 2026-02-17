@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import Cropper from "react-easy-crop";
 import { API_BASE } from "@/lib/api";
 import { useLoader } from "@/context/LoaderContext";
@@ -62,6 +62,7 @@ export default function DetailsPart2() {
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
   const [croppedAreaPixels, setCroppedAreaPixels] = useState<any>(null);
+  const croppedAreaPixelsRef = useRef<any>(null);
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -71,6 +72,11 @@ export default function DetailsPart2() {
 
   const onCropComplete = useCallback((_: any, area: any) => {
     setCroppedAreaPixels(area);
+    croppedAreaPixelsRef.current = area;
+  }, []);
+
+  const onCropAreaChange = useCallback((_: any, area: any) => {
+    croppedAreaPixelsRef.current = area;
   }, []);
 
   // Reset zoom and crop when switching between logo and cover
@@ -130,14 +136,19 @@ export default function DetailsPart2() {
       localStorage.setItem("restaurantLogo", cropped);
     }
 
-    // COVER SAVE (ONLY IF USER ADDS) — do not overwrite originalCoverSrc
+    // COVER SAVE (ONLY IF USER ADDS) — use ref for latest crop, modal closes after crop generated
     if (cropType === "cover" && coverSrc) {
-      const cropped = await getCroppedImg(coverSrc, croppedAreaPixels);
+      const areaPixels = croppedAreaPixelsRef.current ?? croppedAreaPixels;
+      if (!areaPixels) return;
+
+      const cropped = await getCroppedImg(coverSrc, areaPixels);
       if (!cropped) return;
 
       setCroppedCover(cropped);
       localStorage.setItem("restaurantCover", cropped);
-      // originalCoverSrc stays unchanged — cropper always uses full image on next edit
+      setShowCrop(false);
+      setError("");
+      return;
     }
 
     setShowCrop(false);
@@ -374,6 +385,7 @@ export default function DetailsPart2() {
               onCropChange={setCrop}
               onZoomChange={setZoom}
               onCropComplete={onCropComplete}
+              onCropAreaChange={onCropAreaChange}
             />
           </div>
 
