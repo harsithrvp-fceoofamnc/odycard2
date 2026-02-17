@@ -7,14 +7,6 @@ import { API_BASE } from "@/lib/api";
 import { useLoader } from "@/context/LoaderContext";
 import ProgressBar from "@/components/ProgressBar";
 
-function slugify(s: string): string {
-  return s
-    .toLowerCase()
-    .trim()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-|-$/g, "") || `id-${Date.now()}`;
-}
-
 /* helpers */
 const createImage = (url: string): Promise<HTMLImageElement> =>
   new Promise((resolve, reject) => {
@@ -202,26 +194,7 @@ export default function DetailsPart2() {
     showLoader();
 
     try {
-      // 1. Idempotency check: verify slug does not already exist before creating
-      const slug = slugify(restaurantName);
-      const checkRes = await fetch(`${API_BASE}/api/hotels/${encodeURIComponent(slug)}`);
-
-      if (checkRes.ok) {
-        hideLoader();
-        setIsSubmitting(false);
-        sessionStorage.setItem("detailsRestaurantIdError", "Restaurant ID already exists. Please go back and choose another.");
-        router.push("/owner/details");
-        return;
-      }
-
-      if (checkRes.status !== 404) {
-        hideLoader();
-        setError("Could not verify Restaurant ID. Please try again.");
-        setIsSubmitting(false);
-        return;
-      }
-
-      // 2. Create new hotel (slug generated from name server-side)
+      // Create new hotel — backend is single source of truth for slug uniqueness
       const createRes = await fetch(`${API_BASE}/api/hotels`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -253,7 +226,7 @@ export default function DetailsPart2() {
 
       const hotel = await createRes.json();
 
-      // 2. Update hotel with logo and cover (base64 data URLs supported)
+      // Update hotel with logo and cover (base64 data URLs supported)
       const patchBody: Record<string, string | null> = {
         logo_url: croppedImage,
         cover_url: croppedCover || null,

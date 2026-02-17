@@ -3,21 +3,10 @@
 import { useState, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { API_BASE } from "@/lib/api";
 import ProgressBar from "@/components/ProgressBar";
-import { useLoader } from "@/context/LoaderContext";
-
-function slugify(s: string): string {
-  return s
-    .toLowerCase()
-    .trim()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-|-$/g, "") || `id-${Date.now()}`;
-}
 
 export default function RestaurantDetailsPage() {
   const router = useRouter();
-  const { showLoader, hideLoader } = useLoader();
 
   const [form, setForm] = useState({
     restaurantName: "",
@@ -64,7 +53,7 @@ export default function RestaurantDetailsPage() {
     setErrors({ general: "", gmail: "", password: "", restaurantId: "" });
   };
 
-  const handleNext = async () => {
+  const handleNext = () => {
     let hasError = false;
     const newErrors = { general: "", gmail: "", password: "", restaurantId: "" };
 
@@ -92,30 +81,7 @@ export default function RestaurantDetailsPage() {
     }
 
     setErrors(newErrors);
-    showLoader();
 
-    try {
-      const slug = slugify(form.restaurantId);
-      const res = await fetch(`${API_BASE}/api/hotels/${encodeURIComponent(slug)}`);
-
-      if (res.ok) {
-        hideLoader();
-        setErrors((prev) => ({ ...prev, restaurantId: "Restaurant ID already exists" }));
-        return;
-      }
-
-      if (res.status !== 404) {
-        hideLoader();
-        setErrors((prev) => ({ ...prev, restaurantId: "Could not verify Restaurant ID. Please try again." }));
-        return;
-      }
-    } catch {
-      hideLoader();
-      setErrors((prev) => ({ ...prev, restaurantId: "Could not verify Restaurant ID. Please try again." }));
-      return;
-    }
-
-    hideLoader();
     /* 🔥 SAVE IMPORTANT DATA */
     localStorage.setItem("userName", form.userName);
     localStorage.setItem("restaurantName", form.restaurantName);
