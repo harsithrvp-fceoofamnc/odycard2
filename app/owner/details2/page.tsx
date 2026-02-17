@@ -84,6 +84,7 @@ export default function DetailsPart2() {
   const [zoom, setZoom] = useState(1);
   const [croppedAreaPixels, setCroppedAreaPixels] = useState<any>(null);
   const croppedAreaPixelsRef = useRef<any>(null);
+  const coverInputRef = useRef<HTMLInputElement>(null);
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -166,12 +167,19 @@ export default function DetailsPart2() {
       setCroppedCover(cropped);
       localStorage.setItem("restaurantCover", cropped);
       setShowCrop(false);
+      if (coverInputRef.current) coverInputRef.current.value = "";
       setError("");
       return;
     }
 
     setShowCrop(false);
+    if (coverInputRef.current) coverInputRef.current.value = "";
     setError("");
+  };
+
+  const closeCropModal = () => {
+    setShowCrop(false);
+    if (coverInputRef.current) coverInputRef.current.value = "";
   };
 
   // SUBMIT — create hotel, upload logo/cover, then redirect
@@ -200,8 +208,9 @@ export default function DetailsPart2() {
 
       if (checkRes.ok) {
         hideLoader();
-        setError("Restaurant ID already exists. Please go back and choose another.");
         setIsSubmitting(false);
+        sessionStorage.setItem("detailsRestaurantIdError", "Restaurant ID already exists. Please go back and choose another.");
+        router.push("/owner/details");
         return;
       }
 
@@ -225,8 +234,9 @@ export default function DetailsPart2() {
       if (!createRes.ok) {
         if (createRes.status === 409) {
           hideLoader();
-          setError("Restaurant ID already exists. Please go back and choose another.");
           setIsSubmitting(false);
+          sessionStorage.setItem("detailsRestaurantIdError", "Restaurant ID already exists. Please go back and choose another.");
+          router.push("/owner/details");
           return;
         }
         const text = await createRes.text();
@@ -373,6 +383,7 @@ export default function DetailsPart2() {
               )}
 
               <input
+                ref={coverInputRef}
                 type="file"
                 accept="image/*"
                 onChange={handleCoverUpload}
@@ -446,7 +457,7 @@ export default function DetailsPart2() {
 
           <div className="p-4 flex justify-between bg-black">
             <button
-              onClick={() => setShowCrop(false)}
+              onClick={closeCropModal}
               className="text-white text-lg"
             >
               Cancel

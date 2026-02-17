@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { API_BASE } from "@/lib/api";
@@ -51,6 +51,14 @@ export default function RestaurantDetailsPage() {
   const progress = Math.min((filledCount / totalFields) * 50, 50);
 
   /* ---------- HANDLERS ---------- */
+  useEffect(() => {
+    const msg = sessionStorage.getItem("detailsRestaurantIdError");
+    if (msg) {
+      sessionStorage.removeItem("detailsRestaurantIdError");
+      setErrors((prev) => ({ ...prev, restaurantId: msg }));
+    }
+  }, []);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
     setErrors({ general: "", gmail: "", password: "", restaurantId: "" });
