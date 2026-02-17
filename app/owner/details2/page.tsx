@@ -7,6 +7,14 @@ import { API_BASE } from "@/lib/api";
 import { useLoader } from "@/context/LoaderContext";
 import ProgressBar from "@/components/ProgressBar";
 
+function slugify(s: string): string {
+  return s
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "") || `id-${Date.now()}`;
+}
+
 /* helpers */
 const createImage = (url: string): Promise<HTMLImageElement> =>
   new Promise((resolve, reject) => {
@@ -186,7 +194,25 @@ export default function DetailsPart2() {
     showLoader();
 
     try {
-      // 1. Create new hotel (unique slug generated server-side)
+      // 1. Idempotency check: verify slug does not already exist before creating
+      const slug = slugify(restaurantName);
+      const checkRes = await fetch(`${API_BASE}/api/hotels/${encodeURIComponent(slug)}`);
+
+      if (checkRes.ok) {
+        hideLoader();
+        setError("Restaurant ID already exists. Please go back and choose another.");
+        setIsSubmitting(false);
+        return;
+      }
+
+      if (checkRes.status !== 404) {
+        hideLoader();
+        setError("Could not verify Restaurant ID. Please try again.");
+        setIsSubmitting(false);
+        return;
+      }
+
+      // 2. Create new hotel (slug generated from name server-side)
       const createRes = await fetch(`${API_BASE}/api/hotels`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -198,7 +224,10 @@ export default function DetailsPart2() {
 
       if (!createRes.ok) {
         if (createRes.status === 409) {
-          throw new Error("Restaurant ID already exists. Please go back and choose another.");
+          hideLoader();
+          setError("Restaurant ID already exists. Please go back and choose another.");
+          setIsSubmitting(false);
+          return;
         }
         const text = await createRes.text();
         let msg = "Failed to create restaurant";
