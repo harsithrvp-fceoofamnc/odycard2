@@ -21,11 +21,54 @@ body {
   min-height: 100%;
   margin: 0;
   padding: 0;
-  overflow-y: auto;   /* ✅ SCROLL ENABLED */
+  overflow-y: auto; /* ✅ SCROLL ENABLED */
 }
 
 body {
-  background: #000000;
+  background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sf);
+}
+
+/* ========================================= */
+/* ===== PREMIUM OdyCard Loader Styles ===== */
+/* ========================================= */
+
+.loader-wrapper {
+  position: fixed;
+  inset: 0;
+  backdrop-filter: blur(10px);
+  background: rgba(0, 0, 0, 0.7); /* dark blur to match theme */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.ody-logo {
+  width: 120px;
+  height: 120px;
+  animation: doubleSpinPause 4s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+/* 2 Spins → Pause 2 Seconds → Repeat */
+@keyframes doubleSpinPause {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  /* First Spin */
+  20% {
+    transform: rotate(360deg);
+  }
+
+  /* Second Spin */
+  40% {
+    transform: rotate(720deg);
+  }
+
+  /* Pause for remaining duration (~2s) */
+  100% {
+    transform: rotate(720deg);
+  }
 }

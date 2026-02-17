@@ -3,6 +3,7 @@
 import { useState, useCallback, useEffect } from "react";
 import Cropper from "react-easy-crop";
 import { API_BASE } from "@/lib/api";
+import { useLoader } from "@/context/LoaderContext";
 
 /* helpers */
 const createImage = (url: string): Promise<HTMLImageElement> =>
@@ -46,6 +47,7 @@ async function getCroppedImg(imageSrc: string, crop: any) {
 }
 
 export default function DetailsPart2() {
+  const { showLoader, hideLoader } = useLoader();
   const [imageSrc, setImageSrc] = useState<string | null>(null);
   const [croppedImage, setCroppedImage] = useState<string | null>(null);
 
@@ -159,6 +161,7 @@ export default function DetailsPart2() {
 
     setIsSubmitting(true);
     setError("");
+    showLoader();
 
     try {
       // 1. Create new hotel (unique slug generated server-side)
@@ -216,6 +219,7 @@ export default function DetailsPart2() {
 
       window.location.href = "/owner/success";
     } catch (err) {
+      hideLoader();
       setError(err instanceof Error ? err.message : "Something went wrong");
       setIsSubmitting(false);
     }

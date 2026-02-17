@@ -1,4 +1,5 @@
 import "./globals.css";
+import { LoaderProvider } from "@/context/LoaderContext";
 
 export const metadata = {
   title: "OdyCard",
@@ -19,7 +20,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        {children}
+        <LoaderProvider>
+          {children}
+        </LoaderProvider>
       </body>
     </html>
   );

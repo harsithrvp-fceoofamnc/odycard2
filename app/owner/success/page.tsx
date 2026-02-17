@@ -4,9 +4,11 @@ import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { QRCodeCanvas } from "qrcode.react";
 import { useEffect, useState } from "react";
+import { useLoader } from "@/context/LoaderContext";
 
 export default function SuccessPage() {
   const router = useRouter();
+  const { showLoader } = useLoader();
 
   const [restaurantId, setRestaurantId] = useState<string | null>(null);
   const [ownerPageUrl, setOwnerPageUrl] = useState<string>("");
@@ -114,7 +116,10 @@ export default function SuccessPage() {
 
         {/* GO HOME */}
         <button
-          onClick={() => router.push("/owner/dashboard")}
+          onClick={() => {
+            showLoader();
+            router.push("/owner/dashboard");
+          }}
           className="w-full rounded-full bg-[#E5E7EB] text-black font-semibold"
           style={{ fontSize: "18px", padding: "14px" }}
         >
