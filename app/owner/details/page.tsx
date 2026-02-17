@@ -3,6 +3,16 @@
 import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
+import { API_BASE } from "@/lib/api";
+import ProgressBar from "@/components/ProgressBar";
+
+function slugify(s: string): string {
+  return s
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "") || `id-${Date.now()}`;
+}
 
 export default function RestaurantDetailsPage() {
   const router = useRouter();
@@ -22,6 +32,7 @@ export default function RestaurantDetailsPage() {
     general: "",
     gmail: "",
     password: "",
+    restaurantId: "",
   });
 
   // 👁️ SHOW / HIDE STATES
@@ -38,14 +49,16 @@ export default function RestaurantDetailsPage() {
   const progress = Math.min((filledCount / totalFields) * 50, 50);
 
   /* ---------- HANDLERS ---------- */
+  const [isCheckingSlug, setIsCheckingSlug] = useState(false);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
-    setErrors({ general: "", gmail: "", password: "" });
+    setErrors({ general: "", gmail: "", password: "", restaurantId: "" });
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
     let hasError = false;
-    const newErrors = { general: "", gmail: "", password: "" };
+    const newErrors = { general: "", gmail: "", password: "", restaurantId: "" };
 
     for (const value of Object.values(form)) {
       if (value.trim() === "") {
@@ -70,6 +83,32 @@ export default function RestaurantDetailsPage() {
       return;
     }
 
+    setIsCheckingSlug(true);
+    setErrors(newErrors);
+
+    try {
+      const slug = slugify(form.restaurantId);
+      const res = await fetch(`${API_BASE}/api/hotels/${encodeURIComponent(slug)}`);
+
+      if (res.ok) {
+        setErrors((prev) => ({ ...prev, restaurantId: "Restaurant ID already exists" }));
+        setIsCheckingSlug(false);
+        return;
+      }
+
+      if (res.status !== 404) {
+        setErrors((prev) => ({ ...prev, restaurantId: "Could not verify Restaurant ID. Please try again." }));
+        setIsCheckingSlug(false);
+        return;
+      }
+    } catch {
+      setErrors((prev) => ({ ...prev, restaurantId: "Could not verify Restaurant ID. Please try again." }));
+      setIsCheckingSlug(false);
+      return;
+    }
+
+    setIsCheckingSlug(false);
+
     /* 🔥 SAVE IMPORTANT DATA */
     localStorage.setItem("userName", form.userName);
     localStorage.setItem("restaurantName", form.restaurantName);
@@ -88,14 +127,15 @@ export default function RestaurantDetailsPage() {
     `w-full border rounded-xl bg-white text-black focus:outline-none 
      focus:border-black focus:ring-1 focus:ring-black pr-12
      ${
-       errors.general && form[name as keyof typeof form] === ""
+       (errors.general && form[name as keyof typeof form] === "") ||
+       (name === "restaurantId" && errors.restaurantId)
          ? "border-red-500"
          : "border-gray-300"
      }`;
 
   return (
     <div className="min-h-screen bg-black flex justify-center">
-      <div className="w-full max-w-md bg-white min-h-screen overflow-y-auto">
+      <div className="w-full max-w-md bg-white min-h-screen overflow-y-auto relative">
         <div className="px-6 pt-10 pb-28">
 
           <motion.h1
@@ -145,6 +185,11 @@ export default function RestaurantDetailsPage() {
               {name === "gmail" && errors.gmail && (
                 <p className="text-red-600 text-sm mt-2">
                   {errors.gmail}
+                </p>
+              )}
+              {name === "restaurantId" && errors.restaurantId && (
+                <p className="text-red-600 text-sm mt-2">
+                  {errors.restaurantId}
                 </p>
               )}
             </motion.div>
@@ -200,16 +245,39 @@ export default function RestaurantDetailsPage() {
             )}
           </motion.div>
 
-          {/* NEXT */}
-          <motion.button
-            {...fadeUp}
-            onClick={handleNext}
-            className="w-full rounded-full bg-[#0A84C1] text-white font-semibold"
-            style={{ fontSize: "18px", padding: "14px" }}
-          >
-            Next
-          </motion.button>
+        </div>
 
+        {/* BOTTOM BAR */}
+        <div className="absolute bottom-0 left-0 w-full border-t bg-white px-6 py-4">
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={() => router.back()}
+                className="px-6 py-2 rounded-md border border-gray-300 text-sm text-gray-700"
+              >
+                Back
+              </button>
+              <button
+                type="button"
+                onClick={handleNext}
+                disabled={isCheckingSlug}
+                className={`px-6 py-2 rounded-md text-sm font-medium disabled:opacity-70 disabled:cursor-not-allowed ${
+                  isCheckingSlug
+                    ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                    : "bg-[#0A84C1] text-white"
+                }`}
+              >
+                {isCheckingSlug ? "Checking..." : "Next"}
+              </button>
+            </div>
+            <div className="flex items-center gap-3 min-w-[140px]">
+              <span className="text-xs text-gray-500 whitespace-nowrap">
+                Page 1 of 2
+              </span>
+              <ProgressBar progress={50} className="flex-1 h-[4px]" />
+            </div>
+          </div>
         </div>
       </div>
     </div>

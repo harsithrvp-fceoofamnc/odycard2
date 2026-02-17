@@ -13,6 +13,13 @@ export default function StartScreen() {
     if (value.length <= 10) setMobile(value);
   };
 
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (mobile.length === 10) {
+      router.push("/owner/otp");
+    }
+  };
+
   const isValid = mobile.length === 10;
 
   return (
@@ -60,38 +67,39 @@ export default function StartScreen() {
             Started
           </h1>
 
-          {/* MOBILE INPUT — FIXED SIZE */}
-          <input
-            type="tel"
-            inputMode="numeric"
-            placeholder="Enter mobile number"
-            value={mobile}
-            onChange={handleChange}
-            className="w-full border border-gray-300 rounded-2xl mb-10
-                       focus:outline-none focus:border-black focus:ring-1 focus:ring-black"
-            style={{
-              fontSize: "20px",          // 👈 MATCH LOGIN
-              padding: "18px 20px",      // 👈 MATCH LOGIN HEIGHT
-              color: "#000",
-            }}
-          />
+          {/* MOBILE INPUT + GET OTP — form for Enter/Go key submit */}
+          <form onSubmit={handleSubmit}>
+            <input
+              type="tel"
+              inputMode="numeric"
+              placeholder="Enter mobile number"
+              value={mobile}
+              onChange={handleChange}
+              className="w-full border border-gray-300 rounded-2xl mb-10
+                         focus:outline-none focus:border-black focus:ring-1 focus:ring-black"
+              style={{
+                fontSize: "20px",          // 👈 MATCH LOGIN
+                padding: "18px 20px",      // 👈 MATCH LOGIN HEIGHT
+                color: "#000",
+              }}
+            />
 
-          {/* GET OTP BUTTON */}
-          <button
-            disabled={!isValid}
-            onClick={() => router.push("/owner/otp")}
-            className={`w-full rounded-full font-semibold transition ${
-              isValid
-                ? "bg-[#0A84C1] text-white"
-                : "bg-gray-300 text-gray-500 cursor-not-allowed"
-            }`}
-            style={{
-              fontSize: "18px",
-              padding: "14px",
-            }}
-          >
-            Get OTP
-          </button>
+            <button
+              type="submit"
+              disabled={!isValid}
+              className={`w-full rounded-full font-semibold transition ${
+                isValid
+                  ? "bg-[#0A84C1] text-white"
+                  : "bg-gray-300 text-gray-500 cursor-not-allowed"
+              }`}
+              style={{
+                fontSize: "18px",
+                padding: "14px",
+              }}
+            >
+              Get OTP
+            </button>
+          </form>
 
           {/* LOGIN LINK */}
           <div

@@ -1,9 +1,11 @@
 "use client";
 
 import { useState, useCallback, useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
 import Cropper from "react-easy-crop";
 import { API_BASE } from "@/lib/api";
 import { useLoader } from "@/context/LoaderContext";
+import ProgressBar from "@/components/ProgressBar";
 
 /* helpers */
 const createImage = (url: string): Promise<HTMLImageElement> =>
@@ -57,6 +59,7 @@ async function getCroppedImg(imageSrc: string, crop: { x: number; y: number; wid
 }
 
 export default function DetailsPart2() {
+  const router = useRouter();
   const { showLoader, hideLoader } = useLoader();
   const [imageSrc, setImageSrc] = useState<string | null>(null);
   const [croppedImage, setCroppedImage] = useState<string | null>(null);
@@ -194,6 +197,9 @@ export default function DetailsPart2() {
       });
 
       if (!createRes.ok) {
+        if (createRes.status === 409) {
+          throw new Error("Restaurant ID already exists. Please go back and choose another.");
+        }
         const text = await createRes.text();
         let msg = "Failed to create restaurant";
         try {
@@ -246,8 +252,8 @@ export default function DetailsPart2() {
 
   return (
     <div className="min-h-screen bg-black flex justify-center">
-      <div className="w-full max-w-md min-h-screen bg-white overflow-y-auto">
-        <div className="px-6 pt-10 pb-24">
+      <div className="w-full max-w-md min-h-screen bg-white overflow-y-auto relative">
+        <div className="px-6 pt-10 pb-28">
 
           {/* TITLE */}
           <h1
@@ -353,15 +359,39 @@ export default function DetailsPart2() {
             </p>
           )}
 
-          {/* SUBMIT */}
-          <button
-            onClick={handleSubmit}
-            disabled={isSubmitting}
-            className="w-full rounded-full bg-[#0A84C1] text-white font-semibold disabled:opacity-70 disabled:cursor-not-allowed"
-            style={{ fontSize: "18px", padding: "14px" }}
-          >
-            {isSubmitting ? "Creating..." : "Submit"}
-          </button>
+        </div>
+
+        {/* BOTTOM BAR */}
+        <div className="absolute bottom-0 left-0 w-full border-t bg-white px-6 py-4">
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={() => router.back()}
+                className="px-6 py-2 rounded-md border border-gray-300 text-sm text-gray-700"
+              >
+                Back
+              </button>
+              <button
+                type="button"
+                onClick={handleSubmit}
+                disabled={isSubmitting}
+                className={`px-6 py-2 rounded-md text-sm font-medium disabled:opacity-70 disabled:cursor-not-allowed ${
+                  isSubmitting
+                    ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                    : "bg-[#0A84C1] text-white"
+                }`}
+              >
+                {isSubmitting ? "Creating..." : "Submit"}
+              </button>
+            </div>
+            <div className="flex items-center gap-3 min-w-[140px]">
+              <span className="text-xs text-gray-500 whitespace-nowrap">
+                Page 2 of 2
+              </span>
+              <ProgressBar progress={100} className="flex-1 h-[4px]" />
+            </div>
+          </div>
         </div>
       </div>
 

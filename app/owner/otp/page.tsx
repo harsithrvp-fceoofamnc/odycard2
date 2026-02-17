@@ -46,7 +46,8 @@ export default function OtpPage() {
     }
   };
 
-  const handleVerify = () => {
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
     if (otp.join("").length === 4) {
       router.push("/owner/details");
     }
@@ -97,62 +98,78 @@ export default function OtpPage() {
             Enter OTP
           </h1>
 
-          {/* OTP BOXES */}
-          <div className="flex justify-center gap-4 mb-10">
-            {otp.map((digit, index) => (
-              <input
-                key={index}
-                ref={(el) => {
-                  inputsRef.current[index] = el;
-                }}
-                type="tel"
-                inputMode="numeric"
-                maxLength={1}
-                value={digit}
-                onChange={(e) => handleChange(e.target.value, index)}
-                onKeyDown={(e) => handleKeyDown(e, index)}
-                className="
-                  w-14 h-14
-                  border border-gray-400 rounded-xl
-                  bg-white
-                  text-center
-                  text-2xl font-semibold text-black
-                  focus:outline-none
-                  focus:border-black focus:ring-2 focus:ring-black
-                "
-              />
-            ))}
-          </div>
+          {/* OTP BOXES + VERIFY — form for Enter/Go key submit */}
+          <form onSubmit={handleSubmit}>
+            <div className="flex justify-center gap-4 mb-10">
+              {otp.map((digit, index) => (
+                <input
+                  key={index}
+                  ref={(el) => {
+                    inputsRef.current[index] = el;
+                  }}
+                  type="tel"
+                  inputMode="numeric"
+                  maxLength={1}
+                  value={digit}
+                  onChange={(e) => handleChange(e.target.value, index)}
+                  onKeyDown={(e) => handleKeyDown(e, index)}
+                  className="
+                    w-14 h-14
+                    border border-gray-400 rounded-xl
+                    bg-white
+                    text-center
+                    text-2xl font-semibold text-black
+                    focus:outline-none
+                    focus:border-black focus:ring-2 focus:ring-black
+                  "
+                />
+              ))}
+            </div>
 
-          {/* TIMER / RESEND */}
-          {!canResend ? (
-            <p className="text-center text-gray-500 mb-12">
-              Resend OTP in 0:{timeLeft.toString().padStart(2, "0")}
-            </p>
-          ) : (
+            {/* TIMER / RESEND */}
+            {!canResend ? (
+              <p className="text-center text-gray-500 mb-12">
+                Resend OTP in 0:{timeLeft.toString().padStart(2, "0")}
+              </p>
+            ) : (
+              <button
+                type="button"
+                onClick={handleResend}
+                className="block mx-auto mb-12 text-[#0A84C1] font-semibold"
+              >
+                Resend OTP
+              </button>
+            )}
+
+            {/* VERIFY BUTTON */}
             <button
-              onClick={handleResend}
-              className="block mx-auto mb-12 text-[#0A84C1] font-semibold"
+              type="submit"
+              disabled={otp.join("").length !== 4}
+              className={`w-full rounded-full font-semibold ${
+                otp.join("").length === 4
+                  ? "bg-[#0A84C1] text-white"
+                  : "bg-gray-300 text-gray-500 cursor-not-allowed"
+              }`}
+              style={{
+                fontSize: "20px",
+                padding: "14px",
+              }}
             >
-              Resend OTP
+              Verify
             </button>
-          )}
+          </form>
 
-          {/* VERIFY BUTTON */}
+          {/* BACK BUTTON */}
           <button
-            onClick={handleVerify}
-            disabled={otp.join("").length !== 4}
-            className={`w-full rounded-full font-semibold ${
-              otp.join("").length === 4
-                ? "bg-[#0A84C1] text-white"
-                : "bg-gray-300 text-gray-500 cursor-not-allowed"
-            }`}
+            type="button"
+            onClick={() => router.back()}
+            className="w-full rounded-full bg-[#E5E7EB] text-black font-semibold mt-4"
             style={{
               fontSize: "20px",
               padding: "14px",
             }}
           >
-            Verify
+            Back
           </button>
         </motion.div>
       </div>
