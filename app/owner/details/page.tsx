@@ -107,6 +107,7 @@ export default function RestaurantDetailsPage() {
       return;
     }
 
+    hideLoader();
     /* 🔥 SAVE IMPORTANT DATA */
     localStorage.setItem("userName", form.userName);
     localStorage.setItem("restaurantName", form.restaurantName);
