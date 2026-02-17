@@ -4,9 +4,11 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { API_BASE } from "@/lib/api";
+import { useLoader } from "@/context/LoaderContext";
 
 export default function OwnerDashboard() {
   const router = useRouter();
+  const { hideLoader } = useLoader();
 
   const [userName, setUserName] = useState("");
   const [restaurantLogo, setRestaurantLogo] = useState("");
@@ -17,6 +19,11 @@ export default function OwnerDashboard() {
 
   const [showLogoSheet, setShowLogoSheet] = useState(false);
   const [showCoverSheet, setShowCoverSheet] = useState(false);
+
+  // Hide global loader when dashboard mounts (e.g. after navigating from success page)
+  useEffect(() => {
+    hideLoader();
+  }, [hideLoader]);
 
   // Load owner's hotel from API (multi-tenant: no localStorage fallbacks)
   useEffect(() => {
