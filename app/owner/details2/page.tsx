@@ -123,12 +123,11 @@ export default function DetailsPart2() {
     setShowCrop(true);
   };
 
-  // SAVE CROP
+  // SAVE CROP — use ref for reliable crop area (avoids null in production due to timing)
   const saveCrop = async () => {
-    if (!croppedAreaPixels) return;
-
-    // LOGO SAVE
+    // LOGO SAVE (unchanged — uses state)
     if (cropType === "logo" && imageSrc) {
+      if (!croppedAreaPixels) return;
       const cropped = await getCroppedImg(imageSrc, croppedAreaPixels);
       if (!cropped) return;
 
@@ -136,9 +135,9 @@ export default function DetailsPart2() {
       localStorage.setItem("restaurantLogo", cropped);
     }
 
-    // COVER SAVE (ONLY IF USER ADDS) — use ref for latest crop, modal closes after crop generated
+    // COVER SAVE — use ref (not state) for latest crop; modal closes only after successful crop
     if (cropType === "cover" && coverSrc) {
-      const areaPixels = croppedAreaPixelsRef.current ?? croppedAreaPixels;
+      const areaPixels = croppedAreaPixelsRef.current;
       if (!areaPixels) return;
 
       const cropped = await getCroppedImg(coverSrc, areaPixels);
