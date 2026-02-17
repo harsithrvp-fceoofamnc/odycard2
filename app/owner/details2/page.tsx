@@ -23,11 +23,21 @@ function fileToBase64(file: File): Promise<string> {
   });
 }
 
-async function getCroppedImg(imageSrc: string, crop: any) {
+const MAX_CANVAS_DIM = 1080;
+
+async function getCroppedImg(imageSrc: string, crop: { x: number; y: number; width: number; height: number }) {
   const image = await createImage(imageSrc);
+  let { width, height } = crop;
+
+  if (width > MAX_CANVAS_DIM || height > MAX_CANVAS_DIM) {
+    const scale = Math.min(MAX_CANVAS_DIM / width, MAX_CANVAS_DIM / height);
+    width = Math.round(width * scale);
+    height = Math.round(height * scale);
+  }
+
   const canvas = document.createElement("canvas");
-  canvas.width = crop.width;
-  canvas.height = crop.height;
+  canvas.width = width;
+  canvas.height = height;
   const ctx = canvas.getContext("2d");
   if (!ctx) return null;
 
@@ -39,8 +49,8 @@ async function getCroppedImg(imageSrc: string, crop: any) {
     crop.height,
     0,
     0,
-    crop.width,
-    crop.height
+    width,
+    height
   );
 
   return canvas.toDataURL("image/png");
@@ -96,17 +106,16 @@ export default function DetailsPart2() {
     setShowCrop(true);
   };
 
-  // COVER UPLOAD (OPTIONAL) — store full base64 for cover_original_url on submit
+  // COVER UPLOAD (OPTIONAL) — use base64 for cropper (mobile reliability), keep originalCoverBase64 for backend
   const handleCoverUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;
     const file = e.target.files[0];
     if (!file.type.startsWith("image/")) return;
 
-    const url = URL.createObjectURL(file);
     const base64 = await fileToBase64(file);
-    setOriginalCoverSrc(url);
+    setOriginalCoverSrc(base64);
     setOriginalCoverBase64(base64);
-    setCoverSrc(url);
+    setCoverSrc(base64);
     setCropType("cover");
     setZoom(1);
     setCrop({ x: 0, y: 0 });
@@ -336,18 +345,6 @@ export default function DetailsPart2() {
               />
             </div>
 
-            {/* EDIT COVER — only when cover exists, opens cropper with full original */}
-            {croppedCover && (
-              <div className="flex justify-center gap-12 mt-6">
-                <button
-                  type="button"
-                  onClick={handleEditCover}
-                  className="text-[#0A84C1] text-lg font-medium"
-                >
-                  Edit Cover
-                </button>
-              </div>
-            )}
           </div>
 
           {error && (
