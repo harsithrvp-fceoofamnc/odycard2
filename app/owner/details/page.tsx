@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { API_BASE } from "@/lib/api";
 import ProgressBar from "@/components/ProgressBar";
+import { useLoader } from "@/context/LoaderContext";
 
 function slugify(s: string): string {
   return s
@@ -16,6 +17,7 @@ function slugify(s: string): string {
 
 export default function RestaurantDetailsPage() {
   const router = useRouter();
+  const { showLoader, hideLoader } = useLoader();
 
   const [form, setForm] = useState({
     restaurantName: "",
@@ -49,8 +51,6 @@ export default function RestaurantDetailsPage() {
   const progress = Math.min((filledCount / totalFields) * 50, 50);
 
   /* ---------- HANDLERS ---------- */
-  const [isCheckingSlug, setIsCheckingSlug] = useState(false);
-
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
     setErrors({ general: "", gmail: "", password: "", restaurantId: "" });
@@ -83,31 +83,29 @@ export default function RestaurantDetailsPage() {
       return;
     }
 
-    setIsCheckingSlug(true);
     setErrors(newErrors);
+    showLoader();
 
     try {
       const slug = slugify(form.restaurantId);
       const res = await fetch(`${API_BASE}/api/hotels/${encodeURIComponent(slug)}`);
 
       if (res.ok) {
+        hideLoader();
         setErrors((prev) => ({ ...prev, restaurantId: "Restaurant ID already exists" }));
-        setIsCheckingSlug(false);
         return;
       }
 
       if (res.status !== 404) {
+        hideLoader();
         setErrors((prev) => ({ ...prev, restaurantId: "Could not verify Restaurant ID. Please try again." }));
-        setIsCheckingSlug(false);
         return;
       }
     } catch {
+      hideLoader();
       setErrors((prev) => ({ ...prev, restaurantId: "Could not verify Restaurant ID. Please try again." }));
-      setIsCheckingSlug(false);
       return;
     }
-
-    setIsCheckingSlug(false);
 
     /* 🔥 SAVE IMPORTANT DATA */
     localStorage.setItem("userName", form.userName);
@@ -261,14 +259,9 @@ export default function RestaurantDetailsPage() {
               <button
                 type="button"
                 onClick={handleNext}
-                disabled={isCheckingSlug}
-                className={`px-6 py-2 rounded-md text-sm font-medium disabled:opacity-70 disabled:cursor-not-allowed ${
-                  isCheckingSlug
-                    ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-                    : "bg-[#0A84C1] text-white"
-                }`}
+                className="px-6 py-2 rounded-md text-sm font-medium bg-[#0A84C1] text-white"
               >
-                {isCheckingSlug ? "Checking..." : "Next"}
+                Next
               </button>
             </div>
             <div className="flex items-center gap-3 min-w-[140px]">
