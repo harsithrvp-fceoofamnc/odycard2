@@ -208,8 +208,7 @@ export default function DetailsPart2() {
         if (createRes.status === 409) {
           hideLoader();
           setIsSubmitting(false);
-          sessionStorage.setItem("detailsRestaurantIdError", "Restaurant ID already exists. Please go back and choose another.");
-          router.push("/owner/details");
+          setError("Restaurant ID already exists. Please go back and choose another.");
           return;
         }
         const text = await createRes.text();
