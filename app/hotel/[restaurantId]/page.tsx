@@ -457,39 +457,46 @@ export default function HotelHomePage() {
     };
   }, [restaurantId]);
 
-  // Load user auth and favorites/eat-later from localStorage (user-specific, not hotel data)
+  // Load user auth and favorites/eat-later from localStorage (per-hotel scoped)
   useEffect(() => {
     const saved = localStorage.getItem("odyUser");
     if (saved) setUser(JSON.parse(saved));
 
+    if (!restaurantId || typeof restaurantId !== "string") return;
+
+    const favKey = `ody_favorites_${restaurantId}`;
+    const laterKey = `ody_eat_later_${restaurantId}`;
+    const favCountsKey = `ody_dish_favorite_counts_${restaurantId}`;
+    const laterCountsKey = `ody_dish_eat_later_counts_${restaurantId}`;
+
     try {
-      const favs = localStorage.getItem("ody_favorites");
+      const favs = localStorage.getItem(favKey);
       setFavorites(favs ? JSON.parse(favs) : []);
     } catch {
       setFavorites([]);
     }
 
     try {
-      const later = localStorage.getItem("ody_eat_later");
+      const later = localStorage.getItem(laterKey);
       setEatLater(later ? JSON.parse(later) : []);
     } catch {
       setEatLater([]);
     }
 
     try {
-      const favCounts = localStorage.getItem("ody_dish_favorite_counts");
+      const favCounts = localStorage.getItem(favCountsKey);
       setFavoriteCounts(favCounts ? JSON.parse(favCounts) : {});
     } catch {
       setFavoriteCounts({});
     }
 
     try {
-      const laterCounts = localStorage.getItem("ody_dish_eat_later_counts");
+      const laterCounts = localStorage.getItem(laterCountsKey);
       setEatLaterCounts(laterCounts ? JSON.parse(laterCounts) : {});
     } catch {
       setEatLaterCounts({});
     }
-  }, []);
+  }, [restaurantId]);
 
   // 🔥 TIMER FOR OTP
   useEffect(() => {
@@ -528,60 +535,62 @@ export default function HotelHomePage() {
     setActiveTab(index);
   };
 
-  // Toggle favorites
+  // Toggle favorites (per-hotel scoped)
   const toggleFavorite = (dish: OdyDish) => {
-    if (!user) return;
+    if (!user || !restaurantId) return;
+    const favKey = `ody_favorites_${restaurantId}`;
+    const favCountsKey = `ody_dish_favorite_counts_${restaurantId}`;
     const isFavorite = favorites.some((d) => d.id === dish.id);
     let updated: OdyDish[];
     if (isFavorite) {
       updated = favorites.filter((d) => d.id !== dish.id);
-      // Decrement count
       const newCounts = { ...favoriteCounts };
       newCounts[dish.id] = Math.max(0, (newCounts[dish.id] || 0) - 1);
       setFavoriteCounts(newCounts);
-      localStorage.setItem("ody_dish_favorite_counts", JSON.stringify(newCounts));
+      localStorage.setItem(favCountsKey, JSON.stringify(newCounts));
     } else {
       updated = [...favorites, dish];
-      // Increment count
       const newCounts = { ...favoriteCounts };
       newCounts[dish.id] = (newCounts[dish.id] || 0) + 1;
       setFavoriteCounts(newCounts);
-      localStorage.setItem("ody_dish_favorite_counts", JSON.stringify(newCounts));
+      localStorage.setItem(favCountsKey, JSON.stringify(newCounts));
     }
     setFavorites(updated);
-    localStorage.setItem("ody_favorites", JSON.stringify(updated));
+    localStorage.setItem(favKey, JSON.stringify(updated));
   };
 
-  // Toggle eat later
+  // Toggle eat later (per-hotel scoped)
   const toggleEatLater = (dish: OdyDish) => {
-    if (!user) return;
+    if (!user || !restaurantId) return;
+    const laterKey = `ody_eat_later_${restaurantId}`;
+    const laterCountsKey = `ody_dish_eat_later_counts_${restaurantId}`;
     const isInList = eatLater.some((d) => d.id === dish.id);
     if (isInList) {
-      // Remove directly without popup
       const updated = eatLater.filter((d) => d.id !== dish.id);
       const newCounts = { ...eatLaterCounts };
       newCounts[dish.id] = Math.max(0, (newCounts[dish.id] || 0) - 1);
       setEatLaterCounts(newCounts);
-      localStorage.setItem("ody_dish_eat_later_counts", JSON.stringify(newCounts));
+      localStorage.setItem(laterCountsKey, JSON.stringify(newCounts));
       setEatLater(updated);
-      localStorage.setItem("ody_eat_later", JSON.stringify(updated));
+      localStorage.setItem(laterKey, JSON.stringify(updated));
     } else {
-      // Show popup for confirmation when adding
       setPendingEatLaterDish(dish);
       setShowEatLaterPopup(true);
     }
   };
 
-  // Confirm eat later action
+  // Confirm eat later action (per-hotel scoped)
   const confirmEatLater = () => {
-    if (!pendingEatLaterDish || !user) return;
+    if (!pendingEatLaterDish || !user || !restaurantId) return;
+    const laterKey = `ody_eat_later_${restaurantId}`;
+    const laterCountsKey = `ody_dish_eat_later_counts_${restaurantId}`;
     const updated = [...eatLater, pendingEatLaterDish];
     const newCounts = { ...eatLaterCounts };
     newCounts[pendingEatLaterDish.id] = (newCounts[pendingEatLaterDish.id] || 0) + 1;
     setEatLaterCounts(newCounts);
-    localStorage.setItem("ody_dish_eat_later_counts", JSON.stringify(newCounts));
+    localStorage.setItem(laterCountsKey, JSON.stringify(newCounts));
     setEatLater(updated);
-    localStorage.setItem("ody_eat_later", JSON.stringify(updated));
+    localStorage.setItem(laterKey, JSON.stringify(updated));
     setShowEatLaterPopup(false);
     setPendingEatLaterDish(null);
   };

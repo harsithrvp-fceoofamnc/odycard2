@@ -14,7 +14,6 @@ export default function OwnerDashboard() {
   const [restaurantLogo, setRestaurantLogo] = useState("");
   const [restaurantCover, setRestaurantCover] = useState("");
   const [restaurantId, setRestaurantId] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
 
   const [showLogoSheet, setShowLogoSheet] = useState(false);
@@ -30,7 +29,6 @@ export default function OwnerDashboard() {
     const slug = localStorage.getItem("restaurantId");
     if (!slug) {
       setLoadError("No restaurant found. Please complete signup.");
-      setIsLoading(false);
       return;
     }
 
@@ -62,8 +60,6 @@ export default function OwnerDashboard() {
           console.error("Dashboard load error:", err);
           setLoadError("Failed to load dashboard.");
         }
-      } finally {
-        if (!cancelled) setIsLoading(false);
       }
     }
 
@@ -76,14 +72,6 @@ export default function OwnerDashboard() {
   }, []);
 
   const card = "border border-gray-200 rounded-2xl p-4 bg-white";
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
-        <p className="text-white/80">Loading dashboard...</p>
-      </div>
-    );
-  }
 
   if (loadError) {
     return (

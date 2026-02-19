@@ -16,6 +16,7 @@ type EditMenuDishBlockProps = {
     photoUrl: string;
     videoUrl?: string | null;
   };
+  restaurantId?: string;
 };
 
 function youtubeEmbedUrl(videoId: string, autoplay: boolean, loop: boolean) {
@@ -29,7 +30,7 @@ function youtubeEmbedUrl(videoId: string, autoplay: boolean, loop: boolean) {
   return `https://www.youtube.com/embed/${videoId}${qs ? `?${qs}` : ""}`;
 }
 
-export default function EditMenuDishBlock({ dish }: EditMenuDishBlockProps) {
+export default function EditMenuDishBlock({ dish, restaurantId }: EditMenuDishBlockProps) {
   const hasVideo = Boolean(dish.videoUrl && dish.videoUrl.trim());
 
   return (
@@ -89,17 +90,19 @@ export default function EditMenuDishBlock({ dish }: EditMenuDishBlockProps) {
           </p>
         )}
 
-        {/* FAVORITES & EAT LATER COUNTS (DISABLED - OWNER VIEW) */}
+        {/* FAVORITES & EAT LATER COUNTS (DISABLED - OWNER VIEW, per-hotel scoped) */}
         <div className="flex items-center gap-4 mb-4">
           <div className="flex items-center gap-2 opacity-50 cursor-not-allowed pointer-events-none">
             <img src="/heart.png" alt="Favorites" className="w-5 h-5" />
             <span className="text-sm text-gray-600">
               {(() => {
+                if (!restaurantId) return 0;
                 try {
-                  const favs = localStorage.getItem("ody_favorites");
-                  if (!favs) return 0;
-                  const list = JSON.parse(favs);
-                  return Array.isArray(list) ? list.filter((d: { id: string }) => d.id === dish.id).length : 0;
+                  const key = `ody_dish_favorite_counts_${restaurantId}`;
+                  const raw = localStorage.getItem(key);
+                  if (!raw) return 0;
+                  const counts = JSON.parse(raw) as Record<string, number>;
+                  return counts[dish.id] ?? 0;
                 } catch {
                   return 0;
                 }
@@ -112,11 +115,13 @@ export default function EditMenuDishBlock({ dish }: EditMenuDishBlockProps) {
             </div>
             <span className="text-sm text-gray-600">
               {(() => {
+                if (!restaurantId) return 0;
                 try {
-                  const later = localStorage.getItem("ody_eat_later");
-                  if (!later) return 0;
-                  const list = JSON.parse(later);
-                  return Array.isArray(list) ? list.filter((d: { id: string }) => d.id === dish.id).length : 0;
+                  const key = `ody_dish_eat_later_counts_${restaurantId}`;
+                  const raw = localStorage.getItem(key);
+                  if (!raw) return 0;
+                  const counts = JSON.parse(raw) as Record<string, number>;
+                  return counts[dish.id] ?? 0;
                 } catch {
                   return 0;
                 }
