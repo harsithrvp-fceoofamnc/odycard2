@@ -103,10 +103,10 @@ export default function RestaurantDetailsPage() {
       }
 
       hideLoader();
-      /* 🔥 SAVE IMPORTANT DATA */
+      /* 🔥 SAVE IMPORTANT DATA — store only slugified slug, no raw restaurantId */
       localStorage.setItem("userName", form.userName);
       localStorage.setItem("restaurantName", form.restaurantName);
-      localStorage.setItem("restaurantId", form.restaurantId);
+      localStorage.setItem("restaurantSlug", slug);
 
       router.push("/owner/details2");
     } catch {

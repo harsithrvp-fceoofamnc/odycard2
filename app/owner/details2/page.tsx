@@ -182,9 +182,9 @@ export default function DetailsPart2() {
     }
 
     const restaurantName = localStorage.getItem("restaurantName") || "";
-    const restaurantId = localStorage.getItem("restaurantId") || "";
+    const slug = localStorage.getItem("restaurantSlug") || "";
 
-    if (!restaurantName || !restaurantId) {
+    if (!restaurantName || !slug) {
       setError("Missing restaurant details. Please go back and fill the form.");
       return;
     }
@@ -194,13 +194,13 @@ export default function DetailsPart2() {
     showLoader();
 
     try {
-      // Create new hotel — backend is single source of truth for slug uniqueness
+      // Create new hotel — slug from Details (slugified once, used unchanged)
       const createRes = await fetch(`${API_BASE}/api/hotels`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name: restaurantName,
-          slug: restaurantId,
+          slug,
         }),
       });
 
@@ -247,8 +247,9 @@ export default function DetailsPart2() {
       localStorage.removeItem("ody_dishes");
       localStorage.removeItem("restaurantLogo");
       localStorage.removeItem("restaurantCover");
+      localStorage.removeItem("restaurantSlug"); // was only for creation flow
 
-      // 4. Store this owner's hotel data
+      // 4. Store this owner's hotel data (rest of app uses restaurantId for slug)
       localStorage.setItem("ody_hotel_id", String(hotel.id));
       localStorage.setItem("restaurantId", hotel.slug);
       localStorage.setItem("restaurantName", hotel.name);
