@@ -1,15 +1,17 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter, usePathname } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 
 type DishType = "food_item" | "dessert" | "beverage" | null;
 
 export default function AddDishPage() {
   const router = useRouter();
-  const pathname = usePathname();
+  const params = useParams();
+  const restaurantId = params?.restaurantId as string | undefined;
 
   const [selectedType, setSelectedType] = useState<DishType>(null);
+  const [navError, setNavError] = useState<string | null>(null);
 
   /* ---------- PAGE / PROGRESS LOGIC ---------- */
   const TOTAL_PAGES = 3;
@@ -68,18 +70,29 @@ export default function AddDishPage() {
           />
         </div>
 
+        {navError && (
+          <p className="mb-4 text-sm text-red-600">{navError}</p>
+        )}
+
         {/* ---------- GOOGLE FORMS STYLE BOTTOM BAR ---------- */}
         <div className="absolute bottom-0 left-0 w-full border-t bg-white px-6 py-4">
           <div className="flex items-center justify-between gap-4">
 
             {/* NEXT BUTTON (LEFT) */}
             <button
+              type="button"
               disabled={!selectedType}
               onClick={() => {
-                if (selectedType) {
-                  localStorage.setItem("addDishType", selectedType);
-                  router.push(`${pathname}/visuals`);
+                if (!selectedType) return;
+                if (!restaurantId) {
+                  setNavError("Restaurant ID is missing. Please go back and try again.");
+                  return;
                 }
+                setNavError(null);
+                localStorage.setItem("addDishType", selectedType);
+                const target = `/owner/hotel/${restaurantId}/add-dish/visuals`;
+                console.log("[AddDish] Navigating to:", target);
+                router.push(target);
               }}
               className={`px-6 py-2 rounded-md text-sm font-medium transition
                 ${

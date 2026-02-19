@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import ProgressBar from "@/components/ProgressBar";
 import { API_BASE } from "@/lib/api";
@@ -30,6 +30,15 @@ export default function DishDetailsPage() {
   const restaurantId = params?.restaurantId as string | undefined;
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [restaurantIdError, setRestaurantIdError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!restaurantId || typeof restaurantId !== "string") {
+      setRestaurantIdError("Restaurant ID is missing. Please go back and try again.");
+    } else {
+      setRestaurantIdError(null);
+    }
+  }, [restaurantId]);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
   // later this should come from selected dish type
@@ -250,8 +259,10 @@ export default function DishDetailsPage() {
           </div>
         </div>
 
-        {submitError && (
-          <p className="mb-4 text-sm text-red-600">{submitError}</p>
+        {(restaurantIdError || submitError) && (
+          <p className="mb-4 text-sm text-red-600">
+            {restaurantIdError || submitError}
+          </p>
         )}
 
         {/* ---------- BOTTOM BAR ---------- */}
@@ -260,6 +271,7 @@ export default function DishDetailsPage() {
 
             <div className="flex items-center gap-3">
               <button
+                type="button"
                 onClick={() => router.back()}
                 className="px-6 py-2 rounded-md border border-gray-300
                            text-sm text-gray-700"
@@ -268,9 +280,14 @@ export default function DishDetailsPage() {
               </button>
 
               <button
-                disabled={!canProceed || isSubmitting}
+                type="button"
+                disabled={!canProceed || isSubmitting || !restaurantId}
                 onClick={async () => {
-                  if (!canProceed || !restaurantId) return;
+                  if (!canProceed) return;
+                  if (!restaurantId) {
+                    setRestaurantIdError("Restaurant ID is missing. Please go back and try again.");
+                    return;
+                  }
 
                   setSubmitError(null);
                   setIsSubmitting(true);
@@ -327,7 +344,9 @@ export default function DishDetailsPage() {
                     localStorage.removeItem(ADD_DISH_VIDEO_ID_KEY);
                     localStorage.removeItem(ADD_DISH_TYPE_KEY);
 
-                    router.push(`/owner/hotel/${restaurantId}/edit-menu`);
+                    const target = `/owner/hotel/${restaurantId}/edit-menu`;
+                    console.log("[DishDetails] Navigating to:", target);
+                    router.push(target);
                   } catch (err) {
                     setSubmitError(
                       err instanceof Error ? err.message : "Failed to add dish"

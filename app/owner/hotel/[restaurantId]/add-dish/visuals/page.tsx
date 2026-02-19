@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import Cropper from "react-easy-crop";
 import ProgressBar from "@/components/ProgressBar";
 
@@ -40,6 +40,8 @@ async function getCroppedImg(imageSrc: string, crop: any) {
 
 export default function VisualsPage() {
   const router = useRouter();
+  const params = useParams();
+  const restaurantId = params?.restaurantId as string | undefined;
 
   /* ---------- VIDEO ---------- */
   const [youtubeInput, setYoutubeInput] = useState("");
@@ -64,6 +66,7 @@ export default function VisualsPage() {
   const computedProgress =
     hasVideo && hasPhoto ? VISUALS_COMPLETE_PROGRESS : BASE_PROGRESS;
 
+  const [navError, setNavError] = useState<string | null>(null);
   const nextEnabled = hasVideo && hasPhoto;
 
   /* ---------- VIDEO HELPERS ---------- */
@@ -246,12 +249,17 @@ export default function VisualsPage() {
           )}
         </div>
 
+        {navError && (
+          <p className="mb-4 text-sm text-red-600">{navError}</p>
+        )}
+
         {/* ---------- BOTTOM BAR ---------- */}
         <div className="absolute bottom-0 left-0 w-full border-t bg-white px-6 py-4">
           <div className="flex items-center justify-between gap-4">
 
             <div className="flex items-center gap-3">
               <button
+                type="button"
                 onClick={() => router.back()}
                 className="px-6 py-2 rounded-md border border-gray-300
                            text-sm text-gray-700"
@@ -260,14 +268,23 @@ export default function VisualsPage() {
               </button>
 
               <button
+                type="button"
                 disabled={!nextEnabled}
                 onClick={() => {
-                  if (!nextEnabled || !croppedPhoto) return;
+                  if (!nextEnabled) return;
+                  if (!croppedPhoto) return;
+                  if (!restaurantId) {
+                    setNavError("Restaurant ID is missing. Please go back and try again.");
+                    return;
+                  }
+                  setNavError(null);
                   localStorage.setItem("addDishPhoto", croppedPhoto);
                   if (uploadedVideoId) {
                     localStorage.setItem("addDishVideoId", uploadedVideoId);
                   }
-                  router.push("dish-details");
+                  const target = `/owner/hotel/${restaurantId}/add-dish/dish-details`;
+                  console.log("[AddDish Visuals] Navigating to:", target);
+                  router.push(target);
                 }}
                 className={`px-6 py-2 rounded-md text-sm font-medium
                   ${
