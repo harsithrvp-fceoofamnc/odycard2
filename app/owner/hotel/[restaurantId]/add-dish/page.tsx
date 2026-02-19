@@ -13,6 +13,29 @@ export default function AddDishPage() {
   const [selectedType, setSelectedType] = useState<DishType>(null);
   const [navError, setNavError] = useState<string | null>(null);
 
+  const handleNext = (e: React.FormEvent) => {
+    e.preventDefault();
+    console.log("[AddDish Type] handleNext fired");
+    console.log("[AddDish Type] selectedType:", selectedType);
+    console.log("[AddDish Type] restaurantId:", restaurantId);
+
+    if (!restaurantId || typeof restaurantId !== "string") {
+      console.error("[AddDish Type] ERROR: restaurantId is undefined or invalid");
+      setNavError("Restaurant ID is missing. Please go back and try again.");
+      return;
+    }
+    if (!selectedType) {
+      setNavError("Please select a dish type first.");
+      return;
+    }
+
+    setNavError(null);
+    localStorage.setItem("addDishType", selectedType);
+    const target = `/owner/hotel/${restaurantId}/add-dish/visuals`;
+    console.log("[AddDish Type] Navigating to:", target);
+    router.push(target);
+  };
+
   /* ---------- PAGE / PROGRESS LOGIC ---------- */
   const TOTAL_PAGES = 3;
   const CURRENT_PAGE = 1;
@@ -75,25 +98,13 @@ export default function AddDishPage() {
         )}
 
         {/* ---------- GOOGLE FORMS STYLE BOTTOM BAR ---------- */}
-        <div className="absolute bottom-0 left-0 w-full border-t bg-white px-6 py-4">
+        <form onSubmit={handleNext} className="absolute bottom-0 left-0 w-full border-t bg-white px-6 py-4">
           <div className="flex items-center justify-between gap-4">
 
             {/* NEXT BUTTON (LEFT) */}
             <button
-              type="button"
+              type="submit"
               disabled={!selectedType}
-              onClick={() => {
-                if (!selectedType) return;
-                if (!restaurantId) {
-                  setNavError("Restaurant ID is missing. Please go back and try again.");
-                  return;
-                }
-                setNavError(null);
-                localStorage.setItem("addDishType", selectedType);
-                const target = `/owner/hotel/${restaurantId}/add-dish/visuals`;
-                console.log("[AddDish] Navigating to:", target);
-                router.push(target);
-              }}
               className={`px-6 py-2 rounded-md text-sm font-medium transition
                 ${
                   selectedType
@@ -122,7 +133,7 @@ export default function AddDishPage() {
             </div>
 
           </div>
-        </div>
+        </form>
       </div>
     </div>
   );

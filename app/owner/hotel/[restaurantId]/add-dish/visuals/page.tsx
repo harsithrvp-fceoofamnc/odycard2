@@ -69,6 +69,36 @@ export default function VisualsPage() {
   const [navError, setNavError] = useState<string | null>(null);
   const nextEnabled = hasVideo && hasPhoto;
 
+  const handleNext = (e: React.FormEvent) => {
+    e.preventDefault();
+    console.log("[AddDish Visuals] handleNext fired");
+    console.log("[AddDish Visuals] selected dish type (from localStorage):", localStorage.getItem("addDishType"));
+    console.log("[AddDish Visuals] photo presence:", !!croppedPhoto);
+    console.log("[AddDish Visuals] video presence:", !!uploadedVideoId);
+    console.log("[AddDish Visuals] restaurantId:", restaurantId);
+
+    if (!restaurantId || typeof restaurantId !== "string") {
+      console.error("[AddDish Visuals] ERROR: restaurantId is undefined or invalid");
+      setNavError("Restaurant ID is missing. Please go back and try again.");
+      return;
+    }
+    if (!croppedPhoto) {
+      setNavError("Please upload a photo first.");
+      return;
+    }
+    if (!uploadedVideoId) {
+      setNavError("Please add a video link first.");
+      return;
+    }
+
+    setNavError(null);
+    localStorage.setItem("addDishPhoto", croppedPhoto);
+    localStorage.setItem("addDishVideoId", uploadedVideoId);
+    const target = `/owner/hotel/${restaurantId}/add-dish/dish-details`;
+    console.log("[AddDish Visuals] Navigating to:", target);
+    router.push(target);
+  };
+
   /* ---------- VIDEO HELPERS ---------- */
   const extractYouTubeId = (url: string) => {
     const match = url.match(
@@ -254,7 +284,7 @@ export default function VisualsPage() {
         )}
 
         {/* ---------- BOTTOM BAR ---------- */}
-        <div className="absolute bottom-0 left-0 w-full border-t bg-white px-6 py-4">
+        <form onSubmit={handleNext} className="absolute bottom-0 left-0 w-full border-t bg-white px-6 py-4">
           <div className="flex items-center justify-between gap-4">
 
             <div className="flex items-center gap-3">
@@ -268,24 +298,8 @@ export default function VisualsPage() {
               </button>
 
               <button
-                type="button"
+                type="submit"
                 disabled={!nextEnabled}
-                onClick={() => {
-                  if (!nextEnabled) return;
-                  if (!croppedPhoto) return;
-                  if (!restaurantId) {
-                    setNavError("Restaurant ID is missing. Please go back and try again.");
-                    return;
-                  }
-                  setNavError(null);
-                  localStorage.setItem("addDishPhoto", croppedPhoto);
-                  if (uploadedVideoId) {
-                    localStorage.setItem("addDishVideoId", uploadedVideoId);
-                  }
-                  const target = `/owner/hotel/${restaurantId}/add-dish/dish-details`;
-                  console.log("[AddDish Visuals] Navigating to:", target);
-                  router.push(target);
-                }}
                 className={`px-6 py-2 rounded-md text-sm font-medium
                   ${
                     nextEnabled
@@ -306,7 +320,7 @@ export default function VisualsPage() {
             </div>
 
           </div>
-        </div>
+        </form>
       </div>
 
       {/* ---------- CROP MODAL (16:9) ---------- */}
