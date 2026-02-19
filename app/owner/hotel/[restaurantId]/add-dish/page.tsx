@@ -8,23 +8,26 @@ type DishType = "food_item" | "dessert" | "beverage" | null;
 export default function AddDishPage() {
   const router = useRouter();
   const params = useParams();
-  const restaurantId = params?.restaurantId as string | undefined;
+  const restaurantId = params?.restaurantId as string;
+  console.log("[AddDish Type] params:", params, "restaurantId:", restaurantId);
 
   const [selectedType, setSelectedType] = useState<DishType>(null);
   const [navError, setNavError] = useState<string | null>(null);
 
-  const handleNext = (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log("[AddDish Type] handleNext fired");
-    console.log("[AddDish Type] selectedType:", selectedType);
-    console.log("[AddDish Type] restaurantId:", restaurantId);
+  const handleNext = () => {
+    console.log("Next clicked");
+    console.log("Selected Type:", selectedType);
+    console.log("Photo exists: N/A (type page)");
+    console.log("Video exists: N/A (type page)");
+    console.log("Restaurant ID:", restaurantId);
 
     if (!restaurantId || typeof restaurantId !== "string") {
-      console.error("[AddDish Type] ERROR: restaurantId is undefined or invalid");
-      setNavError("Restaurant ID is missing. Please go back and try again.");
+      console.error("[AddDish Type] FAILED: restaurantId is undefined or invalid");
+      setNavError("Restaurant ID missing. Please refresh.");
       return;
     }
     if (!selectedType) {
+      console.error("[AddDish Type] FAILED: selectedType is missing");
       setNavError("Please select a dish type first.");
       return;
     }
@@ -49,6 +52,13 @@ export default function AddDishPage() {
   return (
     <div className="min-h-screen bg-black flex justify-center">
       <div className="w-full max-w-md min-h-screen bg-white px-6 pt-10 pb-28 relative">
+
+        {/* DEBUG: visible fallback when restaurantId missing */}
+        {(!restaurantId || typeof restaurantId !== "string") && (
+          <p className="mb-4 text-sm text-red-600 font-medium">
+            Restaurant ID missing. Please refresh.
+          </p>
+        )}
 
         {/* HEADER */}
         <h1
@@ -98,13 +108,13 @@ export default function AddDishPage() {
         )}
 
         {/* ---------- GOOGLE FORMS STYLE BOTTOM BAR ---------- */}
-        <form onSubmit={handleNext} className="absolute bottom-0 left-0 w-full border-t bg-white px-6 py-4">
+        <div className="absolute bottom-0 left-0 w-full border-t bg-white px-6 py-4">
           <div className="flex items-center justify-between gap-4">
 
-            {/* NEXT BUTTON (LEFT) */}
+            {/* NEXT BUTTON (LEFT) - disabled removed for debugging */}
             <button
-              type="submit"
-              disabled={!selectedType}
+              type="button"
+              onClick={handleNext}
               className={`px-6 py-2 rounded-md text-sm font-medium transition
                 ${
                   selectedType
@@ -133,7 +143,7 @@ export default function AddDishPage() {
             </div>
 
           </div>
-        </form>
+        </div>
       </div>
     </div>
   );

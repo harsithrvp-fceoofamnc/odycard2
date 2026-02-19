@@ -41,7 +41,8 @@ async function getCroppedImg(imageSrc: string, crop: any) {
 export default function VisualsPage() {
   const router = useRouter();
   const params = useParams();
-  const restaurantId = params?.restaurantId as string | undefined;
+  const restaurantId = params?.restaurantId as string;
+  console.log("[AddDish Visuals] params:", params, "restaurantId:", restaurantId);
 
   /* ---------- VIDEO ---------- */
   const [youtubeInput, setYoutubeInput] = useState("");
@@ -69,24 +70,25 @@ export default function VisualsPage() {
   const [navError, setNavError] = useState<string | null>(null);
   const nextEnabled = hasVideo && hasPhoto;
 
-  const handleNext = (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log("[AddDish Visuals] handleNext fired");
-    console.log("[AddDish Visuals] selected dish type (from localStorage):", localStorage.getItem("addDishType"));
-    console.log("[AddDish Visuals] photo presence:", !!croppedPhoto);
-    console.log("[AddDish Visuals] video presence:", !!uploadedVideoId);
-    console.log("[AddDish Visuals] restaurantId:", restaurantId);
+  const handleNext = () => {
+    console.log("Next clicked");
+    console.log("Selected Type:", localStorage.getItem("addDishType"));
+    console.log("Photo exists:", !!croppedPhoto);
+    console.log("Video exists:", !!uploadedVideoId);
+    console.log("Restaurant ID:", restaurantId);
 
     if (!restaurantId || typeof restaurantId !== "string") {
-      console.error("[AddDish Visuals] ERROR: restaurantId is undefined or invalid");
-      setNavError("Restaurant ID is missing. Please go back and try again.");
+      console.error("[AddDish Visuals] FAILED: restaurantId is undefined or invalid");
+      setNavError("Restaurant ID missing. Please refresh.");
       return;
     }
     if (!croppedPhoto) {
+      console.error("[AddDish Visuals] FAILED: photo is missing");
       setNavError("Please upload a photo first.");
       return;
     }
     if (!uploadedVideoId) {
+      console.error("[AddDish Visuals] FAILED: video is missing");
       setNavError("Please add a video link first.");
       return;
     }
@@ -154,6 +156,13 @@ export default function VisualsPage() {
   return (
     <div className="min-h-screen bg-black flex justify-center">
       <div className="w-full max-w-md min-h-screen bg-white px-6 pt-10 pb-28 relative">
+
+        {/* DEBUG: visible fallback when restaurantId missing */}
+        {(!restaurantId || typeof restaurantId !== "string") && (
+          <p className="mb-4 text-sm text-red-600 font-medium">
+            Restaurant ID missing. Please refresh.
+          </p>
+        )}
 
         {/* HEADER */}
         <h1
@@ -284,7 +293,7 @@ export default function VisualsPage() {
         )}
 
         {/* ---------- BOTTOM BAR ---------- */}
-        <form onSubmit={handleNext} className="absolute bottom-0 left-0 w-full border-t bg-white px-6 py-4">
+        <div className="absolute bottom-0 left-0 w-full border-t bg-white px-6 py-4">
           <div className="flex items-center justify-between gap-4">
 
             <div className="flex items-center gap-3">
@@ -298,8 +307,8 @@ export default function VisualsPage() {
               </button>
 
               <button
-                type="submit"
-                disabled={!nextEnabled}
+                type="button"
+                onClick={handleNext}
                 className={`px-6 py-2 rounded-md text-sm font-medium
                   ${
                     nextEnabled
@@ -320,7 +329,7 @@ export default function VisualsPage() {
             </div>
 
           </div>
-        </form>
+        </div>
       </div>
 
       {/* ---------- CROP MODAL (16:9) ---------- */}
