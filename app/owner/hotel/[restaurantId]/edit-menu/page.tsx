@@ -448,15 +448,15 @@
 
               {/* RETURN TO DASHBOARD MODAL */}
               {showReturnModal && (
-                <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-[1000]">
-                  <div className="bg-white rounded-2xl shadow-xl p-6 w-[85%] max-w-xs mx-4 space-y-5">
-                    <p className="text-gray-800 text-center font-medium text-base">
+                <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-[1000]">
+                  <div className="bg-[#111111] rounded-2xl shadow-xl p-6 w-[85%] max-w-xs mx-4 space-y-5">
+                    <p className="text-white text-center font-medium text-base">
                       Do you want to return to your Dashboard?
                     </p>
                     <div className="flex gap-3">
                       <button
                         onClick={() => setShowReturnModal(false)}
-                        className="flex-1 py-3 rounded-full bg-gray-100 text-gray-700 font-medium text-sm hover:bg-gray-200 transition"
+                        className="flex-1 py-3 rounded-full bg-gray-700 text-gray-200 font-medium text-sm hover:bg-gray-600 transition"
                       >
                         Cancel
                       </button>
