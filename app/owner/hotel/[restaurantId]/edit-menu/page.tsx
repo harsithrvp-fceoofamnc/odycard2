@@ -78,6 +78,9 @@
         // ADD CONFIRM
         const [showAddConfirm, setShowAddConfirm] = useState(false);
 
+        // RETURN MODAL
+        const [showReturnModal, setShowReturnModal] = useState(false);
+
         // Load hotel and dishes from API (hotel scoped by slug)
         useEffect(() => {
           if (!restaurantId || typeof restaurantId !== "string") {
@@ -223,6 +226,16 @@
                 ) : (
                   <div className="w-full h-full bg-[#1c1c1c]" />
                 )}
+
+                {/* RETURN TOGGLE - top-left, matches Edit Cover style */}
+                <div className="absolute top-4 left-4 z-20">
+                  <button
+                    onClick={() => setShowReturnModal(true)}
+                    className="px-4 py-2 rounded-full bg-black/60 backdrop-blur-md text-white text-sm shadow-lg hover:bg-black/70 transition"
+                  >
+                    Return
+                  </button>
+                </div>
 
                 <div className="absolute inset-0 flex items-center justify-center -translate-y-6">
                   {logo && (
@@ -429,6 +442,34 @@
                     >
                       Cancel
                     </button>
+                  </div>
+                </div>
+              )}
+
+              {/* RETURN TO DASHBOARD MODAL */}
+              {showReturnModal && (
+                <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-[1000]">
+                  <div className="bg-white rounded-2xl shadow-xl p-6 w-[85%] max-w-xs mx-4 space-y-5">
+                    <p className="text-gray-800 text-center font-medium text-base">
+                      Do you want to return to your Dashboard?
+                    </p>
+                    <div className="flex gap-3">
+                      <button
+                        onClick={() => setShowReturnModal(false)}
+                        className="flex-1 py-3 rounded-full bg-gray-100 text-gray-700 font-medium text-sm hover:bg-gray-200 transition"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        onClick={() => {
+                          setShowReturnModal(false);
+                          router.push("/owner/dashboard");
+                        }}
+                        className="flex-1 py-3 rounded-full bg-[#0A84C1] text-white font-medium text-sm hover:bg-[#0970a0] transition"
+                      >
+                        Yes, Return
+                      </button>
+                    </div>
                   </div>
                 </div>
               )}
