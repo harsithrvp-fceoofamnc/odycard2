@@ -97,26 +97,27 @@ function YouTubeEmbedSlide({
 }) {
   if (!isActive) {
     return (
-      <img
-        src={`https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`}
-        alt={dishName}
-        className="w-full h-full min-h-48 object-cover"
-        onError={(e) => {
-          (e.target as HTMLImageElement).src = photoUrl || "/food_item_logo.png";
-        }}
-      />
+      <div className="relative w-full" style={{ paddingTop: "56.25%" }}>
+        <img
+          src={`https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`}
+          alt={dishName}
+          className="absolute inset-0 w-full h-full object-contain bg-black"
+          onError={(e) => {
+            (e.target as HTMLImageElement).src = photoUrl || "/food_item_logo.png";
+          }}
+        />
+      </div>
     );
   }
   const embedUrl = buildYouTubeEmbedUrl(videoId, true);
   return (
-    <div className="w-full h-full min-h-48 bg-black relative overflow-hidden">
-      {/* Responsive iframe: object-cover style (scale to fill, crop overflow) */}
+    <div className="relative w-full bg-black" style={{ paddingTop: "56.25%" }}>
       <iframe
         src={embedUrl}
         title={dishName}
         allow="autoplay; encrypted-media"
         allowFullScreen
-        className="absolute left-1/2 top-1/2 min-w-[177.78%] min-h-full w-[177.78%] h-full -translate-x-1/2 -translate-y-1/2 pointer-events-none"
+        className="absolute left-0 top-0 w-full h-full"
         style={{ border: "none" }}
       />
     </div>
