@@ -1,32 +1,9 @@
 "use client";
 
-import { useEffect, useId, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useParams } from "next/navigation";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5050";
-
-declare global {
-  interface Window {
-    YT?: {
-      Player: new (
-        elementId: string,
-        options: {
-          videoId: string;
-          playerVars?: Record<string, number | string>;
-          events?: { onReady?: (event: { target: YTPlayer }) => void };
-        }
-      ) => YTPlayer;
-      PlayerState?: { PLAYING: number; PAUSED: number; ENDED: number };
-    };
-    onYouTubeIframeAPIReady?: () => void;
-  }
-}
-
-interface YTPlayer {
-  playVideo: () => void;
-  pauseVideo: () => void;
-  destroy: () => void;
-}
 
 const tabs = ["Ody Menu", "Menu", "Eat Later", "Favorites"];
 
@@ -54,233 +31,33 @@ type OdyDish = {
   videoUrl?: string | null;
 };
 
-/** Global registry of all active YouTube players on Default Menu page - ensures only one plays at a time. */
-const activePlayers = new Set<YTPlayer>();
-
-/** Currently playing player (only one allowed at a time). */
-let currentlyPlayingPlayer: YTPlayer | null = null;
-
-/** Lock to prevent race conditions when multiple videos try to play simultaneously. */
-let isPlayingLock = false;
-
-/** Pauses ALL players immediately. Used to ensure only one plays at a time. */
-function pauseAllPlayers() {
-  activePlayers.forEach((player) => {
-    try {
-      player.pauseVideo();
-    } catch {
-      // ignore
-    }
-  });
-  currentlyPlayingPlayer = null;
+/** Check if URL is a direct video (MP4 etc.) — YouTube URLs cannot be used as <video src>. */
+function isDirectVideoUrl(url: string): boolean {
+  if (!url || !url.trim()) return false;
+  const u = url.toLowerCase();
+  return !u.includes("youtube") && !u.includes("youtu.be");
 }
 
-/** Pauses all players except the specified one, then plays that one. Ensures only one video plays at a time. */
-function playOnlyThisPlayer(player: YTPlayer) {
-  // Prevent multiple simultaneous calls
-  if (isPlayingLock) {
-    // If lock is active, still pause this player to be safe
-    try {
-      player.pauseVideo();
-    } catch {
-      // ignore
-    }
-    return;
-  }
-  isPlayingLock = true;
-  
-  // Step 1: Pause ALL players first (including currently playing one)
-  pauseAllPlayers();
-  
-  // Step 2: Use requestAnimationFrame to ensure pause commands are processed before play
-  requestAnimationFrame(() => {
-    try {
-      // Step 3: Double-check - pause all again (defense against race conditions)
-      pauseAllPlayers();
-      
-      // Step 4: Small delay to ensure all pause commands are processed
-      setTimeout(() => {
-        try {
-          // Step 5: Final check - pause all one more time
-          pauseAllPlayers();
-          
-          // Step 6: Now play only this player
-          player.playVideo();
-          currentlyPlayingPlayer = player;
-        } catch {
-          // ignore
-        } finally {
-          isPlayingLock = false;
-        }
-      }, 100);
-    } catch {
-      isPlayingLock = false;
-    }
-  });
-}
-
-/** Loads the YouTube IFrame API script once and resolves when ready. */
-function loadYouTubeAPI(): Promise<void> {
-  if (typeof window === "undefined") return Promise.resolve();
-  if (window.YT?.Player) return Promise.resolve();
-  return new Promise((resolve) => {
-    const prev = window.onYouTubeIframeAPIReady;
-    window.onYouTubeIframeAPIReady = () => {
-      prev?.();
-      resolve();
-    };
-    if (document.querySelector('script[src*="youtube.com/iframe_api"]')) {
-      if (window.YT?.Player) resolve();
-      return;
-    }
-    const s = document.createElement("script");
-    s.src = "https://www.youtube.com/iframe_api";
-    s.async = true;
-    s.onload = () => {
-      if (window.YT?.Player) resolve();
-    };
-    document.head.appendChild(s);
-  });
-}
-
-/** Uses YouTube IFrame API to explicitly pause when card is out of view and play when visible; avoids black screen and background playback. */
+/** Renders a video element (muted, playsInline, no controls). Ref is managed by parent for IntersectionObserver. */
 function OdyMenuVideoSlide({
-  videoId,
+  videoUrl,
   dishName,
-  carouselRoot,
+  videoRef,
 }: {
-  videoId: string;
+  videoUrl: string;
   dishName: string;
-  carouselRoot: HTMLDivElement | null;
+  videoRef: React.Ref<HTMLVideoElement | null>;
 }) {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const playerRef = useRef<YTPlayer | null>(null);
-  const playerDivId = useId().replace(/:/g, "");
-  const [inViewport, setInViewport] = useState(false);
-  const [inCarouselView, setInCarouselView] = useState(false);
-
-  // Viewport: card is visible on screen
-  useEffect(() => {
-    const el = containerRef.current;
-    if (!el) return;
-    const obs = new IntersectionObserver(
-      ([e]) => setInViewport(e.isIntersecting),
-      { threshold: 0.25 }
-    );
-    obs.observe(el);
-    return () => obs.disconnect();
-  }, []);
-
-  // Carousel: video slide is the active slide
-  useEffect(() => {
-    const el = containerRef.current;
-    if (!el || !carouselRoot) {
-      setInCarouselView(false);
-      return;
-    }
-    const obs = new IntersectionObserver(
-      ([e]) => setInCarouselView(e.isIntersecting),
-      { root: carouselRoot, threshold: 0.5 }
-    );
-    obs.observe(el);
-    return () => obs.disconnect();
-  }, [carouselRoot]);
-
-  // Create YouTube player once when container and API are ready
-  useEffect(() => {
-    const container = containerRef.current;
-    if (!container || !videoId) return;
-    let cancelled = false;
-    loadYouTubeAPI().then(() => {
-      if (cancelled || !window.YT?.Player) return;
-      const el = document.getElementById(playerDivId);
-      if (!el) return;
-      try {
-        const player = new window.YT.Player(playerDivId, {
-          videoId,
-          playerVars: {
-            autoplay: 0,
-            mute: 1,
-            loop: 1,
-            playlist: videoId,
-            rel: 0,
-            modestbranding: 1,
-          },
-          events: {
-            onReady: (e) => {
-              if (!cancelled) {
-                const p = e.target as unknown as YTPlayer;
-                playerRef.current = p;
-                activePlayers.add(p);
-              }
-            },
-          },
-        });
-        if (player && typeof (player as unknown as YTPlayer).pauseVideo === "function") {
-          const p = player as unknown as YTPlayer;
-          playerRef.current = p;
-          activePlayers.add(p);
-        }
-      } catch {
-        // ignore
-      }
-    });
-    return () => {
-      cancelled = true;
-      if (playerRef.current) {
-        const p = playerRef.current;
-        // Pause before removing
-        try {
-          p.pauseVideo();
-        } catch {
-          // ignore
-        }
-        // Remove from registry
-        activePlayers.delete(p);
-        if (currentlyPlayingPlayer === p) {
-          currentlyPlayingPlayer = null;
-        }
-        // Destroy player
-        if (p.destroy) {
-          try {
-            p.destroy();
-          } catch {
-            // ignore
-          }
-        }
-        playerRef.current = null;
-      }
-    };
-  }, [videoId, playerDivId]);
-
-  // Explicitly pause when out of view, play when in view
-  // CRITICAL: When playing, pause ALL other videos FIRST to ensure only one plays at a time
-  const shouldPlay = inViewport && inCarouselView;
-  useEffect(() => {
-    const player = playerRef.current;
-    if (!player) return;
-    
-    if (shouldPlay) {
-      // Use centralized function that ensures only one plays at a time
-      playOnlyThisPlayer(player);
-    } else {
-      // When this player should not play, pause it
-      try {
-        player.pauseVideo();
-        if (currentlyPlayingPlayer === player) {
-          currentlyPlayingPlayer = null;
-        }
-      } catch {
-        // ignore
-      }
-    }
-  }, [shouldPlay]);
-
   return (
-    <div ref={containerRef} className="w-full h-full min-h-48 bg-black">
-      <div
-        id={playerDivId}
-        className="w-full h-full min-h-48"
+    <div className="w-full h-full min-h-48 bg-black">
+      <video
+        ref={videoRef}
+        src={videoUrl}
+        muted
+        playsInline
+        preload="metadata"
+        loop
+        className="w-full h-full min-h-48 object-cover"
         title={dishName}
       />
     </div>
@@ -311,23 +88,26 @@ function PhotoOnlyDishBlock({ dish }: { dish: OdyDish }) {
   );
 }
 
-/** Wraps the dish media carousel and provides carousel root ref to OdyMenuVideoSlide for visibility detection. */
+/** Wraps the dish media carousel with video (direct MP4) and photo slides. */
 function DishMediaCarousel({
   dish,
+  containerRef,
+  videoRef,
 }: {
   dish: OdyDish;
+  containerRef: React.Ref<HTMLDivElement | null>;
+  videoRef: React.Ref<HTMLVideoElement | null>;
 }) {
-  const [carouselEl, setCarouselEl] = useState<HTMLDivElement | null>(null);
   return (
-    <div
-      ref={setCarouselEl}
-      className="w-full h-full flex overflow-x-auto snap-x snap-mandatory scrollbar-hide"
-    >
-      <div className="flex-[0_0_100%] min-w-0 h-full snap-center snap-always bg-black">
+    <div className="w-full h-full flex overflow-x-auto snap-x snap-mandatory scrollbar-hide">
+      <div
+        ref={containerRef}
+        className="flex-[0_0_100%] min-w-0 h-full snap-center snap-always bg-black"
+      >
         <OdyMenuVideoSlide
-          carouselRoot={carouselEl}
-          videoId={dish.videoUrl!.trim()}
+          videoUrl={dish.videoUrl!.trim()}
           dishName={dish.name}
+          videoRef={videoRef}
         />
       </div>
       <div className="flex-[0_0_100%] min-w-0 h-full snap-center snap-always">
@@ -385,6 +165,49 @@ export default function HotelHomePage() {
   const [favoriteCounts, setFavoriteCounts] = useState<Record<string, number>>({});
   const [eatLaterCounts, setEatLaterCounts] = useState<Record<string, number>>({});
   const containerRef = useRef<HTMLDivElement>(null);
+
+  /** Refs for Instagram-style video: one observer watches all video containers. */
+  const videoContainerRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const videoElRefs = useRef<(HTMLVideoElement | null)[]>([]);
+  const containerToIndexRef = useRef<WeakMap<Element, number>>(new WeakMap());
+
+  /** Single IntersectionObserver: when a video block enters 60% viewport, pause all then play that one. */
+  useEffect(() => {
+    const containers = videoContainerRefs.current;
+    const videos = videoElRefs.current;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            const index = containerToIndexRef.current.get(entry.target);
+            if (index == null || !videos[index]) continue;
+            const targetVideo = videos[index];
+            // Pause all videos first
+            videos.forEach((v) => {
+              if (v) {
+                try {
+                  v.pause();
+                } catch {
+                  // ignore
+                }
+              }
+            });
+            // Play the intersecting video
+            targetVideo.play().catch(() => {});
+            break;
+          }
+        }
+      },
+      { threshold: 0.6 }
+    );
+
+    containers.forEach((el) => {
+      if (el) observer.observe(el);
+    });
+
+    return () => observer.disconnect();
+  }, [dishes]);
 
   // 🔐 AUTH STATES
   const [showPopup, setShowPopup] = useState(false);
@@ -806,14 +629,23 @@ export default function HotelHomePage() {
               </div>
             ) : (
               <div className="mb-6 sm:mb-8">
-                {dishes.map((dish) => (
+                {dishes.map((dish, index) => (
                   <div
                     key={dish.id}
                     className="w-full rounded-xl sm:rounded-2xl overflow-hidden bg-white border border-gray-200 mb-4 sm:mb-6"
                   >
                     <div className="aspect-[4/3] w-full bg-gray-100 relative">
-                      {dish.videoUrl && dish.videoUrl.trim() ? (
-                        <DishMediaCarousel dish={dish} />
+                      {dish.videoUrl && dish.videoUrl.trim() && isDirectVideoUrl(dish.videoUrl) ? (
+                        <DishMediaCarousel
+                          dish={dish}
+                          containerRef={(el) => {
+                            videoContainerRefs.current[index] = el ?? null;
+                            if (el) containerToIndexRef.current.set(el, index);
+                          }}
+                          videoRef={(el) => {
+                            videoElRefs.current[index] = el ?? null;
+                          }}
+                        />
                       ) : (
                         <img
                           src={dish.photoUrl || "/food_item_logo.png"}
