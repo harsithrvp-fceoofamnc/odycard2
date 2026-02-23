@@ -194,6 +194,7 @@ export default function DetailsPart2() {
     showLoader();
 
     try {
+      console.log("[Details2 handleSubmit] API_BASE:", API_BASE);
       // Create new hotel — slug from Details (slugified once, used unchanged)
       const createRes = await fetch(`${API_BASE}/api/hotels`, {
         method: "POST",

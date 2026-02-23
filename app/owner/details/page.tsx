@@ -87,6 +87,7 @@ export default function RestaurantDetailsPage() {
     showLoader();
 
     try {
+      console.log("[Details handleNext] API_BASE:", API_BASE);
       const slug = slugify(form.restaurantId);
       const res = await fetch(`${API_BASE}/api/hotels/${encodeURIComponent(slug)}`);
 
