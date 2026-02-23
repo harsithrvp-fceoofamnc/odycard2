@@ -31,11 +31,30 @@ type OdyDish = {
   videoUrl?: string | null;
 };
 
-/** Check if URL is a direct video (MP4 etc.) — YouTube URLs cannot be used as <video src>. */
+/** Extract YouTube video ID from watch URL, embed URL, or short url. */
+function extractYouTubeVideoId(url: string): string | null {
+  if (!url || !url.trim()) return null;
+  const match = url.match(
+    /(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/
+  );
+  return match ? match[1] : null;
+}
+
+/** Build YouTube embed URL with autoplay, muted, playsinline, no controls. */
+function buildYouTubeEmbedUrl(videoId: string, autoplay: boolean): string {
+  const params = new URLSearchParams();
+  params.set("mute", "1");
+  params.set("playsinline", "1");
+  params.set("controls", "0");
+  params.set("rel", "0");
+  if (autoplay) params.set("autoplay", "1");
+  return `https://www.youtube.com/embed/${videoId}?${params.toString()}`;
+}
+
+/** Check if URL is a direct video (MP4 etc.) — YouTube URLs use iframe instead. */
 function isDirectVideoUrl(url: string): boolean {
   if (!url || !url.trim()) return false;
-  const u = url.toLowerCase();
-  return !u.includes("youtube") && !u.includes("youtu.be");
+  return !extractYouTubeVideoId(url);
 }
 
 /** Renders a video element (muted, playsInline, no controls). Ref is managed by parent for IntersectionObserver. */
@@ -59,6 +78,46 @@ function OdyMenuVideoSlide({
         loop
         className="w-full h-full min-h-48 object-cover"
         title={dishName}
+      />
+    </div>
+  );
+}
+
+/** Renders YouTube embed iframe. Only mounts when isActive (Instagram-style: one at a time). */
+function YouTubeEmbedSlide({
+  videoId,
+  dishName,
+  photoUrl,
+  isActive,
+}: {
+  videoId: string;
+  dishName: string;
+  photoUrl: string;
+  isActive: boolean;
+}) {
+  if (!isActive) {
+    return (
+      <img
+        src={`https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`}
+        alt={dishName}
+        className="w-full h-full min-h-48 object-cover"
+        onError={(e) => {
+          (e.target as HTMLImageElement).src = photoUrl || "/food_item_logo.png";
+        }}
+      />
+    );
+  }
+  const embedUrl = buildYouTubeEmbedUrl(videoId, true);
+  return (
+    <div className="w-full h-full min-h-48 bg-black relative overflow-hidden">
+      {/* Responsive iframe: object-cover style (scale to fill, crop overflow) */}
+      <iframe
+        src={embedUrl}
+        title={dishName}
+        allow="autoplay; encrypted-media"
+        allowFullScreen
+        className="absolute left-1/2 top-1/2 min-w-[177.78%] min-h-full w-[177.78%] h-full -translate-x-1/2 -translate-y-1/2 pointer-events-none"
+        style={{ border: "none" }}
       />
     </div>
   );
@@ -88,27 +147,42 @@ function PhotoOnlyDishBlock({ dish }: { dish: OdyDish }) {
   );
 }
 
-/** Wraps the dish media carousel with video (direct MP4) and photo slides. */
+/** Wraps the dish media carousel with video (YouTube iframe or MP4) and photo slides. */
 function DishMediaCarousel({
   dish,
   containerRef,
   videoRef,
+  isActive,
+  isYouTube,
 }: {
   dish: OdyDish;
   containerRef: React.Ref<HTMLDivElement | null>;
   videoRef: React.Ref<HTMLVideoElement | null>;
+  isActive: boolean;
+  isYouTube: boolean;
 }) {
+  const youtubeId = isYouTube ? extractYouTubeVideoId(dish.videoUrl!.trim()) : null;
+
   return (
     <div className="w-full h-full flex overflow-x-auto snap-x snap-mandatory scrollbar-hide">
       <div
         ref={containerRef}
         className="flex-[0_0_100%] min-w-0 h-full snap-center snap-always bg-black"
       >
-        <OdyMenuVideoSlide
-          videoUrl={dish.videoUrl!.trim()}
-          dishName={dish.name}
-          videoRef={videoRef}
-        />
+        {isYouTube && youtubeId ? (
+          <YouTubeEmbedSlide
+            videoId={youtubeId}
+            dishName={dish.name}
+            photoUrl={dish.photoUrl || "/food_item_logo.png"}
+            isActive={isActive}
+          />
+        ) : (
+          <OdyMenuVideoSlide
+            videoUrl={dish.videoUrl!.trim()}
+            dishName={dish.name}
+            videoRef={videoRef}
+          />
+        )}
       </div>
       <div className="flex-[0_0_100%] min-w-0 h-full snap-center snap-always">
         <img
@@ -170,34 +244,25 @@ export default function HotelHomePage() {
   const videoContainerRefs = useRef<(HTMLDivElement | null)[]>([]);
   const videoElRefs = useRef<(HTMLVideoElement | null)[]>([]);
   const containerToIndexRef = useRef<WeakMap<Element, number>>(new WeakMap());
+  const [activeVideoIndex, setActiveVideoIndex] = useState<number | null>(null);
 
-  /** Single IntersectionObserver: when a video block enters 60% viewport, pause all then play that one. */
+  /** Single IntersectionObserver: 60% viewport = active. YouTube: only active mounts iframe. */
   useEffect(() => {
     const containers = videoContainerRefs.current;
-    const videos = videoElRefs.current;
 
     const observer = new IntersectionObserver(
       (entries) => {
+        let newActive: number | null = null;
         for (const entry of entries) {
           if (entry.isIntersecting) {
             const index = containerToIndexRef.current.get(entry.target);
-            if (index == null || !videos[index]) continue;
-            const targetVideo = videos[index];
-            // Pause all videos first
-            videos.forEach((v) => {
-              if (v) {
-                try {
-                  v.pause();
-                } catch {
-                  // ignore
-                }
-              }
-            });
-            // Play the intersecting video
-            targetVideo.play().catch(() => {});
-            break;
+            if (index != null) {
+              newActive = index;
+              break;
+            }
           }
         }
+        setActiveVideoIndex(newActive);
       },
       { threshold: 0.6 }
     );
@@ -208,6 +273,24 @@ export default function HotelHomePage() {
 
     return () => observer.disconnect();
   }, [dishes]);
+
+  /** When activeVideoIndex changes: pause all MP4 videos, play the active one. */
+  useEffect(() => {
+    const videos = videoElRefs.current;
+    videos.forEach((v) => {
+      if (v) {
+        try {
+          v.pause();
+        } catch {
+          // ignore
+        }
+      }
+    });
+    if (activeVideoIndex != null) {
+      const v = videoElRefs.current[activeVideoIndex];
+      if (v) v.play().catch(() => {});
+    }
+  }, [activeVideoIndex]);
 
   // 🔐 AUTH STATES
   const [showPopup, setShowPopup] = useState(false);
@@ -635,7 +718,7 @@ export default function HotelHomePage() {
                     className="w-full rounded-xl sm:rounded-2xl overflow-hidden bg-white border border-gray-200 mb-4 sm:mb-6"
                   >
                     <div className="aspect-[4/3] w-full bg-gray-100 relative">
-                      {dish.videoUrl && dish.videoUrl.trim() && isDirectVideoUrl(dish.videoUrl) ? (
+                      {dish.videoUrl && dish.videoUrl.trim() ? (
                         <DishMediaCarousel
                           dish={dish}
                           containerRef={(el) => {
@@ -645,6 +728,8 @@ export default function HotelHomePage() {
                           videoRef={(el) => {
                             videoElRefs.current[index] = el ?? null;
                           }}
+                          isActive={activeVideoIndex === index}
+                          isYouTube={!!extractYouTubeVideoId(dish.videoUrl)}
                         />
                       ) : (
                         <img
