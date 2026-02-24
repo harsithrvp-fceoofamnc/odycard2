@@ -108,6 +108,9 @@ export default function RestaurantDetailsPage() {
       localStorage.setItem("userName", form.userName);
       localStorage.setItem("restaurantName", form.restaurantName);
       localStorage.setItem("restaurantSlug", slug);
+      /* Gmail and password for owner creation (cleared after signup in details2) */
+      sessionStorage.setItem("signup_gmail", form.gmail);
+      sessionStorage.setItem("signup_password", form.password);
 
       router.push("/owner/details2");
     } catch {

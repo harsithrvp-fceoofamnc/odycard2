@@ -244,13 +244,50 @@ export default function DetailsPart2() {
         console.warn("Logo/cover update failed, continuing...");
       }
 
-      // 3. Clear previous owner data (multi-tenant isolation)
+      // 3. Create owner with hashed password (gmail + password from details page)
+      const gmailRaw = sessionStorage.getItem("signup_gmail");
+      const passwordRaw = sessionStorage.getItem("signup_password");
+      const gmail = typeof gmailRaw === "string" ? gmailRaw.trim() : "";
+      const password = typeof passwordRaw === "string" ? passwordRaw.trim() : "";
+
+      if (!gmail || !password) {
+        hideLoader();
+        setIsSubmitting(false);
+        setError(
+          gmailRaw == null || passwordRaw == null
+            ? "Session expired. Please go back and re-enter your Gmail and password."
+            : "Gmail and password are required. Please go back and fill them in."
+        );
+        return;
+      }
+
+      console.log("[Details2] Calling POST /api/owners with hotel_id=%s, gmail=%s", hotel.id, gmail);
+
+      const ownerRes = await fetch(`${API_BASE}/api/owners`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ hotel_id: hotel.id, gmail, password }),
+      });
+
+      if (!ownerRes.ok) {
+        const errData = await ownerRes.json().catch(() => ({}));
+        hideLoader();
+        setIsSubmitting(false);
+        setError(errData?.error || "Failed to create account. Please try again.");
+        return;
+      }
+
+      console.log("[Details2] POST /api/owners succeeded");
+      sessionStorage.removeItem("signup_gmail");
+      sessionStorage.removeItem("signup_password");
+
+      // 4. Clear previous owner data (multi-tenant isolation)
       localStorage.removeItem("ody_dishes");
       localStorage.removeItem("restaurantLogo");
       localStorage.removeItem("restaurantCover");
       localStorage.removeItem("restaurantSlug"); // was only for creation flow
 
-      // 4. Store this owner's hotel data (rest of app uses restaurantId for slug)
+      // 5. Store this owner's hotel data (rest of app uses restaurantId for slug)
       localStorage.setItem("ody_hotel_id", String(hotel.id));
       localStorage.setItem("restaurantId", hotel.slug);
       localStorage.setItem("restaurantName", hotel.name);

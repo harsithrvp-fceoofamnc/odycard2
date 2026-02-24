@@ -3,18 +3,25 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
+import { API_BASE } from "@/lib/api";
 
 export default function LoginPage() {
   const router = useRouter();
 
-  const [mobile, setMobile] = useState("");
+  const [gmail, setGmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleLogin = () => {
-    if (mobile.length !== 10) {
-      setError("Enter a valid 10 digit mobile number");
+  const handleLogin = async () => {
+    if (!gmail.trim()) {
+      setError("Enter your Gmail");
+      return;
+    }
+
+    if (!gmail.endsWith("@gmail.com")) {
+      setError("Gmail must end with @gmail.com");
       return;
     }
 
@@ -24,7 +31,40 @@ export default function LoginPage() {
     }
 
     setError("");
-    router.push("/owner/otp");
+    setIsLoading(true);
+
+    try {
+      const res = await fetch(`${API_BASE}/api/auth/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ gmail: gmail.trim(), password }),
+      });
+
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok) {
+        setError(data?.error || "Invalid Gmail or password");
+        setIsLoading(false);
+        return;
+      }
+
+      const { hotel } = data;
+      if (!hotel) {
+        setError("Invalid response. Please try again.");
+        setIsLoading(false);
+        return;
+      }
+
+      localStorage.setItem("ody_hotel_id", String(hotel.id));
+      localStorage.setItem("restaurantId", hotel.slug);
+      localStorage.setItem("restaurantName", hotel.name);
+      localStorage.setItem("userName", hotel.name);
+
+      router.push("/owner/dashboard");
+    } catch {
+      setError("Connection error. Please try again.");
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -66,17 +106,18 @@ export default function LoginPage() {
             Log In
           </h1>
 
-          {/* MOBILE NUMBER */}
+          {/* GMAIL */}
           <label className="block mb-3 text-[20px] font-semibold text-black">
-            Mobile Number
+            Gmail
           </label>
           <input
-            type="tel"
-            value={mobile}
+            type="email"
+            value={gmail}
             onChange={(e) => {
-              setMobile(e.target.value.replace(/\D/g, "").slice(0, 10));
+              setGmail(e.target.value);
               setError("");
             }}
+            placeholder="you@gmail.com"
             className="w-full border border-gray-300 rounded-xl mb-10
                        focus:outline-none focus:border-black focus:ring-2 focus:ring-black"
             style={{
@@ -132,13 +173,14 @@ export default function LoginPage() {
           {/* LOGIN BUTTON */}
           <button
             onClick={handleLogin}
-            className="w-full rounded-full bg-[#0A84C1] text-white font-semibold"
+            disabled={isLoading}
+            className="w-full rounded-full bg-[#0A84C1] text-white font-semibold disabled:opacity-70 disabled:cursor-not-allowed"
             style={{
               fontSize: "20px",
               padding: "14px",
             }}
           >
-            Log In
+            {isLoading ? "Logging in..." : "Log In"}
           </button>
         </motion.div>
       </div>
