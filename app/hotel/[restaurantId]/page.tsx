@@ -294,7 +294,28 @@ function DishMediaCarousel({
 
   const handleVideoEnd = useCallback(() => {
     const el = carouselRef.current;
-    if (el) el.scrollLeft = el.clientWidth;
+    if (!el) return;
+    const from = el.scrollLeft;
+    const to = el.clientWidth;
+    if (from >= to) return;
+    const duration = 800; // 700-900ms for premium feel
+    const startTime = performance.now();
+
+    function easeInOutCubic(t: number): number {
+      return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+    }
+
+    function tick(now: number) {
+      const carousel = carouselRef.current;
+      if (!carousel) return;
+      const elapsed = now - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      const eased = easeInOutCubic(progress);
+      carousel.scrollLeft = from + (to - from) * eased;
+      if (progress < 1) requestAnimationFrame(tick);
+    }
+
+    requestAnimationFrame(tick);
   }, []);
 
   useEffect(() => {
