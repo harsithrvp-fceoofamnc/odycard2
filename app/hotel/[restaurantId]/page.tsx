@@ -15,9 +15,9 @@ declare global {
 declare const YT: {
   PlayerState: { ENDED: 0; PLAYING: 1; PAUSED: 2; BUFFERING: 3; CUED: 5 };
   Player: new (
-    elementId: string,
-    options: {
-      videoId: string;
+    elementIdOrElement: string | HTMLIFrameElement,
+    options?: {
+      videoId?: string;
       playerVars?: Record<string, number | string>;
       events?: { onReady?: (e: { target: YTPlayer }) => void; onStateChange?: (e: { data: number; target: YTPlayer }) => void };
     }
@@ -63,6 +63,19 @@ function extractYouTubeVideoId(url: string): string | null {
     /(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/
   );
   return match ? match[1] : null;
+}
+
+/** Build YouTube embed URL from video ID. Converts watch URLs via extractYouTubeVideoId. */
+function buildYouTubeEmbedUrl(videoId: string): string {
+  const params = new URLSearchParams({
+    autoplay: "1",
+    mute: "1",
+    controls: "1",
+    rel: "0",
+    playsinline: "1",
+    enablejsapi: "1",
+  });
+  return `https://www.youtube.com/embed/${videoId}?${params.toString()}`;
 }
 
 /** Load YouTube Iframe API and return a promise that resolves when ready. */
@@ -121,7 +134,7 @@ function OdyMenuVideoSlide({
   );
 }
 
-/** YouTube player container: 16:9 responsive wrapper, centered, no cropping. */
+/** YouTube player container: 16:9 responsive aspect-ratio, no fixed heights, no black bars. */
 const YouTubePlayerWrapper = forwardRef<
   { restartAndPlay: () => void },
   {
@@ -138,9 +151,8 @@ const YouTubePlayerWrapper = forwardRef<
   { videoId, dishName, photoUrl, dishIndex, isActive, onVideoEnd, registerPlayer, unregisterPlayer },
   ref
 ) {
-  const containerRef = useRef<HTMLDivElement>(null);
+  const iframeRef = useRef<HTMLIFrameElement>(null);
   const playerRef = useRef<YTPlayer | null>(null);
-  const divIdRef = useRef<string>(`yt-player-${dishIndex}-${videoId}`);
 
   const restartAndPlay = useCallback(() => {
     const p = playerRef.current;
@@ -156,26 +168,14 @@ const YouTubePlayerWrapper = forwardRef<
 
   useImperativeHandle(ref, () => ({ restartAndPlay }), [restartAndPlay]);
 
-  useEffect(() => {
-    if (!isActive) return;
-    let cancelled = false;
-    const divId = divIdRef.current;
+  const onIframeLoad = useCallback(() => {
+    const iframe = iframeRef.current;
+    if (!iframe) return;
     ensureYouTubeAPI().then(() => {
-      if (cancelled || typeof YT === "undefined" || !YT.Player) return;
-      if (!document.getElementById(divId)) return;
-      new YT.Player(divId, {
-        videoId,
-        playerVars: {
-          autoplay: 1,
-          mute: 1,
-          playsinline: 1,
-          enablejsapi: 1,
-          controls: 1,
-          rel: 0,
-        },
+      if (typeof YT === "undefined" || !YT.Player) return;
+      new YT.Player(iframe, {
         events: {
           onReady(e) {
-            if (cancelled) return;
             playerRef.current = e.target;
             registerPlayer(dishIndex, e.target);
             try {
@@ -185,14 +185,16 @@ const YouTubePlayerWrapper = forwardRef<
             }
           },
           onStateChange(event) {
-            if (cancelled) return;
             if (event.data === 0) onVideoEnd();
           },
         },
       });
     });
+  }, [dishIndex, onVideoEnd, registerPlayer]);
+
+  useEffect(() => {
+    if (!isActive) return;
     return () => {
-      cancelled = true;
       try {
         if (playerRef.current && typeof playerRef.current.pauseVideo === "function") {
           playerRef.current.pauseVideo();
@@ -203,30 +205,41 @@ const YouTubePlayerWrapper = forwardRef<
       unregisterPlayer(dishIndex);
       playerRef.current = null;
     };
-  }, [videoId, dishIndex, isActive, onVideoEnd, registerPlayer, unregisterPlayer]);
+  }, [isActive, dishIndex, unregisterPlayer]);
 
   if (!isActive) {
     return (
-      <div className="relative w-full aspect-video flex items-center justify-center bg-black overflow-hidden">
-        <img
-          src={`https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`}
-          alt={dishName}
-          className="w-full h-full object-contain"
-          onError={(e) => {
-            (e.target as HTMLImageElement).src = photoUrl || "/food_item_logo.png";
-          }}
-        />
+      <div className="relative w-full overflow-hidden rounded-2xl">
+        <div className="relative w-full aspect-video bg-black">
+          <img
+            src={`https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`}
+            alt={dishName}
+            className="absolute inset-0 w-full h-full object-contain"
+            onError={(e) => {
+              (e.target as HTMLImageElement).src = photoUrl || "/food_item_logo.png";
+            }}
+          />
+        </div>
       </div>
     );
   }
 
+  const embedUrl = buildYouTubeEmbedUrl(videoId);
+
   return (
-    <div className="relative w-full aspect-video flex items-center justify-center bg-black overflow-hidden">
-      <div
-        id={divIdRef.current}
-        className="absolute inset-0 w-full h-full"
-        style={{ left: 0, top: 0 }}
-      />
+    <div className="relative w-full overflow-hidden rounded-2xl">
+      <div className="relative w-full aspect-video">
+        <iframe
+          ref={iframeRef}
+          src={embedUrl}
+          title={dishName}
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowFullScreen
+          className="absolute inset-0 w-full h-full"
+          style={{ border: "none" }}
+          onLoad={onIframeLoad}
+        />
+      </div>
     </div>
   );
 });
