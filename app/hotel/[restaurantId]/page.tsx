@@ -1,9 +1,34 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState } from "react";
 import { useParams } from "next/navigation";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5050";
+
+/** YouTube Iframe API types (loaded via script tag). */
+declare global {
+  interface Window {
+    YT?: typeof YT;
+    onYouTubeIframeAPIReady?: () => void;
+  }
+}
+declare const YT: {
+  PlayerState: { ENDED: 0; PLAYING: 1; PAUSED: 2; BUFFERING: 3; CUED: 5 };
+  Player: new (
+    elementId: string,
+    options: {
+      videoId: string;
+      playerVars?: Record<string, number | string>;
+      events?: { onReady?: (e: { target: YTPlayer }) => void; onStateChange?: (e: { data: number; target: YTPlayer }) => void };
+    }
+  ) => YTPlayer;
+};
+interface YTPlayer {
+  playVideo: () => void;
+  pauseVideo: () => void;
+  seekTo: (seconds: number, allowSeekAhead?: boolean) => void;
+  getPlayerState: () => number;
+}
 
 const tabs = ["Ody Menu", "Menu", "Eat Later", "Favorites"];
 
@@ -40,15 +65,28 @@ function extractYouTubeVideoId(url: string): string | null {
   return match ? match[1] : null;
 }
 
-/** Build YouTube embed URL with autoplay, muted, playsinline, no controls. */
-function buildYouTubeEmbedUrl(videoId: string, autoplay: boolean): string {
-  const params = new URLSearchParams();
-  params.set("mute", "1");
-  params.set("playsinline", "1");
-  params.set("controls", "0");
-  params.set("rel", "0");
-  if (autoplay) params.set("autoplay", "1");
-  return `https://www.youtube.com/embed/${videoId}?${params.toString()}`;
+/** Load YouTube Iframe API and return a promise that resolves when ready. */
+let ytApiReady: Promise<void> | null = null;
+function ensureYouTubeAPI(): Promise<void> {
+  if (typeof window === "undefined") return Promise.resolve();
+  if (typeof YT !== "undefined" && YT.Player) return Promise.resolve();
+  if (ytApiReady) return ytApiReady;
+  ytApiReady = new Promise((resolve) => {
+    const prev = (window as Window).onYouTubeIframeAPIReady;
+    (window as Window).onYouTubeIframeAPIReady = () => {
+      if (prev) prev();
+      resolve();
+    };
+    if (document.querySelector('script[src*="youtube.com/iframe_api"]')) {
+      if (typeof YT !== "undefined" && YT.Player) resolve();
+      return;
+    }
+    const script = document.createElement("script");
+    script.src = "https://www.youtube.com/iframe_api";
+    script.async = true;
+    document.head.appendChild(script);
+  });
+  return ytApiReady;
 }
 
 /** Check if URL is a direct video (MP4 etc.) — YouTube URLs use iframe instead. */
@@ -83,25 +121,97 @@ function OdyMenuVideoSlide({
   );
 }
 
-/** Renders YouTube embed iframe. Only mounts when isActive (Instagram-style: one at a time). */
-function YouTubeEmbedSlide({
-  videoId,
-  dishName,
-  photoUrl,
-  isActive,
-}: {
-  videoId: string;
-  dishName: string;
-  photoUrl: string;
-  isActive: boolean;
-}) {
+/** YouTube player container: 16:9 responsive wrapper, centered, no cropping. */
+const YouTubePlayerWrapper = forwardRef<
+  { restartAndPlay: () => void },
+  {
+    videoId: string;
+    dishName: string;
+    photoUrl: string;
+    dishIndex: number;
+    isActive: boolean;
+    onVideoEnd: () => void;
+    registerPlayer: (index: number, player: YTPlayer) => void;
+    unregisterPlayer: (index: number) => void;
+  }
+>(function YouTubePlayerWrapper(
+  { videoId, dishName, photoUrl, dishIndex, isActive, onVideoEnd, registerPlayer, unregisterPlayer },
+  ref
+) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const playerRef = useRef<YTPlayer | null>(null);
+  const divIdRef = useRef<string>(`yt-player-${dishIndex}-${videoId}`);
+
+  const restartAndPlay = useCallback(() => {
+    const p = playerRef.current;
+    if (p && typeof p.seekTo === "function" && typeof p.playVideo === "function") {
+      try {
+        p.seekTo(0, true);
+        p.playVideo();
+      } catch {
+        // ignore
+      }
+    }
+  }, []);
+
+  useImperativeHandle(ref, () => ({ restartAndPlay }), [restartAndPlay]);
+
+  useEffect(() => {
+    if (!isActive) return;
+    let cancelled = false;
+    const divId = divIdRef.current;
+    ensureYouTubeAPI().then(() => {
+      if (cancelled || typeof YT === "undefined" || !YT.Player) return;
+      if (!document.getElementById(divId)) return;
+      new YT.Player(divId, {
+        videoId,
+        playerVars: {
+          autoplay: 1,
+          mute: 1,
+          playsinline: 1,
+          enablejsapi: 1,
+          controls: 1,
+          rel: 0,
+        },
+        events: {
+          onReady(e) {
+            if (cancelled) return;
+            playerRef.current = e.target;
+            registerPlayer(dishIndex, e.target);
+            try {
+              e.target.playVideo();
+            } catch {
+              // ignore
+            }
+          },
+          onStateChange(event) {
+            if (cancelled) return;
+            if (event.data === 0) onVideoEnd();
+          },
+        },
+      });
+    });
+    return () => {
+      cancelled = true;
+      try {
+        if (playerRef.current && typeof playerRef.current.pauseVideo === "function") {
+          playerRef.current.pauseVideo();
+        }
+      } catch {
+        // ignore
+      }
+      unregisterPlayer(dishIndex);
+      playerRef.current = null;
+    };
+  }, [videoId, dishIndex, isActive, onVideoEnd, registerPlayer, unregisterPlayer]);
+
   if (!isActive) {
     return (
-      <div className="relative w-full" style={{ paddingTop: "56.25%" }}>
+      <div className="relative w-full aspect-video flex items-center justify-center bg-black overflow-hidden">
         <img
           src={`https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`}
           alt={dishName}
-          className="absolute inset-0 w-full h-full object-contain bg-black"
+          className="w-full h-full object-contain"
           onError={(e) => {
             (e.target as HTMLImageElement).src = photoUrl || "/food_item_logo.png";
           }}
@@ -109,20 +219,17 @@ function YouTubeEmbedSlide({
       </div>
     );
   }
-  const embedUrl = buildYouTubeEmbedUrl(videoId, true);
+
   return (
-    <div className="relative w-full bg-black" style={{ paddingTop: "56.25%" }}>
-      <iframe
-        src={embedUrl}
-        title={dishName}
-        allow="autoplay; encrypted-media"
-        allowFullScreen
-        className="absolute left-0 top-0 w-full h-full"
-        style={{ border: "none" }}
+    <div className="relative w-full aspect-video flex items-center justify-center bg-black overflow-hidden">
+      <div
+        id={divIdRef.current}
+        className="absolute inset-0 w-full h-full"
+        style={{ left: 0, top: 0 }}
       />
     </div>
   );
-}
+});
 
 /** Photo-only dish block for Favorites/Eat Later tabs (no video, no carousel, no autoplay). */
 function PhotoOnlyDishBlock({ dish }: { dish: OdyDish }) {
@@ -151,31 +258,78 @@ function PhotoOnlyDishBlock({ dish }: { dish: OdyDish }) {
 /** Wraps the dish media carousel with video (YouTube iframe or MP4) and photo slides. */
 function DishMediaCarousel({
   dish,
+  dishIndex,
   containerRef,
   videoRef,
   isActive,
   isYouTube,
+  registerPlayer,
+  unregisterPlayer,
 }: {
   dish: OdyDish;
+  dishIndex: number;
   containerRef: React.Ref<HTMLDivElement | null>;
   videoRef: React.Ref<HTMLVideoElement | null>;
   isActive: boolean;
   isYouTube: boolean;
+  registerPlayer: (index: number, player: YTPlayer) => void;
+  unregisterPlayer: (index: number) => void;
 }) {
+  const carouselRef = useRef<HTMLDivElement>(null);
+  const videoSlideRef = useRef<HTMLDivElement>(null);
+  const youtubeSlideRef = useRef<{ restartAndPlay: () => void }>(null);
+
+  const handleVideoEnd = useCallback(() => {
+    const el = carouselRef.current;
+    if (el) el.scrollLeft = el.clientWidth;
+  }, []);
+
+  useEffect(() => {
+    if (!isYouTube) return;
+    const slide = videoSlideRef.current;
+    const carousel = carouselRef.current;
+    if (!slide || !carousel) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) {
+          if (e.isIntersecting && e.intersectionRatio >= 0.8) {
+            youtubeSlideRef.current?.restartAndPlay();
+            break;
+          }
+        }
+      },
+      { root: carousel, threshold: [0.8] }
+    );
+    observer.observe(slide);
+    return () => observer.disconnect();
+  }, [isYouTube]);
+
   const youtubeId = isYouTube ? extractYouTubeVideoId(dish.videoUrl!.trim()) : null;
 
   return (
-    <div className="w-full h-full flex overflow-x-auto snap-x snap-mandatory scrollbar-hide">
+    <div
+      ref={carouselRef}
+      className="w-full h-full flex overflow-x-auto snap-x snap-mandatory scrollbar-hide"
+    >
       <div
-        ref={containerRef}
-        className="flex-[0_0_100%] min-w-0 h-full snap-center snap-always bg-black"
+        ref={(el) => {
+          (videoSlideRef as React.MutableRefObject<HTMLDivElement | null>).current = el;
+          if (typeof containerRef === "function") containerRef(el);
+          else if (containerRef) (containerRef as React.MutableRefObject<HTMLDivElement | null>).current = el;
+        }}
+        className="flex-[0_0_100%] min-w-0 h-full snap-center snap-always flex items-center justify-center bg-black shrink-0"
       >
         {isYouTube && youtubeId ? (
-          <YouTubeEmbedSlide
+          <YouTubePlayerWrapper
+            ref={youtubeSlideRef}
             videoId={youtubeId}
             dishName={dish.name}
             photoUrl={dish.photoUrl || "/food_item_logo.png"}
+            dishIndex={dishIndex}
             isActive={isActive}
+            onVideoEnd={handleVideoEnd}
+            registerPlayer={registerPlayer}
+            unregisterPlayer={unregisterPlayer}
           />
         ) : (
           <OdyMenuVideoSlide
@@ -185,7 +339,7 @@ function DishMediaCarousel({
           />
         )}
       </div>
-      <div className="flex-[0_0_100%] min-w-0 h-full snap-center snap-always">
+      <div className="flex-[0_0_100%] min-w-0 h-full snap-center snap-always shrink-0">
         <img
           src={dish.photoUrl || "/food_item_logo.png"}
           alt={dish.name}
@@ -244,8 +398,17 @@ export default function HotelHomePage() {
   /** Refs for Instagram-style video: one observer watches all video containers. */
   const videoContainerRefs = useRef<(HTMLDivElement | null)[]>([]);
   const videoElRefs = useRef<(HTMLVideoElement | null)[]>([]);
+  const youtubePlayersRef = useRef<Map<number, YTPlayer>>(new Map());
   const containerToIndexRef = useRef<WeakMap<Element, number>>(new WeakMap());
   const [activeVideoIndex, setActiveVideoIndex] = useState<number | null>(null);
+
+  const registerYoutubePlayer = useCallback((index: number, player: YTPlayer) => {
+    youtubePlayersRef.current.set(index, player);
+  }, []);
+
+  const unregisterYoutubePlayer = useCallback((index: number) => {
+    youtubePlayersRef.current.delete(index);
+  }, []);
 
   /** Single IntersectionObserver: 60% viewport = active. YouTube: only active mounts iframe. */
   useEffect(() => {
@@ -275,7 +438,7 @@ export default function HotelHomePage() {
     return () => observer.disconnect();
   }, [dishes]);
 
-  /** When activeVideoIndex changes: pause all MP4 videos, play the active one. */
+  /** When activeVideoIndex changes: pause all MP4/YouTube, play only the active one. */
   useEffect(() => {
     const videos = videoElRefs.current;
     videos.forEach((v) => {
@@ -287,9 +450,26 @@ export default function HotelHomePage() {
         }
       }
     });
+    youtubePlayersRef.current.forEach((player, idx) => {
+      if (idx !== activeVideoIndex) {
+        try {
+          if (typeof player.pauseVideo === "function") player.pauseVideo();
+        } catch {
+          // ignore
+        }
+      }
+    });
     if (activeVideoIndex != null) {
       const v = videoElRefs.current[activeVideoIndex];
       if (v) v.play().catch(() => {});
+      const yt = youtubePlayersRef.current.get(activeVideoIndex);
+      if (yt && typeof yt.playVideo === "function") {
+        try {
+          yt.playVideo();
+        } catch {
+          // ignore
+        }
+      }
     }
   }, [activeVideoIndex]);
 
@@ -718,10 +898,13 @@ export default function HotelHomePage() {
                     key={dish.id}
                     className="w-full rounded-xl sm:rounded-2xl overflow-hidden bg-white border border-gray-200 mb-4 sm:mb-6"
                   >
-                    <div className="aspect-[4/3] w-full bg-gray-100 relative">
+                    <div
+                      className={`w-full bg-gray-100 relative ${extractYouTubeVideoId(dish.videoUrl ?? "") ? "aspect-video" : "aspect-[4/3]"}`}
+                    >
                       {dish.videoUrl && dish.videoUrl.trim() ? (
                         <DishMediaCarousel
                           dish={dish}
+                          dishIndex={index}
                           containerRef={(el) => {
                             videoContainerRefs.current[index] = el ?? null;
                             if (el) containerToIndexRef.current.set(el, index);
@@ -731,6 +914,8 @@ export default function HotelHomePage() {
                           }}
                           isActive={activeVideoIndex === index}
                           isYouTube={!!extractYouTubeVideoId(dish.videoUrl)}
+                          registerPlayer={registerYoutubePlayer}
+                          unregisterPlayer={unregisterYoutubePlayer}
                         />
                       ) : (
                         <img
