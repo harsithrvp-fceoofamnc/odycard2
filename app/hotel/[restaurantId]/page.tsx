@@ -434,42 +434,71 @@ export default function HotelHomePage() {
   const videoElRefs = useRef<(HTMLVideoElement | null)[]>([]);
   const youtubePlayersRef = useRef<Map<number, YTPlayer>>(new Map());
   const containerToIndexRef = useRef<WeakMap<Element, number>>(new WeakMap());
+  const visibilityRatiosRef = useRef<Map<number, number>>(new Map());
+  const activeVideoIndexRef = useRef<number | null>(null);
   const [activeVideoIndex, setActiveVideoIndex] = useState<number | null>(null);
 
   const registerYoutubePlayer = useCallback((index: number, player: YTPlayer) => {
     youtubePlayersRef.current.set(index, player);
+    if (activeVideoIndexRef.current === index) {
+      try {
+        if (typeof player.playVideo === "function") player.playVideo();
+      } catch {
+        // ignore
+      }
+    }
   }, []);
 
   const unregisterYoutubePlayer = useCallback((index: number) => {
     youtubePlayersRef.current.delete(index);
   }, []);
 
-  /** Single IntersectionObserver: 60% viewport = active. YouTube: only active mounts iframe. */
+  /** Keep ref in sync for registerYoutubePlayer to use. */
+  useEffect(() => {
+    activeVideoIndexRef.current = activeVideoIndex;
+  }, [activeVideoIndex]);
+
+  /** IntersectionObserver: track visibility per container. Active = highest ratio >= 60%. Pause when < 40%. */
   useEffect(() => {
     const containers = videoContainerRefs.current;
+    const visibilityRatios = visibilityRatiosRef.current;
 
     const observer = new IntersectionObserver(
       (entries) => {
-        let newActive: number | null = null;
         for (const entry of entries) {
-          if (entry.isIntersecting) {
-            const index = containerToIndexRef.current.get(entry.target);
-            if (index != null) {
-              newActive = index;
-              break;
-            }
+          const index = containerToIndexRef.current.get(entry.target);
+          if (index != null) {
+            visibilityRatios.set(index, entry.intersectionRatio);
           }
         }
-        setActiveVideoIndex(newActive);
+        let bestIndex: number | null = null;
+        let bestRatio = 0;
+        visibilityRatios.forEach((ratio, index) => {
+          if (ratio >= 0.6 && ratio > bestRatio) {
+            bestRatio = ratio;
+            bestIndex = index;
+          }
+        });
+        setActiveVideoIndex((prev) => (prev !== bestIndex ? bestIndex : prev));
       },
-      { threshold: 0.6 }
+      {
+        root: null,
+        rootMargin: "0px",
+        threshold: [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1],
+      }
     );
 
+    visibilityRatios.clear();
     containers.forEach((el) => {
-      if (el) observer.observe(el);
+      if (el) {
+        observer.observe(el);
+      }
     });
 
-    return () => observer.disconnect();
+    return () => {
+      observer.disconnect();
+      visibilityRatios.clear();
+    };
   }, [dishes]);
 
   /** When activeVideoIndex changes: pause all MP4/YouTube, play only the active one. */
