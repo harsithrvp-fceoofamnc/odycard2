@@ -249,7 +249,6 @@ export default function DetailsPart2() {
         }
         setLogoUrl(cropped);
         localStorage.setItem("restaurantLogo", cropped);
-        revokePreview(logoPreview);
         setLogoPreview(null);
         closeCropModal();
       } catch {
@@ -268,7 +267,6 @@ export default function DetailsPart2() {
         }
         setCoverUrl(cropped);
         localStorage.setItem("restaurantCover", cropped);
-        revokePreview(coverPreview);
         setCoverPreview(null);
         closeCropModal();
       } catch {
@@ -277,8 +275,9 @@ export default function DetailsPart2() {
         setIsUploadingCover(false);
       }
     }
-  }, [cropType, logoPreview, coverPreview, closeCropModal, revokePreview]);
+  }, [cropType, closeCropModal]);
 
+  /* Validation: Done/Submit depend ONLY on final URLs (logoUrl, coverUrl) + upload state */
   const isCropDoneDisabled = isUploadingLogo || isUploadingCover || !hasCropArea;
   const isSubmitDisabled = isSubmitting || isUploadingLogo || isUploadingCover || !logoUrl;
 
@@ -529,6 +528,8 @@ export default function DetailsPart2() {
               >
                 Back
               </button>
+              {/* Validation: Submit enabled only when logoUrl (required) is set, not while uploading */}
+              {(console.log("[details2] Submit state:", { logoUrl: !!logoUrl, coverUrl: !!coverUrl, isUploadingLogo, isUploadingCover, isSubmitDisabled }), null)}
               <button
                 type="button"
                 onClick={handleSubmit}
@@ -572,6 +573,7 @@ export default function DetailsPart2() {
             <button onClick={closeCropModal} className="text-white text-lg">
               Cancel
             </button>
+            {(console.log("[details2] Crop Done state:", { hasCropArea, isUploadingLogo, isUploadingCover, isCropDoneDisabled }), null)}
             <button
               onClick={saveCrop}
               disabled={isCropDoneDisabled}

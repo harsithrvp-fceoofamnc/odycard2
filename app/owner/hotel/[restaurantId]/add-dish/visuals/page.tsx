@@ -44,14 +44,14 @@ export default function VisualsPage() {
   const restaurantId = params?.restaurantId as string;
   console.log("[AddDish Visuals] params:", params, "restaurantId:", restaurantId);
 
-  /* ---------- VIDEO ---------- */
+  /* ---------- VIDEO — videoUrl = final YouTube ID after upload ---------- */
   const [youtubeInput, setYoutubeInput] = useState("");
-  const [uploadedVideoId, setUploadedVideoId] = useState<string | null>(null);
+  const [videoUrl, setVideoUrl] = useState<string | null>(null);
   const [invalidLinkError, setInvalidLinkError] = useState(false);
 
-  /* ---------- PHOTO ---------- */
+  /* ---------- PHOTO — imageUrl = final cropped result (base64); photoSrc = temp for crop modal ---------- */
   const [photoSrc, setPhotoSrc] = useState<string | null>(null);
-  const [croppedPhoto, setCroppedPhoto] = useState<string | null>(null);
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
 
   /* ---------- CROP ---------- */
   const [showCrop, setShowCrop] = useState(false);
@@ -59,46 +59,33 @@ export default function VisualsPage() {
   const [zoom, setZoom] = useState(1);
   const [croppedAreaPixels, setCroppedAreaPixels] = useState<any>(null);
 
-  /* ---------- PROGRESS (base from previous page; step up only when both uploads done) ---------- */
-  const hasVideo = uploadedVideoId !== null;
-  const hasPhoto = croppedPhoto !== null;
-  const BASE_PROGRESS = 33; // from dish type page
+  /* ---------- VALIDATION: Next depends ONLY on final URLs (no preview) ---------- */
+  const BASE_PROGRESS = 33;
   const VISUALS_COMPLETE_PROGRESS = 66;
   const computedProgress =
-    hasVideo && hasPhoto ? VISUALS_COMPLETE_PROGRESS : BASE_PROGRESS;
+    !!videoUrl && !!imageUrl ? VISUALS_COMPLETE_PROGRESS : BASE_PROGRESS;
 
   const [navError, setNavError] = useState<string | null>(null);
-  const nextEnabled = hasVideo && hasPhoto;
+  const nextEnabled = !!imageUrl && !!videoUrl;
 
   const handleNext = () => {
-    console.log("Next clicked");
-    console.log("Selected Type:", localStorage.getItem("addDishType"));
-    console.log("Photo exists:", !!croppedPhoto);
-    console.log("Video exists:", !!uploadedVideoId);
-    console.log("Restaurant ID:", restaurantId);
-
     if (!restaurantId || typeof restaurantId !== "string") {
-      console.error("[AddDish Visuals] FAILED: restaurantId is undefined or invalid");
       setNavError("Restaurant ID missing. Please refresh.");
       return;
     }
-    if (!croppedPhoto) {
-      console.error("[AddDish Visuals] FAILED: photo is missing");
+    if (!imageUrl) {
       setNavError("Please upload a photo first.");
       return;
     }
-    if (!uploadedVideoId) {
-      console.error("[AddDish Visuals] FAILED: video is missing");
+    if (!videoUrl) {
       setNavError("Please add a video link first.");
       return;
     }
 
     setNavError(null);
-    localStorage.setItem("addDishPhoto", croppedPhoto);
-    localStorage.setItem("addDishVideoId", uploadedVideoId);
-    const target = `/owner/hotel/${restaurantId}/add-dish/dish-details`;
-    console.log("[AddDish Visuals] Navigating to:", target);
-    router.push(target);
+    localStorage.setItem("addDishPhoto", imageUrl);
+    localStorage.setItem("addDishVideoId", videoUrl);
+    router.push(`/owner/hotel/${restaurantId}/add-dish/dish-details`);
   };
 
   /* ---------- VIDEO HELPERS ---------- */
@@ -116,11 +103,11 @@ export default function VisualsPage() {
       return;
     }
     setInvalidLinkError(false);
-    setUploadedVideoId(id);
+    setVideoUrl(id);
   };
 
   const handleRemoveVideo = () => {
-    setUploadedVideoId(null);
+    setVideoUrl(null);
     setYoutubeInput("");
     setInvalidLinkError(false);
   };
@@ -144,13 +131,14 @@ export default function VisualsPage() {
     const cropped = await getCroppedImg(photoSrc, croppedAreaPixels);
     if (!cropped) return;
 
-    setCroppedPhoto(cropped);
+    setImageUrl(cropped);
+    setPhotoSrc(null);
     setShowCrop(false);
   };
 
   const handleRemovePhoto = () => {
     setPhotoSrc(null);
-    setCroppedPhoto(null);
+    setImageUrl(null);
   };
 
   return (
@@ -186,7 +174,7 @@ export default function VisualsPage() {
             </div>
           </div>
 
-          {uploadedVideoId === null ? (
+          {videoUrl === null ? (
             <>
               <input
                 type="text"
@@ -225,7 +213,7 @@ export default function VisualsPage() {
                 <iframe
                   width="100%"
                   height="200"
-                  src={`https://www.youtube.com/embed/${uploadedVideoId}`}
+                  src={`https://www.youtube.com/embed/${videoUrl}`}
                   allowFullScreen
                 />
               </div>
@@ -249,9 +237,9 @@ export default function VisualsPage() {
 
           <div className="flex-1 flex flex-col justify-center min-h-[200px]">
             <div className="relative w-full h-[200px] rounded-xl overflow-hidden bg-[#E5E7EB] -mt-10">
-            {croppedPhoto ? (
+            {imageUrl ? (
               <img
-                src={croppedPhoto}
+                src={imageUrl}
                 className="w-full h-full object-cover"
               />
             ) : (
@@ -277,7 +265,7 @@ export default function VisualsPage() {
             </div>
           </div>
 
-          {croppedPhoto && (
+          {imageUrl && (
             <button
               onClick={handleRemovePhoto}
               className="mt-3 w-full rounded-xl py-2
@@ -306,15 +294,15 @@ export default function VisualsPage() {
                 Back
               </button>
 
+              {/* Validation: Next enabled only when imageUrl and videoUrl (final URLs) are set */}
+              {(console.log("[AddDish Visuals] Button state:", { imageUrl: !!imageUrl, videoUrl: !!videoUrl, nextEnabled }), null)}
               <button
                 type="button"
                 onClick={handleNext}
-                className={`px-6 py-2 rounded-md text-sm font-medium
-                  ${
-                    nextEnabled
-                      ? "bg-[#0A84C1] text-white"
-                      : "bg-gray-200 text-gray-400 cursor-not-allowed"
-                  }`}
+                disabled={!nextEnabled}
+                className={`px-6 py-2 rounded-md text-sm font-medium disabled:opacity-70 disabled:cursor-not-allowed ${
+                  nextEnabled ? "bg-[#0A84C1] text-white" : "bg-gray-200 text-gray-400"
+                }`}
               >
                 Next
               </button>
