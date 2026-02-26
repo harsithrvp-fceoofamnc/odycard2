@@ -423,6 +423,10 @@ export default function HotelHomePage() {
   const [dishesLoadError, setDishesLoadError] = useState<string | null>(null);
   const [activeFilters, setActiveFilters] = useState<string[]>([]);
   const [dishes, setDishes] = useState<OdyDish[]>([]);
+  const [hotelId, setHotelId] = useState<string | null>(null);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const prevDishIdsRef = useRef<Set<string>>(new Set());
+  const isFetchingRef = useRef(false);
   const [favorites, setFavorites] = useState<OdyDish[]>([]);
   const [eatLater, setEatLater] = useState<OdyDish[]>([]);
   const [favoriteCounts, setFavoriteCounts] = useState<Record<string, number>>({});
@@ -557,11 +561,36 @@ export default function HotelHomePage() {
   const [pendingEatLaterDish, setPendingEatLaterDish] = useState<OdyDish | null>(null);
 
 
-  // Load hotel (logo, cover, name) and dishes from backend API
+  /** Fetch dishes for a hotel. Returns mapped dishes or null on error. */
+  const fetchDishes = useCallback(async (hId: string): Promise<OdyDish[] | null> => {
+    if (isFetchingRef.current) return null;
+    isFetchingRef.current = true;
+    try {
+      const res = await fetch(`${API_BASE}/api/dishes?hotel_id=${encodeURIComponent(hId)}`);
+      if (!res.ok) return null;
+      const rows = await res.json();
+      return rows.map(mapDishFromApi);
+    } catch {
+      return null;
+    } finally {
+      isFetchingRef.current = false;
+    }
+  }, []);
+
+  /** Detect if menu changed: count or new dish IDs. */
+  const menuChanged = useCallback((newDishes: OdyDish[]): boolean => {
+    const prev = prevDishIdsRef.current;
+    if (newDishes.length !== prev.size) return true;
+    for (const d of newDishes) {
+      if (!prev.has(d.id)) return true;
+    }
+    return false;
+  }, []);
+
+  // Initial load: hotel + dishes
   useEffect(() => {
     if (!restaurantId || typeof restaurantId !== "string") return;
     const slug: string = restaurantId;
-
     let cancelled = false;
 
     async function loadHotelAndDishes() {
@@ -576,23 +605,22 @@ export default function HotelHomePage() {
           return;
         }
         const hotel = await hotelRes.json();
-
         if (cancelled) return;
+
         setLogo(hotel.logo_url || "");
         setCover(hotel.cover_url || "");
         setRestaurantName(hotel.name || "");
+        setHotelId(String(hotel.id));
 
-        const hotelId = hotel.id;
-        const dishesRes = await fetch(`${API_BASE}/api/dishes?hotel_id=${encodeURIComponent(hotelId)}`);
-        if (!dishesRes.ok) {
+        const newDishes = await fetchDishes(String(hotel.id));
+        if (cancelled) return;
+        if (newDishes === null) {
           setDishesLoadError("Failed to load dishes");
           return;
         }
-        const rows = await dishesRes.json();
-
-        if (cancelled) return;
-        setDishes(rows.map(mapDishFromApi));
+        setDishes(newDishes);
         setDishesLoadError(null);
+        prevDishIdsRef.current = new Set(newDishes.map((d) => d.id));
       } catch (err) {
         if (!cancelled) {
           console.error("Load hotel/dishes error:", err);
@@ -605,7 +633,31 @@ export default function HotelHomePage() {
     return () => {
       cancelled = true;
     };
-  }, [restaurantId]);
+  }, [restaurantId, fetchDishes]);
+
+  // Polling: refetch dishes every 5s when hotelId is available
+  useEffect(() => {
+    if (!hotelId) return;
+
+    const poll = async () => {
+      const newDishes = await fetchDishes(hotelId);
+      if (newDishes === null) return;
+
+      if (!menuChanged(newDishes)) return;
+
+      setIsRefreshing(true);
+      prevDishIdsRef.current = new Set(newDishes.map((d) => d.id));
+      setDishes(newDishes);
+      setDishesLoadError(null);
+
+      // Brief visible overlay, then fade out
+      await new Promise((r) => setTimeout(r, 300));
+      setIsRefreshing(false);
+    };
+
+    const interval = setInterval(poll, 5000);
+    return () => clearInterval(interval);
+  }, [hotelId, fetchDishes, menuChanged]);
 
   // Load user auth and favorites/eat-later from localStorage (per-hotel scoped)
   useEffect(() => {
@@ -870,6 +922,19 @@ export default function HotelHomePage() {
   return (
     <div className="min-h-screen bg-black flex justify-center">
       <div className="relative w-full max-w-md min-h-screen bg-[#1c1c1c] overflow-visible">
+
+        {/* 🔥 REFRESH OVERLAY — smooth fade, non-blocking (pointer-events-none) */}
+        <div
+          className={`fixed inset-0 left-1/2 -translate-x-1/2 w-full max-w-md z-[500] flex items-center justify-center bg-black/50 backdrop-blur-sm transition-opacity duration-300 pointer-events-none ${
+            isRefreshing ? "opacity-100" : "opacity-0"
+          }`}
+          aria-hidden={!isRefreshing}
+        >
+          <div className="flex flex-col items-center gap-3 px-6 py-4 rounded-2xl bg-black/70 text-white">
+            <div className="w-8 h-8 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+            <span className="text-sm font-medium">Updating menu...</span>
+          </div>
+        </div>
 
         {/* 🔥 TOP TASK BAR */}
         <div className="fixed top-0 left-1/2 -translate-x-1/2 w-full max-w-md z-[999]">
