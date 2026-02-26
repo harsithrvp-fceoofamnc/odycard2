@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Cropper from "react-easy-crop";
 import ProgressBar from "@/components/ProgressBar";
@@ -14,7 +14,7 @@ const createImage = (url: string): Promise<HTMLImageElement> =>
     image.src = url;
   });
 
-async function getCroppedImg(imageSrc: string, crop: any) {
+async function getCroppedImg(imageSrc: string, crop: { x: number; y: number; width: number; height: number }) {
   const image = await createImage(imageSrc);
   const canvas = document.createElement("canvas");
   canvas.width = crop.width;
@@ -38,35 +38,46 @@ async function getCroppedImg(imageSrc: string, crop: any) {
   return canvas.toDataURL("image/png");
 }
 
+function extractYouTubeId(url: string): string | null {
+  const match = url.match(
+    /(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/
+  );
+  return match ? match[1] : null;
+}
+
 export default function VisualsPage() {
   const router = useRouter();
   const params = useParams();
   const restaurantId = params?.restaurantId as string;
-  console.log("[AddDish Visuals] params:", params, "restaurantId:", restaurantId);
 
-  /* ---------- VIDEO — videoUrl = final YouTube ID after upload ---------- */
-  const [youtubeInput, setYoutubeInput] = useState("");
-  const [videoUrl, setVideoUrl] = useState<string | null>(null);
-  const [invalidLinkError, setInvalidLinkError] = useState(false);
-
-  /* ---------- PHOTO — imageUrl = final cropped result (base64); photoSrc = temp for crop modal ---------- */
-  const [photoSrc, setPhotoSrc] = useState<string | null>(null);
+  /* ---------- IMAGE STATES ---------- */
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [imageUrl, setImageUrl] = useState<string | null>(null);
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
+
+  /* ---------- VIDEO STATES ---------- */
+  const [youtubeInput, setYoutubeInput] = useState("");
+  const [youtubeUrl, setYoutubeUrl] = useState<string | null>(null);
+  const [invalidLinkError, setInvalidLinkError] = useState(false);
 
   /* ---------- CROP ---------- */
   const [showCrop, setShowCrop] = useState(false);
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
-  const [croppedAreaPixels, setCroppedAreaPixels] = useState<any>(null);
-
-  /* ---------- VALIDATION: Next depends ONLY on final URLs (no preview) ---------- */
-  const BASE_PROGRESS = 33;
-  const VISUALS_COMPLETE_PROGRESS = 66;
-  const computedProgress =
-    !!videoUrl && !!imageUrl ? VISUALS_COMPLETE_PROGRESS : BASE_PROGRESS;
+  const croppedAreaPixelsRef = useRef<{ x: number; y: number; width: number; height: number } | null>(null);
 
   const [navError, setNavError] = useState<string | null>(null);
-  const nextEnabled = !!imageUrl && !!videoUrl;
+
+  /* ---------- VALIDATION: no preview; require imageUrl (cropped) + valid youtubeUrl ---------- */
+  const hasImage = !!imageUrl;
+  const hasValidYoutube = !!youtubeUrl && youtubeUrl.length > 0;
+  const isNextDisabled = !imageUrl || !hasValidYoutube || isUploadingImage;
+  const nextEnabled = !isNextDisabled;
+
+  const BASE_PROGRESS = 33;
+  const VISUALS_COMPLETE_PROGRESS = 66;
+  const computedProgress = nextEnabled ? VISUALS_COMPLETE_PROGRESS : BASE_PROGRESS;
 
   const handleNext = () => {
     if (!restaurantId || typeof restaurantId !== "string") {
@@ -74,26 +85,18 @@ export default function VisualsPage() {
       return;
     }
     if (!imageUrl) {
-      setNavError("Please upload a photo first.");
+      setNavError("Please upload and crop a photo first.");
       return;
     }
-    if (!videoUrl) {
+    if (!youtubeUrl) {
       setNavError("Please add a video link first.");
       return;
     }
 
     setNavError(null);
     localStorage.setItem("addDishPhoto", imageUrl);
-    localStorage.setItem("addDishVideoId", videoUrl);
+    localStorage.setItem("addDishVideoId", youtubeUrl);
     router.push(`/owner/hotel/${restaurantId}/add-dish/dish-details`);
-  };
-
-  /* ---------- VIDEO HELPERS ---------- */
-  const extractYouTubeId = (url: string) => {
-    const match = url.match(
-      /(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/
-    );
-    return match ? match[1] : null;
   };
 
   const handleUploadVideo = () => {
@@ -103,43 +106,77 @@ export default function VisualsPage() {
       return;
     }
     setInvalidLinkError(false);
-    setVideoUrl(id);
+    setYoutubeUrl(id);
   };
 
   const handleRemoveVideo = () => {
-    setVideoUrl(null);
+    setYoutubeUrl(null);
     setYoutubeInput("");
     setInvalidLinkError(false);
   };
 
-  /* ---------- PHOTO HELPERS ---------- */
-  const handlePhotoSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!e.target.files || !e.target.files[0]) return;
-    const file = e.target.files[0];
-    if (!file.type.startsWith("image/")) return;
+  /* ---------- PHOTO: store file, preview only, open crop ---------- */
+  const handlePhotoSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file?.type.startsWith("image/")) return;
 
-    setPhotoSrc(URL.createObjectURL(file));
+    if (imagePreview?.startsWith("blob:")) {
+      URL.revokeObjectURL(imagePreview);
+    }
+    setImageFile(file);
+    setImagePreview(URL.createObjectURL(file));
     setShowCrop(true);
-  };
+  }, [imagePreview]);
 
-  const onCropComplete = useCallback((_: any, area: any) => {
-    setCroppedAreaPixels(area);
+  const onCropComplete = useCallback((_: unknown, area: { x: number; y: number; width: number; height: number }) => {
+    croppedAreaPixelsRef.current = area;
   }, []);
 
-  const saveCrop = async () => {
-    if (!photoSrc || !croppedAreaPixels) return;
-    const cropped = await getCroppedImg(photoSrc, croppedAreaPixels);
-    if (!cropped) return;
-
-    setImageUrl(cropped);
-    setPhotoSrc(null);
+  const handleCropCancel = useCallback(() => {
+    if (imagePreview?.startsWith("blob:")) {
+      URL.revokeObjectURL(imagePreview);
+    }
+    setImagePreview(null);
+    setImageFile(null);
     setShowCrop(false);
-  };
+  }, [imagePreview]);
 
-  const handleRemovePhoto = () => {
-    setPhotoSrc(null);
+  const saveCrop = useCallback(async () => {
+    const area = croppedAreaPixelsRef.current;
+    const src = imagePreview;
+    if (!area || !src) return;
+
+    setIsUploadingImage(true);
+    try {
+      const cropped = await getCroppedImg(src, area);
+      if (!cropped) {
+        setNavError("Failed to process image. Please try again.");
+        return;
+      }
+      setImageUrl(cropped);
+      if (imagePreview?.startsWith("blob:")) {
+        URL.revokeObjectURL(imagePreview);
+      }
+      setImagePreview(null);
+      setImageFile(null);
+      setShowCrop(false);
+      setNavError(null);
+    } catch (err) {
+      console.error("[AddDish Visuals] Crop error:", err);
+      setNavError("Failed to process image. Please try again.");
+    } finally {
+      setIsUploadingImage(false);
+    }
+  }, [imagePreview]);
+
+  const handleRemovePhoto = useCallback(() => {
+    if (imagePreview?.startsWith("blob:")) {
+      URL.revokeObjectURL(imagePreview);
+    }
+    setImagePreview(null);
+    setImageFile(null);
     setImageUrl(null);
-  };
+  }, [imagePreview]);
 
   return (
     <div className="min-h-screen bg-black flex justify-center">
@@ -174,7 +211,7 @@ export default function VisualsPage() {
             </div>
           </div>
 
-          {videoUrl === null ? (
+          {youtubeUrl === null ? (
             <>
               <input
                 type="text"
@@ -213,7 +250,7 @@ export default function VisualsPage() {
                 <iframe
                   width="100%"
                   height="200"
-                  src={`https://www.youtube.com/embed/${videoUrl}`}
+                  src={`https://www.youtube.com/embed/${youtubeUrl}`}
                   allowFullScreen
                 />
               </div>
@@ -294,12 +331,12 @@ export default function VisualsPage() {
                 Back
               </button>
 
-              {/* Validation: Next enabled only when imageUrl and videoUrl (final URLs) are set */}
-              {(console.log("[AddDish Visuals] Button state:", { imageUrl: !!imageUrl, videoUrl: !!videoUrl, nextEnabled }), null)}
+              {/* Debug: verify state before button */}
+              {(console.log("[AddDish Visuals] Button state:", { imageFile: !!imageFile, imageUrl: !!imageUrl, youtubeUrl: youtubeUrl ?? null, isUploadingImage, isNextDisabled }), null)}
               <button
                 type="button"
                 onClick={handleNext}
-                disabled={!nextEnabled}
+                disabled={isNextDisabled}
                 className={`px-6 py-2 rounded-md text-sm font-medium disabled:opacity-70 disabled:cursor-not-allowed ${
                   nextEnabled ? "bg-[#0A84C1] text-white" : "bg-gray-200 text-gray-400"
                 }`}
@@ -321,11 +358,11 @@ export default function VisualsPage() {
       </div>
 
       {/* ---------- CROP MODAL (16:9) ---------- */}
-      {showCrop && (
+      {showCrop && imagePreview && (
         <div className="fixed inset-0 bg-black z-50 flex flex-col">
           <div className="relative flex-1">
             <Cropper
-              image={photoSrc!}
+              image={imagePreview}
               crop={crop}
               zoom={zoom}
               aspect={16 / 9}
@@ -337,16 +374,17 @@ export default function VisualsPage() {
 
           <div className="p-4 flex justify-between bg-black">
             <button
-              onClick={() => setShowCrop(false)}
+              onClick={handleCropCancel}
               className="text-white text-lg"
             >
               Cancel
             </button>
             <button
               onClick={saveCrop}
-              className="text-white text-lg"
+              disabled={isUploadingImage}
+              className="text-white text-lg disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Done
+              {isUploadingImage ? "Processing..." : "Done"}
             </button>
           </div>
         </div>
