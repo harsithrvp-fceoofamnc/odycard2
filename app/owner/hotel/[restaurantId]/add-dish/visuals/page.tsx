@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Cropper from "react-easy-crop";
 import ProgressBar from "@/components/ProgressBar";
@@ -65,19 +65,18 @@ export default function VisualsPage() {
   const [showCrop, setShowCrop] = useState(false);
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
-  const croppedAreaPixelsRef = useRef<{ x: number; y: number; width: number; height: number } | null>(null);
+  const [croppedAreaPixels, setCroppedAreaPixels] = useState<{ x: number; y: number; width: number; height: number } | null>(null);
 
   const [navError, setNavError] = useState<string | null>(null);
 
-  /* ---------- VALIDATION: no preview; require imageUrl (cropped) + valid youtubeUrl ---------- */
-  const hasImage = !!imageUrl;
-  const hasValidYoutube = !!youtubeUrl && youtubeUrl.length > 0;
-  const isNextDisabled = !imageUrl || !hasValidYoutube || isUploadingImage;
-  const nextEnabled = !isNextDisabled;
+  /* ---------- VALIDATION: minimal, predictable ---------- */
+  const hasImage = !!imageUrl || !!imageFile;
+  const hasYoutube = typeof youtubeUrl === "string" && youtubeUrl.trim().length > 0;
+  const canProceed = hasImage && hasYoutube && !isUploadingImage;
 
   const BASE_PROGRESS = 33;
   const VISUALS_COMPLETE_PROGRESS = 66;
-  const computedProgress = nextEnabled ? VISUALS_COMPLETE_PROGRESS : BASE_PROGRESS;
+  const computedProgress = canProceed ? VISUALS_COMPLETE_PROGRESS : BASE_PROGRESS;
 
   const handleNext = () => {
     if (!restaurantId || typeof restaurantId !== "string") {
@@ -85,10 +84,10 @@ export default function VisualsPage() {
       return;
     }
     if (!imageUrl) {
-      setNavError("Please upload and crop a photo first.");
+      setNavError("Please complete the crop first (click Done in the crop modal).");
       return;
     }
-    if (!youtubeUrl) {
+    if (!youtubeUrl || typeof youtubeUrl !== "string") {
       setNavError("Please add a video link first.");
       return;
     }
@@ -125,11 +124,12 @@ export default function VisualsPage() {
     }
     setImageFile(file);
     setImagePreview(URL.createObjectURL(file));
+    setCroppedAreaPixels(null);
     setShowCrop(true);
   }, [imagePreview]);
 
   const onCropComplete = useCallback((_: unknown, area: { x: number; y: number; width: number; height: number }) => {
-    croppedAreaPixelsRef.current = area;
+    setCroppedAreaPixels(area);
   }, []);
 
   const handleCropCancel = useCallback(() => {
@@ -138,27 +138,39 @@ export default function VisualsPage() {
     }
     setImagePreview(null);
     setImageFile(null);
+    setCroppedAreaPixels(null);
     setShowCrop(false);
   }, [imagePreview]);
 
   const saveCrop = useCallback(async () => {
-    const area = croppedAreaPixelsRef.current;
     const src = imagePreview;
-    if (!area || !src) return;
+    if (!src) {
+      setIsUploadingImage(false);
+      return;
+    }
 
     setIsUploadingImage(true);
     try {
+      let area = croppedAreaPixels;
+      if (!area) {
+        const img = await createImage(src);
+        area = { x: 0, y: 0, width: img.naturalWidth, height: img.naturalHeight };
+      }
+
       const cropped = await getCroppedImg(src, area);
       if (!cropped) {
         setNavError("Failed to process image. Please try again.");
+        setIsUploadingImage(false);
         return;
       }
       setImageUrl(cropped);
+      console.log("[AddDish Visuals] saveCrop: imageUrl has been set");
       if (imagePreview?.startsWith("blob:")) {
         URL.revokeObjectURL(imagePreview);
       }
       setImagePreview(null);
       setImageFile(null);
+      setCroppedAreaPixels(null);
       setShowCrop(false);
       setNavError(null);
     } catch (err) {
@@ -167,7 +179,7 @@ export default function VisualsPage() {
     } finally {
       setIsUploadingImage(false);
     }
-  }, [imagePreview]);
+  }, [imagePreview, croppedAreaPixels]);
 
   const handleRemovePhoto = useCallback(() => {
     if (imagePreview?.startsWith("blob:")) {
@@ -331,14 +343,13 @@ export default function VisualsPage() {
                 Back
               </button>
 
-              {/* Debug: verify state before button */}
-              {(console.log("[AddDish Visuals] Button state:", { imageFile: !!imageFile, imageUrl: !!imageUrl, youtubeUrl: youtubeUrl ?? null, isUploadingImage, isNextDisabled }), null)}
+              {(console.log("[AddDish Visuals] canProceed:", { hasImage, hasYoutube, isUploadingImage, canProceed }), null)}
               <button
                 type="button"
                 onClick={handleNext}
-                disabled={isNextDisabled}
+                disabled={!canProceed}
                 className={`px-6 py-2 rounded-md text-sm font-medium disabled:opacity-70 disabled:cursor-not-allowed ${
-                  nextEnabled ? "bg-[#0A84C1] text-white" : "bg-gray-200 text-gray-400"
+                  canProceed ? "bg-[#0A84C1] text-white" : "bg-gray-200 text-gray-400"
                 }`}
               >
                 Next
