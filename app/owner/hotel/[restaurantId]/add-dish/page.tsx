@@ -49,9 +49,25 @@ export default function AddDishPage() {
       ? Math.round((CURRENT_PAGE / TOTAL_PAGES) * 100) // 33%
       : 0;
 
+  const handleReturn = () => {
+    if (restaurantId && typeof restaurantId === "string") {
+      router.push(`/owner/hotel/${restaurantId}/edit-menu`);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-black flex justify-center">
       <div className="w-full max-w-md min-h-screen bg-white px-6 pt-10 pb-28 relative">
+
+        {/* Return button - top left */}
+        <button
+          type="button"
+          onClick={handleReturn}
+          disabled={!restaurantId || typeof restaurantId !== "string"}
+          className="mb-6 px-4 py-2 rounded-md border border-gray-300 text-sm font-medium text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          Return
+        </button>
 
         {/* DEBUG: visible fallback when restaurantId missing */}
         {(!restaurantId || typeof restaurantId !== "string") && (
