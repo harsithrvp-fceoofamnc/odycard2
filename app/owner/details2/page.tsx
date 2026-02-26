@@ -62,20 +62,21 @@ export default function DetailsPart2() {
   const router = useRouter();
   const { showLoader, hideLoader } = useLoader();
 
-  // Preview = temp object URL during new upload; Url = final cropped result
+  /* File storage — selected but not yet "confirmed" (Done) */
+  const [logoFile, setLogoFile] = useState<File | null>(null);
+  const [coverFile, setCoverFile] = useState<File | null>(null);
+
+  /* Preview — object URL for display before Done */
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
-  const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [coverPreview, setCoverPreview] = useState<string | null>(null);
+
+  /* Confirmed URLs — set by Done, used for display + Submit (base64 data URLs) */
+  const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [coverUrl, setCoverUrl] = useState<string | null>(null);
 
-  // Full original images (base64) for Edit - cropper loads these, not the cropped result
+  /* Full originals for Edit flow */
   const [originalLogoBase64, setOriginalLogoBase64] = useState<string | null>(null);
   const [originalCoverBase64, setOriginalCoverBase64] = useState<string | null>(null);
-
-  const [isUploadingLogo, setIsUploadingLogo] = useState(false);
-  const [isUploadingCover, setIsUploadingCover] = useState(false);
-  const [isEditingLogo, setIsEditingLogo] = useState(false);
-  const [isEditingCover, setIsEditingCover] = useState(false);
 
   const [showCrop, setShowCrop] = useState(false);
   const [cropImageSrc, setCropImageSrc] = useState<string | null>(null);
@@ -109,128 +110,104 @@ export default function DetailsPart2() {
     setCrop({ x: 0, y: 0 });
   }, [cropType]);
 
-  const revokePreview = useCallback((url: string | null) => {
+  const revokeObjectUrl = useCallback((url: string | null) => {
     if (url && url.startsWith("blob:")) {
       URL.revokeObjectURL(url);
     }
   }, []);
 
-  const openCropForNewUpload = useCallback((type: "logo" | "cover", preview: string) => {
-    cropImageSrcRef.current = preview;
-    setCropImageSrc(preview);
-    setCropType(type);
-    setHasCropArea(false);
-    croppedAreaPixelsRef.current = null;
-    setZoom(1);
-    setCrop({ x: 0, y: 0 });
-    setIsEditingLogo(false);
-    setIsEditingCover(false);
-    setShowCrop(true);
-  }, []);
+  /* File select: store file, single object URL for preview + crop. No upload, no async. */
+  const handleLogoFileSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file?.type.startsWith("image/")) return;
 
-  const openCropForEdit = useCallback((type: "logo" | "cover", fullImageBase64: string | null) => {
-    if (!fullImageBase64) return;
-    cropImageSrcRef.current = fullImageBase64;
-    setCropImageSrc(fullImageBase64);
+    revokeObjectUrl(logoPreview);
+    const objectUrl = URL.createObjectURL(file);
+    setLogoFile(file);
+    setLogoPreview(objectUrl);
+    setError("");
+
+    cropImageSrcRef.current = objectUrl;
+    setCropImageSrc(objectUrl);
+    setCropType("logo");
+    setHasCropArea(false);
+    croppedAreaPixelsRef.current = null;
+    setZoom(1);
+    setCrop({ x: 0, y: 0 });
+    setShowCrop(true);
+  }, [logoPreview, revokeObjectUrl]);
+
+  const handleCoverFileSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file?.type.startsWith("image/")) return;
+
+    revokeObjectUrl(coverPreview);
+    const objectUrl = URL.createObjectURL(file);
+    setCoverFile(file);
+    setCoverPreview(objectUrl);
+    setError("");
+
+    cropImageSrcRef.current = objectUrl;
+    setCropImageSrc(objectUrl);
+    setCropType("cover");
+    setHasCropArea(false);
+    croppedAreaPixelsRef.current = null;
+    setZoom(1);
+    setCrop({ x: 0, y: 0 });
+    setShowCrop(true);
+  }, [coverPreview, revokeObjectUrl]);
+
+  /* Edit: open crop with full original. Requires originalBase64. */
+  const openCropForEdit = useCallback((type: "logo" | "cover", fullBase64: string | null) => {
+    if (!fullBase64) return;
+    cropImageSrcRef.current = fullBase64;
+    setCropImageSrc(fullBase64);
     setCropType(type);
     setHasCropArea(false);
     croppedAreaPixelsRef.current = null;
     setZoom(1);
     setCrop({ x: 0, y: 0 });
-    setIsEditingLogo(type === "logo");
-    setIsEditingCover(type === "cover");
     setShowCrop(true);
     setError("");
   }, []);
 
-  const closeCropModal = useCallback(() => {
-    const src = cropImageSrcRef.current;
-    if (src && src.startsWith("blob:")) {
-      revokePreview(src);
-    }
-    cropImageSrcRef.current = null;
-    setCropImageSrc(null);
-    setShowCrop(false);
-    setIsEditingLogo(false);
-    setIsEditingCover(false);
-    setHasCropArea(false);
-    croppedAreaPixelsRef.current = null;
-    if (logoInputRef.current) logoInputRef.current.value = "";
-    if (coverInputRef.current) coverInputRef.current.value = "";
-  }, [revokePreview]);
-
-  const handleLogoUpload = useCallback(
-    async (e: React.ChangeEvent<HTMLInputElement>) => {
-      const files = e.target.files;
-      if (!files?.length) return;
-      const file = files[0];
-      if (!file.type.startsWith("image/")) return;
-
-      revokePreview(logoPreview);
-      const objectUrl = URL.createObjectURL(file);
-      setLogoPreview(objectUrl);
-      setError("");
-
-      try {
-        const base64 = await fileToBase64(file);
-        setOriginalLogoBase64(base64);
-        openCropForNewUpload("logo", objectUrl);
-      } catch {
-        setError("Failed to load logo. Please try again.");
-      }
-    },
-    [logoPreview, openCropForNewUpload, revokePreview]
-  );
-
-  const handleCoverUpload = useCallback(
-    async (e: React.ChangeEvent<HTMLInputElement>) => {
-      const files = e.target.files;
-      if (!files?.length) return;
-      const file = files[0];
-      if (!file.type.startsWith("image/")) return;
-
-      revokePreview(coverPreview);
-      const objectUrl = URL.createObjectURL(file);
-      setCoverPreview(objectUrl);
-      setError("");
-
-      try {
-        const base64 = await fileToBase64(file);
-        setOriginalCoverBase64(base64);
-        openCropForNewUpload("cover", objectUrl);
-      } catch {
-        setError("Failed to load cover. Please try again.");
-      }
-    },
-    [coverPreview, openCropForNewUpload, revokePreview]
-  );
-
   const handleEditLogo = useCallback(() => {
-    if (!originalLogoBase64) return;
-    openCropForEdit("logo", originalLogoBase64);
+    if (originalLogoBase64) openCropForEdit("logo", originalLogoBase64);
   }, [originalLogoBase64, openCropForEdit]);
 
   const handleEditCover = useCallback(() => {
-    if (!originalCoverBase64) return;
-    openCropForEdit("cover", originalCoverBase64);
+    if (originalCoverBase64) openCropForEdit("cover", originalCoverBase64);
   }, [originalCoverBase64, openCropForEdit]);
 
-  const handleRemoveLogo = useCallback(() => {
-    revokePreview(logoPreview);
-    setLogoPreview(null);
-    setLogoUrl(null);
-    setOriginalLogoBase64(null);
-    setError("");
-  }, [logoPreview, revokePreview]);
+  /* Cancel: clear preview + file (if new upload), close modal. No upload. Edit mode: just close. */
+  const handleCropCancel = useCallback(() => {
+    const src = cropImageSrcRef.current;
+    const isNewUpload = src?.startsWith("blob:");
 
-  const handleRemoveCover = useCallback(() => {
-    revokePreview(coverPreview);
-    setCoverPreview(null);
-    setCoverUrl(null);
-    setOriginalCoverBase64(null);
-  }, [coverPreview, revokePreview]);
+    if (isNewUpload && src) revokeObjectUrl(src);
+    cropImageSrcRef.current = null;
+    setCropImageSrc(null);
+    setShowCrop(false);
+    setHasCropArea(false);
+    croppedAreaPixelsRef.current = null;
 
-  const saveCrop = useCallback(async () => {
+    if (isNewUpload) {
+      if (cropType === "logo") {
+        revokeObjectUrl(logoPreview);
+        setLogoPreview(null);
+        setLogoFile(null);
+      } else {
+        revokeObjectUrl(coverPreview);
+        setCoverPreview(null);
+        setCoverFile(null);
+      }
+      if (logoInputRef.current) logoInputRef.current.value = "";
+      if (coverInputRef.current) coverInputRef.current.value = "";
+    }
+  }, [cropType, logoPreview, coverPreview, revokeObjectUrl]);
+
+  /* Done: close modal + confirm locally. Produce cropped base64 for display. No network upload. */
+  const handleCropDone = useCallback(async () => {
     const area = croppedAreaPixelsRef.current;
     const src = cropImageSrcRef.current;
     if (!area || !src) {
@@ -238,52 +215,80 @@ export default function DetailsPart2() {
       return;
     }
 
-    if (cropType === "logo") {
-      setIsUploadingLogo(true);
-      setError("");
-      try {
-        const cropped = await getCroppedImg(src, area);
-        if (!cropped) {
-          setError("Failed to process logo. Please try again.");
-          return;
-        }
-        setLogoUrl(cropped);
-        localStorage.setItem("restaurantLogo", cropped);
-        setLogoPreview(null);
-        closeCropModal();
-      } catch {
-        setError("Failed to process logo. Please try again.");
-      } finally {
-        setIsUploadingLogo(false);
+    const file = cropType === "logo" ? logoFile : coverFile;
+    try {
+      const cropped = await getCroppedImg(src, area);
+      if (!cropped) {
+        setError(`Failed to process ${cropType}. Please try again.`);
+        return;
       }
-    } else {
-      setIsUploadingCover(true);
-      setError("");
-      try {
-        const cropped = await getCroppedImg(src, area);
-        if (!cropped) {
-          setError("Failed to process cover. Please try again.");
-          return;
-        }
-        setCoverUrl(cropped);
-        localStorage.setItem("restaurantCover", cropped);
-        setCoverPreview(null);
-        closeCropModal();
-      } catch {
-        setError("Failed to process cover. Please try again.");
-      } finally {
-        setIsUploadingCover(false);
-      }
-    }
-  }, [cropType, closeCropModal]);
 
-  /* Validation: Done/Submit depend ONLY on final URLs (logoUrl, coverUrl) + upload state */
-  const isCropDoneDisabled = isUploadingLogo || isUploadingCover || !hasCropArea;
-  const isSubmitDisabled = isSubmitting || isUploadingLogo || isUploadingCover || !logoUrl;
+      let fullBase64: string | null = null;
+      if (file) {
+        try {
+          fullBase64 = await fileToBase64(file);
+        } catch {
+          fullBase64 = cropped;
+        }
+      } else {
+        fullBase64 = cropped;
+      }
+
+      if (cropType === "logo") {
+        setLogoUrl(cropped);
+        setOriginalLogoBase64(fullBase64);
+        revokeObjectUrl(logoPreview);
+        setLogoPreview(null);
+        setLogoFile(null);
+      } else {
+        setCoverUrl(cropped);
+        setOriginalCoverBase64(fullBase64);
+        revokeObjectUrl(coverPreview);
+        setCoverPreview(null);
+        setCoverFile(null);
+      }
+
+      cropImageSrcRef.current = null;
+      setCropImageSrc(null);
+      setShowCrop(false);
+      setHasCropArea(false);
+      croppedAreaPixelsRef.current = null;
+      if (logoInputRef.current) logoInputRef.current.value = "";
+      if (coverInputRef.current) coverInputRef.current.value = "";
+      setError("");
+    } catch (err) {
+      console.error("[details2] Crop error:", err);
+      setError(`Failed to process ${cropType}. Please try again.`);
+    }
+  }, [cropType, logoFile, coverFile, logoPreview, coverPreview, revokeObjectUrl]);
+
+  const handleRemoveLogo = useCallback(() => {
+    revokeObjectUrl(logoPreview);
+    setLogoPreview(null);
+    setLogoFile(null);
+    setLogoUrl(null);
+    setOriginalLogoBase64(null);
+    setError("");
+  }, [logoPreview, revokeObjectUrl]);
+
+  const handleRemoveCover = useCallback(() => {
+    revokeObjectUrl(coverPreview);
+    setCoverPreview(null);
+    setCoverFile(null);
+    setCoverUrl(null);
+    setOriginalCoverBase64(null);
+  }, [coverPreview, revokeObjectUrl]);
+
+  /* Display: confirmed URL or preview */
+  const displayLogo = logoUrl ?? logoPreview;
+  const displayCover = coverUrl ?? coverPreview;
+
+  const isCropDoneDisabled = !hasCropArea;
+  const isSubmitDisabled = isSubmitting || !logoUrl;
 
   const handleSubmit = async () => {
     if (!logoUrl) {
-      setError("Please upload your logo");
+      setError("Please add your logo first.");
       return;
     }
 
@@ -322,6 +327,7 @@ export default function DetailsPart2() {
           if (text) msg = `${msg} (${createRes.status}: ${text.slice(0, 80)}…)`;
           else msg = `${msg} (HTTP ${createRes.status})`;
         }
+        console.error("[details2] Hotel create error:", text);
         throw new Error(msg);
       }
 
@@ -334,6 +340,7 @@ export default function DetailsPart2() {
       if (originalCoverBase64) {
         patchBody.cover_original_url = originalCoverBase64;
       }
+
       const patchRes = await fetch(`${API_BASE}/api/hotels/${hotel.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
@@ -341,7 +348,19 @@ export default function DetailsPart2() {
       });
 
       if (!patchRes.ok) {
-        console.warn("Logo/cover update failed, continuing...");
+        const patchText = await patchRes.text();
+        console.error("[details2] Hotel PATCH error:", patchRes.status, patchText);
+        let patchMsg = "Failed to save logo and cover";
+        try {
+          const data = JSON.parse(patchText);
+          if (data?.error) patchMsg = data.error;
+        } catch {
+          if (patchText) patchMsg = `${patchMsg}: ${patchText.slice(0, 120)}`;
+        }
+        hideLoader();
+        setIsSubmitting(false);
+        setError(patchMsg);
+        return;
       }
 
       const gmailRaw = sessionStorage.getItem("signup_gmail");
@@ -371,6 +390,7 @@ export default function DetailsPart2() {
 
       if (!ownerRes.ok) {
         const errData = await ownerRes.json().catch(() => ({}));
+        console.error("[details2] Owner create error:", errData);
         hideLoader();
         setIsSubmitting(false);
         setError(errData?.error || "Failed to create account. Please try again.");
@@ -387,6 +407,7 @@ export default function DetailsPart2() {
 
       window.location.href = "/owner/success";
     } catch (err) {
+      console.error("[details2] Submit error:", err);
       hideLoader();
       setError(err instanceof Error ? err.message : "Something went wrong");
       setIsSubmitting(false);
@@ -422,14 +443,14 @@ export default function DetailsPart2() {
             <p className="text-[18px] font-semibold text-black mb-6">Restaurant Logo</p>
 
             <div className="relative w-44 h-44 rounded-full bg-[#E5E7EB] flex items-center justify-center overflow-hidden">
-              {logoUrl ? (
+              {displayLogo ? (
                 <>
-                  <img src={logoUrl} className="w-full h-full object-cover rounded-full" alt="Logo" />
+                  <img src={displayLogo} className="w-full h-full object-cover rounded-full" alt="Logo" />
                   <input
                     ref={logoInputRef}
                     type="file"
                     accept="image/*"
-                    onChange={handleLogoUpload}
+                    onChange={handleLogoFileSelect}
                     className="absolute inset-0 opacity-0 cursor-pointer"
                     aria-label="Upload new logo"
                   />
@@ -446,7 +467,7 @@ export default function DetailsPart2() {
                     ref={logoInputRef}
                     type="file"
                     accept="image/*"
-                    onChange={handleLogoUpload}
+                    onChange={handleLogoFileSelect}
                     className="hidden"
                   />
                 </label>
@@ -471,14 +492,14 @@ export default function DetailsPart2() {
             </p>
 
             <div className="relative w-full h-52 rounded-2xl bg-[#E5E7EB] flex items-center justify-center overflow-hidden">
-              {coverUrl ? (
+              {displayCover ? (
                 <>
-                  <img src={coverUrl} className="w-full h-full object-cover" alt="Cover" />
+                  <img src={displayCover} className="w-full h-full object-cover" alt="Cover" />
                   <input
                     ref={coverInputRef}
                     type="file"
                     accept="image/*"
-                    onChange={handleCoverUpload}
+                    onChange={handleCoverFileSelect}
                     className="absolute inset-0 opacity-0 cursor-pointer"
                     aria-label="Upload new cover"
                   />
@@ -495,7 +516,7 @@ export default function DetailsPart2() {
                     ref={coverInputRef}
                     type="file"
                     accept="image/*"
-                    onChange={handleCoverUpload}
+                    onChange={handleCoverFileSelect}
                     className="hidden"
                   />
                 </label>
@@ -528,8 +549,6 @@ export default function DetailsPart2() {
               >
                 Back
               </button>
-              {/* Validation: Submit enabled only when logoUrl (required) is set, not while uploading */}
-              {(console.log("[details2] Submit state:", { logoUrl: !!logoUrl, coverUrl: !!coverUrl, isUploadingLogo, isUploadingCover, isSubmitDisabled }), null)}
               <button
                 type="button"
                 onClick={handleSubmit}
@@ -549,12 +568,12 @@ export default function DetailsPart2() {
         </div>
       </div>
 
-      {/* CROP MODAL — controlled by showCrop + cropImageSrc state */}
+      {/* CROP MODAL — Done only confirms locally, Cancel clears file + preview */}
       {showCrop && cropImageSrc && (
         <div className="fixed inset-0 bg-black z-50 flex flex-col">
           <div className="relative flex-1">
             <Cropper
-              key={`${cropType}-${isEditingLogo ? "edit" : "new"}`}
+              key={cropType}
               image={cropImageSrc}
               crop={crop}
               zoom={zoom}
@@ -570,16 +589,15 @@ export default function DetailsPart2() {
             />
           </div>
           <div className="p-4 flex justify-between bg-black">
-            <button onClick={closeCropModal} className="text-white text-lg">
+            <button onClick={handleCropCancel} className="text-white text-lg">
               Cancel
             </button>
-            {(console.log("[details2] Crop Done state:", { hasCropArea, isUploadingLogo, isUploadingCover, isCropDoneDisabled }), null)}
             <button
-              onClick={saveCrop}
+              onClick={handleCropDone}
               disabled={isCropDoneDisabled}
               className="text-white text-lg disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isUploadingLogo || isUploadingCover ? "Processing..." : "Done"}
+              Done
             </button>
           </div>
         </div>
