@@ -2,6 +2,7 @@
 
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState } from "react";
 import { useParams } from "next/navigation";
+import RatingModal from "@/components/RatingModal";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5050";
 
@@ -803,6 +804,10 @@ export default function HotelHomePage() {
     setPendingEatLaterDish(null);
   };
 
+  // Rating state
+  const [showRatingModal, setShowRatingModal] = useState(false);
+  const [ratingSubmitted, setRatingSubmitted] = useState(false);
+
   // Check if dish is favorited
   const isFavorite = (dishId: string) => {
     return favorites.some((d) => d.id === dishId);
@@ -1396,6 +1401,40 @@ export default function HotelHomePage() {
 
             </div>
           </div>
+        )}
+
+        {/* ⭐ FLOATING RATE BUTTON */}
+        {hotelId && !ratingSubmitted && (
+          <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[900]">
+            <button
+              onClick={() => setShowRatingModal(true)}
+              className="flex items-center gap-2 px-5 py-3 rounded-full bg-[#0A84C1] text-white font-semibold text-sm shadow-xl"
+            >
+              <span className="text-lg">⭐</span> Rate this restaurant
+            </button>
+          </div>
+        )}
+
+        {/* ✅ RATING SUCCESS BADGE */}
+        {ratingSubmitted && (
+          <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[900]">
+            <div className="flex items-center gap-2 px-5 py-3 rounded-full bg-green-600 text-white font-semibold text-sm shadow-xl">
+              <span>✅</span> Thank you for your rating!
+            </div>
+          </div>
+        )}
+
+        {/* ⭐ RATING MODAL */}
+        {showRatingModal && hotelId && (
+          <RatingModal
+            hotelId={Number(hotelId)}
+            hotelName={restaurantName}
+            onClose={() => setShowRatingModal(false)}
+            onSuccess={() => {
+              setShowRatingModal(false);
+              setRatingSubmitted(true);
+            }}
+          />
         )}
 
         {/* 🔥 EAT LATER CONFIRMATION POPUP */}
