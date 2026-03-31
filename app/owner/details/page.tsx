@@ -86,22 +86,27 @@ export default function RestaurantDetailsPage() {
     setErrors(newErrors);
     showLoader();
 
-    // Helper: fetch with timeout + auto-retry for Render cold starts (free tier sleeps)
-    const fetchWithRetry = async (url: string, maxAttempts = 3, timeoutMs = 20000): Promise<Response> => {
+    // Helper: fetch with timeout + auto-retry for Render cold starts and DB blips
+    const fetchWithRetry = async (url: string, maxAttempts = 4, timeoutMs = 25000): Promise<Response> => {
       for (let attempt = 1; attempt <= maxAttempts; attempt++) {
         const controller = new AbortController();
         const timer = setTimeout(() => controller.abort(), timeoutMs);
         try {
           const res = await fetch(url, { signal: controller.signal });
           clearTimeout(timer);
+          // Retry on 5xx (DB connection drop / Render still initialising)
+          if (res.status >= 500 && attempt < maxAttempts) {
+            await new Promise((r) => setTimeout(r, 6000));
+            continue;
+          }
           return res;
         } catch (err: unknown) {
           clearTimeout(timer);
           const isAbort = err instanceof Error && err.name === "AbortError";
           const isLast = attempt === maxAttempts;
           if (isLast) throw err;
-          // Wait 3s before retry (give Render time to wake up)
-          await new Promise((r) => setTimeout(r, isAbort ? 5000 : 3000));
+          // Wait before retry — longer after a timeout
+          await new Promise((r) => setTimeout(r, isAbort ? 6000 : 3000));
         }
       }
       throw new Error("Server unreachable");
@@ -114,6 +119,15 @@ export default function RestaurantDetailsPage() {
       if (res.status === 200) {
         hideLoader();
         setErrors((prev) => ({ ...prev, restaurantId: "Restaurant ID already taken. Please choose another." }));
+        return;
+      }
+
+      if (res.status >= 500) {
+        hideLoader();
+        setErrors((prev) => ({
+          ...prev,
+          restaurantId: "Server is starting up — please wait 30 seconds and try again.",
+        }));
         return;
       }
 
