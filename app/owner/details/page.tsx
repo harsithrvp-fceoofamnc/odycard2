@@ -86,14 +86,34 @@ export default function RestaurantDetailsPage() {
     setErrors(newErrors);
     showLoader();
 
+    // Helper: fetch with timeout + auto-retry for Render cold starts (free tier sleeps)
+    const fetchWithRetry = async (url: string, maxAttempts = 3, timeoutMs = 20000): Promise<Response> => {
+      for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+        const controller = new AbortController();
+        const timer = setTimeout(() => controller.abort(), timeoutMs);
+        try {
+          const res = await fetch(url, { signal: controller.signal });
+          clearTimeout(timer);
+          return res;
+        } catch (err: unknown) {
+          clearTimeout(timer);
+          const isAbort = err instanceof Error && err.name === "AbortError";
+          const isLast = attempt === maxAttempts;
+          if (isLast) throw err;
+          // Wait 3s before retry (give Render time to wake up)
+          await new Promise((r) => setTimeout(r, isAbort ? 5000 : 3000));
+        }
+      }
+      throw new Error("Server unreachable");
+    };
+
     try {
-      console.log("[Details handleNext] API_BASE:", API_BASE);
       const slug = slugify(form.restaurantId);
-      const res = await fetch(`${API_BASE}/api/hotels/${encodeURIComponent(slug)}`);
+      const res = await fetchWithRetry(`${API_BASE}/api/hotels/${encodeURIComponent(slug)}`);
 
       if (res.status === 200) {
         hideLoader();
-        setErrors((prev) => ({ ...prev, restaurantId: "Restaurant ID already exists" }));
+        setErrors((prev) => ({ ...prev, restaurantId: "Restaurant ID already taken. Please choose another." }));
         return;
       }
 
@@ -104,18 +124,19 @@ export default function RestaurantDetailsPage() {
       }
 
       hideLoader();
-      /* 🔥 SAVE IMPORTANT DATA — store only slugified slug, no raw restaurantId */
       localStorage.setItem("userName", form.userName);
       localStorage.setItem("restaurantName", form.restaurantName);
       localStorage.setItem("restaurantSlug", slug);
-      /* Gmail and password for owner creation (cleared after signup in details2) */
       sessionStorage.setItem("signup_gmail", form.gmail);
       sessionStorage.setItem("signup_password", form.password);
 
       router.push("/owner/details2");
     } catch {
       hideLoader();
-      setErrors((prev) => ({ ...prev, restaurantId: "Could not verify Restaurant ID. Please try again." }));
+      setErrors((prev) => ({
+        ...prev,
+        restaurantId: "Server is starting up — please wait 30 seconds and try again.",
+      }));
     }
   };
 
