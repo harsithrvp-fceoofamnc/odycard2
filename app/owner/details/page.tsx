@@ -73,7 +73,10 @@ export default function RestaurantDetailsPage() {
       hasError = true;
     }
 
-    if (form.password !== form.rePassword) {
+    if (form.password.length < 6) {
+      newErrors.password = "Password must be at least 6 characters";
+      hasError = true;
+    } else if (form.password !== form.rePassword) {
       newErrors.password = "Password does not match";
       hasError = true;
     }
