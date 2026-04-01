@@ -91,6 +91,7 @@ export default function DetailsPart2() {
   const coverInputRef = useRef<HTMLInputElement>(null);
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [gmailExists, setGmailExists] = useState(false);
 
   let progress = 50;
   if (logoUrl) progress = 100;
@@ -393,7 +394,12 @@ export default function DetailsPart2() {
         console.error("[details2] Owner create error:", errData);
         hideLoader();
         setIsSubmitting(false);
-        setError(errData?.error || "Failed to create account. Please try again.");
+        if (ownerRes.status === 409) {
+          setGmailExists(true);
+          setError("");
+        } else {
+          setError(errData?.error || "Failed to create account. Please try again.");
+        }
         return;
       }
 
@@ -536,6 +542,29 @@ export default function DetailsPart2() {
 
           {error && (
             <p className="text-red-600 text-center mb-6 font-medium">{error}</p>
+          )}
+
+          {gmailExists && (
+            <div className="bg-orange-50 border border-orange-200 rounded-2xl p-5 mb-6 text-center">
+              <p className="text-orange-700 font-semibold text-[16px] mb-1">
+                Gmail already registered
+              </p>
+              <p className="text-orange-600 text-[14px] mb-4">
+                This Gmail is already linked to an account. Please log in instead.
+              </p>
+              <button
+                onClick={() => router.push("/owner/login")}
+                className="w-full py-3 rounded-xl bg-[#0A84C1] text-white font-semibold text-[15px]"
+              >
+                Go to Login
+              </button>
+              <button
+                onClick={() => { setGmailExists(false); router.back(); }}
+                className="w-full mt-3 py-3 rounded-xl border border-gray-300 text-gray-700 font-medium text-[15px]"
+              >
+                Use a different Gmail
+              </button>
+            </div>
           )}
         </div>
 
