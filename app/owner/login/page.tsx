@@ -1,75 +1,10 @@
 "use client";
 
-import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { API_BASE } from "@/lib/api";
 
 export default function LoginPage() {
   const router = useRouter();
-
-  const [mobile, setMobile] = useState("");
-  const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-
-  const handleMobileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value.replace(/\D/g, "");
-    if (value.length <= 10) setMobile(value);
-    setError("");
-  };
-
-  const handleLogin = async () => {
-    if (!mobile.trim()) {
-      setError("Enter your mobile number");
-      return;
-    }
-    if (mobile.length !== 10) {
-      setError("Enter a valid 10-digit mobile number");
-      return;
-    }
-    if (password.length < 6) {
-      setError("Incorrect password, try again");
-      return;
-    }
-
-    setError("");
-    setIsLoading(true);
-
-    try {
-      const res = await fetch(`${API_BASE}/api/auth/login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ mobile: mobile.trim(), password }),
-      });
-
-      const data = await res.json().catch(() => ({}));
-
-      if (!res.ok) {
-        setError(data?.error || "Invalid mobile number or password");
-        setIsLoading(false);
-        return;
-      }
-
-      const { hotel } = data;
-      if (!hotel) {
-        setError("Invalid response. Please try again.");
-        setIsLoading(false);
-        return;
-      }
-
-      localStorage.setItem("ody_hotel_id", String(hotel.id));
-      localStorage.setItem("restaurantId", hotel.slug);
-      localStorage.setItem("restaurantName", hotel.name);
-      localStorage.setItem("userName", hotel.name);
-
-      router.push("/owner/dashboard");
-    } catch {
-      setError("Connection error. Please try again.");
-      setIsLoading(false);
-    }
-  };
 
   return (
     <div className="min-h-screen bg-black flex justify-center overflow-hidden">
@@ -121,70 +56,22 @@ export default function LoginPage() {
             Log In
           </h1>
 
-          {/* MOBILE NUMBER */}
-          <label className="block mb-3 text-[20px] font-semibold text-black">
-            Mobile Number
-          </label>
-          <input
-            type="tel"
-            inputMode="numeric"
-            value={mobile}
-            onChange={handleMobileChange}
-            className="w-full border border-gray-300 rounded-xl mb-10
-                       focus:outline-none focus:border-black focus:ring-2 focus:ring-black"
-            style={{
-              fontSize: "20px",
-              padding: "14px 16px",
-              color: "#000",
-            }}
-          />
-
-          {/* PASSWORD */}
-          <label className="block mb-3 text-[20px] font-semibold text-black">
-            Password
-          </label>
-
-          <div className="relative mb-6">
-            <input
-              type={showPassword ? "text" : "password"}
-              value={password}
-              onChange={(e) => { setPassword(e.target.value); setError(""); }}
-              className="w-full border border-gray-300 rounded-xl
-                         focus:outline-none focus:border-black focus:ring-2 focus:ring-black"
-              style={{
-                fontSize: "20px",
-                padding: "14px 56px 14px 16px",
-                color: "#000",
-              }}
-            />
-            <button
-              type="button"
-              onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-4 top-1/2 -translate-y-1/2 text-[16px] font-medium text-gray-500"
-            >
-              {showPassword ? "Hide" : "Show"}
-            </button>
-          </div>
-
-          {/* ERROR */}
-          {error && (
-            <p style={{ color: "#DC2626", fontSize: "14px", marginBottom: "28px" }}>
-              {error}
-            </p>
-          )}
-
-          {/* LOGIN BUTTON */}
+          {/* LOGIN WITH MOBILE */}
           <button
-            onClick={handleLogin}
-            disabled={isLoading}
-            className="w-full rounded-full bg-[#0A84C1] text-white font-semibold disabled:opacity-70 disabled:cursor-not-allowed"
-            style={{ fontSize: "20px", padding: "14px" }}
+            type="button"
+            onClick={() => router.push("/owner/login-mobile")}
+            className="w-full flex items-center justify-center gap-3 border border-gray-300 rounded-full mb-4"
+            style={{ fontSize: "17px", fontWeight: 500, padding: "13px", color: "#000" }}
           >
-            {isLoading ? "Logging in..." : "Log In"}
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="5" y="2" width="14" height="20" rx="2" ry="2" />
+              <line x1="12" y1="18" x2="12" y2="18" strokeWidth="2.5" strokeLinecap="round" />
+            </svg>
+            Login with Mobile Number
           </button>
 
           {/* OR DIVIDER */}
-          <div className="flex items-center gap-3 my-6">
+          <div className="flex items-center gap-3 my-4">
             <div className="flex-1 h-px bg-gray-200" />
             <span className="text-gray-400 text-[14px]">or</span>
             <div className="flex-1 h-px bg-gray-200" />
