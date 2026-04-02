@@ -153,24 +153,28 @@ export default function RestaurantDetailsPage() {
         return;
       }
 
-      // Check if Gmail is already registered
-      try {
-        const gmailCheck = await fetch(
-          `${API_BASE}/api/owners/check-gmail?gmail=${encodeURIComponent(form.gmail.toLowerCase().trim())}`
-        );
-        if (gmailCheck.ok) {
-          const gmailData = await gmailCheck.json();
-          if (gmailData.exists) {
-            hideLoader();
-            setErrors((prev) => ({
-              ...prev,
-              gmail: "This Gmail is already registered. Please login instead.",
-            }));
-            return;
-          }
+      // Check if Gmail is already registered (same retry logic as restaurant ID check)
+      const gmailRes = await fetchWithRetry(
+        `${API_BASE}/api/owners/check-gmail?gmail=${encodeURIComponent(form.gmail.toLowerCase().trim())}`
+      );
+      if (gmailRes.status >= 500) {
+        hideLoader();
+        setErrors((prev) => ({
+          ...prev,
+          gmail: "Server is starting up — please wait 30 seconds and try again.",
+        }));
+        return;
+      }
+      if (gmailRes.ok) {
+        const gmailData = await gmailRes.json();
+        if (gmailData.exists) {
+          hideLoader();
+          setErrors((prev) => ({
+            ...prev,
+            gmail: "This Gmail is already registered. Please login instead.",
+          }));
+          return;
         }
-      } catch {
-        // If check fails, let it proceed — backend will catch it on final submit
       }
 
       hideLoader();
