@@ -68,6 +68,13 @@ export default function StartScreen() {
             Sign up with Phone Number
           </button>
 
+          {/* OR DIVIDER */}
+          <div className="flex items-center gap-3 my-4">
+            <div className="flex-1 h-px bg-gray-200" />
+            <span className="text-gray-400 text-[14px]">or</span>
+            <div className="flex-1 h-px bg-gray-200" />
+          </div>
+
           {/* SIGN UP WITH GOOGLE */}
           <button
             type="button"
