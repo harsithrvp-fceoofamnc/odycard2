@@ -86,6 +86,18 @@ export default function OtpPage() {
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 1.6, ease: "easeOut" }}
         >
+          {/* BACK ARROW */}
+          <button
+            type="button"
+            onClick={() => router.back()}
+            className="flex items-center gap-1 text-gray-600 mb-8"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M15 18l-6-6 6-6" />
+            </svg>
+            <span className="text-[16px] font-medium">Back</span>
+          </button>
+
           {/* ENTER OTP */}
           <h1
             className="text-center mb-10"
@@ -159,18 +171,6 @@ export default function OtpPage() {
             </button>
           </form>
 
-          {/* BACK BUTTON */}
-          <button
-            type="button"
-            onClick={() => router.back()}
-            className="w-full rounded-full bg-[#E5E7EB] text-black font-semibold mt-4"
-            style={{
-              fontSize: "20px",
-              padding: "14px",
-            }}
-          >
-            Back
-          </button>
         </motion.div>
       </div>
     </div>

@@ -262,18 +262,7 @@ export default function RestaurantDetailsPage() {
                 style={{ fontSize: "18px", padding: "14px 16px" }}
               />
               {name === "gmail" && errors.gmail && (
-                <div className="mt-2">
-                  <p className="text-red-600 text-sm">{errors.gmail}</p>
-                  {errors.gmail.includes("already registered") && (
-                    <button
-                      type="button"
-                      onClick={() => router.push("/owner/login")}
-                      className="mt-2 text-[#0A84C1] text-sm font-semibold underline"
-                    >
-                      Go to Login →
-                    </button>
-                  )}
-                </div>
+                <p className="text-red-600 text-sm mt-2">{errors.gmail}</p>
               )}
               {name === "restaurantId" && errors.restaurantId && (
                 <p className="text-red-600 text-sm mt-2">

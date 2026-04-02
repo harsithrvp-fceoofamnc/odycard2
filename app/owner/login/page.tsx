@@ -93,6 +93,18 @@ export default function LoginPage() {
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 1.8, ease: "easeOut" }}
         >
+          {/* BACK ARROW */}
+          <button
+            type="button"
+            onClick={() => router.back()}
+            className="flex items-center gap-1 text-gray-600 mb-8"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M15 18l-6-6 6-6" />
+            </svg>
+            <span className="text-[16px] font-medium">Back</span>
+          </button>
+
           {/* TITLE */}
           <h1
             style={{
@@ -117,7 +129,6 @@ export default function LoginPage() {
               setGmail(e.target.value);
               setError("");
             }}
-            placeholder="you@gmail.com"
             className="w-full border border-gray-300 rounded-xl mb-10
                        focus:outline-none focus:border-black focus:ring-2 focus:ring-black"
             style={{
@@ -143,7 +154,7 @@ export default function LoginPage() {
               className="w-full border border-gray-300 rounded-xl
                          focus:outline-none focus:border-black focus:ring-2 focus:ring-black"
               style={{
-                fontSize: "22px",
+                fontSize: "20px",
                 padding: "14px 56px 14px 16px",
                 color: "#000",
               }}
