@@ -89,7 +89,7 @@ export default function LoginPage() {
               <path fill="#FBBC05" d="M24 45.5c5.4 0 10.3-1.8 14.1-4.9l-6.5-5.3C29.6 36.8 26.9 37.5 24 37.5c-5.6 0-10.3-3.8-11.9-9l-7 5.4C8.6 41 15.8 45.5 24 45.5z"/>
               <path fill="#EA4335" d="M44.5 20H24v8.5h11.7c-.8 2.3-2.3 4.2-4.3 5.5l6.5 5.3c3.8-3.5 6.1-8.7 6.1-14.3 0-1.4-.1-2.7-.5-4z"/>
             </svg>
-            Sign in with Google
+            Login with Google
           </button>
         </motion.div>
       </div>

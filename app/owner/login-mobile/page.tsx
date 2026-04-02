@@ -169,7 +169,7 @@ export default function LoginMobilePage() {
             onClick={handleLogin}
             disabled={isLoading}
             className="w-full rounded-full bg-[#0A84C1] text-white font-semibold disabled:opacity-70 disabled:cursor-not-allowed"
-            style={{ fontSize: "20px", padding: "14px" }}
+            style={{ fontSize: "20px", padding: "14px", marginTop: "24px" }}
           >
             {isLoading ? "Logging in..." : "Log In"}
           </button>
