@@ -17,7 +17,7 @@ function slugify(s: string): string {
 
 export default function RestaurantDetailsPage() {
   const router = useRouter();
-  const { showLoader, hideLoader } = useLoader();
+  const { showLoader, hideLoader, setProgress } = useLoader();
 
   const [signupMethod, setSignupMethod] = useState<"mobile" | "google">("mobile");
 
@@ -111,6 +111,7 @@ export default function RestaurantDetailsPage() {
 
     setErrors(newErrors);
     showLoader();
+    setProgress(10);
 
     const fetchWithRetry = async (url: string, maxAttempts = 4, timeoutMs = 25000): Promise<Response> => {
       for (let attempt = 1; attempt <= maxAttempts; attempt++) {
@@ -137,9 +138,19 @@ export default function RestaurantDetailsPage() {
 
     try {
       const slug = slugify(form.restaurantId);
+      const mobile = sessionStorage.getItem("signup_mobile") || "";
 
-      // Check restaurant ID availability
-      const res = await fetchWithRetry(`${API_BASE}/api/hotels/${encodeURIComponent(slug)}`);
+      // Run restaurant ID check + mobile check in parallel
+      setProgress(30);
+      const checks = await Promise.all([
+        fetchWithRetry(`${API_BASE}/api/hotels/${encodeURIComponent(slug)}`),
+        !isGoogle ? fetchWithRetry(`${API_BASE}/api/owners/check-mobile?mobile=${encodeURIComponent(mobile)}`) : Promise.resolve(null),
+      ]);
+      setProgress(80);
+
+      const [res, mobileRes] = checks;
+
+      // Validate restaurant ID
       if (res.status === 200) {
         hideLoader();
         setErrors((prev) => ({ ...prev, restaurantId: "Restaurant ID already taken. Please choose another." }));
@@ -156,12 +167,8 @@ export default function RestaurantDetailsPage() {
         return;
       }
 
-      // For mobile users: check if mobile number is already registered
-      if (!isGoogle) {
-        const mobile = sessionStorage.getItem("signup_mobile") || "";
-        const mobileRes = await fetchWithRetry(
-          `${API_BASE}/api/owners/check-mobile?mobile=${encodeURIComponent(mobile)}`
-        );
+      // Validate mobile availability
+      if (!isGoogle && mobileRes) {
         if (mobileRes.status >= 500) {
           hideLoader();
           setErrors((prev) => ({ ...prev, mobile: "Server is starting up — please wait 30 seconds and try again." }));
@@ -177,6 +184,7 @@ export default function RestaurantDetailsPage() {
         }
       }
 
+      setProgress(100);
       hideLoader();
       localStorage.setItem("userName", form.userName);
       localStorage.setItem("restaurantName", form.restaurantName);

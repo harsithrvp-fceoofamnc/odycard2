@@ -8,16 +8,14 @@ const MIN_VISIBLE_MS = 1000;
 type LoaderContextType = {
   showLoader: () => void;
   hideLoader: () => void;
+  setProgress: (n: number) => void;
 };
 
 const LoaderContext = createContext<LoaderContextType | null>(null);
 
-export function LoaderProvider({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export function LoaderProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(false);
+  const [progress, setProgressState] = useState(0);
   const showLoaderStartRef = useRef<number | null>(null);
   const hideTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -33,6 +31,7 @@ export function LoaderProvider({
       hideTimeoutRef.current = null;
     }
     showLoaderStartRef.current = Date.now();
+    setProgressState(0);
     setLoading(true);
   };
 
@@ -49,19 +48,25 @@ export function LoaderProvider({
     const elapsed = Date.now() - start;
     if (elapsed >= MIN_VISIBLE_MS) {
       showLoaderStartRef.current = null;
+      setProgressState(0);
       setLoading(false);
     } else {
       hideTimeoutRef.current = setTimeout(() => {
         hideTimeoutRef.current = null;
         showLoaderStartRef.current = null;
+        setProgressState(0);
         setLoading(false);
       }, MIN_VISIBLE_MS - elapsed);
     }
   };
 
+  const setProgress = (n: number) => {
+    setProgressState(Math.min(100, Math.max(0, n)));
+  };
+
   return (
-    <LoaderContext.Provider value={{ showLoader, hideLoader }}>
-      {loading && <OdyLoader />}
+    <LoaderContext.Provider value={{ showLoader, hideLoader, setProgress }}>
+      {loading && <OdyLoader progress={progress} />}
       {children}
     </LoaderContext.Provider>
   );
