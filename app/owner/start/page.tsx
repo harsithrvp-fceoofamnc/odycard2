@@ -7,6 +7,9 @@ export default function StartScreen() {
   const router = useRouter();
 
   const handleGoogleSignup = () => {
+    sessionStorage.removeItem("signup_form");
+    sessionStorage.removeItem("signup_password");
+    sessionStorage.removeItem("signup_mobile");
     sessionStorage.setItem("signup_method", "google");
     router.push("/owner/details");
   };

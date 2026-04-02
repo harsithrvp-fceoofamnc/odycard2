@@ -16,6 +16,10 @@ export default function PhonePage() {
   const handleSendOtp = (e: React.FormEvent) => {
     e.preventDefault();
     if (mobile.length === 10) {
+      // Clear any leftover form data from a previous signup attempt
+      sessionStorage.removeItem("signup_form");
+      sessionStorage.removeItem("signup_password");
+      sessionStorage.removeItem("signup_google_gmail");
       sessionStorage.setItem("signup_mobile", mobile);
       sessionStorage.setItem("signup_method", "mobile");
       router.push("/owner/otp");
