@@ -140,13 +140,21 @@ export default function RestaurantDetailsPage() {
       const slug = slugify(form.restaurantId);
       const mobile = sessionStorage.getItem("signup_mobile") || "";
 
-      // Run restaurant ID check + mobile check in parallel
+      // Start at 30%, then slowly creep up 1% every 400ms while waiting for API
       setProgress(30);
+      let creepValue = 30;
+      const creepTimer = setInterval(() => {
+        creepValue = Math.min(creepValue + 1, 90);
+        setProgress(creepValue);
+      }, 400);
+
+      // Run restaurant ID check + mobile check in parallel
       const checks = await Promise.all([
         fetchWithRetry(`${API_BASE}/api/hotels/${encodeURIComponent(slug)}`),
         !isGoogle ? fetchWithRetry(`${API_BASE}/api/owners/check-mobile?mobile=${encodeURIComponent(mobile)}`) : Promise.resolve(null),
       ]);
-      setProgress(80);
+      clearInterval(creepTimer);
+      setProgress(100);
 
       const [res, mobileRes] = checks;
 
@@ -184,7 +192,6 @@ export default function RestaurantDetailsPage() {
         }
       }
 
-      setProgress(100);
       hideLoader();
       localStorage.setItem("userName", form.userName);
       localStorage.setItem("restaurantName", form.restaurantName);
