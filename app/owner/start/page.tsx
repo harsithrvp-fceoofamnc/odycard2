@@ -48,7 +48,7 @@ export default function StartScreen() {
               fontSize: "52px",
               fontWeight: 600,
               lineHeight: "1.08",
-              marginBottom: "48px",
+              marginBottom: "80px",
               color: "#000",
             }}
           >
