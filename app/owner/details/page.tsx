@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import ProgressBar from "@/components/ProgressBar";
@@ -36,6 +36,19 @@ export default function RestaurantDetailsPage() {
     password: "",
     restaurantId: "",
   });
+
+  // Restore form data if user navigates back from page 2
+  useEffect(() => {
+    const saved = sessionStorage.getItem("signup_form");
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        setForm((prev) => ({ ...prev, ...parsed }));
+      } catch {
+        // ignore
+      }
+    }
+  }, []);
 
   // 👁️ SHOW / HIDE STATES
   const [showPassword, setShowPassword] = useState(false);
@@ -140,12 +153,34 @@ export default function RestaurantDetailsPage() {
         return;
       }
 
+      // Check if Gmail is already registered
+      try {
+        const gmailCheck = await fetch(
+          `${API_BASE}/api/owners/check-gmail?gmail=${encodeURIComponent(form.gmail.toLowerCase().trim())}`
+        );
+        if (gmailCheck.ok) {
+          const gmailData = await gmailCheck.json();
+          if (gmailData.exists) {
+            hideLoader();
+            setErrors((prev) => ({
+              ...prev,
+              gmail: "This Gmail is already registered. Please login instead.",
+            }));
+            return;
+          }
+        }
+      } catch {
+        // If check fails, let it proceed — backend will catch it on final submit
+      }
+
       hideLoader();
       localStorage.setItem("userName", form.userName);
       localStorage.setItem("restaurantName", form.restaurantName);
       localStorage.setItem("restaurantSlug", slug);
       sessionStorage.setItem("signup_gmail", form.gmail);
       sessionStorage.setItem("signup_password", form.password);
+      // Save full form so it can be restored if user hits Back
+      sessionStorage.setItem("signup_form", JSON.stringify(form));
 
       router.push("/owner/details2");
     } catch {
@@ -223,9 +258,18 @@ export default function RestaurantDetailsPage() {
                 style={{ fontSize: "18px", padding: "14px 16px" }}
               />
               {name === "gmail" && errors.gmail && (
-                <p className="text-red-600 text-sm mt-2">
-                  {errors.gmail}
-                </p>
+                <div className="mt-2">
+                  <p className="text-red-600 text-sm">{errors.gmail}</p>
+                  {errors.gmail.includes("already registered") && (
+                    <button
+                      type="button"
+                      onClick={() => router.push("/owner/login")}
+                      className="mt-2 text-[#0A84C1] text-sm font-semibold underline"
+                    >
+                      Go to Login →
+                    </button>
+                  )}
+                </div>
               )}
               {name === "restaurantId" && errors.restaurantId && (
                 <p className="text-red-600 text-sm mt-2">

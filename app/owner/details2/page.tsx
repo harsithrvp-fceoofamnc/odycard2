@@ -407,6 +407,7 @@ export default function DetailsPart2() {
       localStorage.removeItem("restaurantLogo");
       localStorage.removeItem("restaurantCover");
       localStorage.removeItem("restaurantSlug");
+      sessionStorage.removeItem("signup_form");
       localStorage.setItem("ody_hotel_id", String(hotel.id));
       localStorage.setItem("restaurantId", hotel.slug);
       localStorage.setItem("restaurantName", hotel.name);
