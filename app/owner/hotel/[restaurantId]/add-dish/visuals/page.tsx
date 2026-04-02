@@ -35,7 +35,7 @@ async function getCroppedImg(imageSrc: string, crop: { x: number; y: number; wid
     crop.height
   );
 
-  return canvas.toDataURL("image/png");
+  return canvas.toDataURL("image/jpeg", 0.75);
 }
 
 function extractYouTubeId(url: string): string | null {

@@ -302,10 +302,10 @@ export default function DishDetailsPage() {
                     }
                     const hotel = await hotelRes.json();
 
-                    const photoUrl =
+                    const rawPhoto =
                       typeof window !== "undefined"
-                        ? localStorage.getItem(ADD_DISH_PHOTO_KEY) || "/food_item_logo.png"
-                        : "/food_item_logo.png";
+                        ? localStorage.getItem(ADD_DISH_PHOTO_KEY) || ""
+                        : "";
                     const videoId =
                       typeof window !== "undefined"
                         ? localStorage.getItem(ADD_DISH_VIDEO_ID_KEY)
@@ -314,6 +314,14 @@ export default function DishDetailsPage() {
                       typeof window !== "undefined"
                         ? localStorage.getItem(ADD_DISH_TYPE_KEY) || "food_item"
                         : "food_item";
+
+                    // Only send photo if it's a base64 data URL AND under 800KB
+                    // Large base64 strings can cause Render/Supabase to timeout
+                    const MAX_PHOTO_BYTES = 800 * 1024;
+                    const photoUrl =
+                      rawPhoto.startsWith("data:") && rawPhoto.length <= MAX_PHOTO_BYTES
+                        ? rawPhoto
+                        : null;
 
                     const postRes = await fetch(`${API_BASE}/api/dishes`, {
                       method: "POST",
@@ -328,7 +336,7 @@ export default function DishDetailsPage() {
                         description: description.trim() || null,
                         timing_from: fromTime,
                         timing_to: toTime,
-                        photo_url: photoUrl.startsWith("data:") ? photoUrl : null,
+                        photo_url: photoUrl,
                         video_url: videoId
                           ? `https://www.youtube.com/watch?v=${videoId}`
                           : null,
@@ -337,7 +345,7 @@ export default function DishDetailsPage() {
 
                     if (!postRes.ok) {
                       const data = await postRes.json().catch(() => ({}));
-                      throw new Error(data.error || "Failed to add dish");
+                      throw new Error(data.error || `Failed to add dish (HTTP ${postRes.status})`);
                     }
 
                     localStorage.removeItem(ADD_DISH_PHOTO_KEY);
