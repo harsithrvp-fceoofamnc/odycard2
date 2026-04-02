@@ -19,26 +19,33 @@ export default function RestaurantDetailsPage() {
   const router = useRouter();
   const { showLoader, hideLoader } = useLoader();
 
+  const [signupMethod, setSignupMethod] = useState<"mobile" | "google">("mobile");
+
   const [form, setForm] = useState({
     restaurantName: "",
     userName: "",
     state: "",
     city: "",
     restaurantId: "",
-    gmail: "",
     password: "",
     rePassword: "",
   });
 
   const [errors, setErrors] = useState({
     general: "",
-    gmail: "",
     password: "",
     restaurantId: "",
+    mobile: "",
   });
 
-  // Restore form data if user navigates back from page 2
+  const [showPassword, setShowPassword] = useState(false);
+  const [showRePassword, setShowRePassword] = useState(false);
+
+  // Read signup method + restore form on mount
   useEffect(() => {
+    const method = sessionStorage.getItem("signup_method");
+    if (method === "google") setSignupMethod("google");
+
     const saved = sessionStorage.getItem("signup_form");
     if (saved) {
       try {
@@ -50,48 +57,51 @@ export default function RestaurantDetailsPage() {
     }
   }, []);
 
-  // 👁️ SHOW / HIDE STATES
-  const [showPassword, setShowPassword] = useState(false);
-  const [showRePassword, setShowRePassword] = useState(false);
+  const isGoogle = signupMethod === "google";
 
   /* ---------- PROGRESS ---------- */
-  const totalFields = Object.keys(form).length;
+  const baseFields = ["restaurantName", "userName", "state", "city", "restaurantId"];
+  const passwordFields = isGoogle ? [] : ["password", "rePassword"];
+  const allFields = [...baseFields, ...passwordFields];
+  const totalFields = allFields.length;
 
   const filledCount = useMemo(() => {
-    return Object.values(form).filter(v => v.trim() !== "").length;
-  }, [form]);
+    return allFields.filter((k) => (form as any)[k]?.trim() !== "").length;
+  }, [form, isGoogle]);
 
   const progress = Math.min((filledCount / totalFields) * 50, 50);
 
   /* ---------- HANDLERS ---------- */
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
-    setErrors({ general: "", gmail: "", password: "", restaurantId: "" });
+    setErrors({ general: "", password: "", restaurantId: "", mobile: "" });
   };
 
   const handleNext = async () => {
     let hasError = false;
-    const newErrors = { general: "", gmail: "", password: "", restaurantId: "" };
+    const newErrors = { general: "", password: "", restaurantId: "", mobile: "" };
 
-    for (const value of Object.values(form)) {
-      if (value.trim() === "") {
+    // Check base fields
+    for (const key of baseFields) {
+      if ((form as any)[key].trim() === "") {
         newErrors.general = "Please fill all the fields";
         hasError = true;
         break;
       }
     }
 
-    if (form.gmail && !form.gmail.endsWith("@gmail.com")) {
-      newErrors.gmail = "Gmail must end with @gmail.com";
-      hasError = true;
-    }
-
-    if (form.password.length < 6) {
-      newErrors.password = "Password must be at least 6 characters";
-      hasError = true;
-    } else if (form.password !== form.rePassword) {
-      newErrors.password = "Password does not match";
-      hasError = true;
+    // Password validation for mobile users
+    if (!isGoogle) {
+      if (form.password.trim() === "" || form.rePassword.trim() === "") {
+        newErrors.general = "Please fill all the fields";
+        hasError = true;
+      } else if (form.password.length < 6) {
+        newErrors.password = "Password must be at least 6 characters";
+        hasError = true;
+      } else if (form.password !== form.rePassword) {
+        newErrors.password = "Passwords do not match";
+        hasError = true;
+      }
     }
 
     if (hasError) {
@@ -102,7 +112,6 @@ export default function RestaurantDetailsPage() {
     setErrors(newErrors);
     showLoader();
 
-    // Helper: fetch with timeout + auto-retry for Render cold starts and DB blips
     const fetchWithRetry = async (url: string, maxAttempts = 4, timeoutMs = 25000): Promise<Response> => {
       for (let attempt = 1; attempt <= maxAttempts; attempt++) {
         const controller = new AbortController();
@@ -110,7 +119,6 @@ export default function RestaurantDetailsPage() {
         try {
           const res = await fetch(url, { signal: controller.signal });
           clearTimeout(timer);
-          // Retry on 5xx (DB connection drop / Render still initialising)
           if (res.status >= 500 && attempt < maxAttempts) {
             await new Promise((r) => setTimeout(r, 6000));
             continue;
@@ -121,7 +129,6 @@ export default function RestaurantDetailsPage() {
           const isAbort = err instanceof Error && err.name === "AbortError";
           const isLast = attempt === maxAttempts;
           if (isLast) throw err;
-          // Wait before retry — longer after a timeout
           await new Promise((r) => setTimeout(r, isAbort ? 6000 : 3000));
         }
       }
@@ -130,50 +137,43 @@ export default function RestaurantDetailsPage() {
 
     try {
       const slug = slugify(form.restaurantId);
-      const res = await fetchWithRetry(`${API_BASE}/api/hotels/${encodeURIComponent(slug)}`);
 
+      // Check restaurant ID availability
+      const res = await fetchWithRetry(`${API_BASE}/api/hotels/${encodeURIComponent(slug)}`);
       if (res.status === 200) {
         hideLoader();
         setErrors((prev) => ({ ...prev, restaurantId: "Restaurant ID already taken. Please choose another." }));
         return;
       }
-
       if (res.status >= 500) {
         hideLoader();
-        setErrors((prev) => ({
-          ...prev,
-          restaurantId: "Server is starting up — please wait 30 seconds and try again.",
-        }));
+        setErrors((prev) => ({ ...prev, restaurantId: "Server is starting up — please wait 30 seconds and try again." }));
         return;
       }
-
       if (res.status !== 404) {
         hideLoader();
         setErrors((prev) => ({ ...prev, restaurantId: "Could not verify Restaurant ID. Please try again." }));
         return;
       }
 
-      // Check if Gmail is already registered (same retry logic as restaurant ID check)
-      const gmailRes = await fetchWithRetry(
-        `${API_BASE}/api/owners/check-gmail?gmail=${encodeURIComponent(form.gmail.toLowerCase().trim())}`
-      );
-      if (gmailRes.status >= 500) {
-        hideLoader();
-        setErrors((prev) => ({
-          ...prev,
-          gmail: "Server is starting up — please wait 30 seconds and try again.",
-        }));
-        return;
-      }
-      if (gmailRes.ok) {
-        const gmailData = await gmailRes.json();
-        if (gmailData.exists) {
+      // For mobile users: check if mobile number is already registered
+      if (!isGoogle) {
+        const mobile = sessionStorage.getItem("signup_mobile") || "";
+        const mobileRes = await fetchWithRetry(
+          `${API_BASE}/api/owners/check-mobile?mobile=${encodeURIComponent(mobile)}`
+        );
+        if (mobileRes.status >= 500) {
           hideLoader();
-          setErrors((prev) => ({
-            ...prev,
-            gmail: "This Gmail is already registered. Please login instead.",
-          }));
+          setErrors((prev) => ({ ...prev, mobile: "Server is starting up — please wait 30 seconds and try again." }));
           return;
+        }
+        if (mobileRes.ok) {
+          const mobileData = await mobileRes.json();
+          if (mobileData.exists) {
+            hideLoader();
+            setErrors((prev) => ({ ...prev, mobile: "This mobile number is already registered. Please login instead." }));
+            return;
+          }
         }
       }
 
@@ -181,9 +181,9 @@ export default function RestaurantDetailsPage() {
       localStorage.setItem("userName", form.userName);
       localStorage.setItem("restaurantName", form.restaurantName);
       localStorage.setItem("restaurantSlug", slug);
-      sessionStorage.setItem("signup_gmail", form.gmail);
-      sessionStorage.setItem("signup_password", form.password);
-      // Save full form so it can be restored if user hits Back
+      if (!isGoogle) {
+        sessionStorage.setItem("signup_password", form.password);
+      }
       sessionStorage.setItem("signup_form", JSON.stringify(form));
 
       router.push("/owner/details2");
@@ -203,10 +203,10 @@ export default function RestaurantDetailsPage() {
   };
 
   const inputClass = (name: string) =>
-    `w-full border rounded-xl bg-white text-black focus:outline-none 
+    `w-full border rounded-xl bg-white text-black focus:outline-none
      focus:border-black focus:ring-1 focus:ring-black pr-12
      ${
-       (errors.general && form[name as keyof typeof form] === "") ||
+       (errors.general && (form as any)[name] === "") ||
        (name === "restaurantId" && errors.restaurantId)
          ? "border-red-500"
          : "border-gray-300"
@@ -228,32 +228,28 @@ export default function RestaurantDetailsPage() {
           {/* PROGRESS BAR */}
           <motion.div {...fadeUp} className="mb-10">
             <div className="h-[6px] w-full bg-gray-200 rounded-full overflow-hidden">
-              <div
-                className="h-full bg-[#0A84C1]"
-                style={{ width: `${progress}%` }}
-              />
+              <div className="h-full bg-[#0A84C1]" style={{ width: `${progress}%` }} />
             </div>
-            <p className="text-right text-[13px] text-gray-500 mt-2">
-              {Math.round(progress)}%
-            </p>
+            <p className="text-right text-[13px] text-gray-500 mt-2">{Math.round(progress)}%</p>
           </motion.div>
 
           {errors.general && (
             <p className="text-red-600 text-sm mb-6">{errors.general}</p>
           )}
+          {errors.mobile && (
+            <p className="text-red-600 text-sm mb-6">{errors.mobile}</p>
+          )}
 
+          {/* BASE FIELDS */}
           {[
             ["Restaurant Name", "restaurantName"],
             ["User Name", "userName"],
             ["State", "state"],
             ["City", "city"],
             ["Restaurant ID", "restaurantId"],
-            ["Gmail", "gmail"],
           ].map(([label, name]) => (
             <motion.div key={name} {...fadeUp} className="mb-6">
-              <label className="block mb-2 text-[18px] font-semibold text-black">
-                {label}
-              </label>
+              <label className="block mb-2 text-[18px] font-semibold text-black">{label}</label>
               <input
                 name={name}
                 value={(form as any)[name]}
@@ -261,66 +257,57 @@ export default function RestaurantDetailsPage() {
                 className={inputClass(name)}
                 style={{ fontSize: "18px", padding: "14px 16px" }}
               />
-              {name === "gmail" && errors.gmail && (
-                <p className="text-red-600 text-sm mt-2">{errors.gmail}</p>
-              )}
               {name === "restaurantId" && errors.restaurantId && (
-                <p className="text-red-600 text-sm mt-2">
-                  {errors.restaurantId}
-                </p>
+                <p className="text-red-600 text-sm mt-2">{errors.restaurantId}</p>
               )}
             </motion.div>
           ))}
 
-          {/* PASSWORD */}
-          <motion.div {...fadeUp} className="mb-6 relative">
-            <label className="block mb-2 text-[18px] font-semibold text-black">
-              Password
-            </label>
-            <input
-              type={showPassword ? "text" : "password"}
-              name="password"
-              value={form.password}
-              onChange={handleChange}
-              className={inputClass("password")}
-              style={{ fontSize: "18px", padding: "14px 16px" }}
-            />
-            <button
-              type="button"
-              onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-4 top-[52px] text-sm text-gray-600"
-            >
-              {showPassword ? "Hide" : "Show"}
-            </button>
-          </motion.div>
+          {/* PASSWORD — only for mobile signup */}
+          {!isGoogle && (
+            <>
+              <motion.div {...fadeUp} className="mb-6 relative">
+                <label className="block mb-2 text-[18px] font-semibold text-black">Password</label>
+                <input
+                  type={showPassword ? "text" : "password"}
+                  name="password"
+                  value={form.password}
+                  onChange={handleChange}
+                  className={inputClass("password")}
+                  style={{ fontSize: "18px", padding: "14px 16px" }}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-4 top-[52px] text-sm text-gray-600"
+                >
+                  {showPassword ? "Hide" : "Show"}
+                </button>
+              </motion.div>
 
-          {/* RE-PASSWORD */}
-          <motion.div {...fadeUp} className="mb-6 relative">
-            <label className="block mb-2 text-[18px] font-semibold text-black">
-              Re-enter Password
-            </label>
-            <input
-              type={showRePassword ? "text" : "password"}
-              name="rePassword"
-              value={form.rePassword}
-              onChange={handleChange}
-              className={inputClass("rePassword")}
-              style={{ fontSize: "18px", padding: "14px 16px" }}
-            />
-            <button
-              type="button"
-              onClick={() => setShowRePassword(!showRePassword)}
-              className="absolute right-4 top-[52px] text-sm text-gray-600"
-            >
-              {showRePassword ? "Hide" : "Show"}
-            </button>
-
-            {errors.password && (
-              <p className="text-red-600 text-sm mt-2">
-                {errors.password}
-              </p>
-            )}
-          </motion.div>
+              <motion.div {...fadeUp} className="mb-6 relative">
+                <label className="block mb-2 text-[18px] font-semibold text-black">Re-enter Password</label>
+                <input
+                  type={showRePassword ? "text" : "password"}
+                  name="rePassword"
+                  value={form.rePassword}
+                  onChange={handleChange}
+                  className={inputClass("rePassword")}
+                  style={{ fontSize: "18px", padding: "14px 16px" }}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowRePassword(!showRePassword)}
+                  className="absolute right-4 top-[52px] text-sm text-gray-600"
+                >
+                  {showRePassword ? "Hide" : "Show"}
+                </button>
+                {errors.password && (
+                  <p className="text-red-600 text-sm mt-2">{errors.password}</p>
+                )}
+              </motion.div>
+            </>
+          )}
 
         </div>
 
@@ -344,9 +331,7 @@ export default function RestaurantDetailsPage() {
               </button>
             </div>
             <div className="flex items-center gap-3 min-w-[140px]">
-              <span className="text-xs text-gray-500 whitespace-nowrap">
-                Page 1 of 2
-              </span>
+              <span className="text-xs text-gray-500 whitespace-nowrap">Page 1 of 2</span>
               <ProgressBar progress={50} className="flex-1 h-[4px]" />
             </div>
           </div>

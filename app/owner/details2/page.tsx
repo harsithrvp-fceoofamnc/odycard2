@@ -363,30 +363,39 @@ export default function DetailsPart2() {
         return;
       }
 
-      const gmailRaw = sessionStorage.getItem("signup_gmail");
-      const passwordRaw = sessionStorage.getItem("signup_password");
-      const gmail = typeof gmailRaw === "string" ? gmailRaw.trim() : "";
-      const password = typeof passwordRaw === "string" ? passwordRaw.trim() : "";
+      const signupMethod = sessionStorage.getItem("signup_method") || "mobile";
+      const isGoogle = signupMethod === "google";
 
-      if (!gmail || !password) {
-        hideLoader();
-        setIsSubmitting(false);
-        setError(
-          gmailRaw == null || passwordRaw == null
-            ? "Session expired. Please go back and re-enter your Gmail and password."
-            : "Gmail and password are required. Please go back and fill them in."
-        );
-        return;
+      let ownerBody: Record<string, string | number> = { hotel_id: hotel.id, signup_method: signupMethod };
+
+      if (isGoogle) {
+        // Google: no password needed, gmail comes from Google (placeholder for now)
+        const googleGmail = sessionStorage.getItem("signup_google_gmail") || "";
+        if (googleGmail) ownerBody.gmail = googleGmail;
+      } else {
+        // Mobile: send mobile number + password
+        const mobile = sessionStorage.getItem("signup_mobile") || "";
+        const password = sessionStorage.getItem("signup_password") || "";
+        if (!mobile || !password) {
+          hideLoader();
+          setIsSubmitting(false);
+          setError("Session expired. Please go back and start again.");
+          return;
+        }
+        ownerBody.mobile = mobile;
+        ownerBody.password = password;
       }
 
       const ownerRes = await fetch(`${API_BASE}/api/owners`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ hotel_id: hotel.id, gmail, password }),
+        body: JSON.stringify(ownerBody),
       });
 
-      sessionStorage.removeItem("signup_gmail");
+      sessionStorage.removeItem("signup_mobile");
       sessionStorage.removeItem("signup_password");
+      sessionStorage.removeItem("signup_method");
+      sessionStorage.removeItem("signup_google_gmail");
 
       if (!ownerRes.ok) {
         const errData = await ownerRes.json().catch(() => ({}));

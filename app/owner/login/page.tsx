@@ -8,23 +8,27 @@ import { API_BASE } from "@/lib/api";
 export default function LoginPage() {
   const router = useRouter();
 
-  const [gmail, setGmail] = useState("");
+  const [mobile, setMobile] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
+  const handleMobileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.replace(/\D/g, "");
+    if (value.length <= 10) setMobile(value);
+    setError("");
+  };
+
   const handleLogin = async () => {
-    if (!gmail.trim()) {
-      setError("Enter your Gmail");
+    if (!mobile.trim()) {
+      setError("Enter your mobile number");
       return;
     }
-
-    if (!gmail.endsWith("@gmail.com")) {
-      setError("Gmail must end with @gmail.com");
+    if (mobile.length !== 10) {
+      setError("Enter a valid 10-digit mobile number");
       return;
     }
-
     if (password.length < 6) {
       setError("Incorrect password, try again");
       return;
@@ -37,13 +41,13 @@ export default function LoginPage() {
       const res = await fetch(`${API_BASE}/api/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ gmail: gmail.trim(), password }),
+        body: JSON.stringify({ mobile: mobile.trim(), password }),
       });
 
       const data = await res.json().catch(() => ({}));
 
       if (!res.ok) {
-        setError(data?.error || "Invalid Gmail or password");
+        setError(data?.error || "Invalid mobile number or password");
         setIsLoading(false);
         return;
       }
@@ -69,7 +73,6 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen bg-black flex justify-center overflow-hidden">
-      {/* PHONE FRAME */}
       <div className="relative w-full max-w-md min-h-screen overflow-hidden">
 
         {/* DARK BACKGROUND */}
@@ -118,17 +121,15 @@ export default function LoginPage() {
             Log In
           </h1>
 
-          {/* GMAIL */}
+          {/* MOBILE NUMBER */}
           <label className="block mb-3 text-[20px] font-semibold text-black">
-            Gmail
+            Mobile Number
           </label>
           <input
-            type="email"
-            value={gmail}
-            onChange={(e) => {
-              setGmail(e.target.value);
-              setError("");
-            }}
+            type="tel"
+            inputMode="numeric"
+            value={mobile}
+            onChange={handleMobileChange}
             className="w-full border border-gray-300 rounded-xl mb-10
                        focus:outline-none focus:border-black focus:ring-2 focus:ring-black"
             style={{
@@ -147,10 +148,7 @@ export default function LoginPage() {
             <input
               type={showPassword ? "text" : "password"}
               value={password}
-              onChange={(e) => {
-                setPassword(e.target.value);
-                setError("");
-              }}
+              onChange={(e) => { setPassword(e.target.value); setError(""); }}
               className="w-full border border-gray-300 rounded-xl
                          focus:outline-none focus:border-black focus:ring-2 focus:ring-black"
               style={{
@@ -170,13 +168,7 @@ export default function LoginPage() {
 
           {/* ERROR */}
           {error && (
-            <p
-              style={{
-                color: "#DC2626",
-                fontSize: "14px",
-                marginBottom: "28px",
-              }}
-            >
+            <p style={{ color: "#DC2626", fontSize: "14px", marginBottom: "28px" }}>
               {error}
             </p>
           )}
@@ -186,12 +178,31 @@ export default function LoginPage() {
             onClick={handleLogin}
             disabled={isLoading}
             className="w-full rounded-full bg-[#0A84C1] text-white font-semibold disabled:opacity-70 disabled:cursor-not-allowed"
-            style={{
-              fontSize: "20px",
-              padding: "14px",
-            }}
+            style={{ fontSize: "20px", padding: "14px" }}
           >
             {isLoading ? "Logging in..." : "Log In"}
+          </button>
+
+          {/* OR DIVIDER */}
+          <div className="flex items-center gap-3 my-6">
+            <div className="flex-1 h-px bg-gray-200" />
+            <span className="text-gray-400 text-[14px]">or</span>
+            <div className="flex-1 h-px bg-gray-200" />
+          </div>
+
+          {/* SIGN IN WITH GOOGLE */}
+          <button
+            type="button"
+            className="w-full flex items-center justify-center gap-3 border border-gray-300 rounded-full"
+            style={{ fontSize: "17px", fontWeight: 500, padding: "13px", color: "#000" }}
+          >
+            <svg width="22" height="22" viewBox="0 0 48 48">
+              <path fill="#4285F4" d="M44.5 20H24v8.5h11.7C34.1 33.1 29.6 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3 0 5.8 1.1 7.9 3l6-6C34.5 6.5 29.5 4.5 24 4.5 12.7 4.5 3.5 13.7 3.5 25S12.7 45.5 24 45.5c11 0 20.5-8 20.5-20.5 0-1.4-.1-2.7-.5-4z"/>
+              <path fill="#34A853" d="M6.3 14.7l7 5.1C15 16.1 19.2 13 24 13c3 0 5.8 1.1 7.9 3l6-6C34.5 6.5 29.5 4.5 24 4.5c-7.6 0-14.2 4.3-17.7 10.2z"/>
+              <path fill="#FBBC05" d="M24 45.5c5.4 0 10.3-1.8 14.1-4.9l-6.5-5.3C29.6 36.8 26.9 37.5 24 37.5c-5.6 0-10.3-3.8-11.9-9l-7 5.4C8.6 41 15.8 45.5 24 45.5z"/>
+              <path fill="#EA4335" d="M44.5 20H24v8.5h11.7c-.8 2.3-2.3 4.2-4.3 5.5l6.5 5.3c3.8-3.5 6.1-8.7 6.1-14.3 0-1.4-.1-2.7-.5-4z"/>
+            </svg>
+            Sign in with Google
           </button>
         </motion.div>
       </div>
