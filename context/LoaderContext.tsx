@@ -18,12 +18,28 @@ export function LoaderProvider({ children }: { children: React.ReactNode }) {
   const [progress, setProgressState] = useState(0);
   const showLoaderStartRef = useRef<number | null>(null);
   const hideTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const tickerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const targetRef = useRef<number>(0);
 
   useEffect(() => {
     return () => {
       if (hideTimeoutRef.current) clearTimeout(hideTimeoutRef.current);
+      if (tickerRef.current) clearInterval(tickerRef.current);
     };
   }, []);
+
+  const startTicker = () => {
+    if (tickerRef.current) clearInterval(tickerRef.current);
+    tickerRef.current = setInterval(() => {
+      setProgressState((current) => {
+        if (current >= targetRef.current) {
+          if (tickerRef.current) clearInterval(tickerRef.current);
+          return targetRef.current;
+        }
+        return current + 1;
+      });
+    }, 18); // ~55 ticks/sec — smooth but not too fast
+  };
 
   const showLoader = () => {
     if (hideTimeoutRef.current) {
@@ -31,6 +47,7 @@ export function LoaderProvider({ children }: { children: React.ReactNode }) {
       hideTimeoutRef.current = null;
     }
     showLoaderStartRef.current = Date.now();
+    targetRef.current = 0;
     setProgressState(0);
     setLoading(true);
   };
@@ -48,12 +65,14 @@ export function LoaderProvider({ children }: { children: React.ReactNode }) {
     const elapsed = Date.now() - start;
     if (elapsed >= MIN_VISIBLE_MS) {
       showLoaderStartRef.current = null;
+      if (tickerRef.current) clearInterval(tickerRef.current);
       setProgressState(0);
       setLoading(false);
     } else {
       hideTimeoutRef.current = setTimeout(() => {
         hideTimeoutRef.current = null;
         showLoaderStartRef.current = null;
+        if (tickerRef.current) clearInterval(tickerRef.current);
         setProgressState(0);
         setLoading(false);
       }, MIN_VISIBLE_MS - elapsed);
@@ -61,7 +80,9 @@ export function LoaderProvider({ children }: { children: React.ReactNode }) {
   };
 
   const setProgress = (n: number) => {
-    setProgressState(Math.min(100, Math.max(0, n)));
+    const clamped = Math.min(100, Math.max(0, n));
+    targetRef.current = clamped;
+    startTicker();
   };
 
   return (

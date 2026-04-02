@@ -1,33 +1,15 @@
 "use client";
 
-import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 
 export default function StartScreen() {
   const router = useRouter();
-  const [mobile, setMobile] = useState("");
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value.replace(/\D/g, "");
-    if (value.length <= 10) setMobile(value);
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (mobile.length === 10) {
-      sessionStorage.setItem("signup_mobile", mobile);
-      sessionStorage.setItem("signup_method", "mobile");
-      router.push("/owner/otp");
-    }
-  };
 
   const handleGoogleSignup = () => {
     sessionStorage.setItem("signup_method", "google");
     router.push("/owner/details");
   };
-
-  const isValid = mobile.length === 10;
 
   return (
     <div className="min-h-screen bg-black flex justify-center overflow-hidden">
@@ -48,7 +30,6 @@ export default function StartScreen() {
           />
         </div>
 
-        {/* SPACE FOR LOGO */}
         <div className="h-[50vh]" />
 
         {/* WHITE CARD */}
@@ -64,7 +45,7 @@ export default function StartScreen() {
               fontSize: "52px",
               fontWeight: 600,
               lineHeight: "1.08",
-              marginBottom: "36px",
+              marginBottom: "48px",
               color: "#000",
             }}
           >
@@ -73,43 +54,19 @@ export default function StartScreen() {
             Started
           </h1>
 
-          {/* MOBILE INPUT + GET OTP */}
-          <form onSubmit={handleSubmit}>
-            <input
-              type="tel"
-              inputMode="numeric"
-              placeholder="Enter mobile number"
-              value={mobile}
-              onChange={handleChange}
-              className="w-full border border-gray-300 rounded-2xl mb-6
-                         focus:outline-none focus:border-black focus:ring-1 focus:ring-black"
-              style={{
-                fontSize: "20px",
-                padding: "18px 20px",
-                color: "#000",
-              }}
-            />
-
-            <button
-              type="submit"
-              disabled={!isValid}
-              className={`w-full rounded-full font-semibold transition ${
-                isValid
-                  ? "bg-[#0A84C1] text-white"
-                  : "bg-gray-300 text-gray-500 cursor-not-allowed"
-              }`}
-              style={{ fontSize: "18px", padding: "14px" }}
-            >
-              Get OTP
-            </button>
-          </form>
-
-          {/* OR DIVIDER */}
-          <div className="flex items-center gap-3 my-6">
-            <div className="flex-1 h-px bg-gray-200" />
-            <span className="text-gray-400 text-[14px]">or</span>
-            <div className="flex-1 h-px bg-gray-200" />
-          </div>
+          {/* SIGN UP WITH PHONE */}
+          <button
+            type="button"
+            onClick={() => router.push("/owner/phone")}
+            className="w-full flex items-center justify-center gap-3 border border-gray-300 rounded-full mb-4"
+            style={{ fontSize: "17px", fontWeight: 500, padding: "13px", color: "#000" }}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="5" y="2" width="14" height="20" rx="2" ry="2" />
+              <line x1="12" y1="18" x2="12" y2="18" strokeWidth="2.5" strokeLinecap="round" />
+            </svg>
+            Sign up with Phone Number
+          </button>
 
           {/* SIGN UP WITH GOOGLE */}
           <button
@@ -130,7 +87,7 @@ export default function StartScreen() {
           {/* ALREADY HAVE AN ACCOUNT */}
           <div
             style={{
-              marginTop: "24px",
+              marginTop: "28px",
               fontSize: "17px",
               textAlign: "center",
               color: "#374151",
