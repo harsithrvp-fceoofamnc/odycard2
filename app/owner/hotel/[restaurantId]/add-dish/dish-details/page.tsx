@@ -292,9 +292,21 @@ export default function DishDetailsPage() {
                   setSubmitError(null);
                   setIsSubmitting(true);
 
+                  const fetchWithRetry = async (url: string, options?: RequestInit, maxAttempts = 4): Promise<Response> => {
+                    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+                      const res = await fetch(url, options);
+                      if (res.status >= 500 && attempt < maxAttempts) {
+                        await new Promise((r) => setTimeout(r, 6000));
+                        continue;
+                      }
+                      return res;
+                    }
+                    throw new Error("Server unreachable");
+                  };
+
                   try {
                     // Resolve hotel_id from slug (multi-tenant: URL is source of truth)
-                    const hotelRes = await fetch(
+                    const hotelRes = await fetchWithRetry(
                       `${API_BASE}/api/hotels/${encodeURIComponent(restaurantId)}`
                     );
                     if (!hotelRes.ok) {
@@ -323,7 +335,7 @@ export default function DishDetailsPage() {
                         ? rawPhoto
                         : null;
 
-                    const postRes = await fetch(`${API_BASE}/api/dishes`, {
+                    const postRes = await fetchWithRetry(`${API_BASE}/api/dishes`, {
                       method: "POST",
                       headers: { "Content-Type": "application/json" },
                       body: JSON.stringify({
