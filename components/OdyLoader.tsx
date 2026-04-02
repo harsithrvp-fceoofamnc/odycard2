@@ -9,11 +9,9 @@ export default function OdyLoader({ progress = 0 }: { progress?: number }) {
           alt="OdyCard Logo"
           className="ody-logo"
         />
-        {progress > 0 && (
-          <p style={{ color: "#fff", fontSize: "16px", fontWeight: 600, letterSpacing: "0.5px" }}>
-            {progress}%
-          </p>
-        )}
+        <p style={{ color: "#fff", fontSize: "16px", fontWeight: 600, letterSpacing: "0.5px" }}>
+          {progress}%
+        </p>
       </div>
     </div>
   );
