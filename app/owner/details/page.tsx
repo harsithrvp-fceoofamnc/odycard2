@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 import ProgressBar from "@/components/ProgressBar";
 import { API_BASE } from "@/lib/api";
 import { useLoader } from "@/context/LoaderContext";
+import { indiaLocations, statesList } from "@/lib/india-locations";
 
 function slugify(s: string): string {
   return s
@@ -259,9 +260,6 @@ export default function RestaurantDetailsPage() {
           {[
             ["Restaurant Name", "restaurantName"],
             ["User Name", "userName"],
-            ["State", "state"],
-            ["City", "city"],
-            ["Restaurant ID", "restaurantId"],
           ].map(([label, name]) => (
             <motion.div key={name} {...fadeUp} className="mb-6">
               <label className="block mb-2 text-[18px] font-semibold text-black">{label}</label>
@@ -272,11 +270,64 @@ export default function RestaurantDetailsPage() {
                 className={inputClass(name)}
                 style={{ fontSize: "18px", padding: "14px 16px" }}
               />
-              {name === "restaurantId" && errors.restaurantId && (
-                <p className="text-red-600 text-sm mt-2">{errors.restaurantId}</p>
-              )}
             </motion.div>
           ))}
+
+          {/* STATE DROPDOWN */}
+          <motion.div {...fadeUp} className="mb-6">
+            <label className="block mb-2 text-[18px] font-semibold text-black">State</label>
+            <select
+              name="state"
+              value={form.state}
+              onChange={(e) => {
+                setForm({ ...form, state: e.target.value, city: "" });
+                setErrors({ general: "", password: "", restaurantId: "", mobile: "" });
+              }}
+              className={`w-full border rounded-xl bg-white text-black focus:outline-none focus:border-black focus:ring-1 focus:ring-black appearance-none ${errors.general && form.state === "" ? "border-red-500" : "border-gray-300"}`}
+              style={{ fontSize: "18px", padding: "14px 16px" }}
+            >
+              <option value="">Select State / UT</option>
+              {statesList.map((s) => (
+                <option key={s} value={s}>{s}</option>
+              ))}
+            </select>
+          </motion.div>
+
+          {/* CITY DROPDOWN */}
+          <motion.div {...fadeUp} className="mb-6">
+            <label className="block mb-2 text-[18px] font-semibold text-black">City</label>
+            <select
+              name="city"
+              value={form.city}
+              onChange={(e) => {
+                setForm({ ...form, city: e.target.value });
+                setErrors({ general: "", password: "", restaurantId: "", mobile: "" });
+              }}
+              disabled={!form.state}
+              className={`w-full border rounded-xl bg-white focus:outline-none focus:border-black focus:ring-1 focus:ring-black appearance-none ${!form.state ? "text-gray-400 cursor-not-allowed" : "text-black"} ${errors.general && form.city === "" ? "border-red-500" : "border-gray-300"}`}
+              style={{ fontSize: "18px", padding: "14px 16px" }}
+            >
+              <option value="">{form.state ? "Select City" : "Select State first"}</option>
+              {form.state && indiaLocations[form.state]?.map((c) => (
+                <option key={c} value={c}>{c}</option>
+              ))}
+            </select>
+          </motion.div>
+
+          {/* RESTAURANT ID */}
+          <motion.div {...fadeUp} className="mb-6">
+            <label className="block mb-2 text-[18px] font-semibold text-black">Restaurant ID</label>
+            <input
+              name="restaurantId"
+              value={form.restaurantId}
+              onChange={handleChange}
+              className={inputClass("restaurantId")}
+              style={{ fontSize: "18px", padding: "14px 16px" }}
+            />
+            {errors.restaurantId && (
+              <p className="text-red-600 text-sm mt-2">{errors.restaurantId}</p>
+            )}
+          </motion.div>
 
           {/* PASSWORD — only for mobile signup */}
           {!isGoogle && (
