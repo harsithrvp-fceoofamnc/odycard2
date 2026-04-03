@@ -28,17 +28,27 @@ export default function SplashPage() {
   }, [router]);
 
   return (
-    <div className="min-h-screen bg-black flex justify-center items-center">
-      {/* PHONE FRAME */}
-      <div className="w-full max-w-md h-screen bg-black flex items-center justify-center overflow-hidden">
-        <img
-          src="/splash.png"
-          alt="Splash"
-          className={`w-full h-full object-cover transition-opacity duration-1000 ${
-            visible ? "opacity-100" : "opacity-0"
-          }`}
-        />
-      </div>
+    <div
+      style={{
+        position: "fixed",
+        inset: 0,
+        background: "#000",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+      }}
+    >
+      <img
+        src="/splash.png"
+        alt="Splash"
+        style={{
+          width: "100%",
+          height: "100%",
+          objectFit: "cover",
+          opacity: visible ? 1 : 0,
+          transition: "opacity 1s",
+        }}
+      />
     </div>
   );
 }
