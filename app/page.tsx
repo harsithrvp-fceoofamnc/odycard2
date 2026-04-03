@@ -42,8 +42,8 @@ export default function SplashPage() {
         src="/logo.png"
         alt="Splash"
         style={{
-          width: "70%",
-          maxWidth: "320px",
+          width: "140%",
+          maxWidth: "640px",
           objectFit: "contain",
           opacity: visible ? 1 : 0,
           transition: "opacity 1s",
