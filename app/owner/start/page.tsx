@@ -22,7 +22,7 @@ export default function StartScreen() {
         <div className="absolute inset-0 bg-[#1c1c1c] z-0" />
 
         {/* LOGO */}
-        <div className="fixed top-0 left-1/2 -translate-x-1/2 w-full max-w-md h-[50vh] flex items-center justify-center z-10">
+        <div className="fixed top-0 left-1/2 -translate-x-1/2 w-full max-w-md h-[40vh] flex items-center justify-center z-10">
           <motion.img
             src="/logo.png"
             alt="OdyCard Logo"
@@ -33,7 +33,7 @@ export default function StartScreen() {
           />
         </div>
 
-        <div className="h-[50vh]" />
+        <div className="h-[40vh]" />
 
         {/* WHITE CARD */}
         <motion.div
@@ -48,7 +48,7 @@ export default function StartScreen() {
               fontSize: "52px",
               fontWeight: 600,
               lineHeight: "1.08",
-              marginBottom: "80px",
+              marginBottom: "40px",
               color: "#000",
             }}
           >
