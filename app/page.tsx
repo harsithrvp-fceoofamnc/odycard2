@@ -42,9 +42,9 @@ export default function SplashPage() {
         src="/splash.png"
         alt="Splash"
         style={{
-          width: "100%",
-          height: "100%",
-          objectFit: "cover",
+          width: "70%",
+          maxWidth: "320px",
+          objectFit: "contain",
           opacity: visible ? 1 : 0,
           transition: "opacity 1s",
         }}
