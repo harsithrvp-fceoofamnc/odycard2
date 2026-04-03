@@ -14,54 +14,62 @@ export default function LoginPage() {
         <div className="absolute inset-0 bg-[#1c1c1c] z-0" />
 
         {/* LOGO */}
-        <div className="fixed top-0 left-1/2 -translate-x-1/2 w-full max-w-md h-[45vh] flex items-center justify-center z-10">
-          <img
+        <div className="fixed top-0 left-1/2 -translate-x-1/2 w-full max-w-md h-[40vh] flex items-center justify-center z-10">
+          <motion.img
             src="/logo.png"
             alt="OdyCard Logo"
-            className="w-[520px] h-[520px] object-contain"
+            className="w-[480px] h-[480px] object-contain"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 1.5 }}
           />
         </div>
 
-        <div className="h-[45vh]" />
+        <div className="h-[40vh]" />
 
         {/* WHITE CARD */}
         <motion.div
-          className="relative z-20 bg-white rounded-t-[36px] px-8 pt-14 pb-24 min-h-screen"
-          initial={{ y: 140, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 1.8, ease: "easeOut" }}
+          className="relative z-20 bg-white rounded-t-[36px] px-8 pt-10 pb-24 min-h-screen"
+          initial={{ y: "60vh" }}
+          animate={{ y: 0 }}
+          transition={{ duration: 2, ease: "easeOut" }}
         >
           {/* BACK ARROW */}
           <button
             type="button"
             onClick={() => router.back()}
-            className="flex items-center gap-1 text-gray-600 mb-8"
+            className="flex items-center gap-1 text-gray-400 mb-6"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <path d="M15 18l-6-6 6-6" />
             </svg>
-            <span className="text-[16px] font-medium">Back</span>
+            <span className="text-[15px] font-medium">Back</span>
           </button>
 
           {/* TITLE */}
           <h1
             style={{
-              fontSize: "52px",
-              fontWeight: 600,
-              textAlign: "center",
-              marginBottom: "48px",
+              fontSize: "48px",
+              fontWeight: 700,
+              lineHeight: "1.1",
               color: "#000",
+              marginBottom: "6px",
             }}
           >
-            Log In
+            Welcome<br />Back
           </h1>
+
+          {/* SUBTITLE */}
+          <p style={{ fontSize: "16px", color: "#9ca3af", marginBottom: "36px", fontWeight: 400 }}>
+            Sign in to manage your restaurant
+          </p>
 
           {/* LOGIN WITH MOBILE */}
           <button
             type="button"
             onClick={() => router.push("/owner/login-mobile")}
             className="w-full flex items-center justify-center gap-3 border border-gray-300 rounded-full mb-4"
-            style={{ fontSize: "17px", fontWeight: 500, padding: "13px", color: "#000" }}
+            style={{ fontSize: "17px", fontWeight: 500, padding: "14px", color: "#000" }}
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <rect x="5" y="2" width="14" height="20" rx="2" ry="2" />
@@ -77,11 +85,11 @@ export default function LoginPage() {
             <div className="flex-1 h-px bg-gray-200" />
           </div>
 
-          {/* SIGN IN WITH GOOGLE */}
+          {/* LOGIN WITH GOOGLE */}
           <button
             type="button"
             className="w-full flex items-center justify-center gap-3 border border-gray-300 rounded-full"
-            style={{ fontSize: "17px", fontWeight: 500, padding: "13px", color: "#000" }}
+            style={{ fontSize: "17px", fontWeight: 500, padding: "14px", color: "#000" }}
           >
             <svg width="22" height="22" viewBox="0 0 48 48">
               <path fill="#4285F4" d="M44.5 20H24v8.5h11.7C34.1 33.1 29.6 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3 0 5.8 1.1 7.9 3l6-6C34.5 6.5 29.5 4.5 24 4.5 12.7 4.5 3.5 13.7 3.5 25S12.7 45.5 24 45.5c11 0 20.5-8 20.5-20.5 0-1.4-.1-2.7-.5-4z"/>
@@ -91,6 +99,18 @@ export default function LoginPage() {
             </svg>
             Login with Google
           </button>
+
+          {/* DON'T HAVE AN ACCOUNT */}
+          <div style={{ marginTop: "28px", fontSize: "16px", textAlign: "center", color: "#6b7280" }}>
+            Don't have an account?{" "}
+            <button
+              type="button"
+              onClick={() => router.push("/owner/start")}
+              style={{ background: "none", border: "none", color: "#2563EB", fontWeight: 600, cursor: "pointer", fontSize: "16px", padding: 0 }}
+            >
+              Sign Up
+            </button>
+          </div>
         </motion.div>
       </div>
     </div>
