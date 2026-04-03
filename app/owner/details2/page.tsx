@@ -556,7 +556,7 @@ export default function DetailsPart2() {
               <button
                 type="button"
                 onClick={() => router.back()}
-                className="px-6 py-2 rounded-md border border-gray-300 text-sm text-gray-700"
+                className="px-8 py-3 rounded-xl border border-gray-300 text-base font-medium text-gray-700"
               >
                 Back
               </button>
@@ -564,7 +564,7 @@ export default function DetailsPart2() {
                 type="button"
                 onClick={handleSubmit}
                 disabled={isSubmitDisabled}
-                className={`px-6 py-2 rounded-md text-sm font-medium disabled:opacity-70 disabled:cursor-not-allowed ${
+                className={`px-8 py-3 rounded-xl text-base font-semibold disabled:opacity-70 disabled:cursor-not-allowed ${
                   isSubmitDisabled ? "bg-gray-200 text-gray-400" : "bg-[#0A84C1] text-white"
                 }`}
               >
@@ -572,8 +572,8 @@ export default function DetailsPart2() {
               </button>
             </div>
             <div className="flex gap-3 min-w-[140px] items-center">
-              <span className="text-xs text-gray-500 whitespace-nowrap">Page 2 of 2</span>
-              <ProgressBar progress={100} className="flex-1 h-[4px]" />
+              <span className="text-sm text-gray-500 whitespace-nowrap">Page 2 of 2</span>
+              <ProgressBar progress={100} className="flex-1 h-[6px]" />
             </div>
           </div>
         </div>

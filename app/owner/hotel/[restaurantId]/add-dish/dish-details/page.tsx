@@ -84,7 +84,7 @@ export default function DishDetailsPage() {
 
         {/* DISH NAME */}
         <div className="mb-5">
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-base font-semibold text-gray-700 mb-1">
             Dish Name *
           </label>
           <input
@@ -92,7 +92,7 @@ export default function DishDetailsPage() {
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="Eg: Paneer Butter Masala"
-            className="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm text-black
+            className="w-full border border-gray-300 rounded-xl px-4 py-3 text-base text-black
                        placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#0A84C1]"
           />
         </div>
@@ -100,13 +100,13 @@ export default function DishDetailsPage() {
         {/* VEG / NON-VEG */}
         {!isDrink && (
           <div className="mb-5">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-base font-semibold text-gray-700 mb-2">
               Veg / Non-Veg *
             </label>
             <div className="flex gap-3">
               <button
                 onClick={() => setVegType("veg")}
-                className={`flex-1 rounded-xl py-3 border text-sm font-medium
+                className={`flex-1 rounded-xl py-3 border text-base font-medium
                   flex items-center justify-center gap-2
                   ${
                     vegType === "veg"
@@ -120,7 +120,7 @@ export default function DishDetailsPage() {
 
               <button
                 onClick={() => setVegType("nonveg")}
-                className={`flex-1 rounded-xl py-3 border text-sm font-medium
+                className={`flex-1 rounded-xl py-3 border text-base font-medium
                   flex items-center justify-center gap-2
                   ${
                     vegType === "nonveg"
@@ -137,7 +137,7 @@ export default function DishDetailsPage() {
 
         {/* PRICE */}
         <div className="mb-5">
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-base font-semibold text-gray-700 mb-1">
             Price (₹) *
           </label>
           <div className="relative">
@@ -150,7 +150,7 @@ export default function DishDetailsPage() {
                 setPrice(value);
               }}
               placeholder=""
-              className="w-full border border-gray-300 rounded-xl pl-8 pr-4 py-3 text-sm text-black
+              className="w-full border border-gray-300 rounded-xl pl-8 pr-4 py-3 text-base text-black
                          placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#0A84C1]"
               style={{
                 WebkitAppearance: "none",
@@ -162,7 +162,7 @@ export default function DishDetailsPage() {
 
         {/* QUANTITY */}
         <div className="mb-5">
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-base font-semibold text-gray-700 mb-1">
             Quantity
           </label>
           <input
@@ -170,14 +170,14 @@ export default function DishDetailsPage() {
             value={quantity}
             onChange={(e) => setQuantity(e.target.value)}
             placeholder="Eg: Full / 250ml / 2 pcs"
-            className="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm text-black
+            className="w-full border border-gray-300 rounded-xl px-4 py-3 text-base text-black
                        placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#0A84C1]"
           />
         </div>
 
         {/* DESCRIPTION */}
         <div className="mb-5">
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-base font-semibold text-gray-700 mb-1">
             Description
           </label>
           <textarea
@@ -185,14 +185,14 @@ export default function DishDetailsPage() {
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             placeholder="Short description about the dish"
-            className="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm text-black
+            className="w-full border border-gray-300 rounded-xl px-4 py-3 text-base text-black
                        placeholder-gray-400 resize-none focus:outline-none focus:ring-2 focus:ring-[#0A84C1]"
           />
         </div>
 
         {/* DISH TIMING — FROM / TO (30 MIN GAP) */}
         <div className="mb-12">
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-base font-semibold text-gray-700 mb-2">
             Dish Timing
           </label>
 
@@ -273,8 +273,8 @@ export default function DishDetailsPage() {
               <button
                 type="button"
                 onClick={() => router.back()}
-                className="px-6 py-2 rounded-md border border-gray-300
-                           text-sm text-gray-700"
+                className="px-8 py-3 rounded-xl border border-gray-300
+                           text-base font-medium text-gray-700"
               >
                 Back
               </button>
@@ -374,7 +374,7 @@ export default function DishDetailsPage() {
                     setIsSubmitting(false);
                   }
                 }}
-                className={`px-6 py-2 rounded-md text-sm font-medium disabled:opacity-70
+                className={`px-8 py-3 rounded-xl text-base font-semibold disabled:opacity-70
                   ${
                     canProceed && !isSubmitting
                       ? "bg-[#0A84C1] text-white"
@@ -386,12 +386,12 @@ export default function DishDetailsPage() {
             </div>
 
             <div className="flex items-center gap-3 min-w-[140px]">
-              <span className="text-xs text-gray-500 whitespace-nowrap">
+              <span className="text-sm text-gray-500 whitespace-nowrap">
                 Page {CURRENT_PAGE} of {TOTAL_PAGES}
               </span>
               <ProgressBar
                 progress={computedProgress}
-                className="flex-1 h-[4px]"
+                className="flex-1 h-[6px]"
               />
             </div>
 

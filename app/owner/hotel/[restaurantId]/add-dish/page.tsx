@@ -131,7 +131,7 @@ export default function AddDishPage() {
             <button
               type="button"
               onClick={handleNext}
-              className={`px-6 py-2 rounded-md text-sm font-medium transition
+              className={`px-8 py-3 rounded-xl text-base font-semibold transition
                 ${
                   selectedType
                     ? "bg-[#0A84C1] text-white"
@@ -143,11 +143,11 @@ export default function AddDishPage() {
 
             {/* PROGRESS (RIGHT) */}
             <div className="flex items-center gap-3 min-w-[140px]">
-              <span className="text-xs text-gray-500 whitespace-nowrap">
+              <span className="text-sm text-gray-500 whitespace-nowrap">
                 Page {CURRENT_PAGE} of {TOTAL_PAGES}
               </span>
 
-              <div className="flex-1 h-[4px] bg-gray-200 rounded-full overflow-hidden">
+              <div className="flex-1 h-[6px] bg-gray-200 rounded-full overflow-hidden">
                 <div
                   className="h-full rounded-full transition-all duration-300"
                   style={{
