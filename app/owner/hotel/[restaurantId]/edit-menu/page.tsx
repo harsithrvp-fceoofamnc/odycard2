@@ -141,6 +141,22 @@
           return () => { cancelled = true; };
         }, [restaurantId]);
 
+        // Reload just the dishes list (called after hide/delete)
+        const reloadDishes = async () => {
+          if (!restaurantId) return;
+          try {
+            const hotelRes = await fetch(`${API_BASE}/api/hotels/${encodeURIComponent(restaurantId)}`);
+            if (!hotelRes.ok) return;
+            const hotel = await hotelRes.json();
+            const dishesRes = await fetch(`${API_BASE}/api/dishes?hotel_id=${encodeURIComponent(hotel.id)}`);
+            if (!dishesRes.ok) return;
+            const rows = await dishesRes.json();
+            setDishes(rows.map(mapDishFromApi));
+          } catch {
+            // ignore
+          }
+        };
+
         const handleScroll = () => {
           if (!containerRef.current) return;
           const { scrollLeft, clientWidth } = containerRef.current;
@@ -281,7 +297,7 @@
                   {dishes.length > 0 && (
                     <div className="mb-8">
                       {dishes.map((dish) => (
-                        <EditMenuDishBlock key={dish.id} dish={dish} restaurantId={restaurantId} />
+                        <EditMenuDishBlock key={dish.id} dish={dish} restaurantId={restaurantId} onRefresh={reloadDishes} />
                       ))}
                     </div>
                   )}
