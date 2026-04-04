@@ -56,8 +56,12 @@
         const containerRef = useRef<HTMLDivElement>(null);
 
         const [activeTab, setActiveTab] = useState(0);
-        const [logo, setLogo] = useState("");
-        const [cover, setCover] = useState("");
+        const [logo, setLogo] = useState(() =>
+          typeof window !== "undefined" ? localStorage.getItem("cached_logo_url") || "" : ""
+        );
+        const [cover, setCover] = useState(() =>
+          typeof window !== "undefined" ? localStorage.getItem("cached_cover_url") || "" : ""
+        );
         const [dishes, setDishes] = useState<DishForBlock[]>([]);
         const [loadError, setLoadError] = useState<string | null>(null);
         const [isLoading, setIsLoading] = useState(true);

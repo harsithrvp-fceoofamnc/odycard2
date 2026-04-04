@@ -96,7 +96,7 @@ export default function EditCoverPage() {
     let cancelled = false;
     (async () => {
       try {
-        const res = await fetch(`${API_BASE}/api/hotels/${encodeURIComponent(slug)}`);
+        const res = await fetch(`${API_BASE}/api/hotels/${encodeURIComponent(slug)}?full=true`);
         if (!res.ok) return;
         const hotel = await res.json();
         if (cancelled) return;
