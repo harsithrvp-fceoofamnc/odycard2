@@ -1118,13 +1118,13 @@ export default function HotelHomePage() {
             <div className="absolute top-6 sm:top-8 left-0 w-full z-40">
 
               <div className="px-4 sm:px-6">
-              <div className="w-full h-10 sm:h-11 rounded-full bg-white flex items-center px-3 sm:px-4 shadow-md gap-2 sm:gap-3">
-  <img src="/search.png" className="w-4 h-4 sm:w-5 sm:h-5 opacity-60" alt="" />
+              <div className="w-full h-13 sm:h-14 rounded-full bg-white flex items-center px-4 sm:px-5 shadow-md gap-3">
+  <img src="/search.png" className="w-5 h-5 sm:w-6 sm:h-6 opacity-60" alt="" />
   <input
     value={search}
     onChange={(e) => setSearch(e.target.value)}
     placeholder={`Search in ${restaurantName || "this restaurant"}`}
-    className="flex-1 bg-transparent outline-none text-xs sm:text-sm text-black placeholder-gray-400 min-w-0"
+    className="flex-1 bg-transparent outline-none text-base sm:text-lg text-black placeholder-gray-400 min-w-0"
   />
 </div>
 
