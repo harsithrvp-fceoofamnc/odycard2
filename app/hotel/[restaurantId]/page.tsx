@@ -647,12 +647,11 @@ export default function HotelHomePage() {
       if (!menuChanged(newDishes)) return;
 
       setIsRefreshing(true);
+      // Let the spinning logo show for 1.5s so it's clearly visible
+      await new Promise((r) => setTimeout(r, 1500));
       prevDishIdsRef.current = new Set(newDishes.map((d) => d.id));
       setDishes(newDishes);
       setDishesLoadError(null);
-
-      // Brief visible overlay, then fade out
-      await new Promise((r) => setTimeout(r, 300));
       setIsRefreshing(false);
     };
 
@@ -928,17 +927,19 @@ export default function HotelHomePage() {
     <div className="min-h-screen bg-black flex justify-center">
       <div className="relative w-full max-w-md min-h-screen bg-[#1c1c1c] overflow-visible">
 
-        {/* 🔥 REFRESH OVERLAY — smooth fade, non-blocking (pointer-events-none) */}
+        {/* 🔥 REFRESH OVERLAY — full screen spinning logo */}
         <div
-          className={`fixed inset-0 left-1/2 -translate-x-1/2 w-full max-w-md z-[500] flex items-center justify-center bg-black/50 backdrop-blur-sm transition-opacity duration-300 pointer-events-none ${
-            isRefreshing ? "opacity-100" : "opacity-0"
+          className={`fixed inset-0 left-1/2 -translate-x-1/2 w-full max-w-md z-[990] flex items-center justify-center bg-black transition-opacity duration-500 ${
+            isRefreshing ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
           }`}
           aria-hidden={!isRefreshing}
         >
-          <div className="flex flex-col items-center gap-3 px-6 py-4 rounded-2xl bg-black/70 text-white">
-            <div className="w-8 h-8 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-            <span className="text-sm font-medium">Updating menu...</span>
-          </div>
+          <img
+            src="/logo.png"
+            alt="Loading"
+            className="w-36 h-36 object-contain animate-spin"
+            style={{ animationDuration: "1.2s" }}
+          />
         </div>
 
         {/* 🔥 TOP TASK BAR */}
