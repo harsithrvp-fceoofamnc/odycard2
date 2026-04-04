@@ -943,7 +943,7 @@ export default function HotelHomePage() {
 
         {/* 🔥 TOP TASK BAR */}
         <div className="fixed top-0 left-1/2 -translate-x-1/2 w-full max-w-md z-[999]">
-          <div className="h-11 sm:h-12 pl-3 pr-2 sm:pl-4 flex items-center justify-between bg-black/60 backdrop-blur-md">
+          <div className="h-12 sm:h-14 pl-4 pr-2 sm:pl-5 flex items-center justify-between bg-black/60 backdrop-blur-md">
 
             {!user ? (
               <button
@@ -951,21 +951,21 @@ export default function HotelHomePage() {
                   setMode("register");
                   setShowPopup(true);
                 }}
-                className="text-white text-sm sm:text-base font-medium"
+                className="text-white text-base sm:text-lg font-semibold"
               >
                 Register
               </button>
             ) : (
               <button
                 onClick={() => setShowProfile(true)}
-                className="flex items-center gap-1.5 sm:gap-2 text-white text-sm sm:text-base font-medium max-w-36 sm:max-w-44 truncate"
+                className="flex items-center gap-1.5 sm:gap-2 text-white text-base sm:text-lg font-semibold max-w-36 sm:max-w-44 truncate"
               >
-                <img src="/User.png" className="w-6 h-6 sm:w-7 sm:h-7 rounded-full invert" alt="" />
+                <img src="/User.png" className="w-7 h-7 sm:w-8 sm:h-8 rounded-full invert" alt="" />
                 <span className="truncate">Hi, {getDisplayName()}</span>
               </button>
             )}
 
-            <img src="/logo.png" className="w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 object-contain" alt="" />
+            <img src="/logo.png" className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 object-contain" alt="" />
           </div>
         </div>
 
@@ -989,12 +989,12 @@ export default function HotelHomePage() {
           </div>
 
           <div className="absolute bottom-0 left-1/2 -translate-x-1/2 z-30 w-full px-4 flex justify-center">
-            <div className="flex gap-2 px-2 py-2 rounded-full bg-black/60 backdrop-blur-md border border-white/10">
+            <div className="flex gap-2 px-3 py-2.5 rounded-full bg-black/60 backdrop-blur-md border border-white/10">
               {tabs.map((tab, index) => (
                 <button
                   key={tab}
                   onClick={() => goToTab(index)}
-                  className={`px-3 py-1 sm:px-4 sm:py-1.5 rounded-full whitespace-nowrap text-xs sm:text-sm font-medium transition ${
+                  className={`px-4 py-1.5 sm:px-5 sm:py-2 rounded-full whitespace-nowrap text-sm sm:text-base font-medium transition ${
                     activeTab === index
                       ? "bg-white text-black shadow-md"
                       : "text-white/80 hover:text-white"
@@ -1247,9 +1247,9 @@ export default function HotelHomePage() {
         {/* 🔥 ASK ODY - positioned within mobile frame */}
         <div className="fixed bottom-4 sm:bottom-6 left-1/2 -translate-x-1/2 w-full max-w-md px-3 sm:px-4 z-50 flex justify-end pointer-events-none">
           <div className="pointer-events-auto">
-            <button className="flex items-center gap-2 sm:gap-3 bg-black/70 backdrop-blur-md text-white px-3 py-2.5 sm:px-4 sm:py-3 rounded-full shadow-lg border border-white/10">
-              <img src="/ody-face.png" className="w-6 h-6 sm:w-8 sm:h-8 rounded-full" alt="Ody" />
-              <span className="text-xs sm:text-sm font-medium">Ask Ody</span>
+            <button className="flex items-center gap-2 sm:gap-3 bg-black/70 backdrop-blur-md text-white px-4 py-3 sm:px-5 sm:py-3.5 rounded-full shadow-lg border border-white/10">
+              <img src="/ody-face.png" className="w-8 h-8 sm:w-10 sm:h-10 rounded-full" alt="Ody" />
+              <span className="text-sm sm:text-base font-medium">Ask Ody</span>
             </button>
           </div>
         </div>
