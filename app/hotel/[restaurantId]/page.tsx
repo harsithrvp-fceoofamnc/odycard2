@@ -1021,7 +1021,7 @@ export default function HotelHomePage() {
                 <p className="text-white/70 text-lg sm:text-xl font-medium">{dishesLoadError}</p>
               </div>
             ) : dishes.length === 0 ? (
-              <div className="min-h-screen flex flex-col items-center justify-center">
+              <div className="flex flex-col items-center justify-start pt-16 sm:pt-20">
                 <p className="text-white/70 text-lg sm:text-xl font-medium">Coming soon</p>
               </div>
             ) : (
@@ -1187,7 +1187,7 @@ export default function HotelHomePage() {
                 </div>
               </div>
             ) : eatLater.length === 0 ? (
-              <div className="min-h-screen flex flex-col items-center justify-center px-4">
+              <div className="flex flex-col items-center justify-start pt-16 sm:pt-20 px-4">
                 <p className="text-white/70 text-lg sm:text-xl text-center">Your Eat Later list is empty</p>
               </div>
             ) : (
@@ -1229,7 +1229,7 @@ export default function HotelHomePage() {
                 </div>
               </div>
             ) : favorites.length === 0 ? (
-              <div className="min-h-screen flex flex-col items-center justify-center px-4">
+              <div className="flex flex-col items-center justify-start pt-16 sm:pt-20 px-4">
                 <p className="text-white/70 text-lg sm:text-xl text-center">Your Favorites list is empty</p>
               </div>
             ) : (
