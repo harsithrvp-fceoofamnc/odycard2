@@ -15,9 +15,16 @@ const createImage = (url: string): Promise<HTMLImageElement> =>
 
 async function getCroppedImg(imageSrc: string, crop: any) {
   const image = await createImage(imageSrc);
+
+  // Cap output to 600px for logos — more than enough quality
+  const MAX_SIZE = 600;
+  const scale = crop.width > MAX_SIZE ? MAX_SIZE / crop.width : 1;
+  const outW = Math.round(crop.width * scale);
+  const outH = Math.round(crop.height * scale);
+
   const canvas = document.createElement("canvas");
-  canvas.width = crop.width;
-  canvas.height = crop.height;
+  canvas.width = outW;
+  canvas.height = outH;
   const ctx = canvas.getContext("2d");
   if (!ctx) return null;
 
@@ -29,11 +36,12 @@ async function getCroppedImg(imageSrc: string, crop: any) {
     crop.height,
     0,
     0,
-    crop.width,
-    crop.height
+    outW,
+    outH
   );
 
-  return canvas.toDataURL("image/png");
+  // JPEG at 0.75 quality — ~5-10x smaller than PNG
+  return canvas.toDataURL("image/jpeg", 0.75);
 }
 
 export default function EditLogoPage() {

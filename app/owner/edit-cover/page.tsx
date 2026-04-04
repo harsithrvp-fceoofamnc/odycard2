@@ -24,9 +24,16 @@ function fileToBase64(file: File): Promise<string> {
 
 async function getCroppedImg(imageSrc: string, crop: any) {
   const image = await createImage(imageSrc);
+
+  // Cap output resolution to 1200px wide max to keep file size small
+  const MAX_WIDTH = 1200;
+  const scale = crop.width > MAX_WIDTH ? MAX_WIDTH / crop.width : 1;
+  const outW = Math.round(crop.width * scale);
+  const outH = Math.round(crop.height * scale);
+
   const canvas = document.createElement("canvas");
-  canvas.width = crop.width;
-  canvas.height = crop.height;
+  canvas.width = outW;
+  canvas.height = outH;
   const ctx = canvas.getContext("2d");
   if (!ctx) return null;
 
@@ -38,11 +45,27 @@ async function getCroppedImg(imageSrc: string, crop: any) {
     crop.height,
     0,
     0,
-    crop.width,
-    crop.height
+    outW,
+    outH
   );
 
-  return canvas.toDataURL("image/png");
+  // JPEG at 0.75 quality — ~5-10x smaller than PNG
+  return canvas.toDataURL("image/jpeg", 0.75);
+}
+
+// Resize + compress raw upload before storing as cover_original_url
+async function compressImage(base64: string, maxWidth = 1600): Promise<string> {
+  const image = await createImage(base64);
+  const scale = image.width > maxWidth ? maxWidth / image.width : 1;
+  const w = Math.round(image.width * scale);
+  const h = Math.round(image.height * scale);
+  const canvas = document.createElement("canvas");
+  canvas.width = w;
+  canvas.height = h;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return base64;
+  ctx.drawImage(image, 0, 0, w, h);
+  return canvas.toDataURL("image/jpeg", 0.75);
 }
 
 export default function EditCoverPage() {
@@ -109,7 +132,8 @@ export default function EditCoverPage() {
     if (!file.type.startsWith("image/")) return;
 
     const src = URL.createObjectURL(file);
-    const base64 = await fileToBase64(file);
+    const rawBase64 = await fileToBase64(file);
+    const base64 = await compressImage(rawBase64); // compress before storing
 
     setNewFileBase64(base64); // will PATCH both cover_original_url and cover_url on Submit
     setImageSrc(src);
