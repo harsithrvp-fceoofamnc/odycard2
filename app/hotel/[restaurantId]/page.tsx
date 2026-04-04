@@ -989,12 +989,12 @@ export default function HotelHomePage() {
           </div>
 
           <div className="absolute bottom-0 left-1/2 -translate-x-1/2 z-30 w-full px-4 flex justify-center">
-            <div className="flex gap-2 px-3 py-2.5 rounded-full bg-black/60 backdrop-blur-md border border-white/10">
+            <div className="flex gap-1 px-2 py-1.5 rounded-md bg-black/60 backdrop-blur-md border border-white/10">
               {tabs.map((tab, index) => (
                 <button
                   key={tab}
                   onClick={() => goToTab(index)}
-                  className={`px-4 py-1.5 sm:px-5 sm:py-2 rounded-full whitespace-nowrap text-sm sm:text-base font-medium transition ${
+                  className={`px-3 py-1 rounded-full whitespace-nowrap text-xs font-medium transition ${
                     activeTab === index
                       ? "bg-white text-black shadow-md"
                       : "text-white/80 hover:text-white"
