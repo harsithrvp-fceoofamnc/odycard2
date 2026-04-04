@@ -337,8 +337,7 @@ export default function VisualsPage() {
               <button
                 type="button"
                 onClick={() => router.back()}
-                className="px-6 py-2 rounded-md border border-gray-300
-                           text-sm text-gray-700"
+                className="px-8 py-3 rounded-xl border border-gray-300 text-base text-gray-700 font-medium"
               >
                 Back
               </button>
@@ -348,7 +347,7 @@ export default function VisualsPage() {
                 type="button"
                 onClick={handleNext}
                 disabled={!canProceed}
-                className={`px-6 py-2 rounded-md text-sm font-medium disabled:opacity-70 disabled:cursor-not-allowed ${
+                className={`px-8 py-3 rounded-xl text-base font-semibold disabled:opacity-70 disabled:cursor-not-allowed ${
                   canProceed ? "bg-[#0A84C1] text-white" : "bg-gray-200 text-gray-400"
                 }`}
               >
@@ -361,7 +360,7 @@ export default function VisualsPage() {
               <span className="text-xs text-gray-500 whitespace-nowrap">
                 Page 2 of 3
               </span>
-              <ProgressBar progress={computedProgress} className="flex-1 h-[4px]" />
+              <ProgressBar progress={computedProgress} className="flex-1 h-[6px]" />
             </div>
 
           </div>
