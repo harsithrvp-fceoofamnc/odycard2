@@ -1148,12 +1148,11 @@ export default function HotelHomePage() {
               </div>
             </div>
 
-            <div className="w-full bg-[#DADDE4] rounded-t-3xl sm:rounded-t-[36px] pt-16 sm:pt-20 px-4 sm:px-6 min-h-screen mt-32 sm:mt-36">
-              <div className="flex flex-col gap-8 sm:gap-12 mt-4 sm:mt-6 items-center justify-start">
+            <div className="w-full bg-[#DADDE4] rounded-t-3xl sm:rounded-t-[36px] pt-8 sm:pt-10 px-4 sm:px-6 min-h-screen mt-32 sm:mt-36">
+              <div className="flex flex-col gap-4 mt-2 items-center justify-start">
                 <p className="text-gray-600 text-lg sm:text-xl font-medium text-center">
                   Coming soon
                 </p>
-                <div className="min-h-96" />
               </div>
             </div>
           </div>
@@ -1161,7 +1160,7 @@ export default function HotelHomePage() {
           {/* EAT LATER */}
           <div className="min-w-full snap-center snap-always px-4 pt-6 sm:px-6 sm:pt-8 overflow-y-auto min-h-screen pb-10 sm:pb-12">
             {!user ? (
-              <div className="min-h-screen flex flex-col items-center justify-center gap-4 sm:gap-5 px-4">
+              <div className="flex flex-col items-center justify-start gap-4 sm:gap-5 px-4 pt-16 sm:pt-20">
                 <img src="/User.png" className="w-16 h-16 sm:w-20 sm:h-20 opacity-90 invert" alt="" />
                 <p className="text-white/70 text-center text-sm sm:text-base">
                   Register or Log in to use Eat Later
@@ -1203,7 +1202,7 @@ export default function HotelHomePage() {
           {/* FAVORITES */}
           <div className="min-w-full snap-center snap-always px-4 pt-6 sm:px-6 sm:pt-8 overflow-y-auto min-h-screen pb-10 sm:pb-12">
             {!user ? (
-              <div className="min-h-screen flex flex-col items-center justify-center gap-4 sm:gap-5 px-4">
+              <div className="flex flex-col items-center justify-start gap-4 sm:gap-5 px-4 pt-16 sm:pt-20">
                 <img src="/User.png" className="w-16 h-16 sm:w-20 sm:h-20 opacity-90 invert" alt="" />
                 <p className="text-white/70 text-center text-sm sm:text-base">
                   Register or Log in to save Favorites
