@@ -139,6 +139,9 @@ export default function EditLogoPage() {
         body: JSON.stringify({ logo_url: croppedImage }),
       });
       if (!res.ok) throw new Error("Failed to save logo");
+      // Update cache with new logo so dashboard shows it instantly
+      if (croppedImage) localStorage.setItem("cached_logo_url", croppedImage);
+      else localStorage.removeItem("cached_logo_url");
       window.location.href = "/owner/dashboard";
     } catch {
       setError("Failed to save. Try again.");

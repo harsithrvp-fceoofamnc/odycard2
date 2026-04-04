@@ -198,6 +198,9 @@ export default function EditCoverPage() {
         body: JSON.stringify(body),
       });
       if (!res.ok) throw new Error("Failed to save cover");
+      // Update cache with new cover so dashboard shows it instantly
+      if (croppedCover) localStorage.setItem("cached_cover_url", croppedCover);
+      else localStorage.removeItem("cached_cover_url");
       setCroppedCover("");
       window.location.href = "/owner/dashboard";
     } catch {

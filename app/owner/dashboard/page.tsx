@@ -11,8 +11,13 @@ export default function OwnerDashboard() {
   const { hideLoader } = useLoader();
 
   const [userName, setUserName] = useState("");
-  const [restaurantLogo, setRestaurantLogo] = useState("");
-  const [restaurantCover, setRestaurantCover] = useState("");
+  // Load cached images instantly so there's no blank flash on every navigation
+  const [restaurantLogo, setRestaurantLogo] = useState(() =>
+    typeof window !== "undefined" ? localStorage.getItem("cached_logo_url") || "" : ""
+  );
+  const [restaurantCover, setRestaurantCover] = useState(() =>
+    typeof window !== "undefined" ? localStorage.getItem("cached_cover_url") || "" : ""
+  );
   const [restaurantId, setRestaurantId] = useState<string | null>(null);
   const [hotelId, setHotelId] = useState<string | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -57,8 +62,16 @@ export default function OwnerDashboard() {
 
         setRestaurantId(hotel.slug);
         setHotelId(String(hotel.id));
-        setRestaurantLogo(hotel.logo_url || "");
-        setRestaurantCover(hotel.cover_url || "");
+
+        // Update state + cache so next navigation is instant
+        if (hotel.logo_url) {
+          setRestaurantLogo(hotel.logo_url);
+          localStorage.setItem("cached_logo_url", hotel.logo_url);
+        }
+        if (hotel.cover_url) {
+          setRestaurantCover(hotel.cover_url);
+          localStorage.setItem("cached_cover_url", hotel.cover_url);
+        }
         setLoadError(null);
 
         // load stats using numeric hotel id
