@@ -1403,26 +1403,6 @@ export default function HotelHomePage() {
           </div>
         )}
 
-        {/* ⭐ FLOATING RATE BUTTON */}
-        {hotelId && !ratingSubmitted && (
-          <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[900]">
-            <button
-              onClick={() => setShowRatingModal(true)}
-              className="flex items-center gap-2 px-5 py-3 rounded-full bg-[#0A84C1] text-white font-semibold text-sm shadow-xl"
-            >
-              <span className="text-lg">⭐</span> Rate this restaurant
-            </button>
-          </div>
-        )}
-
-        {/* ✅ RATING SUCCESS BADGE */}
-        {ratingSubmitted && (
-          <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[900]">
-            <div className="flex items-center gap-2 px-5 py-3 rounded-full bg-green-600 text-white font-semibold text-sm shadow-xl">
-              <span>✅</span> Thank you for your rating!
-            </div>
-          </div>
-        )}
 
         {/* ⭐ RATING MODAL */}
         {showRatingModal && hotelId && (

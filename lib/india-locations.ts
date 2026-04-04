@@ -170,7 +170,7 @@ export const indiaLocations: Record<string, string[]> = {
     "Kanniyakumari", "Karaikudi", "Karur", "Krishnagiri", "Kumbakonam",
     "Lalgudi", "Madurai", "Mayiladuthurai", "Mettur", "Nagapattinam",
     "Nagercoil", "Namakkal", "Ooty", "Pallavaram", "Palani",
-    "Pattukkottai", "Perambalur", "Pollachi", "Pudukkottai", "Pudukkottai",
+    "Pattukkottai", "Perambalur", "Pollachi", "Pudukkottai",
     "Puducherry", "Rajapalayam", "Ramanathapuram", "Ranipet",
     "Salem", "Sivaganga", "Sivakasi", "Tambaram", "Thanjavur",
     "Theni", "Thoothukudi", "Tiruchirappalli", "Tirunelveli",
