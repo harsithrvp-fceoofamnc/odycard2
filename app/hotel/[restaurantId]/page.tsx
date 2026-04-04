@@ -943,7 +943,7 @@ export default function HotelHomePage() {
 
         {/* 🔥 TOP TASK BAR */}
         <div className="fixed top-0 left-1/2 -translate-x-1/2 w-full max-w-md z-[999]">
-          <div className="h-16 sm:h-18 pl-4 pr-2 sm:pl-5 flex items-center justify-between bg-black/60 backdrop-blur-md">
+          <div className="h-12 sm:h-14 pl-4 pr-2 sm:pl-5 flex items-center justify-between bg-black/60 backdrop-blur-md">
 
             {!user ? (
               <button
@@ -965,7 +965,7 @@ export default function HotelHomePage() {
               </button>
             )}
 
-            <img src="/logo.png" className="h-14 sm:h-16 w-auto object-contain" alt="" />
+            <img src="/logo.png" className="w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 object-contain" alt="" />
           </div>
         </div>
 
