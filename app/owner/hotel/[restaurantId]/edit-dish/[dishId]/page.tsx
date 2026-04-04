@@ -69,7 +69,7 @@ export default function EditDishPage() {
   const [timingTo, setTimingTo] = useState("22:00");
 
   // Photo
-  const [photoUrl, setPhotoUrl] = useState("");
+  const [photoUrl, setPhotoUrl] = useState<string | null>(null);
   const [newPhotoSrc, setNewPhotoSrc] = useState<string | null>(null);
   const [showCrop, setShowCrop] = useState(false);
   const [crop, setCrop] = useState({ x: 0, y: 0 });
@@ -90,7 +90,7 @@ export default function EditDishPage() {
         setDescription(d.description || "");
         setTimingFrom(d.timing_from || "09:00");
         setTimingTo(d.timing_to || "22:00");
-        setPhotoUrl(d.photo_url || "/food_item_logo.png");
+        setPhotoUrl(d.photo_url || null);
         setVideoUrl(d.video_url || "");
         setLoading(false);
       })
@@ -138,7 +138,7 @@ export default function EditDishPage() {
           description: description.trim() || null,
           timing_from: timingFrom,
           timing_to: timingTo,
-          photo_url: photoUrl,
+          photo_url: photoUrl || null,
           video_url: videoUrl.trim() || null,
         }),
       });
@@ -174,7 +174,7 @@ export default function EditDishPage() {
         <div className="px-6 mb-6">
           <p className="text-sm font-semibold text-gray-700 mb-2">Photo</p>
           <div className="relative w-full h-52 rounded-2xl overflow-hidden bg-[#E5E7EB]">
-            <img src={photoUrl} alt="Dish" className="w-full h-full object-cover" />
+            {photoUrl && <img src={photoUrl} alt="Dish" className="w-full h-full object-cover" />}
             <label className="absolute inset-0 flex items-end justify-center pb-4 cursor-pointer">
               <span className="bg-black/60 text-white text-xs font-medium px-4 py-1.5 rounded-full">
                 Change Photo
