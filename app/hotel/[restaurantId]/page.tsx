@@ -426,7 +426,9 @@ export default function HotelHomePage() {
   const [dishes, setDishes] = useState<OdyDish[]>([]);
   const [hotelId, setHotelId] = useState<string | null>(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  // Stores a signature of each dish so edits, hides and deletes all trigger the buffer
   const prevDishIdsRef = useRef<Set<string>>(new Set());
+  const prevDishSigRef = useRef<string>("");
   const isFetchingRef = useRef(false);
   const [favorites, setFavorites] = useState<OdyDish[]>([]);
   const [eatLater, setEatLater] = useState<OdyDish[]>([]);
@@ -578,14 +580,16 @@ export default function HotelHomePage() {
     }
   }, []);
 
-  /** Detect if menu changed: count or new dish IDs. */
+  /** Build a string signature of all dishes — catches adds, deletes, hides AND edits */
+  const buildSig = (dishes: OdyDish[]) =>
+    dishes.map(d =>
+      `${d.id}|${d.name}|${d.price}|${d.description ?? ""}|${d.quantity ?? ""}|${d.photoUrl}|${d.videoUrl ?? ""}`
+    ).sort().join(";;");
+
+  /** Detect if menu changed: any add, delete, hide or edit triggers this */
   const menuChanged = useCallback((newDishes: OdyDish[]): boolean => {
-    const prev = prevDishIdsRef.current;
-    if (newDishes.length !== prev.size) return true;
-    for (const d of newDishes) {
-      if (!prev.has(d.id)) return true;
-    }
-    return false;
+    const newSig = buildSig(newDishes);
+    return newSig !== prevDishSigRef.current;
   }, []);
 
   // Initial load: hotel + dishes
@@ -622,6 +626,7 @@ export default function HotelHomePage() {
         setDishes(newDishes);
         setDishesLoadError(null);
         prevDishIdsRef.current = new Set(newDishes.map((d) => d.id));
+        prevDishSigRef.current = buildSig(newDishes);
       } catch (err) {
         if (!cancelled) {
           console.error("Load hotel/dishes error:", err);
@@ -650,6 +655,7 @@ export default function HotelHomePage() {
       // Let the spinning logo show for 1.5s so it's clearly visible
       await new Promise((r) => setTimeout(r, 1500));
       prevDishIdsRef.current = new Set(newDishes.map((d) => d.id));
+      prevDishSigRef.current = buildSig(newDishes);
       setDishes(newDishes);
       setDishesLoadError(null);
       setIsRefreshing(false);
