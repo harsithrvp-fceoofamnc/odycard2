@@ -1,16 +1,5 @@
 @import "tailwindcss";
 
-@theme {
-  --animate-ody-spin: odySpinPause 2.6s cubic-bezier(0.4, 0, 0.2, 1) infinite;
-
-  @keyframes odySpinPause {
-    0%     { transform: rotate(0deg); }
-    30.77% { transform: rotate(360deg); }
-    61.54% { transform: rotate(720deg); }
-    100%   { transform: rotate(720deg); }
-  }
-}
-
 /* ===== GLOBAL THEME ===== */
 :root {
   --background: #000000;

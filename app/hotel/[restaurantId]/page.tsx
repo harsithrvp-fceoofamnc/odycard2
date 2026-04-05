@@ -3,7 +3,6 @@
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState } from "react";
 import { useParams } from "next/navigation";
 import RatingModal from "@/components/RatingModal";
-import { useLoader } from "@/context/LoaderContext";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5050";
 
@@ -417,7 +416,7 @@ function mapDishFromApi(row: {
 export default function HotelHomePage() {
   const params = useParams();
   const restaurantId = params?.restaurantId as string | undefined;
-  const { showLoader, hideLoader } = useLoader();
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   const [activeTab, setActiveTab] = useState(0);
   const [logo, setLogo] = useState("");
@@ -653,14 +652,13 @@ export default function HotelHomePage() {
 
       if (!menuChanged(newDishes)) return;
 
-      // Use the same root-level OdyCard loader as the owner registration flow
-      showLoader();
-      await new Promise((r) => setTimeout(r, 2600));
+      setIsRefreshing(true);
+      await new Promise((r) => setTimeout(r, 1500));
       prevDishIdsRef.current = new Set(newDishes.map((d) => d.id));
       prevDishSigRef.current = buildSig(newDishes);
       setDishes(newDishes);
       setDishesLoadError(null);
-      hideLoader();
+      setIsRefreshing(false);
     };
 
     const interval = setInterval(poll, 4000);
@@ -934,6 +932,13 @@ export default function HotelHomePage() {
   return (
     <div className="min-h-screen bg-black flex justify-center">
       <div className="relative w-full max-w-md min-h-screen bg-[#1c1c1c] overflow-visible">
+
+        {/* MENU UPDATE OVERLAY */}
+        {isRefreshing && (
+          <div style={{ position: "fixed", inset: 0, zIndex: 99999, background: "rgba(0,0,0,0.85)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <p style={{ color: "#fff", fontSize: 18, fontWeight: 600, letterSpacing: 1 }}>Updating Menu...</p>
+          </div>
+        )}
 
         {/* 🔥 TOP TASK BAR */}
         <div className="fixed top-0 left-1/2 -translate-x-1/2 w-full max-w-md z-[999]">
