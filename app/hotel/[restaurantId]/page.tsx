@@ -3,6 +3,7 @@
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState } from "react";
 import { useParams } from "next/navigation";
 import RatingModal from "@/components/RatingModal";
+import OdyLoader from "@/components/OdyLoader";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5050";
 
@@ -934,17 +935,8 @@ export default function HotelHomePage() {
     <div className="min-h-screen bg-black flex justify-center">
       <div className="relative w-full max-w-md min-h-screen bg-[#1c1c1c] overflow-visible">
 
-        {/* 🔥 REFRESH OVERLAY — full screen spinning logo */}
-        {isRefreshing && (
-          <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black">
-            <img
-              src="/logo.png"
-              alt="Loading"
-              className="w-40 h-40 object-contain animate-spin"
-              style={{ animationDuration: "1.2s" }}
-            />
-          </div>
-        )}
+        {/* 🔥 REFRESH OVERLAY — same loader as owner pages, no percentage */}
+        {isRefreshing && <OdyLoader showProgress={false} />}
 
         {/* 🔥 TOP TASK BAR */}
         <div className="fixed top-0 left-1/2 -translate-x-1/2 w-full max-w-md z-[999]">
