@@ -1030,7 +1030,7 @@ export default function HotelHomePage() {
                     className="w-full rounded-xl sm:rounded-2xl overflow-hidden bg-white border border-gray-200 mb-4 sm:mb-6"
                   >
                     <div
-                      className={`w-full bg-gray-100 relative ${extractYouTubeVideoId(dish.videoUrl ?? "") ? "aspect-video" : "aspect-[4/3]"}`}
+                      className={`w-full bg-black relative overflow-hidden rounded-t-xl sm:rounded-t-2xl ${extractYouTubeVideoId(dish.videoUrl ?? "") ? "aspect-video" : "aspect-[4/3]"}`}
                     >
                       {dish.videoUrl && dish.videoUrl.trim() ? (
                         <DishMediaCarousel
