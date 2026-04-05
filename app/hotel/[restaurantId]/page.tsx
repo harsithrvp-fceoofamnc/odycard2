@@ -1027,7 +1027,7 @@ export default function HotelHomePage() {
                 {dishes.map((dish, index) => (
                   <div
                     key={dish.id}
-                    className="w-full rounded-xl sm:rounded-2xl overflow-hidden bg-white border border-gray-200 mb-4 sm:mb-6"
+                    className="w-full rounded-xl sm:rounded-2xl bg-white border border-gray-200 mb-4 sm:mb-6"
                   >
                     <div
                       className={`w-full bg-black relative overflow-hidden rounded-t-xl sm:rounded-t-2xl ${extractYouTubeVideoId(dish.videoUrl ?? "") ? "aspect-video" : "aspect-[4/3]"}`}
@@ -1056,7 +1056,7 @@ export default function HotelHomePage() {
                         />
                       )}
                     </div>
-                    <div className="p-3 sm:p-4">
+                    <div className="p-3 sm:p-4 rounded-b-xl sm:rounded-b-2xl bg-white overflow-hidden">
                       <div className="flex justify-between items-start mb-1.5 sm:mb-2">
                         <p className="text-base sm:text-lg font-semibold text-black">{dish.name}</p>
                         <div className="flex flex-col items-end">
