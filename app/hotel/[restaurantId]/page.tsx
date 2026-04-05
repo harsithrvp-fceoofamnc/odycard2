@@ -3,7 +3,7 @@
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState } from "react";
 import { useParams } from "next/navigation";
 import RatingModal from "@/components/RatingModal";
-import OdyLoader from "@/components/OdyLoader";
+import { useLoader } from "@/context/LoaderContext";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5050";
 
@@ -417,6 +417,7 @@ function mapDishFromApi(row: {
 export default function HotelHomePage() {
   const params = useParams();
   const restaurantId = params?.restaurantId as string | undefined;
+  const { showLoader, hideLoader } = useLoader();
 
   const [activeTab, setActiveTab] = useState(0);
   const [logo, setLogo] = useState("");
@@ -426,7 +427,6 @@ export default function HotelHomePage() {
   const [activeFilters, setActiveFilters] = useState<string[]>([]);
   const [dishes, setDishes] = useState<OdyDish[]>([]);
   const [hotelId, setHotelId] = useState<string | null>(null);
-  const [isRefreshing, setIsRefreshing] = useState(false);
   // Stores a signature of each dish so edits, hides and deletes all trigger the buffer
   const prevDishIdsRef = useRef<Set<string>>(new Set());
   const prevDishSigRef = useRef<string>("");
@@ -649,22 +649,18 @@ export default function HotelHomePage() {
 
     const poll = async () => {
       const newDishes = await fetchDishes(hotelId);
-      console.log("[poll] fetched dishes:", newDishes?.length, newDishes?.map(d => d.id));
       if (newDishes === null) return;
 
-      const changed = menuChanged(newDishes);
-      console.log("[poll] changed?", changed, "| prevSig:", prevDishSigRef.current.slice(0, 60), "| newSig:", buildSig(newDishes).slice(0, 60));
-      if (!changed) return;
+      if (!menuChanged(newDishes)) return;
 
-      console.log("[poll] MENU CHANGED — showing buffer screen");
-      setIsRefreshing(true);
-      // Show spinning logo for 1.2s then update
-      await new Promise((r) => setTimeout(r, 1200));
+      // Use the same root-level OdyCard loader as the owner registration flow
+      showLoader();
+      await new Promise((r) => setTimeout(r, 2600));
       prevDishIdsRef.current = new Set(newDishes.map((d) => d.id));
       prevDishSigRef.current = buildSig(newDishes);
       setDishes(newDishes);
       setDishesLoadError(null);
-      setIsRefreshing(false);
+      hideLoader();
     };
 
     const interval = setInterval(poll, 4000);
@@ -938,9 +934,6 @@ export default function HotelHomePage() {
   return (
     <div className="min-h-screen bg-black flex justify-center">
       <div className="relative w-full max-w-md min-h-screen bg-[#1c1c1c] overflow-visible">
-
-        {/* 🔥 REFRESH OVERLAY — same loader as owner pages, no percentage */}
-        {isRefreshing && <OdyLoader showProgress={false} />}
 
         {/* 🔥 TOP TASK BAR */}
         <div className="fixed top-0 left-1/2 -translate-x-1/2 w-full max-w-md z-[999]">
