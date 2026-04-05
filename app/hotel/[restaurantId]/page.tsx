@@ -580,10 +580,11 @@ export default function HotelHomePage() {
     }
   }, []);
 
-  /** Build a string signature of all dishes — catches adds, deletes, hides AND edits */
+  /** Build a lightweight signature — catches adds, deletes, hides AND edits.
+   *  Excludes photoUrl (base64, too large to compare every 5s). */
   const buildSig = (dishes: OdyDish[]) =>
     dishes.map(d =>
-      `${d.id}|${d.name}|${d.price}|${d.description ?? ""}|${d.quantity ?? ""}|${d.photoUrl}|${d.videoUrl ?? ""}`
+      `${d.id}|${d.name}|${d.price}|${d.description ?? ""}|${d.quantity ?? ""}|${d.videoUrl ?? ""}`
     ).sort().join(";;");
 
   /** Detect if menu changed: any add, delete, hide or edit triggers this */
@@ -652,8 +653,8 @@ export default function HotelHomePage() {
       if (!menuChanged(newDishes)) return;
 
       setIsRefreshing(true);
-      // Let the spinning logo show for 1.5s so it's clearly visible
-      await new Promise((r) => setTimeout(r, 1500));
+      // Show spinning logo for 1.2s then update
+      await new Promise((r) => setTimeout(r, 1200));
       prevDishIdsRef.current = new Set(newDishes.map((d) => d.id));
       prevDishSigRef.current = buildSig(newDishes);
       setDishes(newDishes);
@@ -661,7 +662,7 @@ export default function HotelHomePage() {
       setIsRefreshing(false);
     };
 
-    const interval = setInterval(poll, 5000);
+    const interval = setInterval(poll, 4000);
     return () => clearInterval(interval);
   }, [hotelId, fetchDishes, menuChanged]);
 
@@ -934,19 +935,16 @@ export default function HotelHomePage() {
       <div className="relative w-full max-w-md min-h-screen bg-[#1c1c1c] overflow-visible">
 
         {/* 🔥 REFRESH OVERLAY — full screen spinning logo */}
-        <div
-          className={`fixed inset-0 left-1/2 -translate-x-1/2 w-full max-w-md z-[990] flex items-center justify-center bg-black transition-opacity duration-500 ${
-            isRefreshing ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
-          }`}
-          aria-hidden={!isRefreshing}
-        >
-          <img
-            src="/logo.png"
-            alt="Loading"
-            className="w-36 h-36 object-contain animate-spin"
-            style={{ animationDuration: "1.2s" }}
-          />
-        </div>
+        {isRefreshing && (
+          <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black">
+            <img
+              src="/logo.png"
+              alt="Loading"
+              className="w-40 h-40 object-contain animate-spin"
+              style={{ animationDuration: "1.2s" }}
+            />
+          </div>
+        )}
 
         {/* 🔥 TOP TASK BAR */}
         <div className="fixed top-0 left-1/2 -translate-x-1/2 w-full max-w-md z-[999]">
