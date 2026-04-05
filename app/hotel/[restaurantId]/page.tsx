@@ -384,6 +384,19 @@ function DishMediaCarousel({
   );
 }
 
+/** Returns true if current time falls within the dish's from→to timing window. */
+function isWithinTiming(timing: { from: string; to: string }): boolean {
+  const now = new Date();
+  const cur = now.getHours() * 60 + now.getMinutes();
+  const [fh, fm] = timing.from.split(":").map(Number);
+  const [th, tm] = timing.to.split(":").map(Number);
+  const from = fh * 60 + fm;
+  const to = th * 60 + tm;
+  if (from === to) return true; // same time = all day
+  if (from < to) return cur >= from && cur <= to;
+  return cur >= from || cur <= to; // overnight window e.g. 22:00 → 02:00
+}
+
 /** Map backend dish row to frontend OdyDish format */
 function mapDishFromApi(row: {
   id: number | string;
@@ -416,6 +429,12 @@ export default function HotelHomePage() {
   const params = useParams();
   const restaurantId = params?.restaurantId as string | undefined;
   const [isRefreshing, setIsRefreshing] = useState(false);
+  // Ticks every minute so timing-based dish visibility updates automatically
+  const [, setTimeTick] = useState(0);
+  useEffect(() => {
+    const id = setInterval(() => setTimeTick(t => t + 1), 60_000);
+    return () => clearInterval(id);
+  }, []);
 
   const [activeTab, setActiveTab] = useState(0);
   const [logo, setLogo] = useState("");
@@ -1018,13 +1037,13 @@ export default function HotelHomePage() {
               <div className="min-h-screen flex flex-col items-center justify-center">
                 <p className="text-white/70 text-lg sm:text-xl font-medium">{dishesLoadError}</p>
               </div>
-            ) : dishes.length === 0 ? (
+            ) : dishes.filter(d => isWithinTiming(d.timing)).length === 0 ? (
               <div className="flex flex-col items-center justify-start pt-16 sm:pt-20">
                 <p className="text-white/70 text-lg sm:text-xl font-medium">Coming soon</p>
               </div>
             ) : (
               <div className="mb-6 sm:mb-8">
-                {dishes.map((dish, index) => (
+                {dishes.filter(d => isWithinTiming(d.timing)).map((dish, index) => (
                   <div
                     key={dish.id}
                     className="w-full rounded-xl sm:rounded-2xl bg-white border border-gray-200 mb-4 sm:mb-6"
