@@ -21,6 +21,7 @@
         timing: { from: string; to: string };
         photoUrl: string;
         videoUrl?: string | null;
+        isActive: boolean;
       };
 
       function mapDishFromApi(row: {
@@ -33,6 +34,7 @@
         timing_to?: string;
         photo_url?: string | null;
         video_url?: string | null;
+        is_active?: boolean;
       }): DishForBlock {
         return {
           id: String(row.id),
@@ -46,6 +48,7 @@
           },
           photoUrl: row.photo_url || "/food_item_logo.png",
           videoUrl: row.video_url ?? null,
+          isActive: row.is_active !== false,
         };
       }
 
@@ -116,7 +119,7 @@
               setCover(hotel.cover_url || "");
 
               const dishesRes = await fetch(
-                `${API_BASE}/api/dishes?hotel_id=${encodeURIComponent(hotel.id)}`
+                `${API_BASE}/api/dishes?hotel_id=${encodeURIComponent(hotel.id)}&all=true`
               );
               if (!dishesRes.ok) {
                 setLoadError("Failed to load dishes");
@@ -148,7 +151,7 @@
             const hotelRes = await fetch(`${API_BASE}/api/hotels/${encodeURIComponent(restaurantId)}`);
             if (!hotelRes.ok) return;
             const hotel = await hotelRes.json();
-            const dishesRes = await fetch(`${API_BASE}/api/dishes?hotel_id=${encodeURIComponent(hotel.id)}`);
+            const dishesRes = await fetch(`${API_BASE}/api/dishes?hotel_id=${encodeURIComponent(hotel.id)}&all=true`);
             if (!dishesRes.ok) return;
             const rows = await dishesRes.json();
             setDishes(rows.map(mapDishFromApi));
