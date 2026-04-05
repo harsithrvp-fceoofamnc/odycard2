@@ -120,7 +120,7 @@ function OdyMenuVideoSlide({
   videoRef: React.Ref<HTMLVideoElement | null>;
 }) {
   return (
-    <div className="w-full h-full min-h-48 bg-black">
+    <div className="absolute inset-0">
       <video
         ref={videoRef}
         src={videoUrl}
@@ -128,7 +128,7 @@ function OdyMenuVideoSlide({
         playsInline
         preload="metadata"
         loop
-        className="w-full h-full min-h-48 object-cover"
+        className="w-full h-full object-cover"
         title={dishName}
       />
     </div>
@@ -210,17 +210,15 @@ const YouTubePlayerWrapper = forwardRef<
 
   if (!isActive) {
     return (
-      <div className="relative w-full">
-        <div className="relative w-full aspect-video">
-          <img
-            src={`https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`}
-            alt={dishName}
-            className="absolute inset-0 w-full h-full object-cover"
-            onError={(e) => {
-              (e.target as HTMLImageElement).src = photoUrl || "/food_item_logo.png";
-            }}
-          />
-        </div>
+      <div className="absolute inset-0">
+        <img
+          src={`https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`}
+          alt={dishName}
+          className="w-full h-full object-cover"
+          onError={(e) => {
+            (e.target as HTMLImageElement).src = photoUrl || "/food_item_logo.png";
+          }}
+        />
       </div>
     );
   }
@@ -228,19 +226,17 @@ const YouTubePlayerWrapper = forwardRef<
   const embedUrl = buildYouTubeEmbedUrl(videoId);
 
   return (
-    <div className="relative w-full">
-      <div className="relative w-full aspect-video">
-        <iframe
-          ref={iframeRef}
-          src={embedUrl}
-          title={dishName}
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-          allowFullScreen
-          className="absolute inset-0 w-full h-full"
-          style={{ border: "none" }}
-          onLoad={onIframeLoad}
-        />
-      </div>
+    <div className="absolute inset-0">
+      <iframe
+        ref={iframeRef}
+        src={embedUrl}
+        title={dishName}
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        allowFullScreen
+        className="w-full h-full"
+        style={{ border: "none" }}
+        onLoad={onIframeLoad}
+      />
     </div>
   );
 });
@@ -352,27 +348,30 @@ function DishMediaCarousel({
           if (typeof containerRef === "function") containerRef(el);
           else if (containerRef) (containerRef as React.MutableRefObject<HTMLDivElement | null>).current = el;
         }}
-        className="flex-[0_0_100%] min-w-0 h-full snap-center snap-always flex items-center justify-center shrink-0"
+        className="flex-[0_0_100%] min-w-0 h-full snap-center snap-always relative shrink-0"
       >
-        {isYouTube && youtubeId ? (
-          <YouTubePlayerWrapper
-            ref={youtubeSlideRef}
-            videoId={youtubeId}
-            dishName={dish.name}
-            photoUrl={dish.photoUrl || "/food_item_logo.png"}
-            dishIndex={dishIndex}
-            isActive={isActive}
-            onVideoEnd={handleVideoEnd}
-            registerPlayer={registerPlayer}
-            unregisterPlayer={unregisterPlayer}
-          />
-        ) : (
-          <OdyMenuVideoSlide
-            videoUrl={dish.videoUrl!.trim()}
-            dishName={dish.name}
-            videoRef={videoRef}
-          />
-        )}
+        {/* absolute fill — guarantees zero gap at all edges */}
+        <div className="absolute inset-0">
+          {isYouTube && youtubeId ? (
+            <YouTubePlayerWrapper
+              ref={youtubeSlideRef}
+              videoId={youtubeId}
+              dishName={dish.name}
+              photoUrl={dish.photoUrl || "/food_item_logo.png"}
+              dishIndex={dishIndex}
+              isActive={isActive}
+              onVideoEnd={handleVideoEnd}
+              registerPlayer={registerPlayer}
+              unregisterPlayer={unregisterPlayer}
+            />
+          ) : (
+            <OdyMenuVideoSlide
+              videoUrl={dish.videoUrl!.trim()}
+              dishName={dish.name}
+              videoRef={videoRef}
+            />
+          )}
+        </div>
       </div>
       <div className="flex-[0_0_100%] min-w-0 h-full snap-center snap-always shrink-0">
         <img
