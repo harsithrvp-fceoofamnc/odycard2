@@ -49,16 +49,17 @@ export default function EditMenuDishBlock({ dish, restaurantId, onRefresh }: Edi
   const handleHideConfirm = async () => {
     setIsLoading(true);
     try {
-      // Use the existing PATCH endpoint which is already live on production
       const res = await fetch(`${API_BASE}/api/dishes/${dish.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ is_active: isHidden }),  // true = unhide, false = hide
+        body: JSON.stringify({ is_active: isHidden }), // true = unhide, false = hide
       });
       if (res.ok) {
+        // Just toggle local state — keep dish visible to owner (greyed out)
+        // Customer page will detect the change via polling and show buffer screen
         setIsHidden(!isHidden);
         setShowHideConfirm(false);
-        onRefresh?.();
+        // Do NOT call onRefresh — that would re-fetch and lose hidden dishes from owner view
       }
     } catch {
       // ignore
@@ -82,7 +83,13 @@ export default function EditMenuDishBlock({ dish, restaurantId, onRefresh }: Edi
 
   return (
     <>
-      <div className={`rounded-2xl border overflow-hidden bg-white mb-6 ${isHidden ? "opacity-50" : "border-gray-200"}`}>
+      <div className={`rounded-2xl border overflow-hidden bg-white mb-6 transition-opacity ${isHidden ? "opacity-40 border-gray-200" : "border-gray-200"}`}>
+        {/* Hidden badge for owner */}
+        {isHidden && (
+          <div className="bg-gray-800 text-white text-xs font-semibold text-center py-1 tracking-wide">
+            HIDDEN FROM CUSTOMERS
+          </div>
+        )}
         {/* MEDIA */}
         <div className="w-full h-[180px] bg-gray-100">
           {hasVideo && youtubeId ? (
