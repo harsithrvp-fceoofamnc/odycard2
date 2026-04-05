@@ -49,13 +49,17 @@ export default function EditMenuDishBlock({ dish, restaurantId, onRefresh }: Edi
   const handleHideConfirm = async () => {
     setIsLoading(true);
     try {
-      const endpoint = isHidden ? "unhide" : "hide";
-      await fetch(`${API_BASE}/api/dishes/${dish.id}/${endpoint}`, {
+      // Use the existing PATCH endpoint which is already live on production
+      const res = await fetch(`${API_BASE}/api/dishes/${dish.id}`, {
         method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ is_active: isHidden }),  // true = unhide, false = hide
       });
-      setIsHidden(!isHidden);
-      setShowHideConfirm(false);
-      onRefresh?.();
+      if (res.ok) {
+        setIsHidden(!isHidden);
+        setShowHideConfirm(false);
+        onRefresh?.();
+      }
     } catch {
       // ignore
     } finally {
