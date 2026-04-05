@@ -570,7 +570,7 @@ export default function HotelHomePage() {
     if (isFetchingRef.current) return null;
     isFetchingRef.current = true;
     try {
-      const res = await fetch(`${API_BASE}/api/dishes?hotel_id=${encodeURIComponent(hId)}`);
+      const res = await fetch(`${API_BASE}/api/dishes?hotel_id=${encodeURIComponent(hId)}&_t=${Date.now()}`, { cache: "no-store" });
       if (!res.ok) return null;
       const rows = await res.json();
       return rows.map(mapDishFromApi);
