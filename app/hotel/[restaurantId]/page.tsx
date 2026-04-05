@@ -210,12 +210,12 @@ const YouTubePlayerWrapper = forwardRef<
 
   if (!isActive) {
     return (
-      <div className="relative w-full overflow-hidden rounded-2xl">
-        <div className="relative w-full aspect-video bg-black">
+      <div className="relative w-full">
+        <div className="relative w-full aspect-video">
           <img
             src={`https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`}
             alt={dishName}
-            className="absolute inset-0 w-full h-full object-contain"
+            className="absolute inset-0 w-full h-full object-cover"
             onError={(e) => {
               (e.target as HTMLImageElement).src = photoUrl || "/food_item_logo.png";
             }}
@@ -228,7 +228,7 @@ const YouTubePlayerWrapper = forwardRef<
   const embedUrl = buildYouTubeEmbedUrl(videoId);
 
   return (
-    <div className="relative w-full overflow-hidden rounded-2xl">
+    <div className="relative w-full">
       <div className="relative w-full aspect-video">
         <iframe
           ref={iframeRef}
@@ -352,7 +352,7 @@ function DishMediaCarousel({
           if (typeof containerRef === "function") containerRef(el);
           else if (containerRef) (containerRef as React.MutableRefObject<HTMLDivElement | null>).current = el;
         }}
-        className="flex-[0_0_100%] min-w-0 h-full snap-center snap-always flex items-center justify-center bg-black shrink-0"
+        className="flex-[0_0_100%] min-w-0 h-full snap-center snap-always flex items-center justify-center shrink-0"
       >
         {isYouTube && youtubeId ? (
           <YouTubePlayerWrapper
