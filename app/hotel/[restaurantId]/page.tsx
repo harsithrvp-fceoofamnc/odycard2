@@ -649,10 +649,14 @@ export default function HotelHomePage() {
 
     const poll = async () => {
       const newDishes = await fetchDishes(hotelId);
+      console.log("[poll] fetched dishes:", newDishes?.length, newDishes?.map(d => d.id));
       if (newDishes === null) return;
 
-      if (!menuChanged(newDishes)) return;
+      const changed = menuChanged(newDishes);
+      console.log("[poll] changed?", changed, "| prevSig:", prevDishSigRef.current.slice(0, 60), "| newSig:", buildSig(newDishes).slice(0, 60));
+      if (!changed) return;
 
+      console.log("[poll] MENU CHANGED — showing buffer screen");
       setIsRefreshing(true);
       // Show spinning logo for 1.2s then update
       await new Promise((r) => setTimeout(r, 1200));
