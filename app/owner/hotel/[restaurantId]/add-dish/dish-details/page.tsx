@@ -374,7 +374,7 @@ export default function DishDetailsPage() {
                     setIsSubmitting(false);
                   }
                 }}
-                className={`px-8 py-3 rounded-xl text-base font-semibold disabled:opacity-70
+                className={`w-28 py-3 rounded-xl text-base font-semibold disabled:opacity-70
                   ${
                     canProceed && !isSubmitting
                       ? "bg-[#0A84C1] text-white"
