@@ -15,6 +15,7 @@ const generateTimeOptions = () => {
       times.push(`${hh}:${mm}`);
     }
   }
+  times.push("00:00"); // midnight as end-of-day option
   return times;
 };
 
