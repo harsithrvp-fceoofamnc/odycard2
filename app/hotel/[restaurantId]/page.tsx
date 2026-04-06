@@ -1091,7 +1091,7 @@ export default function HotelHomePage() {
                                 <img
                                   src={isFavorite(dish.id) ? "/heart2.png" : "/heart.png"}
                                   alt="Favorite"
-                                  className="w-6 h-6 sm:w-7 sm:h-7"
+                                  className="w-7 h-7 sm:w-8 sm:h-8"
                                 />
                               </button>
                               <span className="text-xs text-gray-600 mt-1.5 sm:mt-2 leading-none">
