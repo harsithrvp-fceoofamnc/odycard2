@@ -83,7 +83,7 @@ export default function EditMenuDishBlock({ dish, restaurantId, onRefresh }: Edi
 
   return (
     <>
-      <div className={`rounded-2xl border overflow-hidden bg-white mb-6 transition-opacity ${isHidden ? "opacity-40 border-gray-200" : "border-gray-200"}`}>
+      <div className="rounded-2xl border border-gray-200 overflow-hidden bg-white mb-6">
         {/* Hidden badge for owner */}
         {isHidden && (
           <div className="bg-gray-800 text-white text-xs font-semibold text-center py-1 tracking-wide">
