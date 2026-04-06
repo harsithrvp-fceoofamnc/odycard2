@@ -384,6 +384,13 @@ function DishMediaCarousel({
   );
 }
 
+/** Format counts like YouTube: 1K, 2K, ... 999K, 1M (max) */
+function formatCount(n: number): string {
+  if (n >= 1_000_000) return "1M";
+  if (n >= 1000) return `${Math.floor(n / 1000)}K`;
+  return String(n);
+}
+
 /** Returns true if current time falls within the dish's from→to timing window. */
 function isWithinTiming(timing: { from: string; to: string }): boolean {
   const now = new Date();
@@ -1080,42 +1087,49 @@ export default function HotelHomePage() {
                         <p className="text-base sm:text-lg font-semibold text-black">{dish.name}</p>
                         <div className="flex flex-col items-end">
                           <p className="text-base sm:text-lg font-semibold text-black">₹{dish.price}</p>
-                          {/* FAVORITES & EAT LATER ICONS */}
-                          <div className="flex items-center gap-0.5 sm:gap-1 mt-1">
-                            <div className="flex flex-col items-center -mt-1">
+                          {/* FAVORITES & EAT LATER ICONS — YouTube style */}
+                          <div className="flex items-center gap-2 mt-1">
+                            {/* Favorites */}
+                            <div className="flex flex-col items-center gap-1">
                               <button
                                 onClick={() => toggleFavorite(dish)}
-                                className="disabled:opacity-50 disabled:cursor-not-allowed"
                                 disabled={!user}
+                                className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-[#1f1f1f] flex items-center justify-center disabled:opacity-40 disabled:cursor-not-allowed"
                               >
-                                <img
-                                  src={isFavorite(dish.id) ? "/heart2.png" : "/heart.png"}
-                                  alt="Favorite"
-                                  className="w-7 h-7 sm:w-8 sm:h-8"
-                                />
+                                {isFavorite(dish.id) ? (
+                                  <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 sm:w-5 sm:h-5" viewBox="0 0 24 24" fill="#ef4444">
+                                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                                  </svg>
+                                ) : (
+                                  <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 sm:w-5 sm:h-5" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                                  </svg>
+                                )}
                               </button>
-                              <span className="text-xs text-gray-600 mt-1.5 sm:mt-2 leading-none">
-                                {favoriteCounts[dish.id] || 0}
+                              <span className="text-xs text-gray-500 leading-none">
+                                {formatCount(favoriteCounts[dish.id] || 0)}
                               </span>
                             </div>
-                            <div className="flex flex-col items-center -mt-4 sm:-mt-5">
-                              <div className="relative">
-                                <button
-                                  onClick={() => toggleEatLater(dish)}
-                                  className="disabled:opacity-50 disabled:cursor-not-allowed"
-                                  disabled={!user}
-                                >
-                                  <img
-                                    src="/eat_later.png"
-                                    alt="Eat Later"
-                                    className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24"
-                                    style={isInEatLater(dish.id) ? { filter: "brightness(0) saturate(100%) invert(42%) sepia(93%) saturate(1352%) hue-rotate(188deg) brightness(97%) contrast(92%)" } : { filter: "brightness(1.1) contrast(1.2)" }}
-                                  />
-                                </button>
-                                <span className="absolute top-3/4 left-1/2 -translate-x-1/2 text-xs text-gray-600 leading-none">
-                                  {eatLaterCounts[dish.id] || 0}
-                                </span>
-                              </div>
+                            {/* Eat Later */}
+                            <div className="flex flex-col items-center gap-1">
+                              <button
+                                onClick={() => toggleEatLater(dish)}
+                                disabled={!user}
+                                className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-[#1f1f1f] flex items-center justify-center disabled:opacity-40 disabled:cursor-not-allowed"
+                              >
+                                {isInEatLater(dish.id) ? (
+                                  <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/>
+                                  </svg>
+                                ) : (
+                                  <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/>
+                                  </svg>
+                                )}
+                              </button>
+                              <span className="text-xs text-gray-500 leading-none">
+                                {formatCount(eatLaterCounts[dish.id] || 0)}
+                              </span>
                             </div>
                           </div>
                         </div>
