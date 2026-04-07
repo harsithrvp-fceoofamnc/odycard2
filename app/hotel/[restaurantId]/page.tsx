@@ -1100,6 +1100,7 @@ export default function HotelHomePage() {
                                   src={isFavorite(dish.id) ? "/heart2.png" : "/heart.png"}
                                   alt="Favorite"
                                   className="w-5 h-5"
+                                  style={isFavorite(dish.id) ? {} : { filter: "brightness(0) invert(1)" }}
                                 />
                                 <span className="text-xs text-white font-medium">{formatCount(favoriteCounts[dish.id] || 0)}</span>
                               </button>
