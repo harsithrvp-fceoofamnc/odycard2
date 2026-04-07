@@ -384,10 +384,13 @@ function DishMediaCarousel({
   );
 }
 
-/** Format counts like YouTube: 1K, 2K, ... 999K, 1M (max) */
+/** Format counts like YouTube: 1.9K, 2.3K, ... 999K, 1M (max) */
 function formatCount(n: number): string {
   if (n >= 1_000_000) return "1M";
-  if (n >= 1000) return `${Math.floor(n / 1000)}K`;
+  if (n >= 1000) {
+    const val = n / 1000;
+    return `${parseFloat(val.toFixed(1))}K`;
+  }
   return String(n);
 }
 
