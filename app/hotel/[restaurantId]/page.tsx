@@ -1089,7 +1089,7 @@ export default function HotelHomePage() {
                           <p className="text-base sm:text-lg font-semibold text-black">₹{dish.price}</p>
                           {/* FAVORITES & EAT LATER — single connected pill like YouTube */}
                           <div className="flex items-center mt-2">
-                            <div className="flex items-center bg-[#1f1f1f] rounded-full overflow-hidden">
+                            <div className="flex items-center bg-black/40 backdrop-blur-sm rounded-full overflow-hidden">
                               {/* Favorites side */}
                               <button
                                 onClick={() => toggleFavorite(dish)}
