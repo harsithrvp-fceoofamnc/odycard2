@@ -55,6 +55,7 @@ type OdyDish = {
   timing: { from: string; to: string };
   photoUrl: string;
   videoUrl?: string | null;
+  isVeg: boolean;
 };
 
 /** Extract YouTube video ID from watch URL, embed URL, or short url. */
@@ -432,6 +433,7 @@ function mapDishFromApi(row: {
     },
     photoUrl: row.photo_url || "/food_item_logo.png",
     videoUrl: row.video_url ?? null,
+    isVeg: row.is_veg !== false,
   };
 }
 
@@ -1089,7 +1091,13 @@ export default function HotelHomePage() {
                       {/* Name + description on left, price + pill on right */}
                       <div className="flex justify-between items-start gap-2">
                         <div className="flex flex-col">
-                          <p className="text-base sm:text-lg font-semibold text-black leading-tight">{dish.name}</p>
+                          <div className="flex items-center gap-2">
+                            {/* Veg / Non-veg indicator (FSSAI standard) */}
+                            <div className={`w-4 h-4 shrink-0 border-2 rounded-sm flex items-center justify-center ${dish.isVeg ? "border-green-600" : "border-red-600"}`}>
+                              <div className={`w-2 h-2 rounded-full ${dish.isVeg ? "bg-green-600" : "bg-red-600"}`}/>
+                            </div>
+                            <p className="text-base sm:text-lg font-semibold text-black leading-tight">{dish.name}</p>
+                          </div>
                           {dish.description ? (
                             <p className="text-xs sm:text-sm text-gray-500 mt-0.5 leading-snug">{dish.description}</p>
                           ) : null}
