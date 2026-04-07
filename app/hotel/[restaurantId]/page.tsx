@@ -1086,50 +1086,48 @@ export default function HotelHomePage() {
                       )}
                     </div>
                     <div className="p-3 sm:p-4 rounded-b-xl sm:rounded-b-2xl bg-white overflow-hidden">
-                      <div className="flex justify-between items-start mb-1.5 sm:mb-2">
-                        <p className="text-base sm:text-lg font-semibold text-black">{dish.name}</p>
-                        <div className="flex flex-col items-end">
+                      {/* Name + description on left, price + pill on right */}
+                      <div className="flex justify-between items-start gap-2">
+                        <div className="flex flex-col">
+                          <p className="text-base sm:text-lg font-semibold text-black leading-tight">{dish.name}</p>
+                          {dish.description ? (
+                            <p className="text-xs sm:text-sm text-gray-500 mt-0.5 leading-snug">{dish.description}</p>
+                          ) : null}
+                        </div>
+                        <div className="flex flex-col items-end gap-1.5 shrink-0">
                           <p className="text-base sm:text-lg font-semibold text-black">₹{dish.price}</p>
-                          {/* FAVORITES & EAT LATER — single connected pill like YouTube */}
-                          <div className="flex items-center mt-2">
-                            <div className="flex items-center bg-black/40 backdrop-blur-sm rounded-full overflow-hidden">
-                              {/* Favorites side */}
-                              <button
-                                onClick={() => toggleFavorite(dish)}
-                                disabled={!user}
-                                className="flex items-center justify-center gap-1.5 w-24 py-1.5 disabled:opacity-40 disabled:cursor-not-allowed"
-                              >
-                                <img
-                                  src={isFavorite(dish.id) ? "/heart2.png" : "/heart.png"}
-                                  alt="Favorite"
-                                  className="w-5 h-5"
-                                  style={isFavorite(dish.id) ? {} : { filter: "brightness(0) invert(1)" }}
-                                />
-                                <span className="text-xs text-white font-medium">{formatCount(favoriteCounts[dish.id] || 0)}</span>
-                              </button>
-                              {/* Divider */}
-                              <div className="w-px h-5 bg-white/50" />
-                              {/* Eat Later side */}
-                              <button
-                                onClick={() => toggleEatLater(dish)}
-                                disabled={!user}
-                                className="flex items-center justify-center gap-1.5 w-24 py-1.5 disabled:opacity-40 disabled:cursor-not-allowed"
-                              >
-                                <img
-                                  src="/eat_later.png"
-                                  alt="Eat Later"
-                                  className="w-10 h-10"
-                                  style={isInEatLater(dish.id) ? { filter: "brightness(0) saturate(100%) invert(42%) sepia(93%) saturate(1352%) hue-rotate(188deg) brightness(97%) contrast(92%)" } : { filter: "brightness(0) invert(1)" }}
-                                />
-                                <span className="text-xs text-white font-medium pr-1">{formatCount(eatLaterCounts[dish.id] || 0)}</span>
-                              </button>
-                            </div>
+                          {/* FAVORITES & EAT LATER — single connected pill */}
+                          <div className="flex items-center bg-black/40 backdrop-blur-sm rounded-full overflow-hidden">
+                            <button
+                              onClick={() => toggleFavorite(dish)}
+                              disabled={!user}
+                              className="flex items-center justify-center gap-1 px-3 py-1 disabled:opacity-40 disabled:cursor-not-allowed"
+                            >
+                              <img
+                                src={isFavorite(dish.id) ? "/heart2.png" : "/heart.png"}
+                                alt="Favorite"
+                                className="w-4 h-4"
+                                style={isFavorite(dish.id) ? {} : { filter: "brightness(0) invert(1)" }}
+                              />
+                              <span className="text-xs text-white font-medium">{formatCount(favoriteCounts[dish.id] || 0)}</span>
+                            </button>
+                            <div className="w-px h-4 bg-white/50" />
+                            <button
+                              onClick={() => toggleEatLater(dish)}
+                              disabled={!user}
+                              className="flex items-center justify-center gap-1 px-3 py-1 disabled:opacity-40 disabled:cursor-not-allowed"
+                            >
+                              <img
+                                src="/eat_later.png"
+                                alt="Eat Later"
+                                className="w-7 h-7"
+                                style={isInEatLater(dish.id) ? { filter: "brightness(0) saturate(100%) invert(42%) sepia(93%) saturate(1352%) hue-rotate(188deg) brightness(97%) contrast(92%)" } : { filter: "brightness(0) invert(1)" }}
+                              />
+                              <span className="text-xs text-white font-medium">{formatCount(eatLaterCounts[dish.id] || 0)}</span>
+                            </button>
                           </div>
                         </div>
                       </div>
-                      {dish.description ? (
-                        <p className="text-xs sm:text-sm text-gray-700 mt-1.5 sm:mt-2">{dish.description}</p>
-                      ) : null}
                     </div>
                   </div>
                 ))}
