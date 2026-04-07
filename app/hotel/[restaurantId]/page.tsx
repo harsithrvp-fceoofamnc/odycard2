@@ -1094,7 +1094,7 @@ export default function HotelHomePage() {
                               <button
                                 onClick={() => toggleFavorite(dish)}
                                 disabled={!user}
-                                className="flex items-center gap-1.5 px-3 py-1.5 disabled:opacity-40 disabled:cursor-not-allowed"
+                                className="flex items-center gap-1.5 px-4 py-1.5 disabled:opacity-40 disabled:cursor-not-allowed"
                               >
                                 <img
                                   src={isFavorite(dish.id) ? "/heart2.png" : "/heart.png"}
@@ -1105,12 +1105,12 @@ export default function HotelHomePage() {
                                 <span className="text-xs text-white font-medium">{formatCount(favoriteCounts[dish.id] || 0)}</span>
                               </button>
                               {/* Divider */}
-                              <div className="w-px h-5 bg-gray-600" />
+                              <div className="w-px h-5 bg-white/50" />
                               {/* Eat Later side */}
                               <button
                                 onClick={() => toggleEatLater(dish)}
                                 disabled={!user}
-                                className="flex items-center gap-1 px-2 py-1.5 disabled:opacity-40 disabled:cursor-not-allowed"
+                                className="flex items-center gap-1 px-4 py-1.5 disabled:opacity-40 disabled:cursor-not-allowed"
                               >
                                 <img
                                   src="/eat_later.png"
