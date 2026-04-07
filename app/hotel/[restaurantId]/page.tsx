@@ -1101,38 +1101,43 @@ export default function HotelHomePage() {
                             <button
                               onClick={() => toggleFavorite(dish)}
                               disabled={!user}
-                              className="flex items-center justify-center gap-1.5 w-20 py-1.5 disabled:opacity-40 disabled:cursor-not-allowed"
+                              className="flex items-center justify-center gap-2 w-24 py-2 disabled:opacity-40 disabled:cursor-not-allowed"
                             >
                               <img
                                 src={isFavorite(dish.id) ? "/heart2.png" : "/heart.png"}
                                 alt="Favorite"
-                                className="w-4 h-4"
+                                className="w-5 h-5"
                                 style={isFavorite(dish.id) ? {} : { filter: "brightness(0) invert(1)" }}
                               />
                               <span className="text-xs text-white font-medium">{formatCount(favoriteCounts[dish.id] || 0)}</span>
                             </button>
-                            <div className="w-px h-4 bg-white/50 shrink-0" />
+                            <div className="w-px h-5 bg-white/50 shrink-0" />
                             <button
                               onClick={() => toggleEatLater(dish)}
                               disabled={!user}
-                              className="flex items-center justify-center gap-1.5 w-20 py-1.5 disabled:opacity-40 disabled:cursor-not-allowed"
+                              className="flex items-center justify-center gap-2 w-24 py-2 disabled:opacity-40 disabled:cursor-not-allowed"
                             >
-                              <svg viewBox="0 0 100 100" className="w-5 h-5" xmlns="http://www.w3.org/2000/svg">
-                                {/* Arc 1: large arc from top-left to bottom-right */}
-                                <path d="M32 14 A40 40 0 1 1 68 86" fill="none" stroke={isInEatLater(dish.id) ? "#3b82f6" : "white"} strokeWidth="9" strokeLinecap="butt"/>
-                                <polygon points="68,86 73,78 77,87" fill={isInEatLater(dish.id) ? "#3b82f6" : "white"}/>
-                                {/* Arc 2: small arc from bottom-right back to top-left */}
-                                <path d="M68 86 A40 40 0 0 1 32 14" fill="none" stroke={isInEatLater(dish.id) ? "#3b82f6" : "white"} strokeWidth="9" strokeLinecap="butt"/>
-                                <polygon points="32,14 23,13 27,22" fill={isInEatLater(dish.id) ? "#3b82f6" : "white"}/>
-                                {/* Fork - 3 tines */}
-                                <rect x="29" y="25" width="3.5" height="18" rx="1.75" fill={isInEatLater(dish.id) ? "#3b82f6" : "white"}/>
-                                <rect x="34.5" y="25" width="3.5" height="18" rx="1.75" fill={isInEatLater(dish.id) ? "#3b82f6" : "white"}/>
-                                <rect x="40" y="25" width="3.5" height="18" rx="1.75" fill={isInEatLater(dish.id) ? "#3b82f6" : "white"}/>
-                                <rect x="30" y="39" width="13" height="3.5" fill={isInEatLater(dish.id) ? "#3b82f6" : "white"}/>
-                                <rect x="33.5" y="41" width="6" height="35" rx="3" fill={isInEatLater(dish.id) ? "#3b82f6" : "white"}/>
+                              {/* Eat Later: fork + knife inside circular loop arrows */}
+                              <svg viewBox="0 0 100 100" className="w-6 h-6" xmlns="http://www.w3.org/2000/svg"
+                                style={{ color: isInEatLater(dish.id) ? "#3b82f6" : "white" }}>
+                                {/* Top arc: from left(10,50) counterclockwise to right(90,50) — goes over the top */}
+                                <path d="M10 50 A40 40 0 0 0 90 50" fill="none" stroke="currentColor" strokeWidth="10" strokeLinecap="butt"/>
+                                {/* Arrowhead at right (90,50) pointing downward */}
+                                <polygon points="90,50 82,38 98,38" fill="currentColor"/>
+                                {/* Bottom arc: from right(90,50) clockwise to left(10,50) — goes under the bottom */}
+                                <path d="M90 50 A40 40 0 0 1 10 50" fill="none" stroke="currentColor" strokeWidth="10" strokeLinecap="butt"/>
+                                {/* Arrowhead at left (10,50) pointing upward */}
+                                <polygon points="10,50 2,62 18,62" fill="currentColor"/>
+                                {/* Fork — 4 tines */}
+                                <rect x="27" y="18" width="3" height="22" rx="1.5" fill="currentColor"/>
+                                <rect x="32" y="18" width="3" height="22" rx="1.5" fill="currentColor"/>
+                                <rect x="37" y="18" width="3" height="22" rx="1.5" fill="currentColor"/>
+                                <rect x="42" y="18" width="3" height="22" rx="1.5" fill="currentColor"/>
+                                <rect x="28" y="37" width="16" height="4" fill="currentColor"/>
+                                <rect x="32" y="40" width="7" height="40" rx="3.5" fill="currentColor"/>
                                 {/* Knife */}
-                                <rect x="55" y="25" width="9" height="27" rx="1.5" fill={isInEatLater(dish.id) ? "#3b82f6" : "white"}/>
-                                <rect x="57" y="51" width="5" height="25" rx="2.5" fill={isInEatLater(dish.id) ? "#3b82f6" : "white"}/>
+                                <rect x="58" y="18" width="8" height="32" rx="2" fill="currentColor"/>
+                                <rect x="59" y="49" width="6" height="29" rx="3" fill="currentColor"/>
                               </svg>
                               <span className="text-xs text-white font-medium">{formatCount(eatLaterCounts[dish.id] || 0)}</span>
                             </button>
