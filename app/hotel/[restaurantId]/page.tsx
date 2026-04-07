@@ -1120,24 +1120,25 @@ export default function HotelHomePage() {
                               {/* Eat Later: fork + knife inside circular loop arrows */}
                               <svg viewBox="0 0 100 100" className="w-6 h-6" xmlns="http://www.w3.org/2000/svg"
                                 style={{ color: isInEatLater(dish.id) ? "#3b82f6" : "white" }}>
-                                {/* Top arc: from left(10,50) counterclockwise to right(90,50) — goes over the top */}
+                                {/* Fork — drawn first (behind arcs) */}
+                                <rect x="27" y="22" width="3.5" height="20" rx="1.75" fill="currentColor"/>
+                                <rect x="33" y="22" width="3.5" height="20" rx="1.75" fill="currentColor"/>
+                                <rect x="39" y="22" width="3.5" height="20" rx="1.75" fill="currentColor"/>
+                                <rect x="44" y="22" width="3.5" height="20" rx="1.75" fill="currentColor"/>
+                                <rect x="28" y="39" width="15" height="4" fill="currentColor"/>
+                                <rect x="33" y="42" width="6" height="34" rx="3" fill="currentColor"/>
+                                {/* Knife — drawn first (behind arcs) */}
+                                <rect x="57" y="22" width="8" height="30" rx="2" fill="currentColor"/>
+                                <rect x="58.5" y="51" width="5" height="25" rx="2.5" fill="currentColor"/>
+                                {/* Arcs drawn LAST so they appear on top of fork/knife */}
+                                {/* Top arc: counterclockwise from left to right — goes over the top */}
                                 <path d="M10 50 A40 40 0 0 0 90 50" fill="none" stroke="currentColor" strokeWidth="10" strokeLinecap="butt"/>
                                 {/* Arrowhead at right (90,50) pointing downward */}
-                                <polygon points="90,50 82,38 98,38" fill="currentColor"/>
-                                {/* Bottom arc: from right(90,50) clockwise to left(10,50) — goes under the bottom */}
+                                <polygon points="90,50 81,37 99,37" fill="currentColor"/>
+                                {/* Bottom arc: clockwise from right to left — goes under the bottom */}
                                 <path d="M90 50 A40 40 0 0 1 10 50" fill="none" stroke="currentColor" strokeWidth="10" strokeLinecap="butt"/>
                                 {/* Arrowhead at left (10,50) pointing upward */}
-                                <polygon points="10,50 2,62 18,62" fill="currentColor"/>
-                                {/* Fork — 4 tines */}
-                                <rect x="27" y="18" width="3" height="22" rx="1.5" fill="currentColor"/>
-                                <rect x="32" y="18" width="3" height="22" rx="1.5" fill="currentColor"/>
-                                <rect x="37" y="18" width="3" height="22" rx="1.5" fill="currentColor"/>
-                                <rect x="42" y="18" width="3" height="22" rx="1.5" fill="currentColor"/>
-                                <rect x="28" y="37" width="16" height="4" fill="currentColor"/>
-                                <rect x="32" y="40" width="7" height="40" rx="3.5" fill="currentColor"/>
-                                {/* Knife */}
-                                <rect x="58" y="18" width="8" height="32" rx="2" fill="currentColor"/>
-                                <rect x="59" y="49" width="6" height="29" rx="3" fill="currentColor"/>
+                                <polygon points="10,50 1,63 19,63" fill="currentColor"/>
                               </svg>
                               <span className="text-xs text-white font-medium">{formatCount(eatLaterCounts[dish.id] || 0)}</span>
                             </button>
