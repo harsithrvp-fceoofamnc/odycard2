@@ -819,18 +819,20 @@ export default function HotelHomePage() {
 
   // Confirm eat later action (per-hotel scoped)
   const confirmEatLater = () => {
-    if (!pendingEatLaterDish || !user || !restaurantId) return;
+    // Always close popup first no matter what
+    setShowEatLaterPopup(false);
+    const dish = pendingEatLaterDish;
+    setPendingEatLaterDish(null);
+    if (!dish || !user || !restaurantId) return;
     const laterKey = `ody_eat_later_${restaurantId}`;
     const laterCountsKey = `ody_dish_eat_later_counts_${restaurantId}`;
-    const updated = [...eatLater, pendingEatLaterDish];
+    const updated = [...eatLater, dish];
     const newCounts = { ...eatLaterCounts };
-    newCounts[pendingEatLaterDish.id] = (newCounts[pendingEatLaterDish.id] || 0) + 1;
+    newCounts[dish.id] = (newCounts[dish.id] || 0) + 1;
     setEatLaterCounts(newCounts);
     localStorage.setItem(laterCountsKey, JSON.stringify(newCounts));
     setEatLater(updated);
     localStorage.setItem(laterKey, JSON.stringify(updated));
-    setShowEatLaterPopup(false);
-    setPendingEatLaterDish(null);
   };
 
   // Cancel eat later action
