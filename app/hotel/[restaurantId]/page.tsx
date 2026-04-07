@@ -1115,15 +1115,15 @@ export default function HotelHomePage() {
                             <button
                               onClick={() => toggleEatLater(dish)}
                               disabled={!user}
-                              className="flex items-center justify-center gap-0 w-20 py-1.5 disabled:opacity-40 disabled:cursor-not-allowed"
+                              className="flex items-center justify-center gap-1.5 w-20 py-1.5 disabled:opacity-40 disabled:cursor-not-allowed"
                             >
                               <img
                                 src="/eat_later.png"
                                 alt="Eat Later"
-                                className="w-14 h-14"
+                                className="w-9 h-9"
                                 style={isInEatLater(dish.id) ? { filter: "brightness(0) saturate(100%) invert(42%) sepia(93%) saturate(1352%) hue-rotate(188deg) brightness(97%) contrast(92%)" } : { filter: "brightness(0) invert(1)" }}
                               />
-                              <span className="text-xs text-white font-medium -ml-1">{formatCount(eatLaterCounts[dish.id] || 0)}</span>
+                              <span className="text-xs text-white font-medium">{formatCount(eatLaterCounts[dish.id] || 0)}</span>
                             </button>
                           </div>
                         </div>
