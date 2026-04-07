@@ -1117,12 +1117,23 @@ export default function HotelHomePage() {
                               disabled={!user}
                               className="flex items-center justify-center gap-1.5 w-20 py-1.5 disabled:opacity-40 disabled:cursor-not-allowed"
                             >
-                              <img
-                                src="/eat_later.png"
-                                alt="Eat Later"
-                                className="w-9 h-9"
-                                style={isInEatLater(dish.id) ? { filter: "brightness(0) saturate(100%) invert(42%) sepia(93%) saturate(1352%) hue-rotate(188deg) brightness(97%) contrast(92%)" } : { filter: "brightness(0) invert(1)" }}
-                              />
+                              <svg viewBox="0 0 100 100" className="w-5 h-5" xmlns="http://www.w3.org/2000/svg">
+                                {/* Arc 1: large arc from top-left to bottom-right */}
+                                <path d="M32 14 A40 40 0 1 1 68 86" fill="none" stroke={isInEatLater(dish.id) ? "#3b82f6" : "white"} strokeWidth="9" strokeLinecap="butt"/>
+                                <polygon points="68,86 73,78 77,87" fill={isInEatLater(dish.id) ? "#3b82f6" : "white"}/>
+                                {/* Arc 2: small arc from bottom-right back to top-left */}
+                                <path d="M68 86 A40 40 0 0 1 32 14" fill="none" stroke={isInEatLater(dish.id) ? "#3b82f6" : "white"} strokeWidth="9" strokeLinecap="butt"/>
+                                <polygon points="32,14 23,13 27,22" fill={isInEatLater(dish.id) ? "#3b82f6" : "white"}/>
+                                {/* Fork - 3 tines */}
+                                <rect x="29" y="25" width="3.5" height="18" rx="1.75" fill={isInEatLater(dish.id) ? "#3b82f6" : "white"}/>
+                                <rect x="34.5" y="25" width="3.5" height="18" rx="1.75" fill={isInEatLater(dish.id) ? "#3b82f6" : "white"}/>
+                                <rect x="40" y="25" width="3.5" height="18" rx="1.75" fill={isInEatLater(dish.id) ? "#3b82f6" : "white"}/>
+                                <rect x="30" y="39" width="13" height="3.5" fill={isInEatLater(dish.id) ? "#3b82f6" : "white"}/>
+                                <rect x="33.5" y="41" width="6" height="35" rx="3" fill={isInEatLater(dish.id) ? "#3b82f6" : "white"}/>
+                                {/* Knife */}
+                                <rect x="55" y="25" width="9" height="27" rx="1.5" fill={isInEatLater(dish.id) ? "#3b82f6" : "white"}/>
+                                <rect x="57" y="51" width="5" height="25" rx="2.5" fill={isInEatLater(dish.id) ? "#3b82f6" : "white"}/>
+                              </svg>
                               <span className="text-xs text-white font-medium">{formatCount(eatLaterCounts[dish.id] || 0)}</span>
                             </button>
                           </div>
