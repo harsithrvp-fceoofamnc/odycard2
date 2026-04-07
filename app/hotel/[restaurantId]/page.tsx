@@ -1097,7 +1097,7 @@ export default function HotelHomePage() {
                               <button
                                 onClick={() => toggleFavorite(dish)}
                                 disabled={!user}
-                                className="flex items-center gap-1.5 px-4 py-1.5 disabled:opacity-40 disabled:cursor-not-allowed"
+                                className="flex items-center justify-center gap-1.5 w-24 py-1.5 disabled:opacity-40 disabled:cursor-not-allowed"
                               >
                                 <img
                                   src={isFavorite(dish.id) ? "/heart2.png" : "/heart.png"}
@@ -1113,12 +1113,12 @@ export default function HotelHomePage() {
                               <button
                                 onClick={() => toggleEatLater(dish)}
                                 disabled={!user}
-                                className="flex items-center gap-1 px-4 py-1.5 disabled:opacity-40 disabled:cursor-not-allowed"
+                                className="flex items-center justify-center gap-1.5 w-24 py-1.5 disabled:opacity-40 disabled:cursor-not-allowed"
                               >
                                 <img
                                   src="/eat_later.png"
                                   alt="Eat Later"
-                                  className="w-8 h-8"
+                                  className="w-10 h-10"
                                   style={isInEatLater(dish.id) ? { filter: "brightness(0) saturate(100%) invert(42%) sepia(93%) saturate(1352%) hue-rotate(188deg) brightness(97%) contrast(92%)" } : { filter: "brightness(0) invert(1)" }}
                                 />
                                 <span className="text-xs text-white font-medium pr-1">{formatCount(eatLaterCounts[dish.id] || 0)}</span>
