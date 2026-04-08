@@ -1098,44 +1098,42 @@ export default function HotelHomePage() {
                       )}
                     </div>
                     <div className="p-3 sm:p-4 rounded-b-xl sm:rounded-b-2xl bg-white overflow-hidden">
-                      {/* Name + description on left, price + pill on right */}
                       <div className="flex justify-between items-start gap-2">
-                        <div className="flex flex-col">
+                        {/* Left: name + price + description */}
+                        <div className="flex flex-col flex-1">
                           <div className="flex items-center gap-2">
-                            {/* Veg / Non-veg indicator (FSSAI standard) */}
+                            {/* Veg / Non-veg indicator */}
                             <div className={`w-4 h-4 shrink-0 border-2 rounded-sm flex items-center justify-center ${dish.isVeg ? "border-green-600" : "border-red-600"}`}>
                               <div className={`w-2 h-2 rounded-full ${dish.isVeg ? "bg-green-600" : "bg-red-600"}`}/>
                             </div>
                             <p className="text-base sm:text-lg font-semibold text-black leading-tight">{dish.name}</p>
                           </div>
+                          <p className="text-base sm:text-lg font-semibold text-black mt-0.5">₹{dish.price}</p>
                           {dish.description ? (
-                            <p className="text-xs sm:text-sm text-gray-500 mt-0.5 leading-snug">{dish.description}</p>
+                            <p className="text-xs sm:text-sm text-gray-500 mt-2 leading-snug">{dish.description}</p>
                           ) : null}
                         </div>
-                        <div className="flex flex-col items-end gap-1.5 shrink-0">
-                          <p className="text-base sm:text-lg font-semibold text-black">₹{dish.price}</p>
-                          {/* FAVORITES & EAT LATER */}
-                          <div className="flex items-center gap-4">
-                            <button
-                              onClick={() => toggleFavorite(dish)}
-                              className="flex flex-col items-center gap-0.5"
-                            >
-                              <svg viewBox="0 0 24 24" className="w-7 h-7" fill={isFavorite(dish.id) ? "#ef4444" : "none"} stroke={isFavorite(dish.id) ? "#ef4444" : "#374151"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
-                              </svg>
-                              <span className="text-xs font-medium text-gray-600">{formatCount(favoriteCounts[dish.id] || 0)}</span>
-                            </button>
-                            <button
-                              onClick={() => toggleEatLater(dish)}
-                              className="flex flex-col items-center gap-0.5"
-                            >
-                              <svg viewBox="0 0 24 24" className="w-7 h-7" fill="none" stroke={isInEatLater(dish.id) ? "#3b82f6" : "#374151"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                <circle cx="12" cy="12" r="10"/>
-                                <polyline points="12 6 12 12 16 14"/>
-                              </svg>
-                              <span className="text-xs font-medium text-gray-600">{formatCount(eatLaterCounts[dish.id] || 0)}</span>
-                            </button>
-                          </div>
+                        {/* Right: favorites + eat later */}
+                        <div className="flex items-center gap-4 shrink-0">
+                          <button
+                            onClick={() => toggleFavorite(dish)}
+                            className="flex flex-col items-center gap-0.5"
+                          >
+                            <svg viewBox="0 0 24 24" className="w-7 h-7" fill={isFavorite(dish.id) ? "#ef4444" : "none"} stroke={isFavorite(dish.id) ? "#ef4444" : "#374151"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                            </svg>
+                            <span className="text-xs font-medium text-gray-600">{formatCount(favoriteCounts[dish.id] || 0)}</span>
+                          </button>
+                          <button
+                            onClick={() => toggleEatLater(dish)}
+                            className="flex flex-col items-center gap-0.5"
+                          >
+                            <svg viewBox="0 0 24 24" className="w-7 h-7" fill="none" stroke={isInEatLater(dish.id) ? "#3b82f6" : "#374151"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                              <circle cx="12" cy="12" r="10"/>
+                              <polyline points="12 6 12 12 16 14"/>
+                            </svg>
+                            <span className="text-xs font-medium text-gray-600">{formatCount(eatLaterCounts[dish.id] || 0)}</span>
+                          </button>
                         </div>
                       </div>
                     </div>
