@@ -1049,7 +1049,7 @@ export default function HotelHomePage() {
         >
 
           {/* ODY MENU */}
-          <div ref={menuScrollRef} className="min-w-full snap-center snap-always px-4 pt-6 sm:px-6 sm:pt-8 overflow-y-auto min-h-screen pb-10 sm:pb-12">
+          <div ref={menuScrollRef} className="min-w-full snap-center snap-always px-4 pt-6 sm:px-6 sm:pt-8 overflow-y-auto min-h-screen pb-64 sm:pb-72" style={{ scrollBehavior: 'smooth' }}>
             {dishesLoadError ? (
               <div className="min-h-screen flex flex-col items-center justify-center">
                 <p className="text-white/70 text-lg sm:text-xl font-medium">{dishesLoadError}</p>
