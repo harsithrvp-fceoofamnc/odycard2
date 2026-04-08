@@ -845,9 +845,29 @@ export default function HotelHomePage() {
     setPendingEatLaterDish(null);
   };
 
-  // Rating state
+  // Hotel rating state
   const [showRatingModal, setShowRatingModal] = useState(false);
   const [ratingSubmitted, setRatingSubmitted] = useState(false);
+
+  // Dish rating state
+  const [dishRatingPopup, setDishRatingPopup] = useState<{ dish: OdyDish; stars: number; step: "stars" | "reason"; reason: string } | null>(null);
+  const [dishRatings, setDishRatings] = useState<Record<string, number>>({});
+
+  const openDishRating = (dish: OdyDish) => {
+    setDishRatingPopup({ dish, stars: 0, step: "stars", reason: "" });
+  };
+
+  const submitDishRating = () => {
+    if (!dishRatingPopup || dishRatingPopup.stars === 0) return;
+    if (dishRatingPopup.stars <= 3 && dishRatingPopup.step === "stars") {
+      setDishRatingPopup({ ...dishRatingPopup, step: "reason" });
+      return;
+    }
+    const updated = { ...dishRatings, [dishRatingPopup.dish.id]: dishRatingPopup.stars };
+    setDishRatings(updated);
+    localStorage.setItem(`ody_dish_ratings_${restaurantId}`, JSON.stringify(updated));
+    setDishRatingPopup(null);
+  };
 
   // Check if dish is favorited
   const isFavorite = (dishId: string) => {
@@ -1099,35 +1119,41 @@ export default function HotelHomePage() {
                     </div>
                     <div className="p-3 sm:p-4 rounded-b-xl sm:rounded-b-2xl bg-white overflow-hidden">
                       <div className="flex justify-between items-start gap-2">
-                        {/* Left: name + price + description */}
+                        {/* Left: veg+name, price, description, rate */}
                         <div className="flex flex-col flex-1">
+                          {/* Veg indicator + name */}
                           <div className="flex items-center gap-2">
-                            {/* Veg / Non-veg indicator */}
                             <div className={`w-4 h-4 shrink-0 border-2 rounded-sm flex items-center justify-center ${dish.isVeg ? "border-green-600" : "border-red-600"}`}>
                               <div className={`w-2 h-2 rounded-full ${dish.isVeg ? "bg-green-600" : "bg-red-600"}`}/>
                             </div>
                             <p className="text-base sm:text-lg font-semibold text-black leading-tight">{dish.name}</p>
                           </div>
-                          <p className="text-base sm:text-lg font-semibold text-black mt-0.5">₹{dish.price}</p>
+                          {/* Price indented under name */}
+                          <p className="text-base sm:text-lg font-semibold text-black mt-0.5 ml-6">₹{dish.price}</p>
+                          {/* Description */}
                           {dish.description ? (
                             <p className="text-xs sm:text-sm text-gray-500 mt-2 leading-snug">{dish.description}</p>
                           ) : null}
+                          {/* Rate row */}
+                          <button
+                            onClick={() => openDishRating(dish)}
+                            className="flex items-center gap-1.5 mt-2"
+                          >
+                            <span className="text-xs text-gray-400 font-medium">Rate?</span>
+                            {[1,2,3,4,5].map(s => (
+                              <span key={s} style={{ color: s <= (dishRatings[dish.id] || 0) ? "#FBBF24" : "#D1D5DB", fontSize: 16 }}>★</span>
+                            ))}
+                          </button>
                         </div>
                         {/* Right: favorites + eat later */}
                         <div className="flex items-center gap-4 shrink-0">
-                          <button
-                            onClick={() => toggleFavorite(dish)}
-                            className="flex flex-col items-center gap-0.5"
-                          >
+                          <button onClick={() => toggleFavorite(dish)} className="flex flex-col items-center gap-0.5">
                             <svg viewBox="0 0 24 24" className="w-7 h-7" fill={isFavorite(dish.id) ? "#ef4444" : "none"} stroke={isFavorite(dish.id) ? "#ef4444" : "#374151"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                               <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
                             </svg>
                             <span className="text-xs font-medium text-gray-600">{formatCount(favoriteCounts[dish.id] || 0)}</span>
                           </button>
-                          <button
-                            onClick={() => toggleEatLater(dish)}
-                            className="flex flex-col items-center gap-0.5"
-                          >
+                          <button onClick={() => toggleEatLater(dish)} className="flex flex-col items-center gap-0.5">
                             <svg viewBox="0 0 24 24" className="w-7 h-7" fill="none" stroke={isInEatLater(dish.id) ? "#3b82f6" : "#374151"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                               <circle cx="12" cy="12" r="10"/>
                               <polyline points="12 6 12 12 16 14"/>
@@ -1476,6 +1502,67 @@ export default function HotelHomePage() {
             </div>
           </div>
         )}
+
+      {/* DISH RATING POPUP */}
+      {dishRatingPopup && (
+        <div className="fixed inset-0 bg-black/60 flex items-end justify-center z-[2000]">
+          <div className="w-full max-w-md bg-white rounded-t-3xl px-6 pt-5 pb-10">
+            <div className="w-10 h-1 bg-gray-300 rounded-full mx-auto mb-5" />
+
+            {dishRatingPopup.step === "stars" ? (
+              <>
+                <h2 className="text-black text-lg font-semibold mb-1">Rate this dish</h2>
+                <p className="text-gray-500 text-sm mb-5">{dishRatingPopup.dish.name}</p>
+                <div className="flex justify-center gap-3 mb-4">
+                  {[1,2,3,4,5].map(s => (
+                    <button
+                      key={s}
+                      onClick={() => setDishRatingPopup({ ...dishRatingPopup, stars: s })}
+                      style={{ fontSize: 48, color: s <= dishRatingPopup.stars ? "#FBBF24" : "#E5E7EB", lineHeight: 1 }}
+                    >★</button>
+                  ))}
+                </div>
+                {dishRatingPopup.stars > 0 && (
+                  <p className="text-center text-gray-600 text-sm mb-5 font-medium">
+                    {["","Poor 😞","Fair 😐","Good 🙂","Great 😊","Excellent 🤩"][dishRatingPopup.stars]}
+                  </p>
+                )}
+                <button
+                  onClick={submitDishRating}
+                  disabled={dishRatingPopup.stars === 0}
+                  className="w-full py-3.5 rounded-2xl bg-[#0A84C1] text-white font-semibold text-base disabled:opacity-40 mb-3"
+                >
+                  {dishRatingPopup.stars > 0 && dishRatingPopup.stars <= 3 ? "Next" : "Submit"}
+                </button>
+              </>
+            ) : (
+              <>
+                <h2 className="text-black text-lg font-semibold mb-1">What could be better?</h2>
+                <p className="text-gray-500 text-sm mb-5">{dishRatingPopup.dish.name}</p>
+                <div className="flex flex-wrap gap-2 mb-6">
+                  {["Taste","Portion size","Presentation","Too spicy","Too bland","Cold","Overpriced","Other"].map(r => (
+                    <button
+                      key={r}
+                      onClick={() => setDishRatingPopup({ ...dishRatingPopup, reason: r })}
+                      className={`px-4 py-2 rounded-full text-sm border transition ${dishRatingPopup.reason === r ? "bg-red-100 border-red-400 text-red-700 font-medium" : "bg-white border-gray-200 text-gray-600"}`}
+                    >{r}</button>
+                  ))}
+                </div>
+                <button
+                  onClick={submitDishRating}
+                  disabled={!dishRatingPopup.reason}
+                  className="w-full py-3.5 rounded-2xl bg-[#0A84C1] text-white font-semibold text-base disabled:opacity-40 mb-3"
+                >Submit</button>
+              </>
+            )}
+
+            <button
+              onClick={() => setDishRatingPopup(null)}
+              className="w-full py-3 rounded-2xl bg-gray-100 text-gray-700 font-medium text-sm"
+            >Cancel</button>
+          </div>
+        </div>
+      )}
 
       </div>
     </div>
