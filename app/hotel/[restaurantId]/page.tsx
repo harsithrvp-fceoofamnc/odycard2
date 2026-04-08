@@ -1134,15 +1134,16 @@ export default function HotelHomePage() {
                           {dish.description ? (
                             <p className="text-xs sm:text-sm text-gray-500 mt-2 leading-snug">{dish.description}</p>
                           ) : null}
-                          {/* Rate row */}
+                          {/* Review button */}
                           <button
                             onClick={() => openDishRating(dish)}
-                            className="flex items-center gap-1.5 mt-2"
+                            className="mt-2 self-start flex items-center gap-1 px-3 py-1 rounded-full border border-gray-300 text-xs text-gray-500 font-medium"
                           >
-                            <span className="text-xs text-gray-400 font-medium">Rate?</span>
-                            {[1,2,3,4,5].map(s => (
-                              <span key={s} style={{ color: s <= (dishRatings[dish.id] || 0) ? "#FBBF24" : "#D1D5DB", fontSize: 16 }}>★</span>
-                            ))}
+                            <span>+</span>
+                            <span>{dishRatings[dish.id] ? "Edit review" : "Review"}</span>
+                            {dishRatings[dish.id] ? (
+                              <span style={{ color: "#FBBF24" }}>{"★".repeat(dishRatings[dish.id])}</span>
+                            ) : null}
                           </button>
                         </div>
                         {/* Right: favorites + eat later */}
