@@ -465,6 +465,7 @@ export default function HotelHomePage() {
   const [favoriteCounts, setFavoriteCounts] = useState<Record<string, number>>({});
   const [eatLaterCounts, setEatLaterCounts] = useState<Record<string, number>>({});
   const containerRef = useRef<HTMLDivElement>(null);
+  const menuScrollRef = useRef<HTMLDivElement>(null);
 
   /** Refs for Instagram-style video: one observer watches all video containers. */
   const videoContainerRefs = useRef<(HTMLDivElement | null)[]>([]);
@@ -495,7 +496,7 @@ export default function HotelHomePage() {
     activeVideoIndexRef.current = activeVideoIndex;
   }, [activeVideoIndex]);
 
-  /** IntersectionObserver: track visibility per container. Active = highest ratio >= 60%. Pause when < 40%. */
+  /** IntersectionObserver: track visibility per container. Active = highest ratio >= 50%. */
   useEffect(() => {
     const containers = videoContainerRefs.current;
     const visibilityRatios = visibilityRatiosRef.current;
@@ -511,7 +512,7 @@ export default function HotelHomePage() {
         let bestIndex: number | null = null;
         let bestRatio = 0;
         visibilityRatios.forEach((ratio, index) => {
-          if (ratio >= 0.6 && ratio > bestRatio) {
+          if (ratio >= 0.5 && ratio > bestRatio) {
             bestRatio = ratio;
             bestIndex = index;
           }
@@ -519,7 +520,7 @@ export default function HotelHomePage() {
         setActiveVideoIndex((prev) => (prev !== bestIndex ? bestIndex : prev));
       },
       {
-        root: null,
+        root: menuScrollRef.current,
         rootMargin: "0px",
         threshold: [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1],
       }
@@ -1048,7 +1049,7 @@ export default function HotelHomePage() {
         >
 
           {/* ODY MENU */}
-          <div className="min-w-full snap-center snap-always px-4 pt-6 sm:px-6 sm:pt-8 overflow-y-auto min-h-screen pb-10 sm:pb-12">
+          <div ref={menuScrollRef} className="min-w-full snap-center snap-always px-4 pt-6 sm:px-6 sm:pt-8 overflow-y-auto min-h-screen pb-10 sm:pb-12">
             {dishesLoadError ? (
               <div className="min-h-screen flex flex-col items-center justify-center">
                 <p className="text-white/70 text-lg sm:text-xl font-medium">{dishesLoadError}</p>
@@ -1062,7 +1063,7 @@ export default function HotelHomePage() {
                 {dishes.filter(d => isWithinTiming(d.timing)).map((dish, index) => (
                   <div
                     key={dish.id}
-                    className="w-full rounded-xl sm:rounded-2xl bg-white border border-gray-200 mb-4 sm:mb-6"
+                    className="w-full rounded-xl sm:rounded-2xl bg-white border border-gray-200 mb-10 sm:mb-12"
                   >
                     <div
                       className={`w-full bg-black relative overflow-hidden rounded-t-xl sm:rounded-t-2xl ${extractYouTubeVideoId(dish.videoUrl ?? "") ? "aspect-video" : "aspect-[4/3]"}`}
