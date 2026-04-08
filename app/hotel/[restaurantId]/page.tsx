@@ -1109,7 +1109,7 @@ export default function HotelHomePage() {
                         <div className="flex flex-col items-end gap-1.5 shrink-0">
                           <p className="text-base sm:text-lg font-semibold text-black">₹{dish.price}</p>
                           {/* FAVORITES & EAT LATER — single connected pill */}
-                          <div className="flex items-center rounded-full overflow-hidden" style={{ backgroundColor: '#111111' }}>
+                          <div className="flex items-center rounded-full overflow-hidden" style={{ backgroundColor: 'rgba(0,0,0,0.45)' }}>
                             <button
                               onClick={() => toggleFavorite(dish)}
                               className="flex items-center justify-center gap-2 w-24 py-2"
