@@ -775,7 +775,8 @@ export default function HotelHomePage() {
 
   // Toggle favorites (per-hotel scoped)
   const toggleFavorite = (dish: OdyDish) => {
-    if (!user || !restaurantId) return;
+    if (!user) { setMode("register"); setShowPopup(true); return; }
+    if (!restaurantId) return;
     const favKey = `ody_favorites_${restaurantId}`;
     const favCountsKey = `ody_dish_favorite_counts_${restaurantId}`;
     const isFavorite = favorites.some((d) => d.id === dish.id);
@@ -799,7 +800,8 @@ export default function HotelHomePage() {
 
   // Toggle eat later (per-hotel scoped)
   const toggleEatLater = (dish: OdyDish) => {
-    if (!user || !restaurantId) return;
+    if (!user) { setMode("register"); setShowPopup(true); return; }
+    if (!restaurantId) return;
     const laterKey = `ody_eat_later_${restaurantId}`;
     const laterCountsKey = `ody_dish_eat_later_counts_${restaurantId}`;
     const isInList = eatLater.some((d) => d.id === dish.id);
@@ -1107,32 +1109,26 @@ export default function HotelHomePage() {
                         <div className="flex flex-col items-end gap-1.5 shrink-0">
                           <p className="text-base sm:text-lg font-semibold text-black">₹{dish.price}</p>
                           {/* FAVORITES & EAT LATER — single connected pill */}
-                          <div className="flex items-center bg-black/40 backdrop-blur-sm rounded-full overflow-hidden">
+                          <div className="flex items-center rounded-full overflow-hidden" style={{ backgroundColor: '#111111' }}>
                             <button
                               onClick={() => toggleFavorite(dish)}
-                              disabled={!user}
-                              className="flex items-center justify-center gap-2 w-24 py-2 disabled:opacity-40 disabled:cursor-not-allowed"
+                              className="flex items-center justify-center gap-2 w-24 py-2"
                             >
-                              <img
-                                src={isFavorite(dish.id) ? "/heart2.png" : "/heart.png"}
-                                alt="Favorite"
-                                className="w-5 h-5"
-                                style={isFavorite(dish.id) ? {} : { filter: "brightness(0) invert(1)" }}
-                              />
-                              <span className="text-xs text-white font-medium">{formatCount(favoriteCounts[dish.id] || 0)}</span>
+                              <svg viewBox="0 0 24 24" className="w-5 h-5" fill={isFavorite(dish.id) ? "#ef4444" : "none"} stroke={isFavorite(dish.id) ? "#ef4444" : "white"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                              </svg>
+                              <span className="text-xs font-medium" style={{ color: 'white' }}>{formatCount(favoriteCounts[dish.id] || 0)}</span>
                             </button>
-                            <div className="w-px h-5 bg-white/50 shrink-0" />
+                            <div className="w-px h-5 shrink-0" style={{ backgroundColor: 'rgba(255,255,255,0.4)' }} />
                             <button
                               onClick={() => toggleEatLater(dish)}
-                              disabled={!user}
-                              className="flex items-center justify-center gap-2 w-24 py-2 disabled:opacity-40 disabled:cursor-not-allowed"
+                              className="flex items-center justify-center gap-2 w-24 py-2"
                             >
-                              {/* Eat Later: clock icon */}
-                              <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke={isInEatLater(dish.id) ? "#3b82f6" : "white"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" xmlns="http://www.w3.org/2000/svg">
+                              <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke={isInEatLater(dish.id) ? "#3b82f6" : "white"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                 <circle cx="12" cy="12" r="10"/>
                                 <polyline points="12 6 12 12 16 14"/>
                               </svg>
-                              <span className="text-xs text-white font-medium">{formatCount(eatLaterCounts[dish.id] || 0)}</span>
+                              <span className="text-xs font-medium" style={{ color: 'white' }}>{formatCount(eatLaterCounts[dish.id] || 0)}</span>
                             </button>
                           </div>
                         </div>
