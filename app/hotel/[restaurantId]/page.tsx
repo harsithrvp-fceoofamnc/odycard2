@@ -1114,27 +1114,26 @@ export default function HotelHomePage() {
                         </div>
                         <div className="flex flex-col items-end gap-1.5 shrink-0">
                           <p className="text-base sm:text-lg font-semibold text-black">₹{dish.price}</p>
-                          {/* FAVORITES & EAT LATER — single connected pill */}
-                          <div className="flex items-center rounded-full overflow-hidden" style={{ backgroundColor: 'rgba(0,0,0,0.45)' }}>
+                          {/* FAVORITES & EAT LATER */}
+                          <div className="flex items-center gap-3">
                             <button
                               onClick={() => toggleFavorite(dish)}
-                              className="flex items-center justify-center gap-2 w-24 py-2"
+                              className="flex items-center gap-1.5"
                             >
-                              <svg viewBox="0 0 24 24" className="w-5 h-5" fill={isFavorite(dish.id) ? "#ef4444" : "none"} stroke={isFavorite(dish.id) ? "#ef4444" : "white"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                              <svg viewBox="0 0 24 24" className="w-5 h-5" fill={isFavorite(dish.id) ? "#ef4444" : "none"} stroke={isFavorite(dish.id) ? "#ef4444" : "#374151"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                 <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
                               </svg>
-                              <span className="text-xs font-medium" style={{ color: 'white' }}>{formatCount(favoriteCounts[dish.id] || 0)}</span>
+                              <span className="text-xs font-medium text-gray-600">{formatCount(favoriteCounts[dish.id] || 0)}</span>
                             </button>
-                            <div className="w-px h-5 shrink-0" style={{ backgroundColor: 'rgba(255,255,255,0.4)' }} />
                             <button
                               onClick={() => toggleEatLater(dish)}
-                              className="flex items-center justify-center gap-2 w-24 py-2"
+                              className="flex items-center gap-1.5"
                             >
-                              <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke={isInEatLater(dish.id) ? "#3b82f6" : "white"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                              <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke={isInEatLater(dish.id) ? "#3b82f6" : "#374151"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                 <circle cx="12" cy="12" r="10"/>
                                 <polyline points="12 6 12 12 16 14"/>
                               </svg>
-                              <span className="text-xs font-medium" style={{ color: 'white' }}>{formatCount(eatLaterCounts[dish.id] || 0)}</span>
+                              <span className="text-xs font-medium text-gray-600">{formatCount(eatLaterCounts[dish.id] || 0)}</span>
                             </button>
                           </div>
                         </div>
