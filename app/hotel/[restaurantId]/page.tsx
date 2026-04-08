@@ -854,6 +854,7 @@ export default function HotelHomePage() {
   const [dishRatings, setDishRatings] = useState<Record<string, number>>({});
 
   const openDishRating = (dish: OdyDish) => {
+    if (!user) { setMode("register"); setShowPopup(true); return; }
     setDishRatingPopup({ dish, stars: 0, step: "stars", reason: "" });
   };
 
