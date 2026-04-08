@@ -513,7 +513,7 @@ export default function HotelHomePage() {
         let bestIndex: number | null = null;
         let bestRatio = 0;
         visibilityRatios.forEach((ratio, index) => {
-          if (ratio >= 0.3 && ratio > bestRatio) {
+          if (ratio >= 0.1 && ratio > bestRatio) {
             bestRatio = ratio;
             bestIndex = index;
           }
@@ -522,7 +522,7 @@ export default function HotelHomePage() {
       },
       {
         root: null,
-        rootMargin: "150px 0px 150px 0px",
+        rootMargin: "-30% 0px -30% 0px",
         threshold: [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1],
       }
     );
