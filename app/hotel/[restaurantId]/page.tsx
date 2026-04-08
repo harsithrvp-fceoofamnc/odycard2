@@ -512,7 +512,7 @@ export default function HotelHomePage() {
         let bestIndex: number | null = null;
         let bestRatio = 0;
         visibilityRatios.forEach((ratio, index) => {
-          if (ratio >= 0.3 && ratio > bestRatio) {
+          if (ratio >= 0.15 && ratio > bestRatio) {
             bestRatio = ratio;
             bestIndex = index;
           }
