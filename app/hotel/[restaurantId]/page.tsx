@@ -467,7 +467,8 @@ export default function HotelHomePage() {
   const containerRef = useRef<HTMLDivElement>(null);
   const menuScrollRef = useRef<HTMLDivElement>(null);
 
-  /** Refs for Instagram-style video: one observer watches all video containers. */
+  /** Refs for Instagram-style video: one observer watches all card containers. */
+  const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
   const videoContainerRefs = useRef<(HTMLDivElement | null)[]>([]);
   const videoElRefs = useRef<(HTMLVideoElement | null)[]>([]);
   const youtubePlayersRef = useRef<Map<number, YTPlayer>>(new Map());
@@ -496,9 +497,9 @@ export default function HotelHomePage() {
     activeVideoIndexRef.current = activeVideoIndex;
   }, [activeVideoIndex]);
 
-  /** IntersectionObserver: track visibility per container. Active = highest ratio >= 50%. */
+  /** IntersectionObserver: watches full card elements. Plays when card is 30% visible. */
   useEffect(() => {
-    const containers = videoContainerRefs.current;
+    const cards = cardRefs.current;
     const visibilityRatios = visibilityRatiosRef.current;
 
     const observer = new IntersectionObserver(
@@ -512,7 +513,7 @@ export default function HotelHomePage() {
         let bestIndex: number | null = null;
         let bestRatio = 0;
         visibilityRatios.forEach((ratio, index) => {
-          if (ratio >= 0.15 && ratio > bestRatio) {
+          if (ratio >= 0.3 && ratio > bestRatio) {
             bestRatio = ratio;
             bestIndex = index;
           }
@@ -527,7 +528,7 @@ export default function HotelHomePage() {
     );
 
     visibilityRatios.clear();
-    containers.forEach((el) => {
+    cards.forEach((el) => {
       if (el) {
         observer.observe(el);
       }
@@ -562,7 +563,7 @@ export default function HotelHomePage() {
     });
     if (activeVideoIndex != null) {
       const v = videoElRefs.current[activeVideoIndex];
-      if (v) v.play().catch(() => {});
+      if (v) { v.muted = true; v.play().catch(() => {}); }
       const yt = youtubePlayersRef.current.get(activeVideoIndex);
       if (yt && typeof yt.playVideo === "function") {
         try {
@@ -1063,6 +1064,10 @@ export default function HotelHomePage() {
                 {dishes.filter(d => isWithinTiming(d.timing)).map((dish, index) => (
                   <div
                     key={dish.id}
+                    ref={(el) => {
+                      cardRefs.current[index] = el ?? null;
+                      if (el) containerToIndexRef.current.set(el, index);
+                    }}
                     className="w-full rounded-xl sm:rounded-2xl bg-white border border-gray-200 mb-10 sm:mb-12"
                   >
                     <div
