@@ -903,7 +903,15 @@ export default function HotelHomePage() {
     localStorage.setItem(`ody_dish_ratings_${restaurantId}`, JSON.stringify(updated));
     setDishRatingPopup(null);
 
-    // Post to backend and update state with returned avg/count
+    // Optimistic update — calculate new avg/count instantly
+    setDishes(prev => prev.map(d => {
+      if (d.id !== dish.id) return d;
+      const newCount = d.ratingCount + 1;
+      const newAvg = parseFloat(((d.avgRating * d.ratingCount + stars) / newCount).toFixed(1));
+      return { ...d, avgRating: newAvg, ratingCount: newCount };
+    }));
+
+    // Post to backend and correct with real avg/count
     try {
       const ratingRes = await fetch(`${API_BASE}/api/ratings`, {
         method: "POST",
