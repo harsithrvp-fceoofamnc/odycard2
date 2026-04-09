@@ -389,9 +389,9 @@ function DishMediaCarousel({
   );
 }
 
-/** Format counts like YouTube: 1.9K, 2.3K, ... 999K, 1M (max) */
+/** Format counts: max 3 digits displayed, caps at 10K */
 function formatCount(n: number): string {
-  if (n >= 1_000_000) return "1M";
+  if (n >= 10_000) return "10K";
   if (n >= 1000) {
     const val = n / 1000;
     return `${parseFloat(val.toFixed(1))}K`;
@@ -1190,19 +1190,25 @@ export default function HotelHomePage() {
                           {(dish.ratingCount > 0 && dish.avgRating >= 3) || dish.favoriteCount > 0 || dish.eatLaterCount > 0 ? (
                             <div className="flex flex-wrap gap-1.5 mt-2">
                               {dish.ratingCount > 0 && dish.avgRating >= 3 ? (
-                                <span className="flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold text-white" style={{ backgroundColor: "#111" }}>
+                                <span className="flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold text-white" style={{ backgroundColor: "#111" }}>
                                   <span style={{ color: "#FBBF24" }}>★</span>
-                                  {dish.avgRating.toFixed(1)}({dish.ratingCount})
+                                  {dish.avgRating.toFixed(1)}({formatCount(dish.ratingCount)})
                                 </span>
                               ) : null}
                               {dish.favoriteCount > 0 ? (
-                                <span className="flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold text-white" style={{ backgroundColor: "#ef4444" }}>
-                                  <span>❤️</span> Liked by {dish.favoriteCount}
+                                <span className="flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold text-white" style={{ backgroundColor: "#ef4444" }}>
+                                  <svg viewBox="0 0 24 24" style={{ width: 11, height: 11 }} fill="white" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                                  </svg>
+                                  Liked by {formatCount(dish.favoriteCount)}
                                 </span>
                               ) : null}
                               {dish.eatLaterCount > 0 ? (
-                                <span className="flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold text-white" style={{ backgroundColor: "#3b82f6" }}>
-                                  <span>🕐</span> Saved by {dish.eatLaterCount}
+                                <span className="flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold text-white" style={{ backgroundColor: "#3b82f6" }}>
+                                  <svg viewBox="0 0 24 24" style={{ width: 11, height: 11 }} fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+                                  </svg>
+                                  Saved by {formatCount(dish.eatLaterCount)}
                                 </span>
                               ) : null}
                             </div>
@@ -1214,7 +1220,7 @@ export default function HotelHomePage() {
                           {/* Review button */}
                           <button
                             onClick={() => openDishRating(dish)}
-                            className="mt-2 self-start flex items-center gap-1 px-3 py-1 rounded-full border border-gray-300 text-xs text-gray-500 font-medium"
+                            className="mt-2 self-start flex items-center gap-1 px-3 py-1.5 rounded-full border border-gray-300 text-xs text-gray-500 font-medium"
                           >
                             <span>+</span>
                             <span>{dishRatings[dish.id] ? "Edit review" : "Review"}</span>
