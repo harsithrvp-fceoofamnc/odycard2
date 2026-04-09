@@ -881,12 +881,36 @@ export default function HotelHomePage() {
   const [ratingSubmitted, setRatingSubmitted] = useState(false);
 
   // Dish rating state
-  const [dishRatingPopup, setDishRatingPopup] = useState<{ dish: OdyDish; stars: number; step: "stars" | "reason"; reason: string } | null>(null);
+  const [dishRatingPopup, setDishRatingPopup] = useState<{ dish: OdyDish; stars: number; step: "stars" | "reason"; reason: string; isEdit: boolean; otherText: string } | null>(null);
   const [dishRatings, setDishRatings] = useState<Record<string, number>>({});
 
   const openDishRating = (dish: OdyDish) => {
     if (!user) { setMode("register"); setShowPopup(true); return; }
-    setDishRatingPopup({ dish, stars: 0, step: "stars", reason: "" });
+    const existingStars = dishRatings[dish.id] || 0;
+    setDishRatingPopup({ dish, stars: existingStars, step: "stars", reason: "", isEdit: existingStars > 0, otherText: "" });
+  };
+
+  const removeReview = () => {
+    if (!dishRatingPopup) return;
+    const { dish } = dishRatingPopup;
+    const oldStars = dishRatings[dish.id] || 0;
+    const updated = { ...dishRatings };
+    delete updated[dish.id];
+    setDishRatings(updated);
+    localStorage.setItem(`ody_dish_ratings_${restaurantId}`, JSON.stringify(updated));
+    setDishRatingPopup(null);
+    // Optimistic update
+    setDishes(prev => prev.map(d => {
+      if (d.id !== dish.id) return d;
+      const newCount = Math.max(0, d.ratingCount - 1);
+      const newAvg = newCount === 0 ? 0 : parseFloat(((d.avgRating * d.ratingCount - oldStars) / newCount).toFixed(1));
+      return { ...d, avgRating: newAvg, ratingCount: newCount };
+    }));
+    fetch(`${API_BASE}/api/ratings/remove`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ dish_id: Number(dish.id), visitor_name: user?.name || null }),
+    }).catch(() => {});
   };
 
   const submitDishRating = async () => {
@@ -895,7 +919,8 @@ export default function HotelHomePage() {
       setDishRatingPopup({ ...dishRatingPopup, step: "reason" });
       return;
     }
-    const { dish, stars, reason } = dishRatingPopup;
+    const { dish, stars, reason, otherText } = dishRatingPopup;
+    const finalReason = reason === "Other" ? (otherText.trim() || "Other") : reason;
 
     // Save locally so button shows user's rating
     const updated = { ...dishRatings, [dish.id]: stars };
@@ -920,7 +945,7 @@ export default function HotelHomePage() {
           hotel_id: Number(hotelId),
           dish_id: Number(dish.id),
           stars,
-          low_rating_reason: stars <= 3 ? reason : null,
+          low_rating_reason: stars <= 3 ? finalReason : null,
           visitor_name: user?.name || null,
         }),
       });
@@ -1605,7 +1630,7 @@ export default function HotelHomePage() {
 
             {dishRatingPopup.step === "stars" ? (
               <>
-                <h2 className="text-black text-lg font-semibold mb-1">Rate this dish</h2>
+                <h2 className="text-black text-lg font-semibold mb-1">{dishRatingPopup.isEdit ? "Edit review" : "Rate this dish"}</h2>
                 <p className="text-gray-500 text-sm mb-5">{dishRatingPopup.dish.name}</p>
                 <div className="flex justify-center gap-3 mb-4">
                   {[1,2,3,4,5].map(s => (
@@ -1633,18 +1658,28 @@ export default function HotelHomePage() {
               <>
                 <h2 className="text-black text-lg font-semibold mb-1">What could be better?</h2>
                 <p className="text-gray-500 text-sm mb-5">{dishRatingPopup.dish.name}</p>
-                <div className="flex flex-wrap gap-2 mb-6">
+                <div className="flex flex-wrap gap-2 mb-3">
                   {["Taste","Portion size","Presentation","Too spicy","Too bland","Cold","Overpriced","Other"].map(r => (
                     <button
                       key={r}
-                      onClick={() => setDishRatingPopup({ ...dishRatingPopup, reason: r })}
+                      onClick={() => setDishRatingPopup({ ...dishRatingPopup, reason: r, otherText: r !== "Other" ? "" : dishRatingPopup.otherText })}
                       className={`px-4 py-2 rounded-full text-sm border transition ${dishRatingPopup.reason === r ? "bg-red-100 border-red-400 text-red-700 font-medium" : "bg-white border-gray-200 text-gray-600"}`}
                     >{r}</button>
                   ))}
                 </div>
+                {dishRatingPopup.reason === "Other" && (
+                  <textarea
+                    autoFocus
+                    value={dishRatingPopup.otherText}
+                    onChange={e => setDishRatingPopup({ ...dishRatingPopup, otherText: e.target.value })}
+                    placeholder="Tell us what went wrong..."
+                    rows={3}
+                    className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm text-gray-700 resize-none focus:outline-none focus:border-blue-400 mb-3"
+                  />
+                )}
                 <button
                   onClick={submitDishRating}
-                  disabled={!dishRatingPopup.reason}
+                  disabled={!dishRatingPopup.reason || (dishRatingPopup.reason === "Other" && !dishRatingPopup.otherText.trim())}
                   className="w-full py-3.5 rounded-2xl bg-[#0A84C1] text-white font-semibold text-base disabled:opacity-40 mb-3"
                 >Submit</button>
               </>
@@ -1652,8 +1687,14 @@ export default function HotelHomePage() {
 
             <button
               onClick={() => setDishRatingPopup(null)}
-              className="w-full py-3 rounded-2xl bg-gray-100 text-gray-700 font-medium text-sm"
+              className="w-full py-3 rounded-2xl bg-gray-100 text-gray-700 font-medium text-sm mb-2"
             >Cancel</button>
+            {dishRatingPopup.isEdit && (
+              <button
+                onClick={removeReview}
+                className="w-full py-3 rounded-2xl text-red-500 font-medium text-sm"
+              >Remove review</button>
+            )}
           </div>
         </div>
       )}
