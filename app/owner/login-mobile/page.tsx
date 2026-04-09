@@ -66,7 +66,7 @@ export default function LoginMobilePage() {
 
       router.push("/owner/dashboard");
     } catch {
-      setError("Connection error. Please try again.");
+      setError("Unable to connect. Check your internet and try again.");
       setIsLoading(false);
     }
   };

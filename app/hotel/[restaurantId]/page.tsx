@@ -56,6 +56,10 @@ type OdyDish = {
   photoUrl: string;
   videoUrl?: string | null;
   isVeg: boolean;
+  avgRating: number;
+  ratingCount: number;
+  favoriteCount: number;
+  eatLaterCount: number;
 };
 
 /** Extract YouTube video ID from watch URL, embed URL, or short url. */
@@ -434,6 +438,10 @@ function mapDishFromApi(row: {
     photoUrl: row.photo_url || "/food_item_logo.png",
     videoUrl: row.video_url ?? null,
     isVeg: row.is_veg !== false,
+    avgRating: Number(row.avg_rating) || 0,
+    ratingCount: Number(row.rating_count) || 0,
+    favoriteCount: Number(row.favorite_count) || 0,
+    eatLaterCount: Number(row.eat_later_count) || 0,
   };
 }
 
@@ -736,6 +744,13 @@ export default function HotelHomePage() {
     } catch {
       setEatLaterCounts({});
     }
+
+    try {
+      const ratings = localStorage.getItem(`ody_dish_ratings_${restaurantId}`);
+      setDishRatings(ratings ? JSON.parse(ratings) : {});
+    } catch {
+      setDishRatings({});
+    }
   }, [restaurantId]);
 
   // 🔥 TIMER FOR OTP
@@ -780,41 +795,33 @@ export default function HotelHomePage() {
     if (!user) { setMode("register"); setShowPopup(true); return; }
     if (!restaurantId) return;
     const favKey = `ody_favorites_${restaurantId}`;
-    const favCountsKey = `ody_dish_favorite_counts_${restaurantId}`;
-    const isFavorite = favorites.some((d) => d.id === dish.id);
-    let updated: OdyDish[];
-    if (isFavorite) {
-      updated = favorites.filter((d) => d.id !== dish.id);
-      const newCounts = { ...favoriteCounts };
-      newCounts[dish.id] = Math.max(0, (newCounts[dish.id] || 0) - 1);
-      setFavoriteCounts(newCounts);
-      localStorage.setItem(favCountsKey, JSON.stringify(newCounts));
-    } else {
-      updated = [...favorites, dish];
-      const newCounts = { ...favoriteCounts };
-      newCounts[dish.id] = (newCounts[dish.id] || 0) + 1;
-      setFavoriteCounts(newCounts);
-      localStorage.setItem(favCountsKey, JSON.stringify(newCounts));
-    }
+    const isFav = favorites.some((d) => d.id === dish.id);
+    const action = isFav ? "remove" : "add";
+    const updated = isFav ? favorites.filter((d) => d.id !== dish.id) : [...favorites, dish];
     setFavorites(updated);
     localStorage.setItem(favKey, JSON.stringify(updated));
+    // Update backend count
+    fetch(`${API_BASE}/api/dishes/${dish.id}/favorite`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action }),
+    }).then(() => { if (hotelId) fetchDishes(hotelId); }).catch(() => {});
   };
 
   // Toggle eat later (per-hotel scoped)
   const toggleEatLater = (dish: OdyDish) => {
     if (!user) { setMode("register"); setShowPopup(true); return; }
     if (!restaurantId) return;
-    const laterKey = `ody_eat_later_${restaurantId}`;
-    const laterCountsKey = `ody_dish_eat_later_counts_${restaurantId}`;
     const isInList = eatLater.some((d) => d.id === dish.id);
     if (isInList) {
       const updated = eatLater.filter((d) => d.id !== dish.id);
-      const newCounts = { ...eatLaterCounts };
-      newCounts[dish.id] = Math.max(0, (newCounts[dish.id] || 0) - 1);
-      setEatLaterCounts(newCounts);
-      localStorage.setItem(laterCountsKey, JSON.stringify(newCounts));
       setEatLater(updated);
-      localStorage.setItem(laterKey, JSON.stringify(updated));
+      localStorage.setItem(`ody_eat_later_${restaurantId}`, JSON.stringify(updated));
+      fetch(`${API_BASE}/api/dishes/${dish.id}/eat-later`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "remove" }),
+      }).then(() => { if (hotelId) fetchDishes(hotelId); }).catch(() => {});
     } else {
       setPendingEatLaterDish(dish);
       setShowEatLaterPopup(true);
@@ -823,20 +830,18 @@ export default function HotelHomePage() {
 
   // Confirm eat later action (per-hotel scoped)
   const confirmEatLater = () => {
-    // Always close popup first no matter what
     setShowEatLaterPopup(false);
     const dish = pendingEatLaterDish;
     setPendingEatLaterDish(null);
     if (!dish || !user || !restaurantId) return;
-    const laterKey = `ody_eat_later_${restaurantId}`;
-    const laterCountsKey = `ody_dish_eat_later_counts_${restaurantId}`;
     const updated = [...eatLater, dish];
-    const newCounts = { ...eatLaterCounts };
-    newCounts[dish.id] = (newCounts[dish.id] || 0) + 1;
-    setEatLaterCounts(newCounts);
-    localStorage.setItem(laterCountsKey, JSON.stringify(newCounts));
     setEatLater(updated);
-    localStorage.setItem(laterKey, JSON.stringify(updated));
+    localStorage.setItem(`ody_eat_later_${restaurantId}`, JSON.stringify(updated));
+    fetch(`${API_BASE}/api/dishes/${dish.id}/eat-later`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "add" }),
+    }).then(() => { if (hotelId) fetchDishes(hotelId); }).catch(() => {});
   };
 
   // Cancel eat later action
@@ -858,16 +863,38 @@ export default function HotelHomePage() {
     setDishRatingPopup({ dish, stars: 0, step: "stars", reason: "" });
   };
 
-  const submitDishRating = () => {
+  const submitDishRating = async () => {
     if (!dishRatingPopup || dishRatingPopup.stars === 0) return;
     if (dishRatingPopup.stars <= 3 && dishRatingPopup.step === "stars") {
       setDishRatingPopup({ ...dishRatingPopup, step: "reason" });
       return;
     }
-    const updated = { ...dishRatings, [dishRatingPopup.dish.id]: dishRatingPopup.stars };
+    const { dish, stars, reason } = dishRatingPopup;
+
+    // Save locally so button shows user's rating
+    const updated = { ...dishRatings, [dish.id]: stars };
     setDishRatings(updated);
     localStorage.setItem(`ody_dish_ratings_${restaurantId}`, JSON.stringify(updated));
     setDishRatingPopup(null);
+
+    // Post to backend
+    try {
+      await fetch(`${API_BASE}/api/ratings`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          hotel_id: Number(hotelId),
+          dish_id: Number(dish.id),
+          stars,
+          low_rating_reason: stars <= 3 ? reason : null,
+          visitor_name: user?.name || null,
+        }),
+      });
+      // Refresh dishes to get updated avg/count
+      if (hotelId) fetchDishes(hotelId);
+    } catch {
+      // silently fail — local rating is already saved
+    }
   };
 
   // Check if dish is favorited
@@ -1135,6 +1162,14 @@ export default function HotelHomePage() {
                           {dish.description ? (
                             <p className="text-xs sm:text-sm text-gray-500 mt-2 leading-snug">{dish.description}</p>
                           ) : null}
+                          {/* Avg rating — only show if count > 0 and avg >= 3 */}
+                          {dish.ratingCount > 0 && dish.avgRating >= 3 ? (
+                            <div className="flex items-center gap-1 mt-1.5">
+                              <span style={{ color: "#FBBF24", fontSize: 14 }}>★</span>
+                              <span className="text-xs font-semibold text-black">{dish.avgRating.toFixed(1)}</span>
+                              <span className="text-xs text-gray-400">({dish.ratingCount})</span>
+                            </div>
+                          ) : null}
                           {/* Review button */}
                           <button
                             onClick={() => openDishRating(dish)}
@@ -1153,14 +1188,14 @@ export default function HotelHomePage() {
                             <svg viewBox="0 0 24 24" className="w-7 h-7" fill={isFavorite(dish.id) ? "#ef4444" : "none"} stroke={isFavorite(dish.id) ? "#ef4444" : "#374151"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                               <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
                             </svg>
-                            <span className="text-xs font-medium text-gray-600">{formatCount(favoriteCounts[dish.id] || 0)}</span>
+                            <span className="text-xs font-medium text-gray-600">{formatCount(dish.favoriteCount)}</span>
                           </button>
                           <button onClick={() => toggleEatLater(dish)} className="flex flex-col items-center gap-0.5">
                             <svg viewBox="0 0 24 24" className="w-7 h-7" fill="none" stroke={isInEatLater(dish.id) ? "#3b82f6" : "#374151"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                               <circle cx="12" cy="12" r="10"/>
                               <polyline points="12 6 12 12 16 14"/>
                             </svg>
-                            <span className="text-xs font-medium text-gray-600">{formatCount(eatLaterCounts[dish.id] || 0)}</span>
+                            <span className="text-xs font-medium text-gray-600">{formatCount(dish.eatLaterCount)}</span>
                           </button>
                         </div>
                       </div>
