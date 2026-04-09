@@ -1221,6 +1221,15 @@ export default function HotelHomePage() {
                           </div>
                           {/* Price indented under name */}
                           <p className="text-base sm:text-lg font-semibold text-black mt-0.5 ml-6">₹{dish.price}</p>
+                          {/* Quantity + timing */}
+                          {(dish.quantity || dish.timing) ? (
+                            <p className="text-xs text-gray-400 mt-1 ml-6">
+                              {[
+                                dish.quantity || null,
+                                dish.timing ? `${dish.timing.from} – ${dish.timing.to}` : null
+                              ].filter(Boolean).join(" • ")}
+                            </p>
+                          ) : null}
                           {/* Pill badges — rating, liked, saved */}
                           {(dish.ratingCount > 0 && dish.avgRating >= 3) || dish.favoriteCount > 0 || dish.eatLaterCount > 0 ? (
                             <div className="flex gap-1.5 mt-2 overflow-x-auto no-scrollbar">
