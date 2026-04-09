@@ -800,12 +800,14 @@ export default function HotelHomePage() {
     const updated = isFav ? favorites.filter((d) => d.id !== dish.id) : [...favorites, dish];
     setFavorites(updated);
     localStorage.setItem(favKey, JSON.stringify(updated));
-    // Update backend count
+    // Update backend count and reflect in state
     fetch(`${API_BASE}/api/dishes/${dish.id}/favorite`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ action }),
-    }).then(() => { if (hotelId) fetchDishes(hotelId); }).catch(() => {});
+    }).then(r => r.json()).then(data => {
+      setDishes(prev => prev.map(d => d.id === dish.id ? { ...d, favoriteCount: data.favorite_count ?? d.favoriteCount } : d));
+    }).catch(() => {});
   };
 
   // Toggle eat later (per-hotel scoped)
@@ -821,7 +823,9 @@ export default function HotelHomePage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action: "remove" }),
-      }).then(() => { if (hotelId) fetchDishes(hotelId); }).catch(() => {});
+      }).then(r => r.json()).then(data => {
+        setDishes(prev => prev.map(d => d.id === dish.id ? { ...d, eatLaterCount: data.eat_later_count ?? d.eatLaterCount } : d));
+      }).catch(() => {});
     } else {
       setPendingEatLaterDish(dish);
       setShowEatLaterPopup(true);
@@ -841,7 +845,9 @@ export default function HotelHomePage() {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ action: "add" }),
-    }).then(() => { if (hotelId) fetchDishes(hotelId); }).catch(() => {});
+    }).then(r => r.json()).then(data => {
+      setDishes(prev => prev.map(d => d.id === dish.id ? { ...d, eatLaterCount: data.eat_later_count ?? d.eatLaterCount } : d));
+    }).catch(() => {});
   };
 
   // Cancel eat later action
@@ -877,9 +883,9 @@ export default function HotelHomePage() {
     localStorage.setItem(`ody_dish_ratings_${restaurantId}`, JSON.stringify(updated));
     setDishRatingPopup(null);
 
-    // Post to backend
+    // Post to backend and update state with returned avg/count
     try {
-      await fetch(`${API_BASE}/api/ratings`, {
+      const ratingRes = await fetch(`${API_BASE}/api/ratings`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -890,8 +896,12 @@ export default function HotelHomePage() {
           visitor_name: user?.name || null,
         }),
       });
-      // Refresh dishes to get updated avg/count
-      if (hotelId) fetchDishes(hotelId);
+      const ratingData = await ratingRes.json();
+      setDishes(prev => prev.map(d => d.id === dish.id ? {
+        ...d,
+        avgRating: ratingData.avg_rating ?? d.avgRating,
+        ratingCount: ratingData.rating_count ?? d.ratingCount,
+      } : d));
     } catch {
       // silently fail — local rating is already saved
     }
