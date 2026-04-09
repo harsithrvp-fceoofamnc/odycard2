@@ -800,13 +800,19 @@ export default function HotelHomePage() {
     const updated = isFav ? favorites.filter((d) => d.id !== dish.id) : [...favorites, dish];
     setFavorites(updated);
     localStorage.setItem(favKey, JSON.stringify(updated));
-    // Update backend count and reflect in state
+    // Optimistic update — show new count instantly
+    setDishes(prev => prev.map(d => d.id === dish.id ? {
+      ...d, favoriteCount: isFav ? Math.max(0, d.favoriteCount - 1) : d.favoriteCount + 1
+    } : d));
+    // Sync with backend and correct if needed
     fetch(`${API_BASE}/api/dishes/${dish.id}/favorite`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ action }),
     }).then(r => r.json()).then(data => {
-      setDishes(prev => prev.map(d => d.id === dish.id ? { ...d, favoriteCount: data.favorite_count ?? d.favoriteCount } : d));
+      if (data.favorite_count !== undefined) {
+        setDishes(prev => prev.map(d => d.id === dish.id ? { ...d, favoriteCount: data.favorite_count } : d));
+      }
     }).catch(() => {});
   };
 
@@ -819,12 +825,18 @@ export default function HotelHomePage() {
       const updated = eatLater.filter((d) => d.id !== dish.id);
       setEatLater(updated);
       localStorage.setItem(`ody_eat_later_${restaurantId}`, JSON.stringify(updated));
+      // Optimistic update
+      setDishes(prev => prev.map(d => d.id === dish.id ? {
+        ...d, eatLaterCount: Math.max(0, d.eatLaterCount - 1)
+      } : d));
       fetch(`${API_BASE}/api/dishes/${dish.id}/eat-later`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action: "remove" }),
       }).then(r => r.json()).then(data => {
-        setDishes(prev => prev.map(d => d.id === dish.id ? { ...d, eatLaterCount: data.eat_later_count ?? d.eatLaterCount } : d));
+        if (data.eat_later_count !== undefined) {
+          setDishes(prev => prev.map(d => d.id === dish.id ? { ...d, eatLaterCount: data.eat_later_count } : d));
+        }
       }).catch(() => {});
     } else {
       setPendingEatLaterDish(dish);
@@ -841,12 +853,18 @@ export default function HotelHomePage() {
     const updated = [...eatLater, dish];
     setEatLater(updated);
     localStorage.setItem(`ody_eat_later_${restaurantId}`, JSON.stringify(updated));
+    // Optimistic update
+    setDishes(prev => prev.map(d => d.id === dish.id ? {
+      ...d, eatLaterCount: d.eatLaterCount + 1
+    } : d));
     fetch(`${API_BASE}/api/dishes/${dish.id}/eat-later`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ action: "add" }),
     }).then(r => r.json()).then(data => {
-      setDishes(prev => prev.map(d => d.id === dish.id ? { ...d, eatLaterCount: data.eat_later_count ?? d.eatLaterCount } : d));
+      if (data.eat_later_count !== undefined) {
+        setDishes(prev => prev.map(d => d.id === dish.id ? { ...d, eatLaterCount: data.eat_later_count } : d));
+      }
     }).catch(() => {});
   };
 
