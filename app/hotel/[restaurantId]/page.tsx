@@ -389,9 +389,13 @@ function DishMediaCarousel({
   );
 }
 
-/** Format counts: exact if multiple of 5 (or <5), else floor to nearest 5 + "+", caps at 10K+ */
+/** Format counts: exact if multiple of 5 (or <5), else floor to nearest 5 + "+", K for 1000+, caps 10K+ */
 function formatCount(n: number): string {
   if (n >= 10_000) return "10K+";
+  if (n >= 1000) {
+    const k = Math.floor(n / 100) / 10; // e.g. 1500 → 1.5
+    return `${k % 1 === 0 ? k.toFixed(0) : k.toFixed(1)}K`;
+  }
   if (n < 5) return String(n);
   if (n % 5 === 0) return String(n);
   return `${Math.floor(n / 5) * 5}+`;
@@ -1199,7 +1203,7 @@ export default function HotelHomePage() {
                                   <svg viewBox="0 0 24 24" style={{ width: 11, height: 11 }} fill="white" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                     <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
                                   </svg>
-                                  Liked by {formatCount(dish.favoriteCount)}
+                                  Liked by {formatCount(dish.favoriteCount)}{dish.favoriteCount >= 5 ? " people" : ""}
                                 </span>
                               ) : null}
                               {dish.eatLaterCount > 0 ? (
@@ -1207,7 +1211,7 @@ export default function HotelHomePage() {
                                   <svg viewBox="0 0 24 24" style={{ width: 11, height: 11 }} fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                     <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
                                   </svg>
-                                  Saved by {formatCount(dish.eatLaterCount)}
+                                  Saved by {formatCount(dish.eatLaterCount)}{dish.eatLaterCount >= 5 ? " people" : ""}
                                 </span>
                               ) : null}
                             </div>
