@@ -1186,17 +1186,30 @@ export default function HotelHomePage() {
                           </div>
                           {/* Price indented under name */}
                           <p className="text-base sm:text-lg font-semibold text-black mt-0.5 ml-6">₹{dish.price}</p>
+                          {/* Pill badges — rating, liked, saved */}
+                          {(dish.ratingCount > 0 && dish.avgRating >= 3) || dish.favoriteCount > 0 || dish.eatLaterCount > 0 ? (
+                            <div className="flex flex-wrap gap-1.5 mt-2">
+                              {dish.ratingCount > 0 && dish.avgRating >= 3 ? (
+                                <span className="flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold text-white" style={{ backgroundColor: "#111" }}>
+                                  <span style={{ color: "#FBBF24" }}>★</span>
+                                  {dish.avgRating.toFixed(1)}({dish.ratingCount})
+                                </span>
+                              ) : null}
+                              {dish.favoriteCount > 0 ? (
+                                <span className="flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold text-white" style={{ backgroundColor: "#ef4444" }}>
+                                  <span>❤️</span> Liked by {dish.favoriteCount}
+                                </span>
+                              ) : null}
+                              {dish.eatLaterCount > 0 ? (
+                                <span className="flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold text-white" style={{ backgroundColor: "#3b82f6" }}>
+                                  <span>🕐</span> Saved by {dish.eatLaterCount}
+                                </span>
+                              ) : null}
+                            </div>
+                          ) : null}
                           {/* Description */}
                           {dish.description ? (
                             <p className="text-xs sm:text-sm text-gray-500 mt-2 leading-snug">{dish.description}</p>
-                          ) : null}
-                          {/* Avg rating — only show if count > 0 and avg >= 3 */}
-                          {dish.ratingCount > 0 && dish.avgRating >= 3 ? (
-                            <div className="flex items-center gap-1 mt-1.5">
-                              <span style={{ color: "#FBBF24", fontSize: 14 }}>★</span>
-                              <span className="text-xs font-semibold text-black">{dish.avgRating.toFixed(1)}</span>
-                              <span className="text-xs text-gray-400">({dish.ratingCount})</span>
-                            </div>
                           ) : null}
                           {/* Review button */}
                           <button
@@ -1216,14 +1229,14 @@ export default function HotelHomePage() {
                             <svg viewBox="0 0 24 24" className="w-7 h-7" fill={isFavorite(dish.id) ? "#ef4444" : "none"} stroke={isFavorite(dish.id) ? "#ef4444" : "#374151"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                               <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
                             </svg>
-                            <span className="text-xs font-medium text-gray-600">{formatCount(dish.favoriteCount)}</span>
+                            <span className="text-xs font-medium text-gray-600">Like</span>
                           </button>
                           <button onClick={() => toggleEatLater(dish)} className="flex flex-col items-center gap-0.5">
                             <svg viewBox="0 0 24 24" className="w-7 h-7" fill="none" stroke={isInEatLater(dish.id) ? "#3b82f6" : "#374151"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                               <circle cx="12" cy="12" r="10"/>
                               <polyline points="12 6 12 12 16 14"/>
                             </svg>
-                            <span className="text-xs font-medium text-gray-600">{formatCount(dish.eatLaterCount)}</span>
+                            <span className="text-xs font-medium text-gray-600">Save</span>
                           </button>
                         </div>
                       </div>
