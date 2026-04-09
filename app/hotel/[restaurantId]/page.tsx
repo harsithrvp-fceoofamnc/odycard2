@@ -389,14 +389,13 @@ function DishMediaCarousel({
   );
 }
 
-/** Format counts: max 3 digits displayed, caps at 10K */
+/** Format counts: exact if multiple of 5 (or <5), else floor to nearest 5 + "+", caps at 10K+ */
 function formatCount(n: number): string {
-  if (n >= 10_000) return "10K";
-  if (n >= 1000) {
-    const val = n / 1000;
-    return `${parseFloat(val.toFixed(1))}K`;
-  }
-  return String(n);
+  if (n >= 10_000) return "10K+";
+  if (n < 5) return String(n);
+  if (n % 5 === 0) return String(n);
+  return `${Math.floor(n / 5) * 5}+`;
+}
 }
 
 /** Returns true if current time falls within the dish's from→to timing window. */
