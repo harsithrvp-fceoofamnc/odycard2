@@ -21,7 +21,7 @@ export default function LoginPage() {
             className="w-[480px] h-[480px] object-contain"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ duration: 1.5 }}
+            transition={{ duration: 0.3 }}
           />
         </div>
 
@@ -30,9 +30,9 @@ export default function LoginPage() {
         {/* WHITE CARD */}
         <motion.div
           className="relative z-20 bg-white rounded-t-[36px] px-8 pt-10 pb-24 min-h-screen"
-          initial={{ y: "60vh" }}
-          animate={{ y: 0 }}
-          transition={{ duration: 2, ease: "easeOut" }}
+          initial={{ y: 60, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.35, ease: "easeOut" }}
         >
           {/* BACK ARROW */}
           <button

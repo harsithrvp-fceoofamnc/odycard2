@@ -92,9 +92,9 @@ export default function LoginMobilePage() {
         {/* WHITE CARD */}
         <motion.div
           className="relative z-20 bg-white rounded-t-[36px] px-8 pt-14 pb-24 min-h-screen"
-          initial={{ y: 140, opacity: 0 }}
+          initial={{ y: 60, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 1.8, ease: "easeOut" }}
+          transition={{ duration: 0.35, ease: "easeOut" }}
         >
           {/* BACK ARROW */}
           <button
@@ -144,6 +144,7 @@ export default function LoginMobilePage() {
               type={showPassword ? "text" : "password"}
               value={password}
               onChange={(e) => { setPassword(e.target.value); setError(""); }}
+              onKeyDown={(e) => e.key === "Enter" && handleLogin()}
               className="w-full border border-gray-300 rounded-xl
                          focus:outline-none focus:border-black focus:ring-2 focus:ring-black"
               style={{ fontSize: "20px", padding: "14px 56px 14px 16px", color: "#000" }}
