@@ -1223,7 +1223,7 @@ export default function HotelHomePage() {
                           <p className="text-base sm:text-lg font-semibold text-black mt-0.5 ml-6">₹{dish.price}</p>
                           {/* Quantity + timing */}
                           {(dish.quantity || dish.timing) ? (
-                            <p className="text-xs text-gray-400 mt-1 ml-6">
+                            <p className="text-xs text-gray-400 mt-1">
                               {[
                                 dish.quantity || null,
                                 dish.timing ? `${dish.timing.from} – ${dish.timing.to}` : null
