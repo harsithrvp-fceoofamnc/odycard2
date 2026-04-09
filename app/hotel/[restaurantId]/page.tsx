@@ -1223,15 +1223,15 @@ export default function HotelHomePage() {
                           <p className="text-base sm:text-lg font-semibold text-black mt-0.5 ml-6">₹{dish.price}</p>
                           {/* Pill badges — rating, liked, saved */}
                           {(dish.ratingCount > 0 && dish.avgRating >= 3) || dish.favoriteCount > 0 || dish.eatLaterCount > 0 ? (
-                            <div className="flex flex-wrap gap-1.5 mt-2">
+                            <div className="flex gap-1.5 mt-2 overflow-x-auto no-scrollbar">
                               {dish.ratingCount > 0 && dish.avgRating >= 3 ? (
-                                <span className="flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold text-white" style={{ backgroundColor: "#111" }}>
+                                <span className="flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold text-white shrink-0" style={{ backgroundColor: "#111" }}>
                                   <span style={{ color: "#FBBF24" }}>★</span>
                                   {dish.avgRating.toFixed(1)}({formatCount(dish.ratingCount)})
                                 </span>
                               ) : null}
                               {dish.favoriteCount > 0 ? (
-                                <span className="flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold text-white" style={{ backgroundColor: "#ef4444" }}>
+                                <span className="flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold text-white shrink-0" style={{ backgroundColor: "#ef4444" }}>
                                   <svg viewBox="0 0 24 24" style={{ width: 11, height: 11 }} fill="white" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                     <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
                                   </svg>
@@ -1239,7 +1239,7 @@ export default function HotelHomePage() {
                                 </span>
                               ) : null}
                               {dish.eatLaterCount > 0 ? (
-                                <span className="flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold text-white" style={{ backgroundColor: "#3b82f6" }}>
+                                <span className="flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold text-white shrink-0" style={{ backgroundColor: "#3b82f6" }}>
                                   <svg viewBox="0 0 24 24" style={{ width: 11, height: 11 }} fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                     <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
                                   </svg>

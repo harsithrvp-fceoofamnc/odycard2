@@ -72,3 +72,7 @@ body {
     transform: rotate(720deg);
   }
 }
+
+/* Hide scrollbar for pill rows */
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
