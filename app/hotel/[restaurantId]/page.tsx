@@ -400,7 +400,6 @@ function formatCount(n: number): string {
   if (n % 5 === 0) return String(n);
   return `${Math.floor(n / 5) * 5}+`;
 }
-}
 
 /** Returns true if current time falls within the dish's from→to timing window. */
 function isWithinTiming(timing: { from: string; to: string }): boolean {
