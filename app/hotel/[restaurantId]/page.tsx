@@ -708,53 +708,39 @@ export default function HotelHomePage() {
     return () => clearInterval(interval);
   }, [hotelId, fetchDishes, menuChanged]);
 
-  // Load user auth and favorites/eat-later from localStorage (per-hotel scoped)
+  // Load user auth on mount
   useEffect(() => {
     const saved = localStorage.getItem("odyUser");
     if (saved) setUser(JSON.parse(saved));
+  }, []);
 
+  // Load user-specific favorites/eat-later/ratings whenever user or restaurant changes
+  useEffect(() => {
     if (!restaurantId || typeof restaurantId !== "string") return;
 
-    const favKey = `ody_favorites_${restaurantId}`;
-    const laterKey = `ody_eat_later_${restaurantId}`;
-    const favCountsKey = `ody_dish_favorite_counts_${restaurantId}`;
-    const laterCountsKey = `ody_dish_eat_later_counts_${restaurantId}`;
-
-    try {
-      const favs = localStorage.getItem(favKey);
-      setFavorites(favs ? JSON.parse(favs) : []);
-    } catch {
+    if (!user) {
       setFavorites([]);
-    }
-
-    try {
-      const later = localStorage.getItem(laterKey);
-      setEatLater(later ? JSON.parse(later) : []);
-    } catch {
       setEatLater([]);
-    }
-
-    try {
-      const favCounts = localStorage.getItem(favCountsKey);
-      setFavoriteCounts(favCounts ? JSON.parse(favCounts) : {});
-    } catch {
-      setFavoriteCounts({});
-    }
-
-    try {
-      const laterCounts = localStorage.getItem(laterCountsKey);
-      setEatLaterCounts(laterCounts ? JSON.parse(laterCounts) : {});
-    } catch {
-      setEatLaterCounts({});
-    }
-
-    try {
-      const ratings = localStorage.getItem(`ody_dish_ratings_${restaurantId}`);
-      setDishRatings(ratings ? JSON.parse(ratings) : {});
-    } catch {
       setDishRatings({});
+      return;
     }
-  }, [restaurantId]);
+
+    const uid = user.phone;
+    try {
+      const favs = localStorage.getItem(`ody_favorites_${uid}_${restaurantId}`);
+      setFavorites(favs ? JSON.parse(favs) : []);
+    } catch { setFavorites([]); }
+
+    try {
+      const later = localStorage.getItem(`ody_eat_later_${uid}_${restaurantId}`);
+      setEatLater(later ? JSON.parse(later) : []);
+    } catch { setEatLater([]); }
+
+    try {
+      const ratings = localStorage.getItem(`ody_dish_ratings_${uid}_${restaurantId}`);
+      setDishRatings(ratings ? JSON.parse(ratings) : {});
+    } catch { setDishRatings({}); }
+  }, [restaurantId, user]);
 
   // 🔥 TIMER FOR OTP
   useEffect(() => {
@@ -797,7 +783,7 @@ export default function HotelHomePage() {
   const toggleFavorite = (dish: OdyDish) => {
     if (!user) { setMode("register"); setShowPopup(true); return; }
     if (!restaurantId) return;
-    const favKey = `ody_favorites_${restaurantId}`;
+    const favKey = `ody_favorites_${user.phone}_${restaurantId}`;
     const isFav = favorites.some((d) => d.id === dish.id);
     const action = isFav ? "remove" : "add";
     const updated = isFav ? favorites.filter((d) => d.id !== dish.id) : [...favorites, dish];
@@ -827,7 +813,7 @@ export default function HotelHomePage() {
     if (isInList) {
       const updated = eatLater.filter((d) => d.id !== dish.id);
       setEatLater(updated);
-      localStorage.setItem(`ody_eat_later_${restaurantId}`, JSON.stringify(updated));
+      localStorage.setItem(`ody_eat_later_${user.phone}_${restaurantId}`, JSON.stringify(updated));
       // Optimistic update
       setDishes(prev => prev.map(d => d.id === dish.id ? {
         ...d, eatLaterCount: Math.max(0, d.eatLaterCount - 1)
@@ -855,7 +841,7 @@ export default function HotelHomePage() {
     if (!dish || !user || !restaurantId) return;
     const updated = [...eatLater, dish];
     setEatLater(updated);
-    localStorage.setItem(`ody_eat_later_${restaurantId}`, JSON.stringify(updated));
+    localStorage.setItem(`ody_eat_later_${user.phone}_${restaurantId}`, JSON.stringify(updated));
     // Optimistic update
     setDishes(prev => prev.map(d => d.id === dish.id ? {
       ...d, eatLaterCount: d.eatLaterCount + 1
@@ -898,7 +884,7 @@ export default function HotelHomePage() {
     const updated = { ...dishRatings };
     delete updated[dish.id];
     setDishRatings(updated);
-    localStorage.setItem(`ody_dish_ratings_${restaurantId}`, JSON.stringify(updated));
+    localStorage.setItem(`ody_dish_ratings_${user.phone}_${restaurantId}`, JSON.stringify(updated));
     setDishRatingPopup(null);
     // Optimistic update
     setDishes(prev => prev.map(d => {
@@ -926,7 +912,7 @@ export default function HotelHomePage() {
     // Save locally so button shows user's rating
     const updated = { ...dishRatings, [dish.id]: stars };
     setDishRatings(updated);
-    localStorage.setItem(`ody_dish_ratings_${restaurantId}`, JSON.stringify(updated));
+    localStorage.setItem(`ody_dish_ratings_${user.phone}_${restaurantId}`, JSON.stringify(updated));
     setDishRatingPopup(null);
 
     // Optimistic update — calculate new avg/count instantly
