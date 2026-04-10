@@ -884,7 +884,7 @@ export default function HotelHomePage() {
     const updated = { ...dishRatings };
     delete updated[dish.id];
     setDishRatings(updated);
-    localStorage.setItem(`ody_dish_ratings_${user.phone}_${restaurantId}`, JSON.stringify(updated));
+    localStorage.setItem(`ody_dish_ratings_${user?.phone || "guest"}_${restaurantId}`, JSON.stringify(updated));
     setDishRatingPopup(null);
     // Optimistic update
     setDishes(prev => prev.map(d => {
@@ -912,7 +912,7 @@ export default function HotelHomePage() {
     // Save locally so button shows user's rating
     const updated = { ...dishRatings, [dish.id]: stars };
     setDishRatings(updated);
-    localStorage.setItem(`ody_dish_ratings_${user.phone}_${restaurantId}`, JSON.stringify(updated));
+    localStorage.setItem(`ody_dish_ratings_${user?.phone || "guest"}_${restaurantId}`, JSON.stringify(updated));
     setDishRatingPopup(null);
 
     // Optimistic update — calculate new avg/count instantly
