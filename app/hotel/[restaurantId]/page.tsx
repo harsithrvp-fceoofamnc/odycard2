@@ -465,6 +465,7 @@ export default function HotelHomePage() {
   const [dishesLoadError, setDishesLoadError] = useState<string | null>(null);
   const [activeFilters, setActiveFilters] = useState<string[]>([]);
   const [dishes, setDishes] = useState<OdyDish[]>([]);
+  const [expandedDescriptions, setExpandedDescriptions] = useState<Record<string, boolean>>({});
   const [hotelId, setHotelId] = useState<string | null>(null);
   // Stores a signature of each dish so edits, hides and deletes all trigger the buffer
   const prevDishIdsRef = useRef<Set<string>>(new Set());
@@ -1259,7 +1260,19 @@ export default function HotelHomePage() {
                           ) : null}
                           {/* Description */}
                           {dish.description ? (
-                            <p className="text-xs sm:text-sm text-gray-500 mt-2 leading-snug">{dish.description}</p>
+                            <div className="mt-2">
+                              <p className={`text-xs sm:text-sm text-gray-500 leading-snug ${expandedDescriptions[dish.id] ? "" : "line-clamp-2"}`}>
+                                {dish.description}
+                              </p>
+                              {dish.description.length > 80 ? (
+                                <button
+                                  onClick={() => setExpandedDescriptions(prev => ({ ...prev, [dish.id]: !prev[dish.id] }))}
+                                  className="text-xs text-blue-500 font-medium mt-0.5"
+                                >
+                                  {expandedDescriptions[dish.id] ? "less" : "...more"}
+                                </button>
+                              ) : null}
+                            </div>
                           ) : null}
                           {/* Review button */}
                           <button
