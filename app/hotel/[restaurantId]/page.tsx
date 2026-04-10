@@ -1208,7 +1208,7 @@ export default function HotelHomePage() {
                         />
                       )}
                     </div>
-                    <div className="p-3 sm:p-4 rounded-b-xl sm:rounded-b-2xl bg-white overflow-hidden">
+                    <div className="p-3 sm:p-4 rounded-b-xl sm:rounded-b-2xl bg-white">
                       <div className="flex justify-between items-start gap-2">
                         {/* Left: veg+name, price, description, rate */}
                         <div className="flex flex-col flex-1">
