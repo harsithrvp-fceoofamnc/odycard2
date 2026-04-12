@@ -87,9 +87,9 @@ export default function OwnerDashboard() {
         }
       } catch (err) {
         if (cancelled) return;
-        if (attempt < 4) {
-          setLoadError(`Server is starting up, please wait... (${attempt}/3)`);
-          setTimeout(() => loadHotel(attempt + 1), 6000);
+        if (attempt < 7) {
+          setLoadError(`Server is starting up, please wait... (${attempt}/6)`);
+          setTimeout(() => loadHotel(attempt + 1), 8000);
         } else {
           console.error("Dashboard load error:", err);
           setLoadError("Failed to load dashboard. Please check your internet and try again.");
@@ -111,12 +111,6 @@ export default function OwnerDashboard() {
     return (
       <div className="min-h-screen bg-black flex flex-col items-center justify-center gap-4 px-6">
         <p className="text-white/80 text-center">{loadError}</p>
-        <button
-          onClick={() => router.push("/owner/details")}
-          className="px-6 py-2 rounded-full bg-[#0A84C1] text-white"
-        >
-          Complete signup
-        </button>
       </div>
     );
   }
