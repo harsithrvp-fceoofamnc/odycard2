@@ -21,6 +21,7 @@ export default function OwnerDashboard() {
   const [restaurantId, setRestaurantId] = useState<string | null>(null);
   const [hotelId, setHotelId] = useState<string | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   const [showLogoSheet, setShowLogoSheet] = useState(false);
   const [showCoverSheet, setShowCoverSheet] = useState(false);
@@ -72,6 +73,7 @@ export default function OwnerDashboard() {
           localStorage.setItem("cached_cover_url", hotel.cover_url);
         }
         setLoadError(null);
+        setIsLoading(false);
 
         const statsRes = await fetch(`${API_BASE}/api/stats/${hotel.id}`);
         if (statsRes.ok) {
@@ -88,7 +90,8 @@ export default function OwnerDashboard() {
       } catch (err) {
         if (cancelled) return;
         if (attempt < 7) {
-          setLoadError(`Server is starting up, please wait... (${attempt}/6)`);
+          setIsLoading(true);
+          setLoadError(null);
           setTimeout(() => loadHotel(attempt + 1), 8000);
         } else {
           console.error("Dashboard load error:", err);
@@ -107,10 +110,17 @@ export default function OwnerDashboard() {
 
   const card = "border border-gray-200 rounded-2xl p-4 bg-white";
 
-  if (loadError) {
+  if (isLoading || loadError) {
     return (
       <div className="min-h-screen bg-black flex flex-col items-center justify-center gap-4 px-6">
-        <p className="text-white/80 text-center">{loadError}</p>
+        {isLoading && !loadError ? (
+          <>
+            <div className="w-10 h-10 border-4 border-white/20 border-t-white rounded-full animate-spin" />
+            <p className="text-white/60 text-sm">Loading your dashboard...</p>
+          </>
+        ) : (
+          <p className="text-white/80 text-center">{loadError}</p>
+        )}
       </div>
     );
   }
