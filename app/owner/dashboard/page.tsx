@@ -47,15 +47,15 @@ export default function OwnerDashboard() {
 
     let cancelled = false;
 
-    async function loadHotel() {
+    async function loadHotel(attempt = 1) {
       try {
         const res = await fetch(`${API_BASE}/api/hotels/${encodeURIComponent(slug!)}`);
         if (!res.ok) {
-          setLoadError(res.status === 404
-            ? "Hotel not found. Please complete signup."
-            : "Failed to load dashboard."
-          );
-          return;
+          if (res.status === 404) {
+            setLoadError("Hotel not found. Please complete signup.");
+            return;
+          }
+          throw new Error("Server error");
         }
         const hotel = await res.json();
         if (cancelled) return;
@@ -63,7 +63,6 @@ export default function OwnerDashboard() {
         setRestaurantId(hotel.slug);
         setHotelId(String(hotel.id));
 
-        // Update state + cache so next navigation is instant
         if (hotel.logo_url) {
           setRestaurantLogo(hotel.logo_url);
           localStorage.setItem("cached_logo_url", hotel.logo_url);
@@ -74,7 +73,6 @@ export default function OwnerDashboard() {
         }
         setLoadError(null);
 
-        // load stats using numeric hotel id
         const statsRes = await fetch(`${API_BASE}/api/stats/${hotel.id}`);
         if (statsRes.ok) {
           const s = await statsRes.json();
@@ -88,9 +86,13 @@ export default function OwnerDashboard() {
           }
         }
       } catch (err) {
-        if (!cancelled) {
+        if (cancelled) return;
+        if (attempt < 4) {
+          setLoadError(`Server is starting up, please wait... (${attempt}/3)`);
+          setTimeout(() => loadHotel(attempt + 1), 6000);
+        } else {
           console.error("Dashboard load error:", err);
-          setLoadError("Failed to load dashboard.");
+          setLoadError("Failed to load dashboard. Please check your internet and try again.");
         }
       }
     }
