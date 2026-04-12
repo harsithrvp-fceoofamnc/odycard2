@@ -6,6 +6,13 @@ import RatingModal from "@/components/RatingModal";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5050";
 
+// Keep Render backend awake by pinging every 9 minutes
+if (typeof window !== "undefined") {
+  setInterval(() => {
+    fetch(`${API_BASE}/`).catch(() => {});
+  }, 9 * 60 * 1000);
+}
+
 /** YouTube Iframe API types (loaded via script tag). */
 declare global {
   interface Window {
