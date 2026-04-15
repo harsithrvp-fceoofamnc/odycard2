@@ -33,11 +33,5 @@ export async function POST(req: NextRequest) {
   }
 }
 
-// Vercel has a 4.5MB body limit by default — increase for image uploads
-export const config = {
-  api: {
-    bodyParser: {
-      sizeLimit: "50mb",
-    },
-  },
-};
+// Increase body size limit for image/video uploads (App Router way)
+export const maxDuration = 60;
