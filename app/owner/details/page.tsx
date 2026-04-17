@@ -379,7 +379,7 @@ export default function RestaurantDetailsPage() {
 
         {/* BOTTOM BAR */}
         <div className="absolute bottom-0 left-0 w-full border-t bg-white px-6 py-5">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
             <button
               type="button"
               onClick={() => router.back()}
@@ -387,7 +387,6 @@ export default function RestaurantDetailsPage() {
             >
               Back
             </button>
-            <span className="text-sm text-gray-400 font-medium">Page 1 of 2</span>
             <button
               type="button"
               onClick={handleNext}
@@ -395,6 +394,7 @@ export default function RestaurantDetailsPage() {
             >
               Next
             </button>
+            <span className="text-sm text-gray-400 font-medium">Page 1 of 2</span>
           </div>
         </div>
       </div>
