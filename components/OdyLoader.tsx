@@ -1,19 +1,21 @@
 "use client";
 
-export default function OdyLoader({ progress = 0, showProgress = true }: { progress?: number; showProgress?: boolean }) {
+export default function OdyLoader({ progress = 0 }: { progress?: number }) {
   return (
     <div className="loader-wrapper">
-      <div className="flex flex-col items-center gap-4">
-        <img
-          src="/buffer_logo.png"
-          alt="OdyCard Logo"
-          className="ody-logo"
+      {/* Spinning logo */}
+      <img
+        src="/buffer_logo.png"
+        alt="OdyCard"
+        className="ody-logo"
+      />
+
+      {/* macOS style thin progress bar at bottom */}
+      <div className="ody-progress-track">
+        <div
+          className="ody-progress-fill"
+          style={{ width: `${progress}%` }}
         />
-        {showProgress && (
-          <p style={{ color: "#fff", fontSize: "16px", fontWeight: 600, letterSpacing: "0.5px" }}>
-            {progress}%
-          </p>
-        )}
       </div>
     </div>
   );

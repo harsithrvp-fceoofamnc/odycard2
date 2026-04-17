@@ -70,6 +70,7 @@ export function LoaderProvider({ children }: { children: React.ReactNode }) {
     targetRef.current = 0;
     setProgressState(0);
     showLoaderStartRef.current = Date.now();
+    document.body.style.overflow = "hidden"; // lock scroll
     setLoading(true);
 
     // Auto-creep: slowly go from 0 → 90% while loading
@@ -124,6 +125,7 @@ export function LoaderProvider({ children }: { children: React.ReactNode }) {
       currentRef.current = 0;
       setProgressState(0);
       setLoading(false);
+      document.body.style.overflow = ""; // unlock scroll
     }, remaining + 300); // small pause at 100% before disappearing
   };
 
@@ -133,8 +135,8 @@ export function LoaderProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <LoaderContext.Provider value={{ showLoader, hideLoader, setProgress }}>
-      {loading && <OdyLoader progress={progress} />}
       {children}
+      {loading && <OdyLoader progress={progress} />}
     </LoaderContext.Provider>
   );
 }
