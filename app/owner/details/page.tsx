@@ -379,26 +379,22 @@ export default function RestaurantDetailsPage() {
 
         {/* BOTTOM BAR */}
         <div className="absolute bottom-0 left-0 w-full border-t bg-white px-6 py-5">
-          <div className="flex items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <button
-                type="button"
-                onClick={() => router.back()}
-                className="px-8 py-3 rounded-xl border border-gray-300 text-base text-gray-700 font-medium"
-              >
-                Back
-              </button>
-              <button
-                type="button"
-                onClick={handleNext}
-                className="px-8 py-3 rounded-xl text-base font-semibold bg-[#0A84C1] text-white"
-              >
-                Next
-              </button>
-            </div>
-            <div className="flex items-center gap-3 min-w-[140px]">
-              <span className="text-sm text-gray-500 whitespace-nowrap">Page 1 of 2</span>
-            </div>
+          <div className="flex items-center justify-between">
+            <button
+              type="button"
+              onClick={() => router.back()}
+              className="px-8 py-3 rounded-xl border border-gray-300 text-base text-gray-700 font-medium"
+            >
+              Back
+            </button>
+            <span className="text-sm text-gray-400 font-medium">Page 1 of 2</span>
+            <button
+              type="button"
+              onClick={handleNext}
+              className="px-8 py-3 rounded-xl text-base font-semibold bg-[#0A84C1] text-white"
+            >
+              Next
+            </button>
           </div>
         </div>
       </div>

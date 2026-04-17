@@ -551,29 +551,25 @@ export default function DetailsPart2() {
         </div>
 
         <div className="absolute bottom-0 left-0 w-full border-t bg-white px-6 py-4">
-          <div className="flex justify-between gap-4 items-center">
-            <div className="flex gap-3">
-              <button
-                type="button"
-                onClick={() => router.back()}
-                className="px-8 py-3 rounded-xl border border-gray-300 text-base font-medium text-gray-700"
-              >
-                Back
-              </button>
-              <button
-                type="button"
-                onClick={handleSubmit}
-                disabled={isSubmitDisabled}
-                className={`px-8 py-3 rounded-xl text-base font-semibold disabled:opacity-70 disabled:cursor-not-allowed ${
-                  isSubmitDisabled ? "bg-gray-200 text-gray-400" : "bg-[#0A84C1] text-white"
-                }`}
-              >
-                {isSubmitting ? "Creating..." : "Submit"}
-              </button>
-            </div>
-            <div className="flex gap-3 min-w-[140px] items-center">
-              <span className="text-sm text-gray-500 whitespace-nowrap">Page 2 of 2</span>
-            </div>
+          <div className="flex items-center justify-between">
+            <button
+              type="button"
+              onClick={() => router.back()}
+              className="px-8 py-3 rounded-xl border border-gray-300 text-base font-medium text-gray-700"
+            >
+              Back
+            </button>
+            <span className="text-sm text-gray-400 font-medium">Page 2 of 2</span>
+            <button
+              type="button"
+              onClick={handleSubmit}
+              disabled={isSubmitDisabled}
+              className={`px-8 py-3 rounded-xl text-base font-semibold disabled:opacity-70 disabled:cursor-not-allowed ${
+                isSubmitDisabled ? "bg-gray-200 text-gray-400" : "bg-[#0A84C1] text-white"
+              }`}
+            >
+              {isSubmitting ? "Creating..." : "Submit"}
+            </button>
           </div>
         </div>
       </div>
