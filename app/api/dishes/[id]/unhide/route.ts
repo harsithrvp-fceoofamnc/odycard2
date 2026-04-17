@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getPool } from "@/lib/db";
+import { getSupabase } from "@/lib/supabase";
 
-// PATCH /api/dishes/[id]/unhide
 export async function PATCH(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const pool = getPool();
+    const sb = getSupabase();
     const { id } = await params;
-    await pool.query("UPDATE dishes SET is_active=true, hidden_at=NULL WHERE id=$1", [id]);
+    const { error } = await sb.from("dishes").update({ is_active: true, hidden_at: null }).eq("id", id);
+    if (error) throw error;
     return NextResponse.json({ success: true });
   } catch (e: unknown) {
     console.error("PATCH /api/dishes/[id]/unhide:", e);

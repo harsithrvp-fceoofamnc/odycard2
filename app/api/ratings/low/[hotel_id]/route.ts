@@ -1,20 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getPool } from "@/lib/db";
+import { getSupabase } from "@/lib/supabase";
 
-// GET /api/ratings/low/[hotel_id]
 export async function GET(_req: NextRequest, { params }: { params: Promise<{ hotel_id: string }> }) {
   try {
-    const pool = getPool();
+    const sb = getSupabase();
     const { hotel_id } = await params;
-    const result = await pool.query(
-      `SELECT low_rating_reason, COUNT(*)::integer AS count
-       FROM ratings WHERE hotel_id=$1 AND stars<=2 AND low_rating_reason IS NOT NULL
-       GROUP BY low_rating_reason ORDER BY count DESC`,
-      [hotel_id]
-    );
-    return NextResponse.json(result.rows);
+    const { data: rows } = await sb.from("ratings").select("low_rating_reason").eq("hotel_id", hotel_id).lte("stars", 2).not("low_rating_reason", "is", null);
+    const counts: Record<string, number> = {};
+    for (const r of rows || []) {
+      counts[r.low_rating_reason] = (counts[r.low_rating_reason] || 0) + 1;
+    }
+    const result = Object.entries(counts).map(([low_rating_reason, count]) => ({ low_rating_reason, count })).sort((a, b) => b.count - a.count);
+    return NextResponse.json(result);
   } catch (e: unknown) {
-    console.error("GET /api/ratings/low/[hotel_id]:", e);
+    console.error("GET /api/ratings/low:", e);
     return NextResponse.json({ error: "Server error" }, { status: 500 });
   }
 }

@@ -15,7 +15,6 @@ const generateTimeOptions = () => {
       times.push(`${hh}:${mm}`);
     }
   }
-  times.push("24:00"); // midnight as end-of-day option
   return times;
 };
 
@@ -347,8 +346,8 @@ export default function DishDetailsPage() {
                         is_veg: vegType === "veg",
                         quantity: quantity.trim() || null,
                         description: description.trim() || null,
-                        timing_from: fromTime === "24:00" ? "00:00" : fromTime,
-                        timing_to: toTime === "24:00" ? "00:00" : toTime,
+                        timing_from: fromTime,
+                        timing_to: toTime,
                         photo_url: photoUrl,
                         video_url: videoId
                           ? `https://www.youtube.com/watch?v=${videoId}`

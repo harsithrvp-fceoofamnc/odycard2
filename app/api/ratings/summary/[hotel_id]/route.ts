@@ -1,26 +1,24 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getPool } from "@/lib/db";
+import { getSupabase } from "@/lib/supabase";
 
-// GET /api/ratings/summary/[hotel_id]
 export async function GET(_req: NextRequest, { params }: { params: Promise<{ hotel_id: string }> }) {
   try {
-    const pool = getPool();
+    const sb = getSupabase();
     const { hotel_id } = await params;
-    const summary = await pool.query(
-      `SELECT
-         COUNT(*)::integer AS total_ratings,
-         ROUND(AVG(stars)::numeric,1) AS avg_rating,
-         COUNT(CASE WHEN stars=5 THEN 1 END)::integer AS five_star,
-         COUNT(CASE WHEN stars=4 THEN 1 END)::integer AS four_star,
-         COUNT(CASE WHEN stars=3 THEN 1 END)::integer AS three_star,
-         COUNT(CASE WHEN stars=2 THEN 1 END)::integer AS two_star,
-         COUNT(CASE WHEN stars=1 THEN 1 END)::integer AS one_star
-       FROM ratings WHERE hotel_id=$1`,
-      [hotel_id]
-    );
-    return NextResponse.json(summary.rows[0]);
+    const { data: rows } = await sb.from("ratings").select("stars").eq("hotel_id", hotel_id);
+    const r = rows || [];
+    const total = r.length;
+    const avg = total ? Math.round((r.reduce((s, x) => s + x.stars, 0) / total) * 10) / 10 : 0;
+    return NextResponse.json({
+      total_ratings: total, avg_rating: avg,
+      five_star: r.filter(x => x.stars === 5).length,
+      four_star: r.filter(x => x.stars === 4).length,
+      three_star: r.filter(x => x.stars === 3).length,
+      two_star: r.filter(x => x.stars === 2).length,
+      one_star: r.filter(x => x.stars === 1).length,
+    });
   } catch (e: unknown) {
-    console.error("GET /api/ratings/summary/[hotel_id]:", e);
+    console.error("GET /api/ratings/summary:", e);
     return NextResponse.json({ error: "Server error" }, { status: 500 });
   }
 }

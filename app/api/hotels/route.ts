@@ -1,10 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getPool } from "@/lib/db";
+import { getSupabase } from "@/lib/supabase";
 
-// POST /api/hotels — create hotel
 export async function POST(req: NextRequest) {
   try {
-    const pool = getPool();
+    const sb = getSupabase();
     const { name, logo_url, cover_url, cover_original_url } = await req.json();
     if (!name) return NextResponse.json({ error: "name is required" }, { status: 400 });
 
@@ -14,17 +13,21 @@ export async function POST(req: NextRequest) {
     let finalSlug = slug;
     let attempt = 0;
     while (true) {
-      const existing = await pool.query("SELECT id FROM hotels WHERE slug = $1", [finalSlug]);
-      if (existing.rows.length === 0) break;
+      const { data } = await sb.from("hotels").select("id").eq("slug", finalSlug).maybeSingle();
+      if (!data) break;
       attempt++;
       finalSlug = `${slug}-${attempt}`;
     }
 
-    const result = await pool.query(
-      `INSERT INTO hotels (name, slug, logo_url, cover_url, cover_original_url) VALUES ($1,$2,$3,$4,$5) RETURNING *`,
-      [name, finalSlug, logo_url ?? null, cover_url ?? null, cover_original_url ?? null]
-    );
-    return NextResponse.json(result.rows[0], { status: 201 });
+    const { data, error } = await sb.from("hotels").insert({
+      name, slug: finalSlug,
+      logo_url: logo_url ?? null,
+      cover_url: cover_url ?? null,
+      cover_original_url: cover_original_url ?? null,
+    }).select().single();
+
+    if (error) throw error;
+    return NextResponse.json(data, { status: 201 });
   } catch (e: unknown) {
     console.error("POST /api/hotels:", e);
     return NextResponse.json({ error: "Server error" }, { status: 500 });

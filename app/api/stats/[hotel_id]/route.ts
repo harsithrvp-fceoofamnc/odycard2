@@ -1,34 +1,28 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getPool } from "@/lib/db";
+import { getSupabase } from "@/lib/supabase";
 
-// GET /api/stats/[hotel_id]
 export async function GET(_req: NextRequest, { params }: { params: Promise<{ hotel_id: string }> }) {
   try {
-    const pool = getPool();
+    const sb = getSupabase();
     const { hotel_id } = await params;
 
-    const [dishStats, ratingStats] = await Promise.all([
-      pool.query(
-        `SELECT COUNT(*)::integer AS total_dishes,
-                COUNT(CASE WHEN video_url IS NOT NULL AND video_url!='' THEN 1 END)::integer AS videos_uploaded
-         FROM dishes WHERE hotel_id=$1 AND is_active=true`,
-        [hotel_id]
-      ),
-      pool.query(
-        `SELECT ROUND(AVG(stars)::numeric,1) AS avg_rating, COUNT(*)::integer AS total_ratings
-         FROM ratings WHERE hotel_id=$1`,
-        [hotel_id]
-      ),
+    const [{ data: dishes }, { data: ratings }] = await Promise.all([
+      sb.from("dishes").select("video_url").eq("hotel_id", hotel_id).eq("is_active", true),
+      sb.from("ratings").select("stars").eq("hotel_id", hotel_id),
     ]);
 
+    const d = dishes || [];
+    const r = ratings || [];
+    const avg = r.length ? Math.round((r.reduce((s, x) => s + x.stars, 0) / r.length) * 10) / 10 : 0;
+
     return NextResponse.json({
-      total_dishes: dishStats.rows[0].total_dishes,
-      videos_uploaded: dishStats.rows[0].videos_uploaded,
-      avg_rating: ratingStats.rows[0].avg_rating ?? 0,
-      total_ratings: ratingStats.rows[0].total_ratings ?? 0,
+      total_dishes: d.length,
+      videos_uploaded: d.filter(x => x.video_url && x.video_url !== "").length,
+      avg_rating: avg,
+      total_ratings: r.length,
     });
   } catch (e: unknown) {
-    console.error("GET /api/stats/[hotel_id]:", e);
+    console.error("GET /api/stats:", e);
     return NextResponse.json({ error: "Server error" }, { status: 500 });
   }
 }
