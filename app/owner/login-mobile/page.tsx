@@ -81,7 +81,7 @@ export default function LoginMobilePage() {
         {/* LOGO */}
         <div className="fixed top-0 left-1/2 -translate-x-1/2 w-full max-w-md h-[45vh] flex items-center justify-center z-10">
           <img
-            src="/logo.png"
+            src="/logo1.jpeg"
             alt="OdyCard Logo"
             className="w-[520px] h-[520px] object-contain"
           />

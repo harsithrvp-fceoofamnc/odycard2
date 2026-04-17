@@ -1105,7 +1105,7 @@ export default function HotelHomePage() {
               </button>
             )}
 
-            <img src="/logo.png" className="w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 object-contain" alt="" />
+            <img src="/logo1.jpeg" className="w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 object-contain" alt="" />
           </div>
         </div>
 
