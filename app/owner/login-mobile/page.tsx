@@ -76,7 +76,7 @@ export default function LoginMobilePage() {
       <div className="relative w-full max-w-md min-h-screen overflow-hidden">
 
         {/* DARK BACKGROUND */}
-        <div className="absolute inset-0 bg-[#1c1c1c] z-0" />
+        <div className="absolute inset-0 bg-black z-0" />
 
         {/* LOGO */}
         <div className="fixed top-0 left-1/2 -translate-x-1/2 w-full max-w-md h-[45vh] flex items-center justify-center z-10">
