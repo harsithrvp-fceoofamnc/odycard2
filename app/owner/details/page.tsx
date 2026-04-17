@@ -398,7 +398,6 @@ export default function RestaurantDetailsPage() {
             </div>
             <div className="flex items-center gap-3 min-w-[140px]">
               <span className="text-sm text-gray-500 whitespace-nowrap">Page 1 of 2</span>
-              <ProgressBar progress={50} className="flex-1 h-[6px]" />
             </div>
           </div>
         </div>

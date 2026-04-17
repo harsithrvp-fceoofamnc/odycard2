@@ -573,7 +573,6 @@ export default function DetailsPart2() {
             </div>
             <div className="flex gap-3 min-w-[140px] items-center">
               <span className="text-sm text-gray-500 whitespace-nowrap">Page 2 of 2</span>
-              <ProgressBar progress={100} className="flex-1 h-[6px]" />
             </div>
           </div>
         </div>
