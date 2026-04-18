@@ -39,7 +39,7 @@ export default function SplashPage() {
       }}
     >
       <img
-        src="/logo1.jpeg"
+        src="/logo.png"
         alt="Splash"
         style={{
           width: "140%",

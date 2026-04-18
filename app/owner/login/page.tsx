@@ -16,7 +16,7 @@ export default function LoginPage() {
         {/* LOGO */}
         <div className="fixed top-0 left-1/2 -translate-x-1/2 w-full max-w-md h-[40vh] flex items-center justify-center z-10">
           <motion.img
-            src="/logo1.jpeg"
+            src="/logo.png"
             alt="OdyCard Logo"
             className="w-[480px] h-[480px] object-contain"
             initial={{ opacity: 0 }}
