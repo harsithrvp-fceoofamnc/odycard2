@@ -149,15 +149,10 @@ export default function RestaurantDetailsPage() {
         setProgress(creepValue);
       }, 400);
 
-      // Run restaurant ID check + mobile check in parallel
-      const checks = await Promise.all([
-        fetchWithRetry(`${API_BASE}/api/hotels/${encodeURIComponent(slug)}`),
-        !isGoogle ? fetchWithRetry(`${API_BASE}/api/owners/check-mobile?mobile=${encodeURIComponent(mobile)}`) : Promise.resolve(null),
-      ]);
+      // Check restaurant ID availability only
+      const res = await fetchWithRetry(`${API_BASE}/api/hotels/${encodeURIComponent(slug)}`);
       clearInterval(creepTimer);
       setProgress(100);
-
-      const [res, mobileRes] = checks;
 
       // Validate restaurant ID
       if (res.status === 200) {
@@ -174,23 +169,6 @@ export default function RestaurantDetailsPage() {
         hideLoader();
         setErrors((prev) => ({ ...prev, restaurantId: "Could not verify Restaurant ID. Please try again." }));
         return;
-      }
-
-      // Validate mobile availability
-      if (!isGoogle && mobileRes) {
-        if (mobileRes.status >= 500) {
-          hideLoader();
-          setErrors((prev) => ({ ...prev, mobile: "Server is starting up — please wait 30 seconds and try again." }));
-          return;
-        }
-        if (mobileRes.ok) {
-          const mobileData = await mobileRes.json();
-          if (mobileData.exists) {
-            hideLoader();
-            setErrors((prev) => ({ ...prev, mobile: "This mobile number is already registered. Please login instead." }));
-            return;
-          }
-        }
       }
 
       hideLoader();
@@ -382,7 +360,7 @@ export default function RestaurantDetailsPage() {
           <div className="flex items-center gap-4">
             <button
               type="button"
-              onClick={() => router.back()}
+              onClick={() => router.push("/owner/phone")}
               className="px-8 py-3 rounded-xl border border-gray-300 text-base text-gray-700 font-medium"
             >
               Back

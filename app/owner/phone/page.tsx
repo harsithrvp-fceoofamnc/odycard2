@@ -1,29 +1,58 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
+import { API_BASE } from "@/lib/api";
 
 export default function PhonePage() {
   const router = useRouter();
   const [mobile, setMobile] = useState("");
+  const [error, setError] = useState("");
+  const [isChecking, setIsChecking] = useState(false);
+
+  // Restore mobile number if user comes back from details page
+  useEffect(() => {
+    const saved = sessionStorage.getItem("signup_mobile");
+    if (saved) setMobile(saved);
+  }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value.replace(/\D/g, "");
     if (value.length <= 10) setMobile(value);
+    setError("");
   };
 
-  const handleSendOtp = (e: React.FormEvent) => {
+  const handleSendOtp = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (mobile.length === 10) {
-      // Clear any leftover form data from a previous signup attempt
-      sessionStorage.removeItem("signup_form");
-      sessionStorage.removeItem("signup_password");
-      sessionStorage.removeItem("signup_google_gmail");
-      sessionStorage.setItem("signup_mobile", mobile);
-      sessionStorage.setItem("signup_method", "mobile");
-      router.push("/owner/otp");
+    if (mobile.length !== 10) return;
+
+    setIsChecking(true);
+    setError("");
+
+    try {
+      const res = await fetch(`${API_BASE}/api/owners/check-mobile?mobile=${encodeURIComponent(mobile)}`);
+      const data = await res.json();
+
+      if (data.exists) {
+        setError("This number is already registered. Please log in instead.");
+        setIsChecking(false);
+        return;
+      }
+    } catch {
+      setError("Could not verify number. Check your connection and try again.");
+      setIsChecking(false);
+      return;
     }
+
+    // Clear any leftover form data from a previous signup attempt
+    sessionStorage.removeItem("signup_form");
+    sessionStorage.removeItem("signup_password");
+    sessionStorage.removeItem("signup_google_gmail");
+    sessionStorage.setItem("signup_mobile", mobile);
+    sessionStorage.setItem("signup_method", "mobile");
+    setIsChecking(false);
+    router.push("/owner/otp");
   };
 
   const isValid = mobile.length === 10;
@@ -80,22 +109,29 @@ export default function PhonePage() {
               placeholder="Enter mobile number"
               value={mobile}
               onChange={handleChange}
-              className="w-full border border-gray-300 rounded-2xl mb-10
-                         focus:outline-none focus:border-black focus:ring-1 focus:ring-black"
+              className={`w-full border rounded-2xl mb-3
+                         focus:outline-none focus:border-black focus:ring-1 focus:ring-black
+                         ${error ? "border-red-500" : "border-gray-300"}`}
               style={{ fontSize: "20px", padding: "18px 20px", color: "#000" }}
             />
 
+            {error && (
+              <p className="text-red-500 text-sm mb-6">{error}</p>
+            )}
+
+            {!error && <div className="mb-6" />}
+
             <button
               type="submit"
-              disabled={!isValid}
+              disabled={!isValid || isChecking}
               className={`w-full rounded-full font-semibold transition ${
-                isValid
+                isValid && !isChecking
                   ? "bg-[#0A84C1] text-white"
                   : "bg-gray-300 text-gray-500 cursor-not-allowed"
               }`}
               style={{ fontSize: "20px", padding: "14px" }}
             >
-              Send OTP
+              {isChecking ? "Checking..." : "Send OTP"}
             </button>
           </form>
         </motion.div>
