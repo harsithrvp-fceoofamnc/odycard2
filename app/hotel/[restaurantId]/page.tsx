@@ -1139,13 +1139,13 @@ export default function HotelHomePage() {
 
           <div className="absolute bottom-0 left-0 right-0 z-30 w-full">
             <div className="flex w-full px-2 h-12 sm:h-14 items-center bg-black/60 backdrop-blur-md border-t border-white/10">
-              {tabs.filter(t => t !== "Ody Menu").map((tab) => {
+              {tabs.filter(t => odyMenuHidden ? t !== "Ody Menu" : true).map((tab) => {
                 const index = tabs.indexOf(tab);
                 return (
                   <button
                     key={tab}
                     onClick={() => goToTab(index)}
-                    className={`flex-1 py-2 rounded-full whitespace-nowrap text-base font-semibold transition ${
+                    className={`flex-1 py-2 rounded-full whitespace-nowrap ${odyMenuHidden ? "text-base" : "text-sm"} font-semibold transition ${
                       activeTab === index
                         ? "bg-white text-black shadow-md"
                         : "text-white/80 hover:text-white"
