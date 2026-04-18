@@ -32,13 +32,14 @@ function extractYouTubeId(url: string): string | null {
 }
 
 function isOutsideTiming(from: string, to: string): boolean {
+  if (from === to) return false; // same = all day, always visible
   const now = new Date();
   const nowMins = now.getHours() * 60 + now.getMinutes();
   const [fh, fm] = from.split(":").map(Number);
   const [th, tm] = to.split(":").map(Number);
   const fromMins = fh * 60 + fm;
   const toMins = th * 60 + tm;
-  if (fromMins <= toMins) {
+  if (fromMins < toMins) {
     return nowMins < fromMins || nowMins > toMins;
   } else {
     // overnight (e.g. 22:00 – 02:00)
