@@ -7,8 +7,8 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ para
     const { param } = await params;
     const full = req.nextUrl.searchParams.get("full") === "true";
     const fields = full
-      ? "id, name, slug, logo_url, cover_url, cover_original_url, created_at"
-      : "id, name, slug, logo_url, cover_url, created_at";
+      ? "id, name, slug, logo_url, cover_url, cover_original_url, ody_menu_hidden, created_at"
+      : "id, name, slug, logo_url, cover_url, ody_menu_hidden, created_at";
     const { data, error } = await sb.from("hotels").select(fields).eq("slug", param).maybeSingle();
     if (error) throw error;
     if (!data) return NextResponse.json({ error: "Hotel not found" }, { status: 404 });
@@ -48,6 +48,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ pa
     if (body.logo_url !== undefined) update.logo_url = body.logo_url;
     if ("cover_url" in body) update.cover_url = body.cover_url;
     if ("cover_original_url" in body) update.cover_original_url = body.cover_original_url;
+    if ("ody_menu_hidden" in body) update.ody_menu_hidden = body.ody_menu_hidden;
     const { data, error } = await sb.from("hotels").update(update).eq("id", param).select().single();
     if (error) throw error;
     if (!data) return NextResponse.json({ error: "Hotel not found" }, { status: 404 });

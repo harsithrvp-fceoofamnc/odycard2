@@ -68,6 +68,9 @@
         const [dishes, setDishes] = useState<DishForBlock[]>([]);
         const [loadError, setLoadError] = useState<string | null>(null);
         const [isLoading, setIsLoading] = useState(true);
+        const [odyMenuHidden, setOdyMenuHidden] = useState(false);
+        const [hotelDbId, setHotelDbId] = useState<string | null>(null);
+        const [isTogglingOdyMenu, setIsTogglingOdyMenu] = useState(false);
 
         const [categories, setCategories] = useState<Category[]>([
           { id: 1, name: "Category - 1" },
@@ -117,6 +120,8 @@
               if (cancelled) return;
               setLogo(hotel.logo_url || "");
               setCover(hotel.cover_url || "");
+              setOdyMenuHidden(hotel.ody_menu_hidden === true);
+              setHotelDbId(String(hotel.id));
 
               const dishesRes = await fetch(
                 `${API_BASE}/api/dishes?hotel_id=${encodeURIComponent(hotel.id)}&all=true`
@@ -145,6 +150,24 @@
         }, [restaurantId]);
 
         // Reload just the dishes list (called after hide/delete)
+        const handleToggleOdyMenu = async () => {
+          if (!hotelDbId) return;
+          setIsTogglingOdyMenu(true);
+          const newVal = !odyMenuHidden;
+          try {
+            await fetch(`${API_BASE}/api/hotels/${hotelDbId}`, {
+              method: "PATCH",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ ody_menu_hidden: newVal }),
+            });
+            setOdyMenuHidden(newVal);
+          } catch {
+            // ignore
+          } finally {
+            setIsTogglingOdyMenu(false);
+          }
+        };
+
         const reloadDishes = async () => {
           if (!restaurantId) return;
           try {
@@ -296,6 +319,21 @@
               >
                 {/* ================= ODY MENU TAB ================= */}
                 <div className="min-w-full snap-center pt-8 min-h-screen px-6 pb-12">
+                    {/* HIDE ODY MENU TOGGLE */}
+                  <div className="flex items-center justify-between bg-white rounded-2xl px-5 py-4 mb-6 shadow-sm">
+                    <div>
+                      <p className="text-black font-semibold text-[15px]">Hide Ody Menu</p>
+                      <p className="text-gray-400 text-[12px] mt-0.5">Customers won't see the Ody Menu tab</p>
+                    </div>
+                    <button
+                      onClick={handleToggleOdyMenu}
+                      disabled={isTogglingOdyMenu}
+                      className={`relative w-12 h-6 rounded-full transition-colors duration-200 ${odyMenuHidden ? "bg-[#0A84C1]" : "bg-gray-300"}`}
+                    >
+                      <span className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform duration-200 ${odyMenuHidden ? "translate-x-6" : "translate-x-0"}`} />
+                    </button>
+                  </div>
+
                   {/* OWNER DISH BLOCKS */}
                   {dishes.length > 0 && (
                     <div className="mb-8">

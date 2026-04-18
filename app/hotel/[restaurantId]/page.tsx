@@ -469,6 +469,8 @@ export default function HotelHomePage() {
   const [logo, setLogo] = useState("");
   const [cover, setCover] = useState("");
   const [restaurantName, setRestaurantName] = useState("");
+  const [odyMenuHidden, setOdyMenuHidden] = useState(false);
+  const prevOdyMenuHiddenRef = useRef(false);
   const [dishesLoadError, setDishesLoadError] = useState<string | null>(null);
   const [activeFilters, setActiveFilters] = useState<string[]>([]);
   const [dishes, setDishes] = useState<OdyDish[]>([]);
@@ -667,6 +669,13 @@ export default function HotelHomePage() {
         setCover(hotel.cover_url || "");
         setRestaurantName(hotel.name || "");
         setHotelId(String(hotel.id));
+        const newOdyHidden = hotel.ody_menu_hidden === true;
+        if (newOdyHidden && !prevOdyMenuHiddenRef.current && activeTab === 0) {
+          // Owner just hid Ody Menu while customer is on it — trigger buffer
+          setIsRefreshing(true);
+        }
+        prevOdyMenuHiddenRef.current = newOdyHidden;
+        setOdyMenuHidden(newOdyHidden);
 
         const newDishes = await fetchDishes(String(hotel.id));
         if (cancelled) return;
@@ -1130,19 +1139,22 @@ export default function HotelHomePage() {
 
           <div className="absolute bottom-0 left-0 right-0 z-30 w-full">
             <div className="flex w-full px-2 h-12 sm:h-14 items-center bg-black/60 backdrop-blur-md border-t border-white/10">
-              {tabs.map((tab, index) => (
-                <button
-                  key={tab}
-                  onClick={() => goToTab(index)}
-                  className={`flex-1 py-2 rounded-full whitespace-nowrap text-sm font-semibold transition ${
-                    activeTab === index
-                      ? "bg-white text-black shadow-md"
-                      : "text-white/80 hover:text-white"
-                  }`}
-                >
-                  {tab}
-                </button>
-              ))}
+              {tabs.filter(t => t !== "Ody Menu").map((tab) => {
+                const index = tabs.indexOf(tab);
+                return (
+                  <button
+                    key={tab}
+                    onClick={() => goToTab(index)}
+                    className={`flex-1 py-2 rounded-full whitespace-nowrap text-base font-semibold transition ${
+                      activeTab === index
+                        ? "bg-white text-black shadow-md"
+                        : "text-white/80 hover:text-white"
+                    }`}
+                  >
+                    {tab}
+                  </button>
+                );
+              })}
             </div>
           </div>
         </div>
@@ -1156,7 +1168,11 @@ export default function HotelHomePage() {
 
           {/* ODY MENU */}
           <div ref={menuScrollRef} className="min-w-full snap-center snap-always px-4 pt-6 sm:px-6 sm:pt-8 overflow-y-auto min-h-screen pb-64 sm:pb-72" style={{ scrollBehavior: 'smooth' }}>
-            {dishesLoadError ? (
+            {odyMenuHidden ? (
+              <div className="flex flex-col items-center justify-start pt-16 sm:pt-20">
+                <p className="text-white/70 text-lg sm:text-xl font-medium">Coming soon</p>
+              </div>
+            ) : dishesLoadError ? (
               <div className="min-h-screen flex flex-col items-center justify-center">
                 <p className="text-white/70 text-lg sm:text-xl font-medium">{dishesLoadError}</p>
               </div>
