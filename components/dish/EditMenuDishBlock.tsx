@@ -31,6 +31,21 @@ function extractYouTubeId(url: string): string | null {
   return match ? match[1] : null;
 }
 
+function isOutsideTiming(from: string, to: string): boolean {
+  const now = new Date();
+  const nowMins = now.getHours() * 60 + now.getMinutes();
+  const [fh, fm] = from.split(":").map(Number);
+  const [th, tm] = to.split(":").map(Number);
+  const fromMins = fh * 60 + fm;
+  const toMins = th * 60 + tm;
+  if (fromMins <= toMins) {
+    return nowMins < fromMins || nowMins > toMins;
+  } else {
+    // overnight (e.g. 22:00 – 02:00)
+    return nowMins > toMins && nowMins < fromMins;
+  }
+}
+
 export default function EditMenuDishBlock({ dish, restaurantId, onRefresh }: EditMenuDishBlockProps) {
   const router = useRouter();
   const hasVideo = Boolean(dish.videoUrl && dish.videoUrl.trim());
@@ -40,6 +55,10 @@ export default function EditMenuDishBlock({ dish, restaurantId, onRefresh }: Edi
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isHidden, setIsHidden] = useState(dish.isActive === false);
+  const [isDeleted, setIsDeleted] = useState(false);
+
+  const outsideTiming = isOutsideTiming(dish.timing.from, dish.timing.to);
+  const showHiddenBadge = isHidden || outsideTiming;
 
   const handleEdit = () => {
     if (!restaurantId) return;
@@ -69,25 +88,22 @@ export default function EditMenuDishBlock({ dish, restaurantId, onRefresh }: Edi
   };
 
   const handleDeleteConfirm = async () => {
-    setIsLoading(true);
-    try {
-      await fetch(`${API_BASE}/api/dishes/${dish.id}`, { method: "DELETE" });
-      setShowDeleteConfirm(false);
-      onRefresh?.();
-    } catch {
-      // ignore
-    } finally {
-      setIsLoading(false);
-    }
+    // Immediately remove from UI
+    setShowDeleteConfirm(false);
+    setIsDeleted(true);
+    // Fire API in background
+    fetch(`${API_BASE}/api/dishes/${dish.id}`, { method: "DELETE" }).catch(() => {});
   };
+
+  if (isDeleted) return null;
 
   return (
     <>
       <div className="rounded-2xl border border-gray-200 overflow-hidden bg-white mb-6">
         {/* Hidden badge for owner */}
-        {isHidden && (
+        {showHiddenBadge && (
           <div className="bg-gray-800 text-white text-xs font-semibold text-center py-1 tracking-wide">
-            HIDDEN FROM CUSTOMERS
+            {outsideTiming && !isHidden ? "HIDDEN FROM CUSTOMERS (OUTSIDE TIMING)" : "HIDDEN FROM CUSTOMERS"}
           </div>
         )}
         {/* MEDIA */}
