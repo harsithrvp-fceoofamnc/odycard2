@@ -701,14 +701,41 @@ export default function HotelHomePage() {
     };
   }, [restaurantId, fetchDishes]);
 
-  // Polling: refetch dishes every 5s when hotelId is available
+  // Polling: refetch dishes + hotel every 4s
   useEffect(() => {
-    if (!hotelId) return;
+    if (!hotelId || !restaurantId) return;
 
     const poll = async () => {
+      // Check hotel for ody_menu_hidden changes
+      try {
+        const hotelRes = await fetch(`${API_BASE}/api/hotels/${encodeURIComponent(restaurantId)}`);
+        if (hotelRes.ok) {
+          const hotel = await hotelRes.json();
+          const newOdyHidden = hotel.ody_menu_hidden === true;
+          if (newOdyHidden && !prevOdyMenuHiddenRef.current) {
+            // Owner just hid Ody Menu — show buffer, then remove tab
+            prevOdyMenuHiddenRef.current = true;
+            setIsRefreshing(true);
+            await new Promise((r) => setTimeout(r, 1800));
+            setOdyMenuHidden(true);
+            setActiveTab(1);
+            if (containerRef.current) {
+              containerRef.current.scrollTo({ left: containerRef.current.clientWidth * 1, behavior: "smooth" });
+            }
+            setIsRefreshing(false);
+            return;
+          }
+          if (!newOdyHidden && prevOdyMenuHiddenRef.current) {
+            // Owner unhid Ody Menu
+            prevOdyMenuHiddenRef.current = false;
+            setOdyMenuHidden(false);
+          }
+        }
+      } catch { /* ignore */ }
+
+      // Check dishes for changes
       const newDishes = await fetchDishes(hotelId);
       if (newDishes === null) return;
-
       if (!menuChanged(newDishes)) return;
 
       setIsRefreshing(true);
@@ -722,7 +749,7 @@ export default function HotelHomePage() {
 
     const interval = setInterval(poll, 4000);
     return () => clearInterval(interval);
-  }, [hotelId, fetchDishes, menuChanged]);
+  }, [hotelId, restaurantId, fetchDishes, menuChanged]);
 
   // Load user auth on mount
   useEffect(() => {

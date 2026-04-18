@@ -152,20 +152,15 @@
         // Reload just the dishes list (called after hide/delete)
         const handleToggleOdyMenu = async () => {
           if (!hotelDbId) return;
-          setIsTogglingOdyMenu(true);
           const newVal = !odyMenuHidden;
-          try {
-            await fetch(`${API_BASE}/api/hotels/${hotelDbId}`, {
-              method: "PATCH",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ ody_menu_hidden: newVal }),
-            });
-            setOdyMenuHidden(newVal);
-          } catch {
-            // ignore
-          } finally {
-            setIsTogglingOdyMenu(false);
-          }
+          setOdyMenuHidden(newVal); // instant visual response
+          fetch(`${API_BASE}/api/hotels/${hotelDbId}`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ ody_menu_hidden: newVal }),
+          }).catch(() => {
+            setOdyMenuHidden(!newVal); // revert on error
+          });
         };
 
         const reloadDishes = async () => {
