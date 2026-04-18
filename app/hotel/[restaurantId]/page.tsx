@@ -4,7 +4,7 @@ import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useSta
 import { useParams } from "next/navigation";
 import RatingModal from "@/components/RatingModal";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5050";
+const API_BASE = (process.env.NEXT_PUBLIC_API_URL && process.env.NEXT_PUBLIC_API_URL.trim() !== "") ? process.env.NEXT_PUBLIC_API_URL.trim() : "";
 
 // Keep Render backend awake by pinging every 9 minutes
 if (typeof window !== "undefined") {
