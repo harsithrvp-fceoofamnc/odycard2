@@ -708,7 +708,7 @@ export default function HotelHomePage() {
     const poll = async () => {
       // Check hotel for ody_menu_hidden changes
       try {
-        const hotelRes = await fetch(`${API_BASE}/api/hotels/${encodeURIComponent(restaurantId)}`);
+        const hotelRes = await fetch(`${API_BASE}/api/hotels/${encodeURIComponent(restaurantId)}?_t=${Date.now()}`, { cache: "no-store" });
         if (hotelRes.ok) {
           const hotel = await hotelRes.json();
           const newOdyHidden = hotel.ody_menu_hidden === true;
