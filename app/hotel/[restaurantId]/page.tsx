@@ -747,8 +747,16 @@ export default function HotelHomePage() {
       setIsRefreshing(false);
     };
 
-    const interval = setInterval(poll, 4000);
-    return () => clearInterval(interval);
+    const interval = setInterval(poll, 2000);
+
+    // Also poll immediately when tab becomes visible again (mobile browser wake)
+    const onVisible = () => { if (document.visibilityState === "visible") poll(); };
+    document.addEventListener("visibilitychange", onVisible);
+
+    return () => {
+      clearInterval(interval);
+      document.removeEventListener("visibilitychange", onVisible);
+    };
   }, [hotelId, restaurantId, fetchDishes, menuChanged]);
 
   // Load user auth on mount
