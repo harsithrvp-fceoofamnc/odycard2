@@ -670,10 +670,6 @@ export default function HotelHomePage() {
         setRestaurantName(hotel.name || "");
         setHotelId(String(hotel.id));
         const newOdyHidden = hotel.ody_menu_hidden === true;
-        if (newOdyHidden && !prevOdyMenuHiddenRef.current && activeTab === 0) {
-          // Owner just hid Ody Menu while customer is on it — trigger buffer
-          setIsRefreshing(true);
-        }
         prevOdyMenuHiddenRef.current = newOdyHidden;
         setOdyMenuHidden(newOdyHidden);
 
