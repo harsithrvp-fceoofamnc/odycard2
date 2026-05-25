@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useRouter, useParams, useSearchParams } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import EditMenuDishBlock from "@/components/dish/EditMenuDishBlock";
 import { API_BASE } from "@/lib/api";
 
@@ -63,6 +63,7 @@ export default function EditMenuPage() {
   const containerRef = useRef<HTMLDivElement>(null);
 
   const [activeTab, setActiveTab] = useState(0);
+
   const [logo, setLogo] = useState(() =>
     typeof window !== "undefined" ? localStorage.getItem("cached_logo_url") || "" : ""
   );
@@ -96,9 +97,10 @@ export default function EditMenuPage() {
 
   // Scroll to correct tab from URL param (e.g. ?tab=1 after adding a menu dish)
   useEffect(() => {
-    const tab = parseInt(searchParams.get("tab") ?? "0");
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+    const tab = parseInt(params.get("tab") ?? "0");
     if (tab === 1) {
-      // Delay until layout is ready
       const timer = setTimeout(() => goToTab(1), 200);
       return () => clearTimeout(timer);
     }
