@@ -154,13 +154,20 @@
           if (!hotelDbId) return;
           const newVal = !odyMenuHidden;
           setOdyMenuHidden(newVal); // instant visual response
-          fetch(`${API_BASE}/api/hotels/${hotelDbId}`, {
-            method: "PATCH",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ ody_menu_hidden: newVal }),
-          }).catch(() => {
-            setOdyMenuHidden(!newVal); // revert on error
-          });
+          try {
+            const res = await fetch(`${API_BASE}/api/hotels/${hotelDbId}`, {
+              method: "PATCH",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ ody_menu_hidden: newVal }),
+            });
+            if (!res.ok) {
+              console.error("Toggle ody_menu_hidden failed:", await res.text());
+              setOdyMenuHidden(!newVal); // revert
+            }
+          } catch (e) {
+            console.error("Toggle ody_menu_hidden error:", e);
+            setOdyMenuHidden(!newVal); // revert
+          }
         };
 
         const reloadDishes = async () => {

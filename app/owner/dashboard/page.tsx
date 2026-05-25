@@ -108,7 +108,7 @@ export default function OwnerDashboard() {
     setUserName(localStorage.getItem("userName") || "Owner");
   }, []);
 
-  const card = "border border-gray-200 rounded-2xl p-4 bg-white";
+  const card = "border border-gray-200 rounded-2xl p-4 bg-white h-24 flex flex-col justify-center";
 
   if (isLoading || loadError) {
     return (
@@ -198,7 +198,7 @@ export default function OwnerDashboard() {
                 router.push(`/owner/hotel/${slug}/edit-menu`);
               }}
             >
-              <div className="flex items-center justify-center gap-3 h-full py-1">
+              <div className="flex items-center justify-center gap-3">
                 <img src="/add.png" className="w-7 h-7" alt="" />
                 <p className="text-black text-[16px] font-semibold">Edit Menu</p>
               </div>
@@ -218,7 +218,7 @@ export default function OwnerDashboard() {
               className={`${card} cursor-pointer hover:shadow-md transition`}
               onClick={() => router.push("/owner/qr")}
             >
-              <div className="flex items-center justify-center gap-3 h-full py-1">
+              <div className="flex items-center justify-center gap-3">
                 <img src="/qr.png" className="w-7 h-7" alt="" />
                 <p className="text-black text-[16px] font-semibold">View QR</p>
               </div>
@@ -238,7 +238,7 @@ export default function OwnerDashboard() {
               className={`${card} cursor-pointer hover:shadow-md transition`}
               onClick={() => router.push("/owner/details")}
             >
-              <div className="flex items-center justify-center gap-3 h-full py-1">
+              <div className="flex items-center justify-center gap-3">
                 <img src="/User.png" className="w-7 h-7" alt="" />
                 <p className="text-black text-[16px] font-semibold">Profile</p>
               </div>

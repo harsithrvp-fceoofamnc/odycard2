@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabase } from "@/lib/supabase";
 
+export const dynamic = "force-dynamic";
+
 export async function GET(req: NextRequest, { params }: { params: Promise<{ param: string }> }) {
   try {
     const sb = getSupabase();
@@ -12,7 +14,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ para
     const { data, error } = await sb.from("hotels").select(fields).eq("slug", param).maybeSingle();
     if (error) throw error;
     if (!data) return NextResponse.json({ error: "Hotel not found" }, { status: 404 });
-    return NextResponse.json(data);
+    return NextResponse.json(data, { headers: { "Cache-Control": "no-store, no-cache, must-revalidate" } });
   } catch (e: unknown) {
     console.error("GET /api/hotels/[param]:", e);
     return NextResponse.json({ error: "Server error" }, { status: 500 });
