@@ -1381,7 +1381,7 @@ export default function HotelHomePage() {
             </div>
 
             {/* TAGS PLACEHOLDER */}
-            <div className="mt-4 w-full">
+            <div className="mt-7 w-full">
               <div className="h-px bg-white/20 w-full" />
               <div className="h-16 w-full" />
               <div className="h-px bg-white/20 w-full" />
