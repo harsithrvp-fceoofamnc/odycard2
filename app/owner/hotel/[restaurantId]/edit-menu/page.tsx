@@ -168,7 +168,21 @@ export default function EditMenuPage() {
           `${API_BASE}/api/categories?hotel_id=${encodeURIComponent(hotel.id)}`
         );
         if (catRes.ok) {
-          const cats = await catRes.json();
+          let cats = await catRes.json();
+          // Auto-create "Category - 1" if none exist yet
+          if (!Array.isArray(cats) || cats.length === 0) {
+            const createRes = await fetch(`${API_BASE}/api/categories`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ hotel_id: hotel.id, name: "Category - 1" }),
+            });
+            if (createRes.ok) {
+              const created = await createRes.json();
+              cats = created && created.id ? [created] : [];
+            } else {
+              cats = [];
+            }
+          }
           if (!cancelled) setCategories(Array.isArray(cats) ? cats : []);
         }
       } catch (err) {
