@@ -1364,7 +1364,30 @@ export default function HotelHomePage() {
           </div>
 
           {/* MENU */}
-          <div className="min-w-full snap-center snap-always px-4 pt-6 sm:px-6 sm:pt-8 overflow-y-auto min-h-screen pb-64 sm:pb-72">
+          <div className="relative min-w-full snap-center snap-always pt-14 sm:pt-16 overflow-y-auto min-h-screen pb-64 sm:pb-72">
+
+            {/* SEARCH + TAGS HEADER */}
+            <div className="px-4 sm:px-6 pt-4 sm:pt-6">
+              {/* Search bar */}
+              <div className="w-full rounded-full bg-white flex items-center px-4 sm:px-5 shadow-md gap-3 h-12 sm:h-14">
+                <img src="/search.png" className="w-5 h-5 sm:w-6 sm:h-6 opacity-60" alt="" />
+                <input
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  placeholder={`Search in ${restaurantName || "this restaurant"}`}
+                  className="flex-1 bg-transparent outline-none text-base sm:text-lg text-black placeholder-gray-400 min-w-0"
+                />
+              </div>
+
+              {/* Tags placeholder — dish tag filters will go here */}
+              <div className="mt-4 h-9 sm:h-10 w-full" />
+
+              {/* Divider */}
+              <div className="h-px bg-white/20 w-full mb-4" />
+            </div>
+
+            {/* CATEGORY CONTENT */}
+            <div className="px-4 sm:px-6">
             {(() => {
               // Only show categories that have at least one dish
               const catsWithDishes = menuCategories.filter(cat => (menuDishes[cat.id] ?? []).length > 0);
@@ -1435,6 +1458,7 @@ export default function HotelHomePage() {
                 </div>
               );
             })()}
+            </div>
           </div>
 
           {/* EAT LATER */}
