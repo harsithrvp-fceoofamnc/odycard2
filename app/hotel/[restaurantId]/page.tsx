@@ -1364,10 +1364,10 @@ export default function HotelHomePage() {
           </div>
 
           {/* MENU */}
-          <div className="relative min-w-full snap-center snap-always pt-3 overflow-y-auto min-h-screen pb-64 sm:pb-72">
+          <div className="min-w-full snap-center snap-always overflow-y-auto min-h-screen pb-64 sm:pb-72">
 
             {/* SEARCH + TAGS HEADER */}
-            <div className="px-4 sm:px-6 pt-1">
+            <div className="px-4 sm:px-6 pt-4 sm:pt-5">
               {/* Search bar */}
               <div className="w-full rounded-full bg-white flex items-center px-4 sm:px-5 shadow-md gap-3 h-12 sm:h-14">
                 <img src="/search.png" className="w-5 h-5 sm:w-6 sm:h-6 opacity-60" alt="" />
