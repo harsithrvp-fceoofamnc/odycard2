@@ -1367,7 +1367,7 @@ export default function HotelHomePage() {
           <div className="relative min-w-full snap-center snap-always pt-14 sm:pt-16 overflow-y-auto min-h-screen pb-64 sm:pb-72">
 
             {/* SEARCH + TAGS HEADER */}
-            <div className="px-4 sm:px-6 pt-4 sm:pt-6">
+            <div className="px-4 sm:px-6 pt-1 sm:pt-2">
               {/* Search bar */}
               <div className="w-full rounded-full bg-white flex items-center px-4 sm:px-5 shadow-md gap-3 h-12 sm:h-14">
                 <img src="/search.png" className="w-5 h-5 sm:w-6 sm:h-6 opacity-60" alt="" />
@@ -1378,12 +1378,15 @@ export default function HotelHomePage() {
                   className="flex-1 bg-transparent outline-none text-base sm:text-lg text-black placeholder-gray-400 min-w-0"
                 />
               </div>
+            </div>
 
-              {/* Tags placeholder — dish tag filters will go here */}
-              <div className="mt-4 h-9 sm:h-10 w-full" />
-
-              {/* Divider */}
-              <div className="h-px bg-white/20 w-full mb-4" />
+            {/* TAGS PLACEHOLDER */}
+            <div className="mt-4 w-full">
+              <div className="h-px bg-white/20 w-full" />
+              <div className="h-16 w-full flex items-center justify-center">
+                <p className="text-white/60 text-sm text-center">Tags assigned to food items will appear here</p>
+              </div>
+              <div className="h-px bg-white/20 w-full" />
             </div>
 
             {/* CATEGORY CONTENT */}
