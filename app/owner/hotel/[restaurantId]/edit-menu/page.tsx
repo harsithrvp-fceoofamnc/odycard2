@@ -59,7 +59,6 @@ export default function EditMenuPage() {
   const params = useParams();
   const restaurantId = params?.restaurantId as string | undefined;
   const router = useRouter();
-  const searchParams = useSearchParams();
   const containerRef = useRef<HTMLDivElement>(null);
 
   const [activeTab, setActiveTab] = useState(0);
