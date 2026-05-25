@@ -1383,9 +1383,7 @@ export default function HotelHomePage() {
             {/* TAGS PLACEHOLDER */}
             <div className="mt-4 w-full">
               <div className="h-px bg-white/20 w-full" />
-              <div className="h-16 w-full flex items-center justify-center">
-                <p className="text-white/60 text-sm text-center">empty</p>
-              </div>
+              <div className="h-16 w-full" />
               <div className="h-px bg-white/20 w-full" />
             </div>
 
