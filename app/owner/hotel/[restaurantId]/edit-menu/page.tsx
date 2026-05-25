@@ -1,542 +1,662 @@
-      "use client";
+"use client";
 
-      import { useEffect, useRef, useState } from "react";
-      import { useRouter, useParams } from "next/navigation";
-      import EditMenuDishBlock from "@/components/dish/EditMenuDishBlock";
-      import { API_BASE } from "@/lib/api";
+import { useEffect, useRef, useState } from "react";
+import { useRouter, useParams, useSearchParams } from "next/navigation";
+import EditMenuDishBlock from "@/components/dish/EditMenuDishBlock";
+import { API_BASE } from "@/lib/api";
 
-      const tabs = ["Ody Menu", "Menu"];
+const tabs = ["Ody Menu", "Menu"];
 
-      type Category = {
-        id: number;
-        name: string;
-      };
+type Category = {
+  id: number;
+  name: string;
+};
 
-      type DishForBlock = {
-        id: string;
-        name: string;
-        price: number;
-        quantity?: string | null;
-        description?: string | null;
-        timing: { from: string; to: string };
-        photoUrl: string;
-        videoUrl?: string | null;
-        isActive: boolean;
-      };
+type DishForBlock = {
+  id: string;
+  name: string;
+  price: number;
+  quantity?: string | null;
+  description?: string | null;
+  timing: { from: string; to: string };
+  photoUrl: string;
+  videoUrl?: string | null;
+  isActive: boolean;
+  menuCategoryId?: number | null;
+};
 
-      function mapDishFromApi(row: {
-        id: number | string;
-        name: string;
-        price: number;
-        quantity?: string | null;
-        description?: string | null;
-        timing_from?: string;
-        timing_to?: string;
-        photo_url?: string | null;
-        video_url?: string | null;
-        is_active?: boolean;
-      }): DishForBlock {
-        return {
-          id: String(row.id),
-          name: row.name,
-          price: Number(row.price),
-          quantity: row.quantity ?? null,
-          description: row.description ?? null,
-          timing: {
-            from: row.timing_from ?? "09:00",
-            to: row.timing_to ?? "22:00",
-          },
-          photoUrl: row.photo_url || "/food_item_logo.png",
-          videoUrl: row.video_url ?? null,
-          isActive: row.is_active !== false,
-        };
-      }
+function mapDishFromApi(row: {
+  id: number | string;
+  name: string;
+  price: number;
+  quantity?: string | null;
+  description?: string | null;
+  timing_from?: string;
+  timing_to?: string;
+  photo_url?: string | null;
+  video_url?: string | null;
+  is_active?: boolean;
+  menu_category_id?: number | null;
+}): DishForBlock {
+  return {
+    id: String(row.id),
+    name: row.name,
+    price: Number(row.price),
+    quantity: row.quantity ?? null,
+    description: row.description ?? null,
+    timing: {
+      from: row.timing_from ?? "09:00",
+      to: row.timing_to ?? "22:00",
+    },
+    photoUrl: row.photo_url || "/food_item_logo.png",
+    videoUrl: row.video_url ?? null,
+    isActive: row.is_active !== false,
+    menuCategoryId: row.menu_category_id ?? null,
+  };
+}
 
-      export default function EditMenuPage() {
-        const params = useParams();
-        const restaurantId = params?.restaurantId as string | undefined;
-        const router = useRouter();
-        const containerRef = useRef<HTMLDivElement>(null);
+export default function EditMenuPage() {
+  const params = useParams();
+  const restaurantId = params?.restaurantId as string | undefined;
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const containerRef = useRef<HTMLDivElement>(null);
 
-        const [activeTab, setActiveTab] = useState(0);
-        const [logo, setLogo] = useState(() =>
-          typeof window !== "undefined" ? localStorage.getItem("cached_logo_url") || "" : ""
+  const [activeTab, setActiveTab] = useState(0);
+  const [logo, setLogo] = useState(() =>
+    typeof window !== "undefined" ? localStorage.getItem("cached_logo_url") || "" : ""
+  );
+  const [cover, setCover] = useState(() =>
+    typeof window !== "undefined" ? localStorage.getItem("cached_cover_url") || "" : ""
+  );
+  const [dishes, setDishes] = useState<DishForBlock[]>([]);
+  const [menuDishes, setMenuDishes] = useState<Record<number, DishForBlock[]>>({});
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [odyMenuHidden, setOdyMenuHidden] = useState(false);
+  const [hotelDbId, setHotelDbId] = useState<string | null>(null);
+  const [isTogglingOdyMenu, setIsTogglingOdyMenu] = useState(false);
+
+  const [categories, setCategories] = useState<Category[]>([]);
+
+  // EDIT
+  const [showEdit, setShowEdit] = useState(false);
+  const [editValue, setEditValue] = useState("");
+  const [editId, setEditId] = useState<number | null>(null);
+
+  // DELETE
+  const [showDelete, setShowDelete] = useState(false);
+  const [deleteCat, setDeleteCat] = useState<Category | null>(null);
+
+  // ADD CONFIRM
+  const [showAddConfirm, setShowAddConfirm] = useState(false);
+
+  // RETURN MODAL
+  const [showReturnModal, setShowReturnModal] = useState(false);
+
+  // Scroll to correct tab from URL param (e.g. ?tab=1 after adding a menu dish)
+  useEffect(() => {
+    const tab = parseInt(searchParams.get("tab") ?? "0");
+    if (tab === 1) {
+      // Delay until layout is ready
+      const timer = setTimeout(() => goToTab(1), 200);
+      return () => clearTimeout(timer);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Load hotel, dishes, and categories from API
+  useEffect(() => {
+    if (!restaurantId || typeof restaurantId !== "string") {
+      setIsLoading(false);
+      return;
+    }
+
+    let cancelled = false;
+
+    async function load() {
+      const slug = restaurantId;
+      if (!slug) return;
+      try {
+        const hotelRes = await fetch(
+          `${API_BASE}/api/hotels/${encodeURIComponent(slug)}`
         );
-        const [cover, setCover] = useState(() =>
-          typeof window !== "undefined" ? localStorage.getItem("cached_cover_url") || "" : ""
-        );
-        const [dishes, setDishes] = useState<DishForBlock[]>([]);
-        const [loadError, setLoadError] = useState<string | null>(null);
-        const [isLoading, setIsLoading] = useState(true);
-        const [odyMenuHidden, setOdyMenuHidden] = useState(false);
-        const [hotelDbId, setHotelDbId] = useState<string | null>(null);
-        const [isTogglingOdyMenu, setIsTogglingOdyMenu] = useState(false);
-
-        const [categories, setCategories] = useState<Category[]>([
-          { id: 1, name: "Category - 1" },
-        ]);
-
-        // EDIT
-        const [showEdit, setShowEdit] = useState(false);
-        const [editValue, setEditValue] = useState("");
-        const [editId, setEditId] = useState<number | null>(null);
-
-        // DELETE
-        const [showDelete, setShowDelete] = useState(false);
-        const [deleteCat, setDeleteCat] = useState<Category | null>(null);
-
-        // ADD CONFIRM
-        const [showAddConfirm, setShowAddConfirm] = useState(false);
-
-        // RETURN MODAL
-        const [showReturnModal, setShowReturnModal] = useState(false);
-
-        // Load hotel and dishes from API (hotel scoped by slug)
-        useEffect(() => {
-          if (!restaurantId || typeof restaurantId !== "string") {
-            setIsLoading(false);
-            return;
+        if (!hotelRes.ok) {
+          if (hotelRes.status === 404) {
+            setLoadError("Hotel not found. Please complete signup first.");
+          } else {
+            setLoadError("Failed to load menu");
           }
+          return;
+        }
+        const hotel = await hotelRes.json();
 
-          let cancelled = false;
+        if (cancelled) return;
+        setLogo(hotel.logo_url || "");
+        setCover(hotel.cover_url || "");
+        setOdyMenuHidden(hotel.ody_menu_hidden === true);
+        setHotelDbId(String(hotel.id));
 
-          async function load() {
-            const slug = restaurantId;
-            if (!slug) return;
-            try {
-              const hotelRes = await fetch(
-                `${API_BASE}/api/hotels/${encodeURIComponent(slug)}`
-              );
-              if (!hotelRes.ok) {
-                if (hotelRes.status === 404) {
-                  setLoadError("Hotel not found. Please complete signup first.");
-                } else {
-                  setLoadError("Failed to load menu");
-                }
-                return;
-              }
-              const hotel = await hotelRes.json();
-
-              if (cancelled) return;
-              setLogo(hotel.logo_url || "");
-              setCover(hotel.cover_url || "");
-              setOdyMenuHidden(hotel.ody_menu_hidden === true);
-              setHotelDbId(String(hotel.id));
-
-              const dishesRes = await fetch(
-                `${API_BASE}/api/dishes?hotel_id=${encodeURIComponent(hotel.id)}&all=true`
-              );
-              if (!dishesRes.ok) {
-                setLoadError("Failed to load dishes");
-                return;
-              }
-              const rows = await dishesRes.json();
-              if (!cancelled) {
-                setDishes(rows.map(mapDishFromApi));
-                setLoadError(null);
-              }
-            } catch (err) {
-              if (!cancelled) {
-                console.error("Edit menu load error:", err);
-                setLoadError("Failed to load menu");
-              }
-            } finally {
-              if (!cancelled) setIsLoading(false);
+        // Fetch all dishes (Ody Menu + Menu tab dishes)
+        const dishesRes = await fetch(
+          `${API_BASE}/api/dishes?hotel_id=${encodeURIComponent(hotel.id)}&all=true`
+        );
+        if (!dishesRes.ok) {
+          setLoadError("Failed to load dishes");
+          return;
+        }
+        const rows = await dishesRes.json();
+        if (!cancelled) {
+          const allDishes = rows.map(mapDishFromApi);
+          // Ody Menu: no menu_category_id
+          setDishes(allDishes.filter((d: DishForBlock) => !d.menuCategoryId));
+          // Menu tab: group by menu_category_id
+          const byCategory: Record<number, DishForBlock[]> = {};
+          for (const d of allDishes as DishForBlock[]) {
+            if (d.menuCategoryId) {
+              if (!byCategory[d.menuCategoryId]) byCategory[d.menuCategoryId] = [];
+              byCategory[d.menuCategoryId].push(d);
             }
           }
-
-          load();
-          return () => { cancelled = true; };
-        }, [restaurantId]);
-
-        // Reload just the dishes list (called after hide/delete)
-        const handleToggleOdyMenu = async () => {
-          if (!hotelDbId) return;
-          const newVal = !odyMenuHidden;
-          setOdyMenuHidden(newVal); // instant visual response
-          try {
-            const res = await fetch(`${API_BASE}/api/hotels/${hotelDbId}`, {
-              method: "PATCH",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ ody_menu_hidden: newVal }),
-            });
-            if (!res.ok) {
-              console.error("Toggle ody_menu_hidden failed:", await res.text());
-              setOdyMenuHidden(!newVal); // revert
-            }
-          } catch (e) {
-            console.error("Toggle ody_menu_hidden error:", e);
-            setOdyMenuHidden(!newVal); // revert
-          }
-        };
-
-        const reloadDishes = async () => {
-          if (!restaurantId) return;
-          try {
-            const hotelRes = await fetch(`${API_BASE}/api/hotels/${encodeURIComponent(restaurantId)}`);
-            if (!hotelRes.ok) return;
-            const hotel = await hotelRes.json();
-            const dishesRes = await fetch(`${API_BASE}/api/dishes?hotel_id=${encodeURIComponent(hotel.id)}&all=true`);
-            if (!dishesRes.ok) return;
-            const rows = await dishesRes.json();
-            setDishes(rows.map(mapDishFromApi));
-          } catch {
-            // ignore
-          }
-        };
-
-        const handleScroll = () => {
-          if (!containerRef.current) return;
-          const { scrollLeft, clientWidth } = containerRef.current;
-          setActiveTab(Math.round(scrollLeft / clientWidth));
-        };
-
-        const goToTab = (index: number) => {
-          if (!containerRef.current) return;
-          containerRef.current.scrollTo({
-            left: containerRef.current.clientWidth * index,
-            behavior: "smooth",
-          });
-          setActiveTab(index);
-        };
-
-        const addCategory = () => {
-          const next = categories.length + 1;
-          setCategories([
-            ...categories,
-            { id: Date.now(), name: `Category - ${next}` },
-          ]);
-          setShowAddConfirm(false);
-        };
-
-        const openEdit = (cat: Category) => {
-          setEditId(cat.id);
-          setEditValue(cat.name);
-          setShowEdit(true);
-        };
-
-        const saveEdit = () => {
-          setCategories((prev) =>
-            prev.map((c) =>
-              c.id === editId ? { ...c, name: editValue.trim() || c.name } : c
-            )
-          );
-          setShowEdit(false);
-          setEditId(null);
-          setEditValue("");
-        };
-
-        const confirmDelete = (cat: Category) => {
-          setDeleteCat(cat);
-          setShowDelete(true);
-        };
-
-        const deleteCategory = () => {
-          if (!deleteCat) return;
-          setCategories((prev) => prev.filter((c) => c.id !== deleteCat.id));
-          setShowDelete(false);
-          setDeleteCat(null);
-        };
-
-        if (isLoading) {
-          return (
-            <div className="min-h-screen bg-black flex items-center justify-center">
-              <p className="text-white/80">Loading menu...</p>
-            </div>
-          );
+          setMenuDishes(byCategory);
+          setLoadError(null);
         }
 
-        if (loadError) {
-          return (
-            <div className="min-h-screen bg-black flex flex-col items-center justify-center gap-4 px-6">
-              <p className="text-white/80 text-center">{loadError}</p>
+        // Fetch categories from Supabase
+        const catRes = await fetch(
+          `${API_BASE}/api/categories?hotel_id=${encodeURIComponent(hotel.id)}`
+        );
+        if (catRes.ok) {
+          const cats = await catRes.json();
+          if (!cancelled) setCategories(Array.isArray(cats) ? cats : []);
+        }
+      } catch (err) {
+        if (!cancelled) {
+          console.error("Edit menu load error:", err);
+          setLoadError("Failed to load menu");
+        }
+      } finally {
+        if (!cancelled) setIsLoading(false);
+      }
+    }
+
+    load();
+    return () => { cancelled = true; };
+  }, [restaurantId]);
+
+  const handleToggleOdyMenu = async () => {
+    if (!hotelDbId) return;
+    const newVal = !odyMenuHidden;
+    setOdyMenuHidden(newVal);
+    try {
+      const res = await fetch(`${API_BASE}/api/hotels/${hotelDbId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ody_menu_hidden: newVal }),
+      });
+      if (!res.ok) {
+        console.error("Toggle ody_menu_hidden failed:", await res.text());
+        setOdyMenuHidden(!newVal);
+      }
+    } catch (e) {
+      console.error("Toggle ody_menu_hidden error:", e);
+      setOdyMenuHidden(!newVal);
+    }
+  };
+
+  const reloadDishes = async () => {
+    if (!restaurantId) return;
+    try {
+      const hotelRes = await fetch(`${API_BASE}/api/hotels/${encodeURIComponent(restaurantId)}`);
+      if (!hotelRes.ok) return;
+      const hotel = await hotelRes.json();
+      const dishesRes = await fetch(`${API_BASE}/api/dishes?hotel_id=${encodeURIComponent(hotel.id)}&all=true`);
+      if (!dishesRes.ok) return;
+      const rows = await dishesRes.json();
+      const allDishes = rows.map(mapDishFromApi);
+      setDishes(allDishes.filter((d: DishForBlock) => !d.menuCategoryId));
+      const byCategory: Record<number, DishForBlock[]> = {};
+      for (const d of allDishes as DishForBlock[]) {
+        if (d.menuCategoryId) {
+          if (!byCategory[d.menuCategoryId]) byCategory[d.menuCategoryId] = [];
+          byCategory[d.menuCategoryId].push(d);
+        }
+      }
+      setMenuDishes(byCategory);
+    } catch {
+      // ignore
+    }
+  };
+
+  const handleScroll = () => {
+    if (!containerRef.current) return;
+    const { scrollLeft, clientWidth } = containerRef.current;
+    setActiveTab(Math.round(scrollLeft / clientWidth));
+  };
+
+  const goToTab = (index: number) => {
+    if (!containerRef.current) return;
+    containerRef.current.scrollTo({
+      left: containerRef.current.clientWidth * index,
+      behavior: "smooth",
+    });
+    setActiveTab(index);
+  };
+
+  // ---- CATEGORY CRUD (persisted to Supabase) ----
+
+  const addCategory = async () => {
+    if (!hotelDbId) return;
+    const next = categories.length + 1;
+    const name = `Category - ${next}`;
+    try {
+      const res = await fetch(`${API_BASE}/api/categories`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ hotel_id: parseInt(hotelDbId), name }),
+      });
+      if (res.ok) {
+        const cat = await res.json();
+        if (cat && cat.id) {
+          setCategories((prev) => [...prev, { id: cat.id, name: cat.name }]);
+        }
+      }
+    } catch (e) {
+      console.error("addCategory error:", e);
+    }
+    setShowAddConfirm(false);
+  };
+
+  const openEdit = (cat: Category) => {
+    setEditId(cat.id);
+    setEditValue(cat.name);
+    setShowEdit(true);
+  };
+
+  const saveEdit = async () => {
+    if (!editId) return;
+    const trimmed = editValue.trim();
+    if (!trimmed) { setShowEdit(false); return; }
+    try {
+      const res = await fetch(`${API_BASE}/api/categories/${editId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: trimmed }),
+      });
+      if (res.ok) {
+        setCategories((prev) =>
+          prev.map((c) => c.id === editId ? { ...c, name: trimmed } : c)
+        );
+      }
+    } catch (e) {
+      console.error("saveEdit error:", e);
+    }
+    setShowEdit(false);
+    setEditId(null);
+    setEditValue("");
+  };
+
+  const confirmDelete = (cat: Category) => {
+    setDeleteCat(cat);
+    setShowDelete(true);
+  };
+
+  const deleteCategory = async () => {
+    if (!deleteCat) return;
+    try {
+      await fetch(`${API_BASE}/api/categories/${deleteCat.id}`, { method: "DELETE" });
+    } catch (e) {
+      console.error("deleteCategory error:", e);
+    }
+    setCategories((prev) => prev.filter((c) => c.id !== deleteCat.id));
+    setMenuDishes((prev) => {
+      const n = { ...prev };
+      delete n[deleteCat.id];
+      return n;
+    });
+    setShowDelete(false);
+    setDeleteCat(null);
+  };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <p className="text-white/80">Loading menu...</p>
+      </div>
+    );
+  }
+
+  if (loadError) {
+    return (
+      <div className="min-h-screen bg-black flex flex-col items-center justify-center gap-4 px-6">
+        <p className="text-white/80 text-center">{loadError}</p>
+        <button
+          onClick={() => router.push("/owner/details")}
+          className="px-6 py-2 rounded-full bg-[#0A84C1] text-white"
+        >
+          Complete signup
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-black flex justify-center">
+      <div className="relative w-full max-w-md min-h-screen bg-[#1c1c1c]">
+
+        {/* COVER */}
+        <div className="relative w-full h-[50vh] overflow-hidden">
+          {cover ? (
+            <>
+              <img src={cover} className="w-full h-full object-cover" />
+              <div className="absolute inset-0 bg-black/30" />
+            </>
+          ) : (
+            <div className="w-full h-full bg-[#1c1c1c]" />
+          )}
+
+          {/* RETURN TOGGLE */}
+          <div className="absolute top-4 left-4 z-20">
+            <button
+              onClick={() => setShowReturnModal(true)}
+              className="px-4 py-2 rounded-full bg-black/60 backdrop-blur-md text-white text-sm shadow-lg hover:bg-black/70 transition"
+            >
+              Return
+            </button>
+          </div>
+
+          <div className="absolute inset-0 flex items-center justify-center -translate-y-6">
+            {logo && (
+              <div className="w-44 h-44 rounded-full overflow-hidden shadow-[0_35px_70px_rgba(0,0,0,0.85)]">
+                <img src={logo} className="w-full h-full object-cover" />
+              </div>
+            )}
+          </div>
+
+          {/* TAB ISLAND */}
+          <div className="absolute bottom-0 left-1/2 -translate-x-1/2 z-30 w-full px-4 flex justify-center">
+            <div className="flex gap-2 px-2 py-2 rounded-full bg-black/60 backdrop-blur-md border border-white/10">
+              {tabs.map((tab, index) => (
+                <button
+                  key={tab}
+                  onClick={() => goToTab(index)}
+                  className={`px-4 py-1.5 rounded-full text-sm font-medium ${
+                    activeTab === index
+                      ? "bg-white text-black"
+                      : "text-white/80"
+                  }`}
+                >
+                  {tab}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* CONTENT */}
+        <div
+          ref={containerRef}
+          onScroll={handleScroll}
+          className="flex w-full overflow-x-auto snap-x snap-mandatory scrollbar-hide"
+        >
+          {/* ================= ODY MENU TAB ================= */}
+          <div className="min-w-full snap-center pt-8 min-h-screen px-6 pb-12">
+            {/* HIDE ODY MENU TOGGLE */}
+            <div className="flex items-center justify-between bg-white rounded-2xl px-5 py-4 mb-6 shadow-sm">
+              <div>
+                <p className="text-black font-semibold text-[15px]">Hide Ody Menu</p>
+                <p className="text-gray-400 text-[12px] mt-0.5">Customers won't see the Ody Menu tab</p>
+              </div>
               <button
-                onClick={() => router.push("/owner/details")}
-                className="px-6 py-2 rounded-full bg-[#0A84C1] text-white"
+                onClick={handleToggleOdyMenu}
+                disabled={isTogglingOdyMenu}
+                className={`relative w-12 h-6 rounded-full transition-colors duration-200 ${odyMenuHidden ? "bg-[#0A84C1]" : "bg-gray-300"}`}
               >
-                Complete signup
+                <span className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform duration-200 ${odyMenuHidden ? "translate-x-6" : "translate-x-0"}`} />
               </button>
             </div>
-          );
-        }
 
-        return (
-          <div className="min-h-screen bg-black flex justify-center">
-            <div className="relative w-full max-w-md min-h-screen bg-[#1c1c1c]">
-
-              {/* COVER */}
-              <div className="relative w-full h-[50vh] overflow-hidden">
-                {cover ? (
-                  <>
-                    <img src={cover} className="w-full h-full object-cover" />
-                    <div className="absolute inset-0 bg-black/30" />
-                  </>
-                ) : (
-                  <div className="w-full h-full bg-[#1c1c1c]" />
-                )}
-
-                {/* RETURN TOGGLE - top-left, matches Edit Cover style */}
-                <div className="absolute top-4 left-4 z-20">
-                  <button
-                    onClick={() => setShowReturnModal(true)}
-                    className="px-4 py-2 rounded-full bg-black/60 backdrop-blur-md text-white text-sm shadow-lg hover:bg-black/70 transition"
-                  >
-                    Return
-                  </button>
-                </div>
-
-                <div className="absolute inset-0 flex items-center justify-center -translate-y-6">
-                  {logo && (
-                    <div className="w-44 h-44 rounded-full overflow-hidden shadow-[0_35px_70px_rgba(0,0,0,0.85)]">
-                      <img src={logo} className="w-full h-full object-cover" />
-                    </div>
-                  )}
-                </div>
-
-                {/* TAB ISLAND */}
-                <div className="absolute bottom-0 left-1/2 -translate-x-1/2 z-30 w-full px-4 flex justify-center">
-                  <div className="flex gap-2 px-2 py-2 rounded-full bg-black/60 backdrop-blur-md border border-white/10">
-                    {tabs.map((tab, index) => (
-                      <button
-                        key={tab}
-                        onClick={() => goToTab(index)}
-                        className={`px-4 py-1.5 rounded-full text-sm font-medium ${
-                          activeTab === index
-                            ? "bg-white text-black"
-                            : "text-white/80"
-                        }`}
-                      >
-                        {tab}
-                      </button>
-                    ))}
-                  </div>
-                </div>
+            {/* OWNER DISH BLOCKS */}
+            {dishes.length > 0 && (
+              <div className="mb-8">
+                {dishes.map((dish) => (
+                  <EditMenuDishBlock key={dish.id} dish={dish} restaurantId={restaurantId} onRefresh={reloadDishes} />
+                ))}
               </div>
+            )}
 
-              {/* CONTENT */}
-              <div
-                ref={containerRef}
-                onScroll={handleScroll}
-                className="flex w-full overflow-x-auto snap-x snap-mandatory scrollbar-hide"
+            {/* ADD DISH CTA */}
+            <div className={dishes.length > 0 ? "flex justify-center" : "flex justify-center mt-8"}>
+              <button
+                onClick={() => {
+                  if (!restaurantId) return;
+                  router.push(`/owner/hotel/${restaurantId}/add-dish`);
+                }}
+                className="flex items-center gap-3"
               >
-                {/* ================= ODY MENU TAB ================= */}
-                <div className="min-w-full snap-center pt-8 min-h-screen px-6 pb-12">
-                    {/* HIDE ODY MENU TOGGLE */}
-                  <div className="flex items-center justify-between bg-white rounded-2xl px-5 py-4 mb-6 shadow-sm">
-                    <div>
-                      <p className="text-black font-semibold text-[15px]">Hide Ody Menu</p>
-                      <p className="text-gray-400 text-[12px] mt-0.5">Customers won't see the Ody Menu tab</p>
-                    </div>
-                    <button
-                      onClick={handleToggleOdyMenu}
-                      disabled={isTogglingOdyMenu}
-                      className={`relative w-12 h-6 rounded-full transition-colors duration-200 ${odyMenuHidden ? "bg-[#0A84C1]" : "bg-gray-300"}`}
-                    >
-                      <span className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform duration-200 ${odyMenuHidden ? "translate-x-6" : "translate-x-0"}`} />
-                    </button>
-                  </div>
-
-                  {/* OWNER DISH BLOCKS */}
-                  {dishes.length > 0 && (
-                    <div className="mb-8">
-                      {dishes.map((dish) => (
-                        <EditMenuDishBlock key={dish.id} dish={dish} restaurantId={restaurantId} onRefresh={reloadDishes} />
-                      ))}
-                    </div>
-                  )}
-
-                  {/* ADD DISH CTA — below dishes if any, else centered alone */}
-                  <div className={dishes.length > 0 ? "flex justify-center" : "flex justify-center mt-8"}>
-                    <button
-                      onClick={() => {
-                        if (!restaurantId) return;
-                        router.push(`/owner/hotel/${restaurantId}/add-dish`);
-                      }}
-                      className="flex items-center gap-3"
-                    >
-                      <div className="w-10 h-10 rounded-full border-2 border-[#0A84C1] flex items-center justify-center">
-                        <span className="text-[#0A84C1] text-xl font-medium leading-none">
-                          +
-                        </span>
-                      </div>
-                      <span className="text-[#0A84C1] text-base font-medium">
-                        Add dish
-                      </span>
-                    </button>
-                  </div>
+                <div className="w-10 h-10 rounded-full border-2 border-[#0A84C1] flex items-center justify-center">
+                  <span className="text-[#0A84C1] text-xl font-medium leading-none">+</span>
                 </div>
+                <span className="text-[#0A84C1] text-base font-medium">Add dish</span>
+              </button>
+            </div>
+          </div>
 
-                {/* ================= MENU TAB ================= */}
-                <div className="relative min-w-full snap-center pt-16 min-h-screen">
+          {/* ================= MENU TAB ================= */}
+          <div className="relative min-w-full snap-center pt-6 min-h-screen pb-20">
 
-                  {/* TAG ISLAND */}
-                  <div className="absolute top-20 left-0 w-full z-10">
-                    <div className="h-px bg-white/20 w-full" />
-                    <div className="h-16 w-full flex items-center justify-center">
-                      <p className="text-white/60 text-sm text-center">
-                        Tags assigned to food items will appear here
-                      </p>
-                    </div>
-                    <div className="h-px bg-white/20 w-full" />
-                  </div>
-
-                  {/* CATEGORIES */}
-                  <div className="pt-40">
-                    {categories.map((cat, index) => (
-                      <div key={cat.id} className="mb-24">
-
-                        {/* HEADER */}
-                        <div className="flex items-center justify-between mb-4 px-4">
-                          <h2 className="text-white text-2xl font-bold">
-                            {cat.name}
-                          </h2>
-                          <button
-                            onClick={() => openEdit(cat)}
-                            className="text-[#0A84C1] text-sm font-medium"
-                          >
-                            Edit
-                          </button>
-                        </div>
-
-                        {/* CATEGORY LAYER */}
-                        <div className="bg-[#DADDE4] rounded-[28px] min-h-[700px] w-full" />
-
-                        {/* 🗑️ TRASH TOGGLE — RESTORED */}
-                        {index > 0 && (
-                          <div className="mt-4 px-4">
-                            <button onClick={() => confirmDelete(cat)}>
-                              <img
-                                src="/Trash.png"
-                                className="w-5 h-5 opacity-70"
-                                style={{
-                                  filter:
-                                    "invert(35%) sepia(70%) saturate(1200%) hue-rotate(340deg)",
-                                }}
-                              />
-                            </button>
-                          </div>
-                        )}
-
-                        {/* ADD CATEGORY BUTTON */}
-                        {index === categories.length - 1 && (
-                          <div className="flex justify-center mt-12">
-                            <button
-                              onClick={() => setShowAddConfirm(true)}
-                              className="w-14 h-14 rounded-full bg-[#0A84C1] text-white text-3xl shadow-lg flex items-center justify-center"
-                            >
-                              +
-                            </button>
-                          </div>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                </div>
+            {/* TAG ISLAND */}
+            <div className="w-full">
+              <div className="h-px bg-white/20 w-full" />
+              <div className="h-16 w-full flex items-center justify-center">
+                <p className="text-white/60 text-sm text-center">
+                  Tags assigned to food items will appear here
+                </p>
               </div>
+              <div className="h-px bg-white/20 w-full" />
+            </div>
 
-              {/* ADD CONFIRM POPUP */}
-              {showAddConfirm && (
-                <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-[1000]">
-                  <div className="bg-[#1c1c1c] rounded-xl p-6 w-[85%] max-w-xs space-y-5">
-                    <p className="text-white text-center font-medium">
-                      Do you want to add another Category?
-                    </p>
-                    <button
-                      onClick={addCategory}
-                      className="w-full py-3 rounded-full bg-[#0A84C1] text-white"
-                    >
-                      Add
-                    </button>
-                    <button
-                      onClick={() => setShowAddConfirm(false)}
-                      className="w-full py-3 rounded-full bg-white text-[#0A84C1]"
-                    >
-                      Cancel
-                    </button>
-                  </div>
-                </div>
+            {/* CATEGORIES */}
+            <div className="pt-6 px-4">
+              {categories.length === 0 && (
+                <p className="text-white/50 text-sm text-center mt-4 mb-8">
+                  No categories yet. Tap + below to add one.
+                </p>
               )}
 
-              {/* DELETE POPUP */}
-              {showDelete && deleteCat && (
-                <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-[1000]">
-                  <div className="bg-[#1c1c1c] rounded-xl p-6 w-[85%] max-w-xs space-y-5">
-                    <p className="text-white text-center font-medium">
-                      Do you want to delete <br />
-                      <span className="font-semibold">{deleteCat.name}</span>?
-                    </p>
-                    <button
-                      onClick={deleteCategory}
-                      className="w-full py-3 rounded-full bg-red-600 text-white"
-                    >
-                      Delete
-                    </button>
-                    <button
-                      onClick={() => setShowDelete(false)}
-                      className="w-full py-3 rounded-full bg-white text-[#0A84C1]"
-                    >
-                      Cancel
-                    </button>
-                  </div>
-                </div>
-              )}
+              {categories.map((cat, index) => {
+                const catDishes = menuDishes[cat.id] ?? [];
+                return (
+                  <div key={cat.id} className="mb-10">
 
-              {/* EDIT POPUP */}
-              {showEdit && (
-                <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-[1000]">
-                  <div className="bg-[#1c1c1c] rounded-xl p-6 w-[85%] max-w-xs space-y-4">
-                    <p className="text-white font-medium text-center">
-                      Edit Category Name
-                    </p>
-                    <input
-                      value={editValue}
-                      onChange={(e) => setEditValue(e.target.value)}
-                      className="w-full p-3 rounded bg-black border border-white/30 text-white"
-                    />
-                    <button
-                      onClick={saveEdit}
-                      className="w-full py-3 rounded-full bg-[#0A84C1] text-white"
-                    >
-                      Save
-                    </button>
-                    <button
-                      onClick={() => setShowEdit(false)}
-                      className="w-full py-3 rounded-full bg-white text-[#0A84C1]"
-                    >
-                      Cancel
-                    </button>
-                  </div>
-                </div>
-              )}
-
-              {/* RETURN TO DASHBOARD MODAL */}
-              {showReturnModal && (
-                <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-[1000]">
-                  <div className="bg-[#111111] rounded-2xl shadow-xl p-6 w-[85%] max-w-xs mx-4 space-y-5">
-                    <p className="text-white text-center font-medium text-base">
-                      Do you want to return to your Dashboard?
-                    </p>
-                    <div className="flex gap-3">
+                    {/* HEADER */}
+                    <div className="flex items-center justify-between mb-3">
+                      <h2 className="text-white text-2xl font-bold">{cat.name}</h2>
                       <button
-                        onClick={() => setShowReturnModal(false)}
-                        className="flex-1 py-3 rounded-full bg-gray-700 text-gray-200 font-medium text-sm hover:bg-gray-600 transition"
+                        onClick={() => openEdit(cat)}
+                        className="text-[#0A84C1] text-sm font-medium"
                       >
-                        Cancel
-                      </button>
-                      <button
-                        onClick={() => {
-                          setShowReturnModal(false);
-                          router.push("/owner/dashboard");
-                        }}
-                        className="flex-1 py-3 rounded-full bg-[#0A84C1] text-white font-medium text-sm hover:bg-[#0970a0] transition"
-                      >
-                        Yes, Return
+                        Edit
                       </button>
                     </div>
+
+                    {/* CATEGORY BLOCK — auto-sizes to contents */}
+                    <div className="bg-[#DADDE4] rounded-[28px] px-4 py-4 w-full">
+
+                      {/* DISH BLOCKS inside category */}
+                      {catDishes.map((dish) => (
+                        <EditMenuDishBlock
+                          key={dish.id}
+                          dish={dish}
+                          restaurantId={restaurantId}
+                          onRefresh={reloadDishes}
+                        />
+                      ))}
+
+                      {/* ADD DISH BUTTON inside block */}
+                      <div className={catDishes.length > 0 ? "mt-4 flex justify-center" : "flex justify-center py-6"}>
+                        <button
+                          onClick={() => {
+                            if (!restaurantId) return;
+                            localStorage.setItem("addDishMenuCategoryId", String(cat.id));
+                            router.push(`/owner/hotel/${restaurantId}/add-dish`);
+                          }}
+                          className="flex items-center gap-3"
+                        >
+                          <div className="w-10 h-10 rounded-full border-2 border-[#0A84C1] flex items-center justify-center bg-white">
+                            <span className="text-[#0A84C1] text-xl font-medium leading-none">+</span>
+                          </div>
+                          <span className="text-[#0A84C1] text-base font-medium">Add dish</span>
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* DELETE BUTTON — only for non-first categories */}
+                    {index > 0 && (
+                      <div className="mt-3 px-1">
+                        <button onClick={() => confirmDelete(cat)}>
+                          <img
+                            src="/Trash.png"
+                            className="w-5 h-5 opacity-70"
+                            style={{
+                              filter: "invert(35%) sepia(70%) saturate(1200%) hue-rotate(340deg)",
+                            }}
+                          />
+                        </button>
+                      </div>
+                    )}
+
+                    {/* ADD CATEGORY BUTTON — after last category */}
+                    {index === categories.length - 1 && (
+                      <div className="flex justify-center mt-10">
+                        <button
+                          onClick={() => setShowAddConfirm(true)}
+                          className="w-14 h-14 rounded-full bg-[#0A84C1] text-white text-3xl shadow-lg flex items-center justify-center"
+                        >
+                          +
+                        </button>
+                      </div>
+                    )}
                   </div>
+                );
+              })}
+
+              {/* If no categories yet, show the add button */}
+              {categories.length === 0 && (
+                <div className="flex justify-center mt-6">
+                  <button
+                    onClick={() => setShowAddConfirm(true)}
+                    className="w-14 h-14 rounded-full bg-[#0A84C1] text-white text-3xl shadow-lg flex items-center justify-center"
+                  >
+                    +
+                  </button>
                 </div>
               )}
             </div>
           </div>
-        );
-      }
+        </div>
+
+        {/* ADD CONFIRM POPUP */}
+        {showAddConfirm && (
+          <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-[1000]">
+            <div className="bg-[#1c1c1c] rounded-xl p-6 w-[85%] max-w-xs space-y-5">
+              <p className="text-white text-center font-medium">
+                Do you want to add another Category?
+              </p>
+              <button
+                onClick={addCategory}
+                className="w-full py-3 rounded-full bg-[#0A84C1] text-white"
+              >
+                Add
+              </button>
+              <button
+                onClick={() => setShowAddConfirm(false)}
+                className="w-full py-3 rounded-full bg-white text-[#0A84C1]"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* DELETE POPUP */}
+        {showDelete && deleteCat && (
+          <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-[1000]">
+            <div className="bg-[#1c1c1c] rounded-xl p-6 w-[85%] max-w-xs space-y-5">
+              <p className="text-white text-center font-medium">
+                Do you want to delete <br />
+                <span className="font-semibold">{deleteCat.name}</span>?
+              </p>
+              <button
+                onClick={deleteCategory}
+                className="w-full py-3 rounded-full bg-red-600 text-white"
+              >
+                Delete
+              </button>
+              <button
+                onClick={() => setShowDelete(false)}
+                className="w-full py-3 rounded-full bg-white text-[#0A84C1]"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* EDIT POPUP */}
+        {showEdit && (
+          <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-[1000]">
+            <div className="bg-[#1c1c1c] rounded-xl p-6 w-[85%] max-w-xs space-y-4">
+              <p className="text-white font-medium text-center">Edit Category Name</p>
+              <input
+                value={editValue}
+                onChange={(e) => setEditValue(e.target.value)}
+                className="w-full p-3 rounded bg-black border border-white/30 text-white"
+              />
+              <button
+                onClick={saveEdit}
+                className="w-full py-3 rounded-full bg-[#0A84C1] text-white"
+              >
+                Save
+              </button>
+              <button
+                onClick={() => setShowEdit(false)}
+                className="w-full py-3 rounded-full bg-white text-[#0A84C1]"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* RETURN TO DASHBOARD MODAL */}
+        {showReturnModal && (
+          <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-[1000]">
+            <div className="bg-[#111111] rounded-2xl shadow-xl p-6 w-[85%] max-w-xs mx-4 space-y-5">
+              <p className="text-white text-center font-medium text-base">
+                Do you want to return to your Dashboard?
+              </p>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setShowReturnModal(false)}
+                  className="flex-1 py-3 rounded-full bg-gray-700 text-gray-200 font-medium text-sm hover:bg-gray-600 transition"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => {
+                    setShowReturnModal(false);
+                    router.push("/owner/dashboard");
+                  }}
+                  className="flex-1 py-3 rounded-full bg-[#0A84C1] text-white font-medium text-sm hover:bg-[#0970a0] transition"
+                >
+                  Yes, Return
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}

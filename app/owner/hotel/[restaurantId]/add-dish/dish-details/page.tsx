@@ -23,6 +23,7 @@ const TIME_OPTIONS = generateTimeOptions();
 const ADD_DISH_PHOTO_KEY = "addDishPhoto";
 const ADD_DISH_VIDEO_ID_KEY = "addDishVideoId";
 const ADD_DISH_TYPE_KEY = "addDishType";
+const ADD_DISH_MENU_CATEGORY_KEY = "addDishMenuCategoryId";
 
 export default function DishDetailsPage() {
   const router = useRouter();
@@ -326,6 +327,10 @@ export default function DishDetailsPage() {
                       typeof window !== "undefined"
                         ? localStorage.getItem(ADD_DISH_TYPE_KEY) || "food_item"
                         : "food_item";
+                    const menuCategoryId =
+                      typeof window !== "undefined"
+                        ? localStorage.getItem(ADD_DISH_MENU_CATEGORY_KEY)
+                        : null;
 
                     // Only send photo if it's a base64 data URL AND under 800KB
                     // Large base64 strings can cause Render/Supabase to timeout
@@ -352,6 +357,7 @@ export default function DishDetailsPage() {
                         video_url: videoId
                           ? `https://www.youtube.com/watch?v=${videoId}`
                           : null,
+                        menu_category_id: menuCategoryId ? parseInt(menuCategoryId) : null,
                       }),
                     });
 
@@ -363,8 +369,12 @@ export default function DishDetailsPage() {
                     localStorage.removeItem(ADD_DISH_PHOTO_KEY);
                     localStorage.removeItem(ADD_DISH_VIDEO_ID_KEY);
                     localStorage.removeItem(ADD_DISH_TYPE_KEY);
+                    localStorage.removeItem(ADD_DISH_MENU_CATEGORY_KEY);
 
-                    const target = `/owner/hotel/${restaurantId}/edit-menu`;
+                    // If it was a menu category dish, return to Menu tab (tab=1)
+                    const target = menuCategoryId
+                      ? `/owner/hotel/${restaurantId}/edit-menu?tab=1`
+                      : `/owner/hotel/${restaurantId}/edit-menu`;
                     console.log("[DishDetails] Navigating to:", target);
                     router.push(target);
                   } catch (err) {

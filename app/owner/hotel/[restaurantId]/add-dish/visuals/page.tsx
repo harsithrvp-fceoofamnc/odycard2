@@ -50,6 +50,11 @@ export default function VisualsPage() {
   const params = useParams();
   const restaurantId = params?.restaurantId as string;
 
+  // True when adding a dish to a Menu category (no video required)
+  const [isMenuDish] = useState(() =>
+    typeof window !== "undefined" ? !!localStorage.getItem("addDishMenuCategoryId") : false
+  );
+
   /* ---------- IMAGE STATES ---------- */
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -72,7 +77,8 @@ export default function VisualsPage() {
   /* ---------- VALIDATION: minimal, predictable ---------- */
   const hasImage = !!imageUrl || !!imageFile;
   const hasYoutube = typeof youtubeUrl === "string" && youtubeUrl.trim().length > 0;
-  const canProceed = hasImage && hasYoutube && !isUploadingImage;
+  // Menu dishes only need a photo; Ody Menu dishes also require a YouTube video
+  const canProceed = isMenuDish ? (hasImage && !isUploadingImage) : (hasImage && hasYoutube && !isUploadingImage);
 
   const BASE_PROGRESS = 33;
   const VISUALS_COMPLETE_PROGRESS = 66;
@@ -87,14 +93,16 @@ export default function VisualsPage() {
       setNavError("Please complete the crop first (click Done in the crop modal).");
       return;
     }
-    if (!youtubeUrl || typeof youtubeUrl !== "string") {
+    if (!isMenuDish && (!youtubeUrl || typeof youtubeUrl !== "string")) {
       setNavError("Please add a video link first.");
       return;
     }
 
     setNavError(null);
     localStorage.setItem("addDishPhoto", imageUrl);
-    localStorage.setItem("addDishVideoId", youtubeUrl);
+    if (!isMenuDish && youtubeUrl) {
+      localStorage.setItem("addDishVideoId", youtubeUrl);
+    }
     router.push(`/owner/hotel/${restaurantId}/add-dish/dish-details`);
   };
 
@@ -210,8 +218,8 @@ export default function VisualsPage() {
           For Your Dish
         </h1>
 
-        {/* ---------- VIDEO UPLOAD ---------- */}
-        <div className="mb-6 rounded-2xl border border-gray-200 p-6">
+        {/* ---------- VIDEO UPLOAD (Ody Menu only, hidden for Menu tab dishes) ---------- */}
+        {!isMenuDish && <div className="mb-6 rounded-2xl border border-gray-200 p-6">
           <h2 className="font-semibold text-lg mb-4 text-center">
             Upload Video
           </h2>
@@ -276,7 +284,7 @@ export default function VisualsPage() {
               </button>
             </>
           )}
-        </div>
+        </div>}
 
         {/* ---------- PHOTO UPLOAD (WHATSAPP + CROP) ---------- */}
         <div className="mb-6 rounded-2xl border border-gray-200 p-6 min-h-[320px] flex flex-col">

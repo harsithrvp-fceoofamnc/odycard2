@@ -36,8 +36,10 @@ export async function GET(req: NextRequest) {
     }
 
     // Fetch dishes
+    const menu_cat = req.nextUrl.searchParams.get("menu_category_id");
     let query = sb.from("dishes").select("*").eq("hotel_id", hotel_id).order("created_at", { ascending: false });
     if (!showAll) query = query.eq("is_active", true);
+    if (menu_cat) query = query.eq("menu_category_id", menu_cat);
     const { data: dishes, error } = await query;
     if (error) throw error;
 
@@ -74,6 +76,7 @@ export async function POST(req: NextRequest) {
       hotel_id, name, price,
       category = "food_item", is_veg = true,
       quantity, description, timing_from, timing_to, photo_url, video_url,
+      menu_category_id,
     } = await req.json();
 
     if (!hotel_id || !name || !price) return NextResponse.json({ error: "hotel_id, name, and price are required" }, { status: 400 });
@@ -83,6 +86,7 @@ export async function POST(req: NextRequest) {
       quantity: quantity ?? null, description: description ?? null,
       timing_from: timing_from ?? "09:00", timing_to: timing_to ?? "22:00",
       photo_url: photo_url ?? null, video_url: video_url ?? null,
+      menu_category_id: menu_category_id ?? null,
     }).select().single();
 
     if (error) throw error;

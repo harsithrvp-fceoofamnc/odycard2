@@ -67,6 +67,7 @@ type OdyDish = {
   ratingCount: number;
   favoriteCount: number;
   eatLaterCount: number;
+  menuCategoryId?: number | null;
 };
 
 /** Extract YouTube video ID from watch URL, embed URL, or short url. */
@@ -451,6 +452,7 @@ function mapDishFromApi(row: {
     ratingCount: Number(row.rating_count) || 0,
     favoriteCount: Number(row.favorite_count) || 0,
     eatLaterCount: Number(row.eat_later_count) || 0,
+    menuCategoryId: row.menu_category_id ? Number(row.menu_category_id) : null,
   };
 }
 
@@ -682,10 +684,22 @@ export default function HotelHomePage() {
           setDishesLoadError("Failed to load dishes");
           return;
         }
-        setDishes(newDishes);
+        // Ody Menu shows only dishes without a menu_category_id
+        const odyMenuDishes = newDishes.filter(d => !d.menuCategoryId);
+        setDishes(odyMenuDishes);
         setDishesLoadError(null);
-        prevDishIdsRef.current = new Set(newDishes.map((d) => d.id));
-        prevDishSigRef.current = buildSig(newDishes);
+        prevDishIdsRef.current = new Set(odyMenuDishes.map((d) => d.id));
+        prevDishSigRef.current = buildSig(odyMenuDishes);
+
+        // Group menu dishes by category for Menu tab
+        const byCategory: Record<number, OdyDish[]> = {};
+        for (const d of newDishes) {
+          if (d.menuCategoryId) {
+            if (!byCategory[d.menuCategoryId]) byCategory[d.menuCategoryId] = [];
+            byCategory[d.menuCategoryId].push(d);
+          }
+        }
+        if (!cancelled) setMenuDishes(byCategory);
 
         // Fetch menu categories
         try {
@@ -745,13 +759,23 @@ export default function HotelHomePage() {
       // Check dishes for changes
       const newDishes = await fetchDishes(hotelId);
       if (newDishes === null) return;
-      if (!menuChanged(newDishes)) return;
+      const odyDishes = newDishes.filter(d => !d.menuCategoryId);
+      if (!menuChanged(odyDishes)) return;
 
       setIsRefreshing(true);
       await new Promise((r) => setTimeout(r, 1500));
-      prevDishIdsRef.current = new Set(newDishes.map((d) => d.id));
-      prevDishSigRef.current = buildSig(newDishes);
-      setDishes(newDishes);
+      prevDishIdsRef.current = new Set(odyDishes.map((d) => d.id));
+      prevDishSigRef.current = buildSig(odyDishes);
+      setDishes(odyDishes);
+      // Also refresh menu dishes
+      const byCategory: Record<number, OdyDish[]> = {};
+      for (const d of newDishes) {
+        if (d.menuCategoryId) {
+          if (!byCategory[d.menuCategoryId]) byCategory[d.menuCategoryId] = [];
+          byCategory[d.menuCategoryId].push(d);
+        }
+      }
+      setMenuDishes(byCategory);
       setDishesLoadError(null);
       setIsRefreshing(false);
     };
