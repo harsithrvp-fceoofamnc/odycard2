@@ -484,6 +484,9 @@ export default function HotelHomePage() {
   const [eatLater, setEatLater] = useState<OdyDish[]>([]);
   const [favoriteCounts, setFavoriteCounts] = useState<Record<string, number>>({});
   const [eatLaterCounts, setEatLaterCounts] = useState<Record<string, number>>({});
+  // Menu tab — categories + dishes per category
+  const [menuCategories, setMenuCategories] = useState<{ id: number; name: string }[]>([]);
+  const [menuDishes, setMenuDishes] = useState<Record<number, OdyDish[]>>({});
   const containerRef = useRef<HTMLDivElement>(null);
   const menuScrollRef = useRef<HTMLDivElement>(null);
 
@@ -683,6 +686,16 @@ export default function HotelHomePage() {
         setDishesLoadError(null);
         prevDishIdsRef.current = new Set(newDishes.map((d) => d.id));
         prevDishSigRef.current = buildSig(newDishes);
+
+        // Fetch menu categories
+        try {
+          const catRes = await fetch(`${API_BASE}/api/categories?hotel_id=${encodeURIComponent(String(hotel.id))}`);
+          if (catRes.ok) {
+            const cats = await catRes.json();
+            if (!cancelled) setMenuCategories(Array.isArray(cats) ? cats : []);
+          }
+        } catch { /* ignore */ }
+
       } catch (err) {
         if (!cancelled) {
           console.error("Load hotel/dishes error:", err);
@@ -1351,47 +1364,77 @@ export default function HotelHomePage() {
           </div>
 
           {/* MENU */}
-          <div className="relative min-w-full snap-center snap-always pt-14 sm:pt-16 overflow-y-auto">
-            <div className="absolute top-6 sm:top-8 left-0 w-full z-40">
-
-              <div className="px-4 sm:px-6">
-              <div className="w-full h-13 sm:h-14 rounded-full bg-white flex items-center px-4 sm:px-5 shadow-md gap-3">
-  <img src="/search.png" className="w-5 h-5 sm:w-6 sm:h-6 opacity-60" alt="" />
-  <input
-    value={search}
-    onChange={(e) => setSearch(e.target.value)}
-    placeholder={`Search in ${restaurantName || "this restaurant"}`}
-    className="flex-1 bg-transparent outline-none text-base sm:text-lg text-black placeholder-gray-400 min-w-0"
-  />
-</div>
-
-              </div>
-
-              {/* TOP DIVIDER */}
-              <div className="mt-6 sm:mt-8 w-full">
-                <div className="h-px bg-white/20 w-full" />
-              </div>
-
-              {/* FILTER ISLAND */}
-              <div className="relative z-30 mt-3 sm:mt-4 px-3 sm:px-4">
-                <div className="overflow-x-auto scrollbar-hide">
-                  <div className="h-9 sm:h-10 w-full" />
+          <div className="min-w-full snap-center snap-always px-4 pt-6 sm:px-6 sm:pt-8 overflow-y-auto min-h-screen pb-64 sm:pb-72">
+            {(() => {
+              // Only show categories that have at least one dish
+              const catsWithDishes = menuCategories.filter(cat => (menuDishes[cat.id] ?? []).length > 0);
+              if (catsWithDishes.length === 0) {
+                return (
+                  <div className="flex flex-col items-center justify-start pt-16 sm:pt-20">
+                    <p className="text-white/70 text-lg sm:text-xl font-medium">Coming soon</p>
+                  </div>
+                );
+              }
+              return (
+                <div className="mb-6 sm:mb-8">
+                  {catsWithDishes.map(cat => (
+                    <div key={cat.id} className="mb-8">
+                      {/* Category header */}
+                      <h2 className="text-white text-xl font-bold mb-4 px-1">{cat.name}</h2>
+                      {/* Dish cards — same style as Ody Menu */}
+                      {(menuDishes[cat.id] ?? []).filter(d => isWithinTiming(d.timing)).map((dish, index) => (
+                        <div
+                          key={dish.id}
+                          className="w-full rounded-xl sm:rounded-2xl bg-white border border-gray-200 mb-6 sm:mb-8"
+                        >
+                          <div className={`w-full bg-black relative overflow-hidden rounded-t-xl sm:rounded-t-2xl ${extractYouTubeVideoId(dish.videoUrl ?? "") ? "aspect-video" : "aspect-[4/3]"}`}>
+                            {dish.videoUrl && dish.videoUrl.trim() ? (
+                              <DishMediaCarousel
+                                dish={dish}
+                                dishIndex={index}
+                                containerRef={() => {}}
+                                videoRef={() => {}}
+                                isActive={false}
+                                isYouTube={!!extractYouTubeVideoId(dish.videoUrl)}
+                                registerPlayer={() => {}}
+                                unregisterPlayer={() => {}}
+                              />
+                            ) : (
+                              <img
+                                src={dish.photoUrl || "/food_item_logo.png"}
+                                alt={dish.name}
+                                className="w-full h-full object-cover"
+                              />
+                            )}
+                          </div>
+                          <div className="p-3 sm:p-4 rounded-b-xl sm:rounded-b-2xl bg-white">
+                            <div className="flex justify-between items-start gap-2">
+                              <div className="flex flex-col flex-1">
+                                <div className="flex items-center gap-2">
+                                  <div className={`w-4 h-4 shrink-0 border-2 rounded-sm flex items-center justify-center ${dish.isVeg ? "border-green-600" : "border-red-600"}`}>
+                                    <div className={`w-2 h-2 rounded-full ${dish.isVeg ? "bg-green-600" : "bg-red-600"}`} />
+                                  </div>
+                                  <p className="text-base sm:text-lg font-semibold text-black leading-tight">{dish.name}</p>
+                                </div>
+                                <p className="text-base sm:text-lg font-semibold text-black mt-0.5 ml-6">₹{dish.price}</p>
+                                {(dish.quantity || dish.timing) && (
+                                  <p className="text-xs text-gray-400 mt-1">
+                                    {[dish.quantity || null, dish.timing ? `${dish.timing.from} – ${dish.timing.to}` : null].filter(Boolean).join(" • ")}
+                                  </p>
+                                )}
+                                {dish.description && (
+                                  <p className="text-xs sm:text-sm text-gray-500 leading-snug mt-2 line-clamp-2">{dish.description}</p>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ))}
                 </div>
-              </div>
-
-              {/* BOTTOM DIVIDER */}
-              <div className="mt-2 w-full">
-                <div className="h-px bg-white/20 w-full" />
-              </div>
-            </div>
-
-            <div className="w-full bg-[#DADDE4] rounded-t-3xl sm:rounded-t-[36px] pt-8 sm:pt-10 px-4 sm:px-6 min-h-screen mt-32 sm:mt-36">
-              <div className="flex flex-col gap-4 mt-2 items-center justify-start">
-                <p className="text-gray-600 text-lg sm:text-xl font-medium text-center">
-                  Coming soon
-                </p>
-              </div>
-            </div>
+              );
+            })()}
           </div>
 
           {/* EAT LATER */}
