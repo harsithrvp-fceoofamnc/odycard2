@@ -23,6 +23,8 @@ type DishForBlock = {
   videoUrl?: string | null;
   isActive: boolean;
   menuCategoryId?: number | null;
+  isVeg: boolean;
+  tags?: string[] | null;
 };
 
 function mapDishFromApi(row: {
@@ -36,7 +38,9 @@ function mapDishFromApi(row: {
   photo_url?: string | null;
   video_url?: string | null;
   is_active?: boolean;
+  is_veg?: boolean;
   menu_category_id?: number | null;
+  tags?: string[] | null;
 }): DishForBlock {
   return {
     id: String(row.id),
@@ -52,6 +56,8 @@ function mapDishFromApi(row: {
     videoUrl: row.video_url ?? null,
     isActive: row.is_active !== false,
     menuCategoryId: row.menu_category_id ?? null,
+    isVeg: row.is_veg !== false,
+    tags: Array.isArray(row.tags) ? row.tags : null,
   };
 }
 
@@ -460,16 +466,42 @@ export default function EditMenuPage() {
           {/* ================= MENU TAB ================= */}
           <div className="relative min-w-full snap-center pt-6 min-h-screen pb-20">
 
-            {/* TAG ISLAND */}
-            <div className="w-full">
-              <div className="h-px bg-white/20 w-full" />
-              <div className="h-16 w-full flex items-center justify-center">
-                <p className="text-white/60 text-sm text-center">
-                  Tags assigned to food items will appear here
-                </p>
-              </div>
-              <div className="h-px bg-white/20 w-full" />
-            </div>
+            {/* TAG ISLAND — live computed from menu dishes */}
+            {(() => {
+              const allMenuDishes = Object.values(menuDishes).flat();
+              const tagSet = new Set<string>();
+              if (allMenuDishes.some(d => d.isVeg)) tagSet.add("Veg Only");
+              if (allMenuDishes.some(d => !d.isVeg)) tagSet.add("Non-Veg Only");
+              for (const d of allMenuDishes) {
+                if (Array.isArray(d.tags)) d.tags.forEach(t => tagSet.add(t));
+              }
+              const tagList = Array.from(tagSet);
+              return (
+                <div className="w-full">
+                  <div className="h-px bg-white/20 w-full" />
+                  <div className="min-h-[64px] w-full flex items-center px-4 overflow-x-auto scrollbar-hide">
+                    {tagList.length === 0 ? (
+                      <p className="text-white/50 text-sm text-center w-full">
+                        Tags assigned to food items will appear here
+                      </p>
+                    ) : (
+                      <div className="flex gap-2 py-3">
+                        {tagList.map(tag => (
+                          <span
+                            key={tag}
+                            className="shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold text-white"
+                            style={{ backgroundColor: "#0A84C1" }}
+                          >
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                  <div className="h-px bg-white/20 w-full" />
+                </div>
+              );
+            })()}
 
             {/* CATEGORIES */}
             <div className="pt-8 px-4">

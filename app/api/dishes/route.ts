@@ -76,7 +76,7 @@ export async function POST(req: NextRequest) {
       hotel_id, name, price,
       category = "food_item", is_veg = true,
       quantity, description, timing_from, timing_to, photo_url, video_url,
-      menu_category_id,
+      menu_category_id, tags,
     } = await req.json();
 
     if (!hotel_id || !name || !price) return NextResponse.json({ error: "hotel_id, name, and price are required" }, { status: 400 });
@@ -87,6 +87,7 @@ export async function POST(req: NextRequest) {
       timing_from: timing_from ?? "09:00", timing_to: timing_to ?? "22:00",
       photo_url: photo_url ?? null, video_url: video_url ?? null,
       menu_category_id: menu_category_id ?? null,
+      tags: Array.isArray(tags) && tags.length > 0 ? tags : null,
     }).select().single();
 
     if (error) throw error;

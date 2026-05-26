@@ -103,7 +103,9 @@ export default function VisualsPage() {
     if (!isMenuDish && youtubeUrl) {
       localStorage.setItem("addDishVideoId", youtubeUrl);
     }
-    router.push(`/owner/hotel/${restaurantId}/add-dish/dish-details`);
+    // Menu dishes have an extra Tags step
+    const nextPage = isMenuDish ? "tags" : "dish-details";
+    router.push(`/owner/hotel/${restaurantId}/add-dish/${nextPage}`);
   };
 
   const handleUploadVideo = () => {

@@ -68,6 +68,7 @@ type OdyDish = {
   favoriteCount: number;
   eatLaterCount: number;
   menuCategoryId?: number | null;
+  tags?: string[] | null;
 };
 
 /** Extract YouTube video ID from watch URL, embed URL, or short url. */
@@ -453,6 +454,7 @@ function mapDishFromApi(row: {
     favoriteCount: Number(row.favorite_count) || 0,
     eatLaterCount: Number(row.eat_later_count) || 0,
     menuCategoryId: row.menu_category_id ? Number(row.menu_category_id) : null,
+    tags: Array.isArray(row.tags) ? row.tags : null,
   };
 }
 
@@ -1412,12 +1414,40 @@ export default function HotelHomePage() {
               </div>
             </div>
 
-            {/* TAGS PLACEHOLDER */}
-            <div className="mt-7 w-full">
-              <div className="h-px bg-white/20 w-full" />
-              <div className="h-16 w-full" />
-              <div className="h-px bg-white/20 w-full" />
-            </div>
+            {/* TAG ISLAND — live computed from menu dishes */}
+            {(() => {
+              const allMenuDishes = Object.values(menuDishes).flat();
+              const tagSet = new Set<string>();
+              if (allMenuDishes.some(d => d.isVeg)) tagSet.add("Veg Only");
+              if (allMenuDishes.some(d => !d.isVeg)) tagSet.add("Non-Veg Only");
+              for (const d of allMenuDishes) {
+                if (Array.isArray(d.tags)) d.tags.forEach(t => tagSet.add(t));
+              }
+              const tagList = Array.from(tagSet);
+              return (
+                <div className="mt-7 w-full">
+                  <div className="h-px bg-white/20 w-full" />
+                  <div className="min-h-[64px] w-full flex items-center px-4 sm:px-6 overflow-x-auto scrollbar-hide">
+                    {tagList.length === 0 ? (
+                      <div className="h-16 w-full" />
+                    ) : (
+                      <div className="flex gap-2 py-3">
+                        {tagList.map(tag => (
+                          <span
+                            key={tag}
+                            className="shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold text-white"
+                            style={{ backgroundColor: "#0A84C1" }}
+                          >
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                  <div className="h-px bg-white/20 w-full" />
+                </div>
+              );
+            })()}
 
             {/* CATEGORY CONTENT */}
             <div className="px-4 sm:px-6 pt-6 sm:pt-8">
@@ -1482,6 +1512,20 @@ export default function HotelHomePage() {
                                     <p className="text-xs text-gray-400 mt-1">
                                       {[dish.quantity || null, dish.timing ? `${dish.timing.from} – ${dish.timing.to}` : null].filter(Boolean).join(" • ")}
                                     </p>
+                                  ) : null}
+                                  {/* Dish tags */}
+                                  {dish.tags && dish.tags.length > 0 ? (
+                                    <div className="flex flex-wrap gap-1.5 mt-2">
+                                      {dish.tags.map(tag => (
+                                        <span
+                                          key={tag}
+                                          className="px-2.5 py-0.5 rounded-full text-xs font-semibold text-white"
+                                          style={{ backgroundColor: "#0A84C1" }}
+                                        >
+                                          {tag}
+                                        </span>
+                                      ))}
+                                    </div>
                                   ) : null}
                                   {/* Pill badges */}
                                   {(dish.ratingCount > 0 && dish.avgRating >= 3) || dish.favoriteCount > 0 || dish.eatLaterCount > 0 ? (

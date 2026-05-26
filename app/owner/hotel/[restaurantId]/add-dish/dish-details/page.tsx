@@ -24,6 +24,7 @@ const ADD_DISH_PHOTO_KEY = "addDishPhoto";
 const ADD_DISH_VIDEO_ID_KEY = "addDishVideoId";
 const ADD_DISH_TYPE_KEY = "addDishType";
 const ADD_DISH_MENU_CATEGORY_KEY = "addDishMenuCategoryId";
+const ADD_DISH_TAGS_KEY = "addDishTags";
 
 export default function DishDetailsPage() {
   const router = useRouter();
@@ -62,9 +63,11 @@ export default function DishDetailsPage() {
     (isDrink || vegType !== null);
 
   /* ---------- PROGRESS ---------- */
-  const TOTAL_PAGES = 3;
-  const CURRENT_PAGE = 3;
-  const BASE_PROGRESS = 66;
+  // Menu tab dishes have 4 pages (type, visuals, tags, details); Ody Menu has 3
+  const isMenuDish = typeof window !== "undefined" && !!localStorage.getItem(ADD_DISH_MENU_CATEGORY_KEY);
+  const TOTAL_PAGES = isMenuDish ? 4 : 3;
+  const CURRENT_PAGE = TOTAL_PAGES;
+  const BASE_PROGRESS = isMenuDish ? 75 : 66;
   const FINAL_PROGRESS = 100;
 
   const computedProgress = useMemo(() => {
@@ -331,6 +334,12 @@ export default function DishDetailsPage() {
                       typeof window !== "undefined"
                         ? localStorage.getItem(ADD_DISH_MENU_CATEGORY_KEY)
                         : null;
+                    const dishTags: string[] = (() => {
+                      if (typeof window === "undefined") return [];
+                      try {
+                        return JSON.parse(localStorage.getItem(ADD_DISH_TAGS_KEY) || "[]");
+                      } catch { return []; }
+                    })();
 
                     // Only send photo if it's a base64 data URL AND under 800KB
                     // Large base64 strings can cause Render/Supabase to timeout
@@ -358,6 +367,7 @@ export default function DishDetailsPage() {
                           ? `https://www.youtube.com/watch?v=${videoId}`
                           : null,
                         menu_category_id: menuCategoryId ? parseInt(menuCategoryId) : null,
+                        tags: dishTags.length > 0 ? dishTags : null,
                       }),
                     });
 
@@ -370,6 +380,7 @@ export default function DishDetailsPage() {
                     localStorage.removeItem(ADD_DISH_VIDEO_ID_KEY);
                     localStorage.removeItem(ADD_DISH_TYPE_KEY);
                     localStorage.removeItem(ADD_DISH_MENU_CATEGORY_KEY);
+                    localStorage.removeItem(ADD_DISH_TAGS_KEY);
 
                     // If it was a menu category dish, return to Menu tab (tab=1)
                     const target = menuCategoryId
