@@ -1412,10 +1412,12 @@ export default function HotelHomePage() {
             </div>
 
             {/* CATEGORY CONTENT */}
-            <div className="px-4 sm:px-6">
+            <div className="px-4 sm:px-6 pt-6 sm:pt-8">
             {(() => {
               // Only show categories that have at least one dish
-              const catsWithDishes = menuCategories.filter(cat => (menuDishes[cat.id] ?? []).length > 0);
+              const catsWithDishes = menuCategories.filter(cat =>
+                (menuDishes[cat.id] ?? []).filter(d => isWithinTiming(d.timing)).length > 0
+              );
               if (catsWithDishes.length === 0) {
                 return (
                   <div className="flex flex-col items-center justify-start pt-16 sm:pt-20">
@@ -1426,37 +1428,37 @@ export default function HotelHomePage() {
               return (
                 <div className="mb-6 sm:mb-8">
                   {catsWithDishes.map(cat => (
-                    <div key={cat.id} className="mb-8">
-                      {/* Category header */}
-                      <h2 className="text-white text-xl font-bold mb-4 px-1">{cat.name}</h2>
-                      {/* Dish cards — same style as Ody Menu */}
-                      {(menuDishes[cat.id] ?? []).filter(d => isWithinTiming(d.timing)).map((dish, index) => (
-                        <div
-                          key={dish.id}
-                          className="w-full rounded-xl sm:rounded-2xl bg-white border border-gray-200 mb-6 sm:mb-8"
-                        >
-                          <div className={`w-full bg-black relative overflow-hidden rounded-t-xl sm:rounded-t-2xl ${extractYouTubeVideoId(dish.videoUrl ?? "") ? "aspect-video" : "aspect-[4/3]"}`}>
-                            {dish.videoUrl && dish.videoUrl.trim() ? (
-                              <DishMediaCarousel
-                                dish={dish}
-                                dishIndex={index}
-                                containerRef={() => {}}
-                                videoRef={() => {}}
-                                isActive={false}
-                                isYouTube={!!extractYouTubeVideoId(dish.videoUrl)}
-                                registerPlayer={() => {}}
-                                unregisterPlayer={() => {}}
-                              />
-                            ) : (
-                              <img
-                                src={dish.photoUrl || "/food_item_logo.png"}
-                                alt={dish.name}
-                                className="w-full h-full object-cover"
-                              />
-                            )}
-                          </div>
-                          <div className="p-3 sm:p-4 rounded-b-xl sm:rounded-b-2xl bg-white">
-                            <div className="flex justify-between items-start gap-2">
+                    <div key={cat.id} className="mb-10">
+                      {/* Category name */}
+                      <h2 className="text-white text-xl sm:text-2xl font-bold mb-3 px-1">{cat.name}</h2>
+                      {/* Category block — same visual as owner edit-menu */}
+                      <div className="bg-[#DADDE4] rounded-[28px] px-4 py-4 w-full">
+                        {(menuDishes[cat.id] ?? []).filter(d => isWithinTiming(d.timing)).map((dish) => (
+                          <div
+                            key={dish.id}
+                            className="w-full rounded-xl sm:rounded-2xl bg-white border border-gray-200 mb-4 last:mb-0"
+                          >
+                            <div className={`w-full bg-black relative overflow-hidden rounded-t-xl sm:rounded-t-2xl ${extractYouTubeVideoId(dish.videoUrl ?? "") ? "aspect-video" : "aspect-[4/3]"}`}>
+                              {dish.videoUrl && dish.videoUrl.trim() ? (
+                                <DishMediaCarousel
+                                  dish={dish}
+                                  dishIndex={0}
+                                  containerRef={() => {}}
+                                  videoRef={() => {}}
+                                  isActive={false}
+                                  isYouTube={!!extractYouTubeVideoId(dish.videoUrl)}
+                                  registerPlayer={() => {}}
+                                  unregisterPlayer={() => {}}
+                                />
+                              ) : (
+                                <img
+                                  src={dish.photoUrl || "/food_item_logo.png"}
+                                  alt={dish.name}
+                                  className="w-full h-full object-cover"
+                                />
+                              )}
+                            </div>
+                            <div className="p-3 sm:p-4 rounded-b-xl sm:rounded-b-2xl bg-white">
                               <div className="flex flex-col flex-1">
                                 <div className="flex items-center gap-2">
                                   <div className={`w-4 h-4 shrink-0 border-2 rounded-sm flex items-center justify-center ${dish.isVeg ? "border-green-600" : "border-red-600"}`}>
@@ -1476,8 +1478,8 @@ export default function HotelHomePage() {
                               </div>
                             </div>
                           </div>
-                        </div>
-                      ))}
+                        ))}
+                      </div>
                     </div>
                   ))}
                 </div>

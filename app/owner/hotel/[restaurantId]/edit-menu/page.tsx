@@ -472,7 +472,7 @@ export default function EditMenuPage() {
             </div>
 
             {/* CATEGORIES */}
-            <div className="pt-6 px-4">
+            <div className="pt-8 px-4">
               {categories.length === 0 && (
                 <p className="text-white/50 text-sm text-center mt-4 mb-8">
                   No categories yet. Tap + below to add one.
