@@ -615,6 +615,14 @@ export default function HotelHomePage() {
   const [user, setUser] = useState<{ phone: string; name: string } | null>(null);
   const [showProfile, setShowProfile] = useState(false);
   const [search, setSearch] = useState("");
+  // Tracks which dish ids have expanded descriptions in Menu tab
+  const [expandedDescs, setExpandedDescs] = useState<Set<string>>(new Set());
+  const toggleDesc = (id: string) =>
+    setExpandedDescs(prev => {
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
   
   // Eat Later Confirmation Popup
   const [showEatLaterPopup, setShowEatLaterPopup] = useState(false);
@@ -1472,9 +1480,19 @@ export default function HotelHomePage() {
                                     {[dish.quantity || null, dish.timing ? `${dish.timing.from} – ${dish.timing.to}` : null].filter(Boolean).join(" • ")}
                                   </p>
                                 )}
-                                {dish.description && (
-                                  <p className="text-xs sm:text-sm text-gray-500 leading-snug mt-2 line-clamp-2">{dish.description}</p>
-                                )}
+                                {dish.description && (() => {
+                                  const LIMIT = 80;
+                                  const isLong = dish.description.length > LIMIT;
+                                  const isExpanded = expandedDescs.has(dish.id);
+                                  return (
+                                    <p className="text-xs sm:text-sm text-gray-500 leading-snug mt-2">
+                                      {isLong && !isExpanded
+                                        ? <>{dish.description.slice(0, LIMIT).trimEnd()}<span className="text-[#0A84C1] font-medium cursor-pointer" onClick={() => toggleDesc(dish.id)}>...more</span></>
+                                        : <>{dish.description}{isLong && <span className="text-[#0A84C1] font-medium cursor-pointer ml-1" onClick={() => toggleDesc(dish.id)}>less</span>}</>
+                                      }
+                                    </p>
+                                  );
+                                })()}
                               </div>
                             </div>
                           </div>
