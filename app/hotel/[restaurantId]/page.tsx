@@ -1446,6 +1446,7 @@ export default function HotelHomePage() {
                             key={dish.id}
                             className="w-full rounded-xl sm:rounded-2xl bg-white border border-gray-200 mb-4 last:mb-0"
                           >
+                            {/* Media */}
                             <div className={`w-full bg-black relative overflow-hidden rounded-t-xl sm:rounded-t-2xl ${extractYouTubeVideoId(dish.videoUrl ?? "") ? "aspect-video" : "aspect-[4/3]"}`}>
                               {dish.videoUrl && dish.videoUrl.trim() ? (
                                 <DishMediaCarousel
@@ -1466,33 +1467,93 @@ export default function HotelHomePage() {
                                 />
                               )}
                             </div>
+                            {/* Info — identical layout to Ody Menu */}
                             <div className="p-3 sm:p-4 rounded-b-xl sm:rounded-b-2xl bg-white">
-                              <div className="flex flex-col flex-1">
-                                <div className="flex items-center gap-2">
-                                  <div className={`w-4 h-4 shrink-0 border-2 rounded-sm flex items-center justify-center ${dish.isVeg ? "border-green-600" : "border-red-600"}`}>
-                                    <div className={`w-2 h-2 rounded-full ${dish.isVeg ? "bg-green-600" : "bg-red-600"}`} />
+                              <div className="flex justify-between items-start gap-2">
+                                <div className="flex flex-col flex-1">
+                                  <div className="flex items-center gap-2">
+                                    <div className={`w-4 h-4 shrink-0 border-2 rounded-sm flex items-center justify-center ${dish.isVeg ? "border-green-600" : "border-red-600"}`}>
+                                      <div className={`w-2 h-2 rounded-full ${dish.isVeg ? "bg-green-600" : "bg-red-600"}`} />
+                                    </div>
+                                    <p className="text-base sm:text-lg font-semibold text-black leading-tight">{dish.name}</p>
                                   </div>
-                                  <p className="text-base sm:text-lg font-semibold text-black leading-tight">{dish.name}</p>
-                                </div>
-                                <p className="text-base sm:text-lg font-semibold text-black mt-0.5 ml-6">₹{dish.price}</p>
-                                {(dish.quantity || dish.timing) && (
-                                  <p className="text-xs text-gray-400 mt-1">
-                                    {[dish.quantity || null, dish.timing ? `${dish.timing.from} – ${dish.timing.to}` : null].filter(Boolean).join(" • ")}
-                                  </p>
-                                )}
-                                {dish.description && (() => {
-                                  const LIMIT = 80;
-                                  const isLong = dish.description.length > LIMIT;
-                                  const isExpanded = expandedDescs.has(dish.id);
-                                  return (
-                                    <p className="text-xs sm:text-sm text-gray-500 leading-snug mt-2">
-                                      {isLong && !isExpanded
-                                        ? <>{dish.description.slice(0, LIMIT).trimEnd()}<span className="text-[#0A84C1] font-medium cursor-pointer" onClick={() => toggleDesc(dish.id)}>...more</span></>
-                                        : <>{dish.description}{isLong && <span className="text-[#0A84C1] font-medium cursor-pointer ml-1" onClick={() => toggleDesc(dish.id)}>less</span>}</>
-                                      }
+                                  <p className="text-base sm:text-lg font-semibold text-black mt-0.5 ml-6">₹{dish.price}</p>
+                                  {(dish.quantity || dish.timing) ? (
+                                    <p className="text-xs text-gray-400 mt-1">
+                                      {[dish.quantity || null, dish.timing ? `${dish.timing.from} – ${dish.timing.to}` : null].filter(Boolean).join(" • ")}
                                     </p>
-                                  );
-                                })()}
+                                  ) : null}
+                                  {/* Pill badges */}
+                                  {(dish.ratingCount > 0 && dish.avgRating >= 3) || dish.favoriteCount > 0 || dish.eatLaterCount > 0 ? (
+                                    <div className="flex gap-1 mt-2 flex-wrap">
+                                      {dish.ratingCount > 0 && dish.avgRating >= 3 ? (
+                                        <span className="flex items-center gap-0.5 px-2 py-0.5 rounded-full text-xs font-semibold text-white shrink-0" style={{ backgroundColor: "#111" }}>
+                                          <span style={{ color: "#FBBF24" }}>★</span>
+                                          {dish.avgRating.toFixed(1)}({formatCount(dish.ratingCount)})
+                                        </span>
+                                      ) : null}
+                                      {dish.favoriteCount > 0 ? (
+                                        <span className="flex items-center gap-0.5 px-2 py-0.5 rounded-full text-xs font-semibold text-white shrink-0" style={{ backgroundColor: "#ef4444" }}>
+                                          <svg viewBox="0 0 24 24" style={{ width: 11, height: 11 }} fill="white" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                                          </svg>
+                                          Liked by {formatCount(dish.favoriteCount)}{dish.favoriteCount >= 5 ? " people" : ""}
+                                        </span>
+                                      ) : null}
+                                      {dish.eatLaterCount > 0 ? (
+                                        <span className="flex items-center gap-0.5 px-2 py-0.5 rounded-full text-xs font-semibold text-white shrink-0" style={{ backgroundColor: "#3b82f6" }}>
+                                          <svg viewBox="0 0 24 24" style={{ width: 11, height: 11 }} fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                            <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+                                          </svg>
+                                          Saved by {formatCount(dish.eatLaterCount)}{dish.eatLaterCount >= 5 ? " people" : ""}
+                                        </span>
+                                      ) : null}
+                                    </div>
+                                  ) : null}
+                                  {/* Description with ...more/less */}
+                                  {dish.description ? (
+                                    <div className="mt-2">
+                                      <p className={`text-xs sm:text-sm text-gray-500 leading-snug ${expandedDescs.has(dish.id) ? "" : "line-clamp-2"}`}>
+                                        {dish.description}
+                                      </p>
+                                      {dish.description.length > 80 ? (
+                                        <button
+                                          onClick={() => toggleDesc(dish.id)}
+                                          className="text-xs text-[#0A84C1] font-medium mt-0.5"
+                                        >
+                                          {expandedDescs.has(dish.id) ? "less" : "...more"}
+                                        </button>
+                                      ) : null}
+                                    </div>
+                                  ) : null}
+                                  {/* Review button */}
+                                  <button
+                                    onClick={() => openDishRating(dish)}
+                                    className="mt-2 self-start flex items-center gap-1 px-3 py-1.5 rounded-full border border-gray-300 text-xs text-gray-500 font-medium"
+                                  >
+                                    <span>+</span>
+                                    <span>{dishRatings[dish.id] ? "Edit review" : "Review"}</span>
+                                    {dishRatings[dish.id] ? (
+                                      <span style={{ color: "#FBBF24" }}>{"★".repeat(dishRatings[dish.id])}</span>
+                                    ) : null}
+                                  </button>
+                                </div>
+                                {/* Like + Save */}
+                                <div className="flex items-center gap-4 shrink-0">
+                                  <button onClick={() => toggleFavorite(dish)} className="flex flex-col items-center gap-0.5">
+                                    <svg viewBox="0 0 24 24" className="w-7 h-7" fill={isFavorite(dish.id) ? "#ef4444" : "none"} stroke={isFavorite(dish.id) ? "#ef4444" : "#374151"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                      <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                                    </svg>
+                                    <span className="text-xs font-medium text-gray-600">Like</span>
+                                  </button>
+                                  <button onClick={() => toggleEatLater(dish)} className="flex flex-col items-center gap-0.5">
+                                    <svg viewBox="0 0 24 24" className="w-7 h-7" fill="none" stroke={isInEatLater(dish.id) ? "#3b82f6" : "#374151"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                      <circle cx="12" cy="12" r="10"/>
+                                      <polyline points="12 6 12 12 16 14"/>
+                                    </svg>
+                                    <span className="text-xs font-medium text-gray-600">Save</span>
+                                  </button>
+                                </div>
                               </div>
                             </div>
                           </div>
