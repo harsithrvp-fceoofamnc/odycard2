@@ -1500,7 +1500,7 @@ export default function HotelHomePage() {
                             {/* Info — identical layout to Ody Menu */}
                             <div className="p-3 sm:p-4 rounded-b-xl sm:rounded-b-2xl bg-white">
                               <div className="flex justify-between items-start gap-2">
-                                <div className="flex flex-col flex-1">
+                                <div className="flex flex-col flex-1 min-w-0">
                                   <div className="flex items-center gap-2">
                                     <div className={`w-4 h-4 shrink-0 border-2 rounded-sm flex items-center justify-center ${dish.isVeg ? "border-green-600" : "border-red-600"}`}>
                                       <div className={`w-2 h-2 rounded-full ${dish.isVeg ? "bg-green-600" : "bg-red-600"}`} />

@@ -50,10 +50,10 @@ export default function VisualsPage() {
   const params = useParams();
   const restaurantId = params?.restaurantId as string;
 
-  // True when adding a dish to a Menu category (no video required)
-  const [isMenuDish] = useState(() =>
-    typeof window !== "undefined" ? !!localStorage.getItem("addDishMenuCategoryId") : false
-  );
+  // Read fresh from localStorage every time (not via useState — SSR would default to false)
+  const getIsMenuDish = () =>
+    typeof window !== "undefined" && !!localStorage.getItem("addDishMenuCategoryId");
+  const isMenuDish = getIsMenuDish();
 
   /* ---------- IMAGE STATES ---------- */
   const [imageFile, setImageFile] = useState<File | null>(null);
@@ -100,11 +100,13 @@ export default function VisualsPage() {
 
     setNavError(null);
     localStorage.setItem("addDishPhoto", imageUrl);
-    if (!isMenuDish && youtubeUrl) {
+    // Re-read fresh at click time to avoid SSR false-negative
+    const menuDish = typeof window !== "undefined" && !!localStorage.getItem("addDishMenuCategoryId");
+    if (!menuDish && youtubeUrl) {
       localStorage.setItem("addDishVideoId", youtubeUrl);
     }
-    // Menu dishes have an extra Tags step
-    const nextPage = isMenuDish ? "tags" : "dish-details";
+    // Menu dishes have an extra Tags step (step 3 of 4)
+    const nextPage = menuDish ? "tags" : "dish-details";
     router.push(`/owner/hotel/${restaurantId}/add-dish/${nextPage}`);
   };
 
