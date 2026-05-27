@@ -749,13 +749,16 @@ export default function HotelHomePage() {
             // Owner just hid Ody Menu — show buffer, then remove tab
             prevOdyMenuHiddenRef.current = true;
             setIsRefreshing(true);
-            await new Promise((r) => setTimeout(r, 1800));
-            setOdyMenuHidden(true);
-            setActiveTab(1);
-            if (containerRef.current) {
-              containerRef.current.scrollTo({ left: containerRef.current.clientWidth * 1, behavior: "smooth" });
+            try {
+              await new Promise((r) => setTimeout(r, 1800));
+              setOdyMenuHidden(true);
+              setActiveTab(1);
+              if (containerRef.current) {
+                containerRef.current.scrollTo({ left: containerRef.current.clientWidth * 1, behavior: "smooth" });
+              }
+            } finally {
+              setIsRefreshing(false);
             }
-            setIsRefreshing(false);
             return;
           }
           if (!newOdyHidden && prevOdyMenuHiddenRef.current) {
@@ -772,8 +775,7 @@ export default function HotelHomePage() {
       const odyDishes = newDishes.filter(d => !d.menuCategoryId);
       if (!menuChanged(odyDishes)) return;
 
-      setIsRefreshing(true);
-      await new Promise((r) => setTimeout(r, 1500));
+      // Silent update — no overlay for dish data changes (avoids black-screen stuck state)
       prevDishIdsRef.current = new Set(odyDishes.map((d) => d.id));
       prevDishSigRef.current = buildSig(odyDishes);
       setDishes(odyDishes);
@@ -787,7 +789,6 @@ export default function HotelHomePage() {
       }
       setMenuDishes(byCategory);
       setDishesLoadError(null);
-      setIsRefreshing(false);
     };
 
     const interval = setInterval(poll, 2000);
