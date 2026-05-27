@@ -105,9 +105,8 @@ export default function VisualsPage() {
     if (!menuDish && youtubeUrl) {
       localStorage.setItem("addDishVideoId", youtubeUrl);
     }
-    // Menu dishes have an extra Tags step (step 3 of 4)
-    const nextPage = menuDish ? "tags" : "dish-details";
-    router.push(`/owner/hotel/${restaurantId}/add-dish/${nextPage}`);
+    // Always go to dish-details next (tags is now step 4, after dish-details, for menu dishes)
+    router.push(`/owner/hotel/${restaurantId}/add-dish/dish-details`);
   };
 
   const handleUploadVideo = () => {

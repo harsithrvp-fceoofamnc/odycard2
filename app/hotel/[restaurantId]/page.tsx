@@ -1435,7 +1435,7 @@ export default function HotelHomePage() {
                         {tagList.map(tag => (
                           <span
                             key={tag}
-                            className="shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold text-white"
+                            className="shrink-0 px-4 py-2 rounded-full text-sm font-semibold text-white"
                             style={{ backgroundColor: "#0A84C1" }}
                           >
                             {tag}
@@ -1515,11 +1515,11 @@ export default function HotelHomePage() {
                                   ) : null}
                                   {/* Dish tags */}
                                   {dish.tags && dish.tags.length > 0 ? (
-                                    <div className="flex flex-wrap gap-1.5 mt-2">
+                                    <div className="flex flex-wrap gap-2 mt-2">
                                       {dish.tags.map(tag => (
                                         <span
                                           key={tag}
-                                          className="px-2.5 py-0.5 rounded-full text-xs font-semibold text-white"
+                                          className="px-3 py-1 rounded-full text-sm font-semibold text-white"
                                           style={{ backgroundColor: "#0A84C1" }}
                                         >
                                           {tag}

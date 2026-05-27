@@ -489,7 +489,7 @@ export default function EditMenuPage() {
                         {tagList.map(tag => (
                           <span
                             key={tag}
-                            className="shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold text-white"
+                            className="shrink-0 px-4 py-2 rounded-full text-sm font-semibold text-white"
                             style={{ backgroundColor: "#0A84C1" }}
                           >
                             {tag}

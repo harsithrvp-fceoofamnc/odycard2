@@ -63,12 +63,12 @@ export default function DishDetailsPage() {
     (isDrink || vegType !== null);
 
   /* ---------- PROGRESS ---------- */
-  // Menu tab dishes have 4 pages (type, visuals, tags, details); Ody Menu has 3
+  // Menu dishes: 4 pages (type→visuals→dish-details→tags). Non-menu: 3 pages (type→visuals→dish-details)
   const isMenuDish = typeof window !== "undefined" && !!localStorage.getItem(ADD_DISH_MENU_CATEGORY_KEY);
   const TOTAL_PAGES = isMenuDish ? 4 : 3;
-  const CURRENT_PAGE = TOTAL_PAGES;
-  const BASE_PROGRESS = isMenuDish ? 75 : 66;
-  const FINAL_PROGRESS = 100;
+  const CURRENT_PAGE = 3; // dish-details is always page 3
+  const BASE_PROGRESS = isMenuDish ? 50 : 66;
+  const FINAL_PROGRESS = isMenuDish ? 75 : 100;
 
   const computedProgress = useMemo(() => {
     return canProceed ? FINAL_PROGRESS : BASE_PROGRESS;
@@ -293,6 +293,23 @@ export default function DishDetailsPage() {
                     return;
                   }
 
+                  // Re-read fresh to avoid SSR false-negative
+                  const menuDish = typeof window !== "undefined" && !!localStorage.getItem(ADD_DISH_MENU_CATEGORY_KEY);
+
+                  if (menuDish) {
+                    // Menu dish: save details to localStorage, navigate to Tags (step 4)
+                    localStorage.setItem("addDishName", name.trim());
+                    localStorage.setItem("addDishPrice", price.trim());
+                    localStorage.setItem("addDishIsVeg", vegType === "veg" ? "veg" : "nonveg");
+                    localStorage.setItem("addDishQuantity", quantity.trim());
+                    localStorage.setItem("addDishDescription", description.trim());
+                    localStorage.setItem("addDishTimingFrom", fromTime);
+                    localStorage.setItem("addDishTimingTo", toTime);
+                    router.push(`/owner/hotel/${restaurantId}/add-dish/tags`);
+                    return;
+                  }
+
+                  // Non-menu dish: submit to API directly
                   setSubmitError(null);
                   setIsSubmitting(true);
 
@@ -330,19 +347,8 @@ export default function DishDetailsPage() {
                       typeof window !== "undefined"
                         ? localStorage.getItem(ADD_DISH_TYPE_KEY) || "food_item"
                         : "food_item";
-                    const menuCategoryId =
-                      typeof window !== "undefined"
-                        ? localStorage.getItem(ADD_DISH_MENU_CATEGORY_KEY)
-                        : null;
-                    const dishTags: string[] = (() => {
-                      if (typeof window === "undefined") return [];
-                      try {
-                        return JSON.parse(localStorage.getItem(ADD_DISH_TAGS_KEY) || "[]");
-                      } catch { return []; }
-                    })();
 
                     // Only send photo if it's a base64 data URL AND under 800KB
-                    // Large base64 strings can cause Render/Supabase to timeout
                     const MAX_PHOTO_BYTES = 800 * 1024;
                     const photoUrl =
                       rawPhoto.startsWith("data:") && rawPhoto.length <= MAX_PHOTO_BYTES
@@ -366,8 +372,8 @@ export default function DishDetailsPage() {
                         video_url: videoId
                           ? `https://www.youtube.com/watch?v=${videoId}`
                           : null,
-                        menu_category_id: menuCategoryId ? parseInt(menuCategoryId) : null,
-                        tags: dishTags.length > 0 ? dishTags : null,
+                        menu_category_id: null,
+                        tags: null,
                       }),
                     });
 
@@ -379,15 +385,8 @@ export default function DishDetailsPage() {
                     localStorage.removeItem(ADD_DISH_PHOTO_KEY);
                     localStorage.removeItem(ADD_DISH_VIDEO_ID_KEY);
                     localStorage.removeItem(ADD_DISH_TYPE_KEY);
-                    localStorage.removeItem(ADD_DISH_MENU_CATEGORY_KEY);
-                    localStorage.removeItem(ADD_DISH_TAGS_KEY);
 
-                    // If it was a menu category dish, return to Menu tab (tab=1)
-                    const target = menuCategoryId
-                      ? `/owner/hotel/${restaurantId}/edit-menu?tab=1`
-                      : `/owner/hotel/${restaurantId}/edit-menu`;
-                    console.log("[DishDetails] Navigating to:", target);
-                    router.push(target);
+                    router.push(`/owner/hotel/${restaurantId}/edit-menu`);
                   } catch (err) {
                     setSubmitError(
                       err instanceof Error ? err.message : "Failed to add dish"
@@ -402,7 +401,7 @@ export default function DishDetailsPage() {
                       : "bg-gray-200 text-gray-400 cursor-not-allowed"
                   }`}
               >
-                {isSubmitting ? "Adding..." : "Add"}
+                {isMenuDish ? "Next" : (isSubmitting ? "Adding..." : "Add")}
               </button>
             </div>
 

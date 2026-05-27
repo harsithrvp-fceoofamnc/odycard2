@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import ProgressBar from "@/components/ProgressBar";
+import { API_BASE } from "@/lib/api";
 
 const PREDEFINED_TAGS = [
   "Must Try",
@@ -18,7 +19,21 @@ const PREDEFINED_TAGS = [
 const MAX_TAGS = 2;
 const CUSTOM_MAX_CHARS = 20;
 
-const ADD_DISH_TAGS_KEY = "addDishTags";
+// All localStorage keys used across the add-dish flow
+const ALL_DISH_KEYS = [
+  "addDishPhoto",
+  "addDishVideoId",
+  "addDishType",
+  "addDishMenuCategoryId",
+  "addDishTags",
+  "addDishName",
+  "addDishPrice",
+  "addDishIsVeg",
+  "addDishQuantity",
+  "addDishDescription",
+  "addDishTimingFrom",
+  "addDishTimingTo",
+];
 
 export default function DishTagsPage() {
   const router = useRouter();
@@ -29,6 +44,8 @@ export default function DishTagsPage() {
   const [customInput, setCustomInput] = useState("");
   const [customAdded, setCustomAdded] = useState<string | null>(null);
   const [customError, setCustomError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const totalSelected = selected.length + (customAdded ? 1 : 0);
   const canAddMore = totalSelected < MAX_TAGS;
@@ -63,17 +80,91 @@ export default function DishTagsPage() {
     setCustomError("");
   };
 
-  const proceed = (skip = false) => {
-    if (!skip && totalSelected > 0) {
-      const allTags = [...selected, ...(customAdded ? [customAdded] : [])];
-      localStorage.setItem(ADD_DISH_TAGS_KEY, JSON.stringify(allTags));
-    } else {
-      localStorage.removeItem(ADD_DISH_TAGS_KEY);
+  const fetchWithRetry = async (url: string, options?: RequestInit, maxAttempts = 4): Promise<Response> => {
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+      const res = await fetch(url, options);
+      if (res.status >= 500 && attempt < maxAttempts) {
+        await new Promise((r) => setTimeout(r, 6000));
+        continue;
+      }
+      return res;
     }
-    router.push(`/owner/hotel/${restaurantId}/add-dish/dish-details`);
+    throw new Error("Server unreachable");
   };
 
-  const progress = totalSelected > 0 ? 90 : 66;
+  const proceed = async (skip = false) => {
+    if (!restaurantId) return;
+    setSubmitError(null);
+    setIsSubmitting(true);
+
+    try {
+      // Build tags list (empty if skipping)
+      const dishTags = skip ? [] : [...selected, ...(customAdded ? [customAdded] : [])];
+
+      // Read all dish data saved by previous steps
+      const rawPhoto = localStorage.getItem("addDishPhoto") || "";
+      const videoId = localStorage.getItem("addDishVideoId");
+      const category = localStorage.getItem("addDishType") || "food_item";
+      const menuCategoryId = localStorage.getItem("addDishMenuCategoryId");
+      const dishName = localStorage.getItem("addDishName") || "";
+      const dishPrice = localStorage.getItem("addDishPrice") || "0";
+      const dishIsVeg = localStorage.getItem("addDishIsVeg") !== "nonveg";
+      const dishQuantity = localStorage.getItem("addDishQuantity") || "";
+      const dishDescription = localStorage.getItem("addDishDescription") || "";
+      const dishTimingFrom = localStorage.getItem("addDishTimingFrom") || "09:00";
+      const dishTimingTo = localStorage.getItem("addDishTimingTo") || "22:00";
+
+      // Resolve hotel from slug
+      const hotelRes = await fetchWithRetry(
+        `${API_BASE}/api/hotels/${encodeURIComponent(restaurantId)}`
+      );
+      if (!hotelRes.ok) throw new Error("Hotel not found");
+      const hotel = await hotelRes.json();
+
+      // Only send photo if it's a base64 data URL AND under 800KB
+      const MAX_PHOTO_BYTES = 800 * 1024;
+      const photoUrl =
+        rawPhoto.startsWith("data:") && rawPhoto.length <= MAX_PHOTO_BYTES
+          ? rawPhoto
+          : null;
+
+      const postRes = await fetchWithRetry(`${API_BASE}/api/dishes`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          hotel_id: hotel.id,
+          name: dishName,
+          price: parseFloat(dishPrice) || 0,
+          category,
+          is_veg: dishIsVeg,
+          quantity: dishQuantity || null,
+          description: dishDescription || null,
+          timing_from: dishTimingFrom,
+          timing_to: dishTimingTo,
+          photo_url: photoUrl,
+          video_url: videoId ? `https://www.youtube.com/watch?v=${videoId}` : null,
+          menu_category_id: menuCategoryId ? parseInt(menuCategoryId) : null,
+          tags: dishTags.length > 0 ? dishTags : null,
+        }),
+      });
+
+      if (!postRes.ok) {
+        const data = await postRes.json().catch(() => ({}));
+        throw new Error(data.error || `Failed to add dish (HTTP ${postRes.status})`);
+      }
+
+      // Clear all localStorage keys used across the flow
+      ALL_DISH_KEYS.forEach((k) => localStorage.removeItem(k));
+
+      // Navigate back to Menu tab
+      router.push(`/owner/hotel/${restaurantId}/edit-menu?tab=1`);
+    } catch (err) {
+      setSubmitError(err instanceof Error ? err.message : "Failed to add dish");
+      setIsSubmitting(false);
+    }
+  };
+
+  const progress = totalSelected > 0 ? 100 : 75;
 
   return (
     <div className="min-h-screen bg-black flex justify-center">
@@ -96,7 +187,7 @@ export default function DishTagsPage() {
               <button
                 key={tag}
                 onClick={() => toggleTag(tag)}
-                disabled={isDisabled}
+                disabled={isDisabled || isSubmitting}
                 className={`px-4 py-2 rounded-full text-sm font-semibold border transition
                   ${isSelected
                     ? "bg-[#0A84C1] text-white border-[#0A84C1]"
@@ -124,6 +215,7 @@ export default function DishTagsPage() {
               </span>
               <button
                 onClick={removeCustom}
+                disabled={isSubmitting}
                 className="text-sm text-red-500 font-medium"
               >
                 Remove
@@ -139,15 +231,16 @@ export default function DishTagsPage() {
                     setCustomInput(e.target.value.slice(0, CUSTOM_MAX_CHARS));
                     setCustomError("");
                   }}
+                  disabled={isSubmitting}
                   placeholder={`e.g. House Special (max ${CUSTOM_MAX_CHARS} chars)`}
                   className="flex-1 border border-gray-300 rounded-xl px-4 py-3 text-sm text-black
                              placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#0A84C1]"
                 />
                 <button
                   onClick={addCustomTag}
-                  disabled={!customInput.trim() || !canAddMore}
+                  disabled={!customInput.trim() || !canAddMore || isSubmitting}
                   className={`px-4 py-3 rounded-xl text-sm font-semibold
-                    ${customInput.trim() && canAddMore
+                    ${customInput.trim() && canAddMore && !isSubmitting
                       ? "bg-[#0A84C1] text-white"
                       : "bg-gray-200 text-gray-400 cursor-not-allowed"
                     }`}
@@ -171,11 +264,15 @@ export default function DishTagsPage() {
           <div className="mb-4 flex flex-wrap gap-2">
             <p className="w-full text-sm text-gray-500 mb-1">Selected ({totalSelected}/{MAX_TAGS}):</p>
             {[...selected, ...(customAdded ? [customAdded] : [])].map((t) => (
-              <span key={t} className="px-3 py-1 rounded-full bg-[#0A84C1] text-white text-xs font-semibold">
+              <span key={t} className="px-3 py-1 rounded-full bg-[#0A84C1] text-white text-sm font-semibold">
                 {t}
               </span>
             ))}
           </div>
+        )}
+
+        {submitError && (
+          <p className="mb-4 text-sm text-red-600">{submitError}</p>
         )}
 
         {/* BOTTOM BAR */}
@@ -185,7 +282,8 @@ export default function DishTagsPage() {
               <button
                 type="button"
                 onClick={() => router.back()}
-                className="px-6 py-3 rounded-xl border border-gray-300 text-base font-medium text-gray-700"
+                disabled={isSubmitting}
+                className="px-6 py-3 rounded-xl border border-gray-300 text-base font-medium text-gray-700 disabled:opacity-50"
               >
                 Back
               </button>
@@ -193,24 +291,28 @@ export default function DishTagsPage() {
               <button
                 type="button"
                 onClick={() => proceed(true)}
-                className="px-6 py-3 rounded-xl border border-gray-300 text-base font-medium text-gray-500"
+                disabled={isSubmitting}
+                className="px-6 py-3 rounded-xl border border-gray-300 text-base font-medium text-gray-500 disabled:opacity-50"
               >
-                Skip
+                {isSubmitting ? "Adding..." : "Skip"}
               </button>
 
               <button
                 type="button"
-                disabled={totalSelected === 0}
+                disabled={totalSelected === 0 || isSubmitting}
                 onClick={() => proceed(false)}
                 className={`px-6 py-3 rounded-xl text-base font-semibold disabled:opacity-50
-                  ${totalSelected > 0 ? "bg-[#0A84C1] text-white" : "bg-gray-200 text-gray-400 cursor-not-allowed"}`}
+                  ${totalSelected > 0 && !isSubmitting
+                    ? "bg-[#0A84C1] text-white"
+                    : "bg-gray-200 text-gray-400 cursor-not-allowed"
+                  }`}
               >
-                Next
+                {isSubmitting ? "Adding..." : "Add"}
               </button>
             </div>
 
             <div className="flex items-center gap-3 min-w-[130px]">
-              <span className="text-sm text-gray-500 whitespace-nowrap">Page 3 of 4</span>
+              <span className="text-sm text-gray-500 whitespace-nowrap">Page 4 of 4</span>
               <ProgressBar progress={progress} className="flex-1 h-[6px]" />
             </div>
           </div>
