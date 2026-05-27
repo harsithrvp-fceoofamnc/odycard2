@@ -1175,31 +1175,6 @@ export default function HotelHomePage() {
           </div>
         )}
 
-        {/* INITIAL LOADING OVERLAY — shown while backend wakes up */}
-        {isLoading && (
-          <div style={{ position: "fixed", inset: 0, zIndex: 99998, background: "#1c1c1c", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 16 }}>
-            <div style={{ display: "flex", gap: 8 }}>
-              {[0, 1, 2].map((i) => (
-                <div
-                  key={i}
-                  style={{
-                    width: 10, height: 10, borderRadius: "50%",
-                    background: "rgba(255,255,255,0.7)",
-                    animation: "ody-bounce 0.9s ease-in-out infinite",
-                    animationDelay: `${i * 0.18}s`,
-                  }}
-                />
-              ))}
-            </div>
-            <p style={{ color: "rgba(255,255,255,0.5)", fontSize: 14 }}>Loading menu…</p>
-            <style>{`
-              @keyframes ody-bounce {
-                0%, 80%, 100% { transform: translateY(0); opacity: 0.5; }
-                40% { transform: translateY(-10px); opacity: 1; }
-              }
-            `}</style>
-          </div>
-        )}
 
         {/* 🔥 TOP TASK BAR */}
         <div className="fixed top-0 left-1/2 -translate-x-1/2 w-full max-w-md z-[999]">
@@ -1279,7 +1254,17 @@ export default function HotelHomePage() {
 
           {/* ODY MENU */}
           <div ref={menuScrollRef} className="min-w-full snap-center snap-always px-4 pt-6 sm:px-6 sm:pt-8 overflow-y-auto min-h-screen pb-64 sm:pb-72" style={{ scrollBehavior: 'smooth' }}>
-            {odyMenuHidden ? (
+            {isLoading ? (
+              <div className="flex flex-col items-center justify-start pt-24 gap-4">
+                <div style={{ display: "flex", gap: 8 }}>
+                  {[0, 1, 2].map((i) => (
+                    <div key={i} style={{ width: 10, height: 10, borderRadius: "50%", background: "rgba(255,255,255,0.6)", animation: "ody-bounce 0.9s ease-in-out infinite", animationDelay: `${i * 0.18}s` }} />
+                  ))}
+                </div>
+                <p className="text-white/50 text-sm">Loading menu…</p>
+                <style>{`@keyframes ody-bounce { 0%,80%,100%{transform:translateY(0);opacity:.4} 40%{transform:translateY(-9px);opacity:1} }`}</style>
+              </div>
+            ) : odyMenuHidden ? (
               <div className="flex flex-col items-center justify-start pt-16 sm:pt-20">
                 <p className="text-white/70 text-lg sm:text-xl font-medium">Coming soon</p>
               </div>
