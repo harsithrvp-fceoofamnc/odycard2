@@ -462,6 +462,7 @@ export default function HotelHomePage() {
   const params = useParams();
   const restaurantId = params?.restaurantId as string | undefined;
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   // Ticks every minute so timing-based dish visibility updates automatically
   const [, setTimeTick] = useState(0);
   useEffect(() => {
@@ -688,12 +689,21 @@ export default function HotelHomePage() {
         prevOdyMenuHiddenRef.current = newOdyHidden;
         setOdyMenuHidden(newOdyHidden);
 
-        const newDishes = await fetchDishes(String(hotel.id));
+        // Fetch dishes + categories in parallel to save one round-trip
+        const hId = String(hotel.id);
+        const [newDishes, cats] = await Promise.all([
+          fetchDishes(hId),
+          fetch(`${API_BASE}/api/categories?hotel_id=${encodeURIComponent(hId)}`)
+            .then(r => r.ok ? r.json() : [])
+            .catch(() => []),
+        ]);
+
         if (cancelled) return;
         if (newDishes === null) {
           setDishesLoadError("Failed to load dishes");
           return;
         }
+
         // Ody Menu shows only dishes without a menu_category_id
         const odyMenuDishes = newDishes.filter(d => !d.menuCategoryId);
         setDishes(odyMenuDishes);
@@ -709,22 +719,18 @@ export default function HotelHomePage() {
             byCategory[d.menuCategoryId].push(d);
           }
         }
-        if (!cancelled) setMenuDishes(byCategory);
-
-        // Fetch menu categories
-        try {
-          const catRes = await fetch(`${API_BASE}/api/categories?hotel_id=${encodeURIComponent(String(hotel.id))}`);
-          if (catRes.ok) {
-            const cats = await catRes.json();
-            if (!cancelled) setMenuCategories(Array.isArray(cats) ? cats : []);
-          }
-        } catch { /* ignore */ }
+        if (!cancelled) {
+          setMenuDishes(byCategory);
+          setMenuCategories(Array.isArray(cats) ? cats : []);
+        }
 
       } catch (err) {
         if (!cancelled) {
           console.error("Load hotel/dishes error:", err);
           setDishesLoadError("Failed to load menu");
         }
+      } finally {
+        if (!cancelled) setIsLoading(false);
       }
     }
 
@@ -1166,6 +1172,32 @@ export default function HotelHomePage() {
         {isRefreshing && (
           <div style={{ position: "fixed", inset: 0, zIndex: 99999, background: "rgba(0,0,0,0.85)", display: "flex", alignItems: "center", justifyContent: "center" }}>
             <p style={{ color: "#fff", fontSize: 18, fontWeight: 600, letterSpacing: 1 }}>Updating Menu...</p>
+          </div>
+        )}
+
+        {/* INITIAL LOADING OVERLAY — shown while backend wakes up */}
+        {isLoading && (
+          <div style={{ position: "fixed", inset: 0, zIndex: 99998, background: "#1c1c1c", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 16 }}>
+            <div style={{ display: "flex", gap: 8 }}>
+              {[0, 1, 2].map((i) => (
+                <div
+                  key={i}
+                  style={{
+                    width: 10, height: 10, borderRadius: "50%",
+                    background: "rgba(255,255,255,0.7)",
+                    animation: "ody-bounce 0.9s ease-in-out infinite",
+                    animationDelay: `${i * 0.18}s`,
+                  }}
+                />
+              ))}
+            </div>
+            <p style={{ color: "rgba(255,255,255,0.5)", fontSize: 14 }}>Loading menu…</p>
+            <style>{`
+              @keyframes ody-bounce {
+                0%, 80%, 100% { transform: translateY(0); opacity: 0.5; }
+                40% { transform: translateY(-10px); opacity: 1; }
+              }
+            `}</style>
           </div>
         )}
 
