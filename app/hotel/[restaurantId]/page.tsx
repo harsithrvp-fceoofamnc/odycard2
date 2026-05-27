@@ -880,6 +880,18 @@ export default function HotelHomePage() {
     setActiveTab(index);
   };
 
+  // Helper: update a single dish field in BOTH ody-menu dishes and menu-category dishes
+  const patchDish = useCallback((dishId: string, patch: Partial<OdyDish>) => {
+    setDishes(prev => prev.map(d => d.id === dishId ? { ...d, ...patch } : d));
+    setMenuDishes(prev => {
+      const next: Record<number, OdyDish[]> = {};
+      for (const catId of Object.keys(prev)) {
+        next[Number(catId)] = prev[Number(catId)].map(d => d.id === dishId ? { ...d, ...patch } : d);
+      }
+      return next;
+    });
+  }, []);
+
   // Toggle favorites (per-hotel scoped)
   const toggleFavorite = (dish: OdyDish) => {
     if (!user) { setMode("register"); setShowPopup(true); return; }
@@ -890,10 +902,8 @@ export default function HotelHomePage() {
     const updated = isFav ? favorites.filter((d) => d.id !== dish.id) : [...favorites, dish];
     setFavorites(updated);
     localStorage.setItem(favKey, JSON.stringify(updated));
-    // Optimistic update — show new count instantly
-    setDishes(prev => prev.map(d => d.id === dish.id ? {
-      ...d, favoriteCount: isFav ? Math.max(0, d.favoriteCount - 1) : d.favoriteCount + 1
-    } : d));
+    // Optimistic update — works for both Ody Menu and Menu tab dishes
+    patchDish(dish.id, { favoriteCount: isFav ? Math.max(0, dish.favoriteCount - 1) : dish.favoriteCount + 1 });
     // Sync with backend and correct if needed
     fetch(`${API_BASE}/api/dishes/${dish.id}/favorite`, {
       method: "POST",
@@ -901,7 +911,7 @@ export default function HotelHomePage() {
       body: JSON.stringify({ action }),
     }).then(r => r.json()).then(data => {
       if (data.favorite_count !== undefined) {
-        setDishes(prev => prev.map(d => d.id === dish.id ? { ...d, favoriteCount: data.favorite_count } : d));
+        patchDish(dish.id, { favoriteCount: data.favorite_count });
       }
     }).catch(() => {});
   };
@@ -915,17 +925,15 @@ export default function HotelHomePage() {
       const updated = eatLater.filter((d) => d.id !== dish.id);
       setEatLater(updated);
       localStorage.setItem(`ody_eat_later_${user.phone}_${restaurantId}`, JSON.stringify(updated));
-      // Optimistic update
-      setDishes(prev => prev.map(d => d.id === dish.id ? {
-        ...d, eatLaterCount: Math.max(0, d.eatLaterCount - 1)
-      } : d));
+      // Optimistic update — works for both tabs
+      patchDish(dish.id, { eatLaterCount: Math.max(0, dish.eatLaterCount - 1) });
       fetch(`${API_BASE}/api/dishes/${dish.id}/eat-later`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action: "remove" }),
       }).then(r => r.json()).then(data => {
         if (data.eat_later_count !== undefined) {
-          setDishes(prev => prev.map(d => d.id === dish.id ? { ...d, eatLaterCount: data.eat_later_count } : d));
+          patchDish(dish.id, { eatLaterCount: data.eat_later_count });
         }
       }).catch(() => {});
     } else {
@@ -943,17 +951,15 @@ export default function HotelHomePage() {
     const updated = [...eatLater, dish];
     setEatLater(updated);
     localStorage.setItem(`ody_eat_later_${user.phone}_${restaurantId}`, JSON.stringify(updated));
-    // Optimistic update
-    setDishes(prev => prev.map(d => d.id === dish.id ? {
-      ...d, eatLaterCount: d.eatLaterCount + 1
-    } : d));
+    // Optimistic update — works for both tabs
+    patchDish(dish.id, { eatLaterCount: dish.eatLaterCount + 1 });
     fetch(`${API_BASE}/api/dishes/${dish.id}/eat-later`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ action: "add" }),
     }).then(r => r.json()).then(data => {
       if (data.eat_later_count !== undefined) {
-        setDishes(prev => prev.map(d => d.id === dish.id ? { ...d, eatLaterCount: data.eat_later_count } : d));
+        patchDish(dish.id, { eatLaterCount: data.eat_later_count });
       }
     }).catch(() => {});
   };
@@ -987,13 +993,10 @@ export default function HotelHomePage() {
     setDishRatings(updated);
     localStorage.setItem(`ody_dish_ratings_${user?.phone || "guest"}_${restaurantId}`, JSON.stringify(updated));
     setDishRatingPopup(null);
-    // Optimistic update
-    setDishes(prev => prev.map(d => {
-      if (d.id !== dish.id) return d;
-      const newCount = Math.max(0, d.ratingCount - 1);
-      const newAvg = newCount === 0 ? 0 : parseFloat(((d.avgRating * d.ratingCount - oldStars) / newCount).toFixed(1));
-      return { ...d, avgRating: newAvg, ratingCount: newCount };
-    }));
+    // Optimistic update — works for both tabs
+    const removeNewCount = Math.max(0, dish.ratingCount - 1);
+    const removeNewAvg = removeNewCount === 0 ? 0 : parseFloat(((dish.avgRating * dish.ratingCount - oldStars) / removeNewCount).toFixed(1));
+    patchDish(dish.id, { avgRating: removeNewAvg, ratingCount: removeNewCount });
     fetch(`${API_BASE}/api/ratings/remove`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -1016,13 +1019,10 @@ export default function HotelHomePage() {
     localStorage.setItem(`ody_dish_ratings_${user?.phone || "guest"}_${restaurantId}`, JSON.stringify(updated));
     setDishRatingPopup(null);
 
-    // Optimistic update — calculate new avg/count instantly
-    setDishes(prev => prev.map(d => {
-      if (d.id !== dish.id) return d;
-      const newCount = d.ratingCount + 1;
-      const newAvg = parseFloat(((d.avgRating * d.ratingCount + stars) / newCount).toFixed(1));
-      return { ...d, avgRating: newAvg, ratingCount: newCount };
-    }));
+    // Optimistic update — works for both Ody Menu and Menu tab dishes
+    const submitNewCount = dish.ratingCount + 1;
+    const submitNewAvg = parseFloat(((dish.avgRating * dish.ratingCount + stars) / submitNewCount).toFixed(1));
+    patchDish(dish.id, { avgRating: submitNewAvg, ratingCount: submitNewCount });
 
     // Post to backend and correct with real avg/count
     try {
@@ -1038,11 +1038,10 @@ export default function HotelHomePage() {
         }),
       });
       const ratingData = await ratingRes.json();
-      setDishes(prev => prev.map(d => d.id === dish.id ? {
-        ...d,
-        avgRating: ratingData.avg_rating ?? d.avgRating,
-        ratingCount: ratingData.rating_count ?? d.ratingCount,
-      } : d));
+      patchDish(dish.id, {
+        avgRating: ratingData.avg_rating ?? submitNewAvg,
+        ratingCount: ratingData.rating_count ?? submitNewCount,
+      });
     } catch {
       // silently fail — local rating is already saved
     }
