@@ -23,6 +23,8 @@ export async function GET(req: NextRequest) {
     const hotel_id = req.nextUrl.searchParams.get("hotel_id");
     if (!hotel_id) return NextResponse.json({ error: "hotel_id is required" }, { status: 400 });
     const showAll = req.nextUrl.searchParams.get("all") === "true";
+    // lite=true skips photo_url — used by polls to avoid sending heavy base64 images on every tick
+    const lite = req.nextUrl.searchParams.get("lite") === "true";
 
     // Auto-restore hidden dishes
     const { data: hiddenDishes } = await sb.from("dishes")
@@ -56,6 +58,8 @@ export async function GET(req: NextRequest) {
 
     const result = (dishes || []).map(d => ({
       ...d,
+      // Strip base64 photo on lite requests — polls use lite=true to avoid sending MBs of image data every 2s
+      photo_url: lite ? null : d.photo_url,
       avg_rating: ratingMap[d.id] ? Math.round((ratingMap[d.id].total / ratingMap[d.id].count) * 10) / 10 : 0,
       rating_count: ratingMap[d.id]?.count ?? 0,
       favorite_count: d.favorite_count ?? 0,

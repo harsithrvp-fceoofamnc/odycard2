@@ -632,12 +632,14 @@ export default function HotelHomePage() {
   const [pendingEatLaterDish, setPendingEatLaterDish] = useState<OdyDish | null>(null);
 
 
-  /** Fetch dishes for a hotel. Returns mapped dishes or null on error. */
-  const fetchDishes = useCallback(async (hId: string): Promise<OdyDish[] | null> => {
+  /** Fetch dishes for a hotel.
+   *  lite=true skips photo_url — used by polls to avoid sending base64 images on every tick. */
+  const fetchDishes = useCallback(async (hId: string, lite = false): Promise<OdyDish[] | null> => {
     if (isFetchingRef.current) return null;
     isFetchingRef.current = true;
     try {
-      const res = await fetch(`${API_BASE}/api/dishes?hotel_id=${encodeURIComponent(hId)}&_t=${Date.now()}`, { cache: "no-store" });
+      const url = `${API_BASE}/api/dishes?hotel_id=${encodeURIComponent(hId)}&_t=${Date.now()}${lite ? "&lite=true" : ""}`;
+      const res = await fetch(url, { cache: "no-store" });
       if (!res.ok) return null;
       const rows = await res.json();
       return rows.map(mapDishFromApi);
@@ -775,8 +777,8 @@ export default function HotelHomePage() {
         }
       } catch { /* ignore */ }
 
-      // Check dishes for changes
-      const newDishes = await fetchDishes(hotelId);
+      // Check dishes for changes — lite=true so polls never send base64 photos
+      const newDishes = await fetchDishes(hotelId, true);
       if (newDishes === null) return;
       const odyDishes = newDishes.filter(d => !d.menuCategoryId);
       if (!menuChanged(odyDishes)) return;
@@ -797,7 +799,7 @@ export default function HotelHomePage() {
       setDishesLoadError(null);
     };
 
-    const interval = setInterval(poll, 2000);
+    const interval = setInterval(poll, 15000); // 15s — was 2s, which was blowing through bandwidth
 
     // Also poll immediately when tab becomes visible again (mobile browser wake)
     const onVisible = () => { if (document.visibilityState === "visible") poll(); };
