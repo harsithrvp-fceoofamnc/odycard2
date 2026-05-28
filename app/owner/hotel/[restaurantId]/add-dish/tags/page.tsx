@@ -45,6 +45,7 @@ export default function DishTagsPage() {
   const [customAdded, setCustomAdded] = useState<string | null>(null);
   const [customError, setCustomError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submittingMode, setSubmittingMode] = useState<"skip" | "add" | null>(null);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
   const totalSelected = selected.length + (customAdded ? 1 : 0);
@@ -96,6 +97,7 @@ export default function DishTagsPage() {
     if (!restaurantId) return;
     setSubmitError(null);
     setIsSubmitting(true);
+    setSubmittingMode(skip ? "skip" : "add");
 
     try {
       // Build tags list (empty if skipping)
@@ -294,7 +296,7 @@ export default function DishTagsPage() {
                 disabled={isSubmitting}
                 className="px-6 py-3 rounded-xl border border-gray-300 text-base font-medium text-gray-500 disabled:opacity-50"
               >
-                {isSubmitting ? "Adding..." : "Skip"}
+                {isSubmitting && submittingMode === "skip" ? "Adding..." : "Skip"}
               </button>
 
               <button
@@ -307,7 +309,7 @@ export default function DishTagsPage() {
                     : "bg-gray-200 text-gray-400 cursor-not-allowed"
                   }`}
               >
-                {isSubmitting ? "Adding..." : "Add"}
+                {isSubmitting && submittingMode === "add" ? "Adding..." : "Add"}
               </button>
             </div>
 
