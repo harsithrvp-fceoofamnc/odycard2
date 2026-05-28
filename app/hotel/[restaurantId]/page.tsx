@@ -1532,20 +1532,6 @@ export default function HotelHomePage() {
                                       {[dish.quantity || null, dish.timing ? `${dish.timing.from} – ${dish.timing.to}` : null].filter(Boolean).join(" • ")}
                                     </p>
                                   ) : null}
-                                  {/* Dish tags */}
-                                  {dish.tags && dish.tags.length > 0 ? (
-                                    <div className="flex flex-nowrap gap-2 mt-2 overflow-hidden">
-                                      {dish.tags.map(tag => (
-                                        <span
-                                          key={tag}
-                                          className="shrink-0 px-3 py-1 rounded-full text-sm font-semibold text-white"
-                                          style={{ backgroundColor: "#0A84C1" }}
-                                        >
-                                          {tag}
-                                        </span>
-                                      ))}
-                                    </div>
-                                  ) : null}
                                   {/* Pill badges */}
                                   {(dish.ratingCount > 0 && dish.avgRating >= 3) || dish.favoriteCount > 0 || dish.eatLaterCount > 0 ? (
                                     <div className="flex flex-nowrap gap-1 mt-2">
@@ -1618,6 +1604,20 @@ export default function HotelHomePage() {
                                   </button>
                                 </div>
                               </div>
+                              {/* Dish tags — full width below the flex row */}
+                              {dish.tags && dish.tags.length > 0 ? (
+                                <div className="flex flex-wrap gap-2 mt-2 px-1">
+                                  {dish.tags.map(tag => (
+                                    <span
+                                      key={tag}
+                                      className="px-3 py-1 rounded-full text-sm font-semibold text-white"
+                                      style={{ backgroundColor: "#0A84C1" }}
+                                    >
+                                      {tag}
+                                    </span>
+                                  ))}
+                                </div>
+                              ) : null}
                             </div>
                           </div>
                         ))}
