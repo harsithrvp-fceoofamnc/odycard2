@@ -418,7 +418,7 @@ export default function EditMenuPage() {
         <div
           ref={containerRef}
           onScroll={handleScroll}
-          className="flex w-full overflow-x-auto snap-x snap-mandatory scrollbar-hide"
+          className="flex w-full overflow-x-auto snap-x snap-mandatory no-scrollbar"
         >
           {/* ================= ODY MENU TAB ================= */}
           <div className="min-w-full snap-center pt-8 min-h-screen px-6 pb-12">
@@ -479,7 +479,7 @@ export default function EditMenuPage() {
               return (
                 <div className="w-full">
                   <div className="h-px bg-white/20 w-full" />
-                  <div className="min-h-[64px] w-full overflow-x-auto scrollbar-hide">
+                  <div className="min-h-[64px] w-full overflow-x-auto no-scrollbar">
                     {tagList.length === 0 ? (
                       <p className="text-white/50 text-sm text-center w-full py-5">
                         Tags assigned to food items will appear here

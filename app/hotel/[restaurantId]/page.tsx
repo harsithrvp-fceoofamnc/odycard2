@@ -354,7 +354,7 @@ function DishMediaCarousel({
   return (
     <div
       ref={carouselRef}
-      className="w-full h-full flex overflow-x-auto snap-x snap-mandatory scrollbar-hide"
+      className="w-full h-full flex overflow-x-auto snap-x snap-mandatory no-scrollbar"
     >
       <div
         ref={(el) => {
@@ -1250,7 +1250,7 @@ export default function HotelHomePage() {
         <div
           ref={containerRef}
           onScroll={handleScroll}
-          className="flex w-full overflow-x-auto snap-x snap-mandatory scrollbar-hide"
+          className="flex w-full overflow-x-auto snap-x snap-mandatory no-scrollbar"
         >
 
           {/* ODY MENU */}
@@ -1446,7 +1446,7 @@ export default function HotelHomePage() {
               return (
                 <div className="mt-7 w-full">
                   <div className="h-px bg-white/20 w-full" />
-                  <div className="min-h-[64px] w-full overflow-x-auto scrollbar-hide">
+                  <div className="min-h-[64px] w-full overflow-x-auto no-scrollbar">
                     {tagList.length === 0 ? (
                       <div className="h-16 w-full" />
                     ) : (
@@ -1534,7 +1534,7 @@ export default function HotelHomePage() {
                                   ) : null}
                                   {/* Dish tags */}
                                   {dish.tags && dish.tags.length > 0 ? (
-                                    <div className="flex flex-nowrap gap-2 mt-2 overflow-x-auto scrollbar-hide">
+                                    <div className="flex flex-nowrap gap-2 mt-2 overflow-x-auto no-scrollbar">
                                       {dish.tags.map(tag => (
                                         <span
                                           key={tag}
