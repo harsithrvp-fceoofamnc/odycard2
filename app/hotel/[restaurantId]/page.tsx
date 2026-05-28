@@ -478,6 +478,7 @@ export default function HotelHomePage() {
   const prevOdyMenuHiddenRef = useRef(false);
   const [dishesLoadError, setDishesLoadError] = useState<string | null>(null);
   const [activeFilters, setActiveFilters] = useState<string[]>([]);
+  const [menuTagFilters, setMenuTagFilters] = useState<string[]>([]);
   const [dishes, setDishes] = useState<OdyDish[]>([]);
   const [expandedDescriptions, setExpandedDescriptions] = useState<Record<string, boolean>>({});
   const [hotelId, setHotelId] = useState<string | null>(null);
@@ -1097,6 +1098,27 @@ export default function HotelHomePage() {
     });
   };
 
+  // Menu tab tag filter toggle (max 2)
+  const toggleMenuTagFilter = (tag: string) => {
+    setMenuTagFilters(prev => {
+      if (prev.includes(tag)) return prev.filter(t => t !== tag);
+      if (prev.length >= 2) return prev;
+      return [...prev, tag];
+    });
+  };
+
+  // Dishes matching current menu tag filters (OR logic — any selected tag matches)
+  const menuFilteredDishes = menuTagFilters.length === 0 ? [] : (() => {
+    const all = Object.values(menuDishes).flat();
+    return all.filter(dish =>
+      menuTagFilters.some(f => {
+        if (f === "Veg Only") return dish.isVeg;
+        if (f === "Non-Veg Only") return !dish.isVeg;
+        return Array.isArray(dish.tags) && dish.tags.includes(f);
+      })
+    );
+  })();
+
   // 🔥 NAME DISPLAY
   const getDisplayName = () => {
     if (!user) return "";
@@ -1451,15 +1473,26 @@ export default function HotelHomePage() {
                       <div className="h-16 w-full" />
                     ) : (
                       <div className="flex flex-nowrap gap-2 py-3 px-4 sm:px-6 min-w-max">
-                        {tagList.map(tag => (
-                          <span
-                            key={tag}
-                            className="shrink-0 px-4 py-2 rounded-full text-sm font-semibold text-white"
-                            style={{ backgroundColor: "#0A84C1" }}
-                          >
-                            {tag}
-                          </span>
-                        ))}
+                        {tagList.map(tag => {
+                          const isActive = menuTagFilters.includes(tag);
+                          const isDisabled = !isActive && menuTagFilters.length >= 2;
+                          return (
+                            <button
+                              key={tag}
+                              onClick={() => toggleMenuTagFilter(tag)}
+                              disabled={isDisabled}
+                              className="shrink-0 px-4 py-2 rounded-full text-sm font-semibold text-white transition-opacity"
+                              style={{
+                                backgroundColor: "#0A84C1",
+                                opacity: isDisabled ? 0.35 : isActive ? 1 : (menuTagFilters.length > 0 ? 0.55 : 1),
+                                outline: isActive ? "2px solid white" : "none",
+                                outlineOffset: "2px",
+                              }}
+                            >
+                              {tag}
+                            </button>
+                          );
+                        })}
                       </div>
                     )}
                   </div>
@@ -1471,26 +1504,46 @@ export default function HotelHomePage() {
             {/* CATEGORY CONTENT */}
             <div className="px-4 sm:px-6 pt-6 sm:pt-8">
             {(() => {
-              // Only show categories that have at least one dish
-              const catsWithDishes = menuCategories.filter(cat =>
-                (menuDishes[cat.id] ?? []).filter(d => isWithinTiming(d.timing)).length > 0
-              );
-              if (catsWithDishes.length === 0) {
+              // Compute which blocks to render: filtered (1 unnamed block) or normal categories
+              type Block = { name: string | null; dishes: OdyDish[] };
+              let blocks: Block[];
+
+              if (menuTagFilters.length > 0) {
+                blocks = [{ name: null, dishes: menuFilteredDishes.filter(d => isWithinTiming(d.timing)) }];
+              } else {
+                const catsWithDishes = menuCategories.filter(cat =>
+                  (menuDishes[cat.id] ?? []).filter(d => isWithinTiming(d.timing)).length > 0
+                );
+                if (catsWithDishes.length === 0) {
+                  return (
+                    <div className="flex flex-col items-center justify-start pt-16 sm:pt-20">
+                      <p className="text-white/70 text-lg sm:text-xl font-medium">Coming soon</p>
+                    </div>
+                  );
+                }
+                blocks = catsWithDishes.map(cat => ({
+                  name: cat.name,
+                  dishes: (menuDishes[cat.id] ?? []).filter(d => isWithinTiming(d.timing)),
+                }));
+              }
+
+              if (blocks.every(b => b.dishes.length === 0)) {
                 return (
                   <div className="flex flex-col items-center justify-start pt-16 sm:pt-20">
-                    <p className="text-white/70 text-lg sm:text-xl font-medium">Coming soon</p>
+                    <p className="text-white/70 text-lg sm:text-xl font-medium">No dishes found</p>
                   </div>
                 );
               }
+
               return (
                 <div className="mb-6 sm:mb-8">
-                  {catsWithDishes.map(cat => (
-                    <div key={cat.id} className="mb-10">
-                      {/* Category name */}
-                      <h2 className="text-white text-xl sm:text-2xl font-bold mb-3 px-1">{cat.name}</h2>
-                      {/* Category block — same visual as owner edit-menu */}
+                  {blocks.map((block, blockIdx) => (
+                    <div key={blockIdx} className="mb-10">
+                      {block.name ? (
+                        <h2 className="text-white text-xl sm:text-2xl font-bold mb-3 px-1">{block.name}</h2>
+                      ) : null}
                       <div className="bg-[#DADDE4] rounded-[28px] px-4 py-4 w-full">
-                        {(menuDishes[cat.id] ?? []).filter(d => isWithinTiming(d.timing)).map((dish) => (
+                        {block.dishes.map((dish) => (
                           <div
                             key={dish.id}
                             className="w-full rounded-xl sm:rounded-2xl bg-white border border-gray-200 mb-4 last:mb-0 shadow-md"
@@ -1516,7 +1569,7 @@ export default function HotelHomePage() {
                                 />
                               )}
                             </div>
-                            {/* Info — identical layout to Ody Menu */}
+                            {/* Info */}
                             <div className="p-3 sm:p-4 rounded-b-xl sm:rounded-b-2xl bg-white">
                               <div className="flex justify-between items-start gap-2">
                                 <div className="flex flex-col flex-1 min-w-0">
@@ -1559,17 +1612,14 @@ export default function HotelHomePage() {
                                       ) : null}
                                     </div>
                                   ) : null}
-                                  {/* Description with ...more/less */}
+                                  {/* Description */}
                                   {dish.description ? (
                                     <div className="mt-2">
                                       <p className={`text-xs sm:text-sm text-gray-500 leading-snug ${expandedDescs.has(dish.id) ? "" : "line-clamp-2"}`}>
                                         {dish.description}
                                       </p>
                                       {dish.description.length > 80 ? (
-                                        <button
-                                          onClick={() => toggleDesc(dish.id)}
-                                          className="text-xs text-[#0A84C1] font-medium mt-0.5"
-                                        >
+                                        <button onClick={() => toggleDesc(dish.id)} className="text-xs text-[#0A84C1] font-medium mt-0.5">
                                           {expandedDescs.has(dish.id) ? "less" : "...more"}
                                         </button>
                                       ) : null}
@@ -1604,15 +1654,11 @@ export default function HotelHomePage() {
                                   </button>
                                 </div>
                               </div>
-                              {/* Dish tags — full width below the flex row */}
+                              {/* Dish tags — full width */}
                               {dish.tags && dish.tags.length > 0 ? (
                                 <div className="flex flex-wrap gap-2 mt-2 px-1">
                                   {dish.tags.map(tag => (
-                                    <span
-                                      key={tag}
-                                      className="px-3 py-1 rounded-full text-sm font-semibold text-white"
-                                      style={{ backgroundColor: "#0A84C1" }}
-                                    >
+                                    <span key={tag} className="px-3 py-1 rounded-full text-sm font-semibold text-white" style={{ backgroundColor: "#0A84C1" }}>
                                       {tag}
                                     </span>
                                   ))}
