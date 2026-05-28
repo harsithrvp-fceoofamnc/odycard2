@@ -23,6 +23,22 @@ export async function DELETE(_req: NextRequest, context: { params: Promise<{ id:
     const db = getDb();
     const { id } = await context.params;
 
+    // Block deletion of the first (oldest) category for this hotel
+    const targetSnap = await db.collection("categories").doc(id).get();
+    if (!targetSnap.exists) return NextResponse.json({ error: "Not found" }, { status: 404 });
+    const targetData = targetSnap.data()!;
+    const hotelId = targetData.hotel_id as number;
+
+    const firstCatSnap = await db
+      .collection("categories")
+      .where("hotel_id", "==", hotelId)
+      .orderBy("created_at", "asc")
+      .limit(1)
+      .get();
+    if (!firstCatSnap.empty && firstCatSnap.docs[0].id === id) {
+      return NextResponse.json({ error: "Cannot delete the default category" }, { status: 403 });
+    }
+
     // Unlink any dishes that reference this category
     const dishSnap = await db
       .collection("dishes")

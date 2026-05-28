@@ -10,8 +10,7 @@ export async function GET(req: NextRequest) {
     const snap = await db
       .collection("categories")
       .where("hotel_id", "==", parseInt(hotel_id, 10))
-      .orderBy("display_order")
-      .orderBy("name")
+      .orderBy("created_at", "asc")
       .get();
 
     return NextResponse.json(snap.docs.map(qDocData));
