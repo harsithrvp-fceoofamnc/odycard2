@@ -1493,7 +1493,7 @@ export default function HotelHomePage() {
                         {(menuDishes[cat.id] ?? []).filter(d => isWithinTiming(d.timing)).map((dish) => (
                           <div
                             key={dish.id}
-                            className="w-full rounded-xl sm:rounded-2xl bg-white border border-gray-200 mb-4 last:mb-0"
+                            className="w-full rounded-xl sm:rounded-2xl bg-white border border-gray-200 mb-4 last:mb-0 shadow-md"
                           >
                             {/* Media */}
                             <div className={`w-full bg-black relative overflow-hidden rounded-t-xl sm:rounded-t-2xl ${extractYouTubeVideoId(dish.videoUrl ?? "") ? "aspect-video" : "aspect-[4/3]"}`}>
