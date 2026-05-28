@@ -1339,7 +1339,7 @@ export default function HotelHomePage() {
                           ) : null}
                           {/* Pill badges — rating, liked, saved */}
                           {(dish.ratingCount > 0 && dish.avgRating >= 3) || dish.favoriteCount > 0 || dish.eatLaterCount > 0 ? (
-                            <div className="flex gap-1 mt-2">
+                            <div className="flex flex-nowrap gap-1 mt-2 overflow-x-auto scrollbar-hide">
                               {dish.ratingCount > 0 && dish.avgRating >= 3 ? (
                                 <span className="flex items-center gap-0.5 px-2 py-0.5 rounded-full text-xs font-semibold text-white shrink-0" style={{ backgroundColor: "#111" }}>
                                   <span style={{ color: "#FBBF24" }}>★</span>
@@ -1548,7 +1548,7 @@ export default function HotelHomePage() {
                                   ) : null}
                                   {/* Pill badges */}
                                   {(dish.ratingCount > 0 && dish.avgRating >= 3) || dish.favoriteCount > 0 || dish.eatLaterCount > 0 ? (
-                                    <div className="flex gap-1 mt-2 flex-wrap">
+                                    <div className="flex flex-nowrap gap-1 mt-2 overflow-x-auto scrollbar-hide">
                                       {dish.ratingCount > 0 && dish.avgRating >= 3 ? (
                                         <span className="flex items-center gap-0.5 px-2 py-0.5 rounded-full text-xs font-semibold text-white shrink-0" style={{ backgroundColor: "#111" }}>
                                           <span style={{ color: "#FBBF24" }}>★</span>
