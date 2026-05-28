@@ -1,20 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getSupabase } from "@/lib/supabase";
+import { getDb, docData } from "@/lib/firebase";
 
 export async function PATCH(req: NextRequest, context: { params: Promise<{ id: string }> }) {
   try {
-    const sb = getSupabase();
+    const db = getDb();
     const { id } = await context.params;
     const { name } = await req.json();
     if (!name) return NextResponse.json({ error: "name is required" }, { status: 400 });
-    const { data, error } = await sb
-      .from("categories")
-      .update({ name: name.trim() })
-      .eq("id", id)
-      .select()
-      .single();
-    if (error) throw error;
-    return NextResponse.json(data);
+
+    const ref = db.collection("categories").doc(id);
+    await ref.update({ name: name.trim() });
+    const updated = await ref.get();
+    return NextResponse.json(docData(updated));
   } catch (e: unknown) {
     console.error("PATCH /api/categories/[id]:", e);
     return NextResponse.json({ error: "Server error" }, { status: 500 });
@@ -23,12 +20,19 @@ export async function PATCH(req: NextRequest, context: { params: Promise<{ id: s
 
 export async function DELETE(_req: NextRequest, context: { params: Promise<{ id: string }> }) {
   try {
-    const sb = getSupabase();
+    const db = getDb();
     const { id } = await context.params;
-    // Unlink any dishes in this category first
-    await sb.from("dishes").update({ menu_category_id: null }).eq("menu_category_id", id);
-    const { error } = await sb.from("categories").delete().eq("id", id);
-    if (error) throw error;
+
+    // Unlink any dishes that reference this category
+    const dishSnap = await db
+      .collection("dishes")
+      .where("menu_category_id", "==", parseInt(id, 10))
+      .get();
+    const batch = db.batch();
+    dishSnap.docs.forEach((d) => batch.update(d.ref, { menu_category_id: null }));
+    batch.delete(db.collection("categories").doc(id));
+    await batch.commit();
+
     return NextResponse.json({ ok: true });
   } catch (e: unknown) {
     console.error("DELETE /api/categories/[id]:", e);

@@ -1,23 +1,45 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getSupabase } from "@/lib/supabase";
+import { getDb } from "@/lib/firebase";
 
 export async function POST(req: NextRequest) {
   try {
-    const sb = getSupabase();
+    const db = getDb();
     const { dish_id, visitor_name } = await req.json();
     if (!dish_id) return NextResponse.json({ error: "dish_id required" }, { status: 400 });
 
-    // Find and delete the most recent rating for this dish by this visitor
-    let query = sb.from("ratings").select("id").eq("dish_id", dish_id).order("id", { ascending: false }).limit(1);
-    if (visitor_name) query = query.eq("visitor_name", visitor_name);
-    else query = query.is("visitor_name", null);
+    const dishIdNum = parseInt(dish_id, 10);
 
-    const { data: found } = await query.maybeSingle();
-    if (found) await sb.from("ratings").delete().eq("id", found.id);
+    // Find the most recent rating for this dish by this visitor
+    let query = db
+      .collection("ratings")
+      .where("dish_id", "==", dishIdNum)
+      .orderBy("created_at", "desc")
+      .limit(1) as FirebaseFirestore.Query;
 
-    const { data: ratingRows } = await sb.from("ratings").select("stars").eq("dish_id", dish_id);
-    const rows = ratingRows || [];
-    const avg = rows.length ? Math.round((rows.reduce((s, r) => s + r.stars, 0) / rows.length) * 10) / 10 : 0;
+    if (visitor_name) {
+      query = db
+        .collection("ratings")
+        .where("dish_id", "==", dishIdNum)
+        .where("visitor_name", "==", visitor_name)
+        .orderBy("created_at", "desc")
+        .limit(1);
+    }
+
+    const found = await query.get();
+    if (!found.empty) {
+      await found.docs[0].ref.delete();
+    }
+
+    // Recalculate avg
+    const remaining = await db
+      .collection("ratings")
+      .where("dish_id", "==", dishIdNum)
+      .get();
+    const rows = remaining.docs.map((d) => d.data().stars as number);
+    const avg = rows.length
+      ? Math.round((rows.reduce((s, r) => s + r, 0) / rows.length) * 10) / 10
+      : 0;
+
     return NextResponse.json({ avg_rating: avg, rating_count: rows.length });
   } catch (e: unknown) {
     console.error("POST /api/ratings/remove:", e);

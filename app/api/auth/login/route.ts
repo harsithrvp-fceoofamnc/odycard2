@@ -1,33 +1,43 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getSupabase } from "@/lib/supabase";
+import { getDb } from "@/lib/firebase";
 import bcrypt from "bcryptjs";
 
 export async function POST(req: NextRequest) {
   try {
-    const sb = getSupabase();
+    const db = getDb();
     const { mobile, password } = await req.json();
-    if (!mobile || !password) return NextResponse.json({ error: "mobile and password are required" }, { status: 400 });
+    if (!mobile || !password)
+      return NextResponse.json({ error: "mobile and password are required" }, { status: 400 });
 
-    const { data: owner, error: ownerErr } = await sb
-      .from("owners")
-      .select("id, hotel_id, password_hash")
-      .eq("mobile", mobile.trim())
-      .maybeSingle();
+    const ownerSnap = await db
+      .collection("owners")
+      .where("mobile", "==", mobile.trim())
+      .limit(1)
+      .get();
 
-    if (ownerErr) throw ownerErr;
-    if (!owner) return NextResponse.json({ error: "Invalid mobile number or password" }, { status: 401 });
+    if (ownerSnap.empty)
+      return NextResponse.json({ error: "Invalid mobile number or password" }, { status: 401 });
+
+    const ownerDoc = ownerSnap.docs[0];
+    const owner = ownerDoc.data();
 
     const valid = await bcrypt.compare(password, owner.password_hash);
-    if (!valid) return NextResponse.json({ error: "Invalid mobile number or password" }, { status: 401 });
+    if (!valid)
+      return NextResponse.json({ error: "Invalid mobile number or password" }, { status: 401 });
 
-    const { data: hotel, error: hotelErr } = await sb
-      .from("hotels")
-      .select("id, name, slug, logo_url, cover_url, cover_original_url")
-      .eq("id", owner.hotel_id)
-      .maybeSingle();
+    const hotelSnap = await db.collection("hotels").doc(String(owner.hotel_id)).get();
+    if (!hotelSnap.exists)
+      return NextResponse.json({ error: "Hotel not found" }, { status: 404 });
 
-    if (hotelErr) throw hotelErr;
-    if (!hotel) return NextResponse.json({ error: "Hotel not found" }, { status: 404 });
+    const h = hotelSnap.data()!;
+    const hotel = {
+      id: parseInt(hotelSnap.id, 10),
+      name: h.name,
+      slug: h.slug,
+      logo_url: h.logo_url ?? null,
+      cover_url: h.cover_url ?? null,
+      cover_original_url: h.cover_original_url ?? null,
+    };
 
     return NextResponse.json({ hotel });
   } catch (e: unknown) {

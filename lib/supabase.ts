@@ -1,12 +1,5 @@
-import { createClient } from "@supabase/supabase-js";
-
-const SUPABASE_URL = "https://kfhwneotkvklisiovvnr.supabase.co";
-
-// Server-side client — uses secret key, full database access
-// Only used in API routes (server-side), never exposed to browser
+// Deprecated — replaced by lib/firebase.ts
+// Kept as empty stub to avoid import errors if any old file still references it.
 export function getSupabase() {
-  const key = process.env.SUPABASE_SERVICE_KEY!;
-  return createClient(SUPABASE_URL, key, {
-    auth: { persistSession: false },
-  });
+  throw new Error("getSupabase() is deprecated — use getDb() from lib/firebase.ts");
 }
