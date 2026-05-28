@@ -1098,12 +1098,28 @@ export default function HotelHomePage() {
     });
   };
 
-  // Menu tab tag filter toggle (max 2)
+  // Menu tab tag filter toggle
+  // Rules: Veg Only and Non-Veg Only are mutually exclusive.
+  // Normal max = 2. If a diet tag (Veg/Non-Veg Only) is selected, max = 3 (diet + 2 extras).
   const toggleMenuTagFilter = (tag: string) => {
     setMenuTagFilters(prev => {
+      // Deselect if already active
       if (prev.includes(tag)) return prev.filter(t => t !== tag);
-      if (prev.length >= 2) return prev;
-      return [...prev, tag];
+
+      const isVeg = tag === "Veg Only";
+      const isNonVeg = tag === "Non-Veg Only";
+
+      // Remove the opposing diet tag (mutually exclusive)
+      let updated = [...prev];
+      if (isVeg) updated = updated.filter(t => t !== "Non-Veg Only");
+      if (isNonVeg) updated = updated.filter(t => t !== "Veg Only");
+
+      // Max = 3 if the resulting set contains a diet tag; otherwise max = 2
+      const willHaveDiet = isVeg || isNonVeg || updated.includes("Veg Only") || updated.includes("Non-Veg Only");
+      const max = willHaveDiet ? 3 : 2;
+
+      if (updated.length >= max) return prev; // already at limit
+      return [...updated, tag];
     });
   };
 
@@ -1475,20 +1491,22 @@ export default function HotelHomePage() {
                       <div className="flex flex-nowrap gap-2 py-3 px-4 sm:px-6 min-w-max">
                         {tagList.map(tag => {
                           const isActive = menuTagFilters.includes(tag);
-                          const isDisabled = !isActive && menuTagFilters.length >= 2;
                           return (
                             <button
                               key={tag}
                               onClick={() => toggleMenuTagFilter(tag)}
-                              disabled={isDisabled}
-                              className="shrink-0 px-4 py-2 rounded-full text-sm font-semibold text-white transition-opacity"
+                              className="shrink-0 flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold transition-all"
                               style={{
-                                backgroundColor: "#0A84C1",
-                                opacity: isDisabled ? 0.35 : isActive ? 1 : (menuTagFilters.length > 0 ? 0.55 : 1),
-                                outline: isActive ? "2px solid white" : "none",
-                                outlineOffset: "2px",
+                                backgroundColor: isActive ? "#ffffff" : "#0A84C1",
+                                color: isActive ? "#0A84C1" : "#ffffff",
+                                border: isActive ? "2px solid #0A84C1" : "2px solid transparent",
                               }}
                             >
+                              {isActive && (
+                                <svg viewBox="0 0 24 24" style={{ width: 13, height: 13 }} fill="none" stroke="#0A84C1" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                                  <polyline points="20 6 9 17 4 12"/>
+                                </svg>
+                              )}
                               {tag}
                             </button>
                           );
