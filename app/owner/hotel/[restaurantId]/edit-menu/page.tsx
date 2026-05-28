@@ -479,13 +479,13 @@ export default function EditMenuPage() {
               return (
                 <div className="w-full">
                   <div className="h-px bg-white/20 w-full" />
-                  <div className="min-h-[64px] w-full flex items-center px-4 overflow-x-auto scrollbar-hide">
+                  <div className="min-h-[64px] w-full overflow-x-auto scrollbar-hide">
                     {tagList.length === 0 ? (
-                      <p className="text-white/50 text-sm text-center w-full">
+                      <p className="text-white/50 text-sm text-center w-full py-5">
                         Tags assigned to food items will appear here
                       </p>
                     ) : (
-                      <div className="flex gap-2 py-3">
+                      <div className="flex flex-nowrap gap-2 py-3 px-4 min-w-max">
                         {tagList.map(tag => (
                           <span
                             key={tag}

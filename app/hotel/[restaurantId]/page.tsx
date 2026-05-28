@@ -1446,11 +1446,11 @@ export default function HotelHomePage() {
               return (
                 <div className="mt-7 w-full">
                   <div className="h-px bg-white/20 w-full" />
-                  <div className="min-h-[64px] w-full flex items-center px-4 sm:px-6 overflow-x-auto scrollbar-hide">
+                  <div className="min-h-[64px] w-full overflow-x-auto scrollbar-hide">
                     {tagList.length === 0 ? (
                       <div className="h-16 w-full" />
                     ) : (
-                      <div className="flex gap-2 py-3">
+                      <div className="flex flex-nowrap gap-2 py-3 px-4 sm:px-6 min-w-max">
                         {tagList.map(tag => (
                           <span
                             key={tag}
