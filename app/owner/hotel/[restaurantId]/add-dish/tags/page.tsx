@@ -17,7 +17,7 @@ const PREDEFINED_TAGS = [
 ];
 
 const MAX_TAGS = 2;
-const CUSTOM_MAX_CHARS = 20;
+const CUSTOM_MAX_CHARS = 14;
 
 // All localStorage keys used across the add-dish flow
 const ALL_DISH_KEYS = [

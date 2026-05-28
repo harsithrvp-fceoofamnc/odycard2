@@ -1534,11 +1534,11 @@ export default function HotelHomePage() {
                                   ) : null}
                                   {/* Dish tags */}
                                   {dish.tags && dish.tags.length > 0 ? (
-                                    <div className="flex flex-wrap gap-2 mt-2">
+                                    <div className="flex flex-nowrap gap-2 mt-2 overflow-x-auto scrollbar-hide">
                                       {dish.tags.map(tag => (
                                         <span
                                           key={tag}
-                                          className="px-3.5 py-1 rounded-full text-[15px] font-semibold text-white"
+                                          className="shrink-0 max-w-[140px] truncate px-3.5 py-1 rounded-full text-[15px] font-semibold text-white"
                                           style={{ backgroundColor: "#0A84C1" }}
                                         >
                                           {tag}
