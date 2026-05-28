@@ -1339,7 +1339,7 @@ export default function HotelHomePage() {
                           ) : null}
                           {/* Pill badges — rating, liked, saved */}
                           {(dish.ratingCount > 0 && dish.avgRating >= 3) || dish.favoriteCount > 0 || dish.eatLaterCount > 0 ? (
-                            <div className="flex flex-nowrap gap-1 mt-2 overflow-x-auto scrollbar-hide">
+                            <div className="flex flex-nowrap gap-1 mt-2">
                               {dish.ratingCount > 0 && dish.avgRating >= 3 ? (
                                 <span className="flex items-center gap-0.5 px-2 py-0.5 rounded-full text-xs font-semibold text-white shrink-0" style={{ backgroundColor: "#111" }}>
                                   <span style={{ color: "#FBBF24" }}>★</span>
@@ -1548,7 +1548,7 @@ export default function HotelHomePage() {
                                   ) : null}
                                   {/* Pill badges */}
                                   {(dish.ratingCount > 0 && dish.avgRating >= 3) || dish.favoriteCount > 0 || dish.eatLaterCount > 0 ? (
-                                    <div className="flex flex-nowrap gap-1 mt-2 overflow-x-auto scrollbar-hide">
+                                    <div className="flex flex-nowrap gap-1 mt-2">
                                       {dish.ratingCount > 0 && dish.avgRating >= 3 ? (
                                         <span className="flex items-center gap-0.5 px-2 py-0.5 rounded-full text-xs font-semibold text-white shrink-0" style={{ backgroundColor: "#111" }}>
                                           <span style={{ color: "#FBBF24" }}>★</span>
@@ -1560,7 +1560,7 @@ export default function HotelHomePage() {
                                           <svg viewBox="0 0 24 24" style={{ width: 11, height: 11 }} fill="white" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                             <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
                                           </svg>
-                                          Liked by {formatCount(dish.favoriteCount)}{dish.favoriteCount >= 5 ? " people" : ""}
+                                          {formatCount(dish.favoriteCount)} liked
                                         </span>
                                       ) : null}
                                       {dish.eatLaterCount > 0 ? (
@@ -1568,7 +1568,7 @@ export default function HotelHomePage() {
                                           <svg viewBox="0 0 24 24" style={{ width: 11, height: 11 }} fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                             <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
                                           </svg>
-                                          Saved by {formatCount(dish.eatLaterCount)}{dish.eatLaterCount >= 5 ? " people" : ""}
+                                          {formatCount(dish.eatLaterCount)} saved
                                         </span>
                                       ) : null}
                                     </div>
