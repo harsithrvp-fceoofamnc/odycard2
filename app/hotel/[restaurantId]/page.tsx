@@ -1538,7 +1538,7 @@ export default function HotelHomePage() {
                                       {dish.tags.map(tag => (
                                         <span
                                           key={tag}
-                                          className="px-3 py-1 rounded-full text-sm font-semibold text-white"
+                                          className="px-4 py-1.5 rounded-full text-base font-semibold text-white"
                                           style={{ backgroundColor: "#0A84C1" }}
                                         >
                                           {tag}
