@@ -1321,8 +1321,8 @@ export default function HotelHomePage() {
                         <div className="flex flex-col flex-1">
                           {/* Veg indicator + name */}
                           <div className="flex items-center gap-2">
-                            <div className={`w-4 h-4 shrink-0 border-2 rounded-sm flex items-center justify-center ${dish.isVeg ? "border-green-600" : "border-red-600"}`}>
-                              <div className={`w-2 h-2 rounded-full ${dish.isVeg ? "bg-green-600" : "bg-red-600"}`}/>
+                            <div className={`w-5 h-5 shrink-0 border-2 rounded-sm flex items-center justify-center ${dish.isVeg ? "border-green-600" : "border-red-600"}`}>
+                              <div className={`w-2.5 h-2.5 rounded-full ${dish.isVeg ? "bg-green-600" : "bg-red-600"}`}/>
                             </div>
                             <p className="text-base sm:text-lg font-semibold text-black leading-tight">{dish.name}</p>
                           </div>
@@ -1521,8 +1521,8 @@ export default function HotelHomePage() {
                               <div className="flex justify-between items-start gap-2">
                                 <div className="flex flex-col flex-1 min-w-0">
                                   <div className="flex items-center gap-2">
-                                    <div className={`w-4 h-4 shrink-0 border-2 rounded-sm flex items-center justify-center ${dish.isVeg ? "border-green-600" : "border-red-600"}`}>
-                                      <div className={`w-2 h-2 rounded-full ${dish.isVeg ? "bg-green-600" : "bg-red-600"}`} />
+                                    <div className={`w-5 h-5 shrink-0 border-2 rounded-sm flex items-center justify-center ${dish.isVeg ? "border-green-600" : "border-red-600"}`}>
+                                      <div className={`w-2.5 h-2.5 rounded-full ${dish.isVeg ? "bg-green-600" : "bg-red-600"}`} />
                                     </div>
                                     <p className="text-base sm:text-lg font-semibold text-black leading-tight">{dish.name}</p>
                                   </div>
