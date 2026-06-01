@@ -1060,70 +1060,63 @@ export default function HotelHomePage() {
     return eatLater.some((d) => d.id === dishId);
   };
 
-  // 🔥 FILTER LOGIC (UNCHANGED)
+  // 🔥 FILTER LOGIC — sliding window for regular tags, diet tags are sticky
   const toggleFilter = (filter: string) => {
     setActiveFilters((prev) => {
-      let updated = [...prev];
-
       const isVeg = filter === "Veg Only";
       const isNonVeg = filter === "Non-Veg Only";
+      const isDiet = isVeg || isNonVeg;
 
+      // Toggle off if already selected
+      if (prev.includes(filter)) return prev.filter((f) => f !== filter);
+
+      // Handle mutual exclusivity for diet tags
+      let updated = [...prev];
       if (isVeg) updated = updated.filter((f) => f !== "Non-Veg Only");
       if (isNonVeg) updated = updated.filter((f) => f !== "Veg Only");
 
-      if (updated.includes(filter)) {
-        return updated.filter((f) => f !== filter);
-      }
+      // Diet tags are sticky — just add, no sliding window
+      if (isDiet) return [...updated, filter];
 
-      const hasDiet =
-        updated.includes("Veg Only") || updated.includes("Non-Veg Only");
+      // Regular tag: sliding window of max 2
+      const regularInOrder = updated.filter((f) => f !== "Veg Only" && f !== "Non-Veg Only");
+      if (regularInOrder.length < 2) return [...updated, filter];
 
-      const normalCount = updated.filter(
-        (f) => f !== "Veg Only" && f !== "Non-Veg Only"
-      ).length;
-
-      if (isVeg || isNonVeg) return [...updated, filter];
-
-      if (hasDiet) {
-        if (normalCount >= 2) return updated;
-        return [...updated, filter];
-      }
-
-      if (!hasDiet) {
-        if (updated.length >= 2) return updated;
-        return [...updated, filter];
-      }
-
-      return updated;
+      // Drop the oldest regular tag, add the new one
+      const oldestRegular = regularInOrder[0];
+      return [...updated.filter((f) => f !== oldestRegular), filter];
     });
   };
 
-  // Menu tab tag filter toggle
-  // Rules: Veg Only and Non-Veg Only are mutually exclusive.
-  // Normal max = 2. If a diet tag (Veg/Non-Veg Only) is selected, max = 3 (diet + 2 extras).
+  // Menu tab tag filter toggle — sliding window for regular tags, diet tags are sticky
   const toggleMenuTagFilter = (tag: string) => {
     setMenuTagFilters(prev => {
-      // Deselect if already active
-      if (prev.includes(tag)) return prev.filter(t => t !== tag);
-
       const isVeg = tag === "Veg Only";
       const isNonVeg = tag === "Non-Veg Only";
+      const isDiet = isVeg || isNonVeg;
 
-      // Remove the opposing diet tag (mutually exclusive)
+      // Toggle off if already selected
+      if (prev.includes(tag)) return prev.filter(t => t !== tag);
+
+      // Handle mutual exclusivity for diet tags
       let updated = [...prev];
       if (isVeg) updated = updated.filter(t => t !== "Non-Veg Only");
       if (isNonVeg) updated = updated.filter(t => t !== "Veg Only");
 
-      // Max = 3 if the resulting set contains a diet tag; otherwise max = 2
-      const willHaveDiet = isVeg || isNonVeg || updated.includes("Veg Only") || updated.includes("Non-Veg Only");
-      const max = willHaveDiet ? 3 : 2;
+      // Diet tags are sticky — just add, no sliding window
+      if (isDiet) return [...updated, tag];
 
-      if (updated.length >= max) return prev; // already at limit
-      return [...updated, tag];
+      // Regular tag: sliding window of max 2
+      const regularInOrder = updated.filter(t => t !== "Veg Only" && t !== "Non-Veg Only");
+      if (regularInOrder.length < 2) return [...updated, tag];
+
+      // Drop the oldest regular tag, add the new one
+      const oldestRegular = regularInOrder[0];
+      return [...updated.filter(t => t !== oldestRegular), tag];
     });
   };
 
-  // Dishes matching current menu tag filters (OR logic — any selected tag matches)
+  // Dishes matching current menu tag filters (OR logic — any selected tag matches), sorted expensive first
   const menuFilteredDishes = menuTagFilters.length === 0 ? [] : (() => {
     const all = Object.values(menuDishes).flat();
     return all.filter(dish =>
@@ -1132,7 +1125,7 @@ export default function HotelHomePage() {
         if (f === "Non-Veg Only") return !dish.isVeg;
         return Array.isArray(dish.tags) && dish.tags.includes(f);
       })
-    );
+    ).sort((a, b) => b.price - a.price);
   })();
 
   // 🔥 NAME DISPLAY
@@ -1317,7 +1310,7 @@ export default function HotelHomePage() {
               </div>
             ) : (
               <div className="mb-6 sm:mb-8">
-                {dishes.filter(d => isWithinTiming(d.timing)).map((dish, index) => (
+                {dishes.filter(d => isWithinTiming(d.timing)).sort((a, b) => b.price - a.price).map((dish, index) => (
                   <div
                     key={dish.id}
                     ref={(el) => {
@@ -1541,7 +1534,7 @@ export default function HotelHomePage() {
                 }
                 blocks = catsWithDishes.map(cat => ({
                   name: cat.name,
-                  dishes: (menuDishes[cat.id] ?? []).filter(d => isWithinTiming(d.timing)),
+                  dishes: (menuDishes[cat.id] ?? []).filter(d => isWithinTiming(d.timing)).sort((a, b) => b.price - a.price),
                 }));
               }
 
