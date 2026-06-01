@@ -137,7 +137,7 @@ export function LoaderProvider({ children }: { children: React.ReactNode }) {
     <LoaderContext.Provider value={{ showLoader, hideLoader, setProgress }}>
       {/* Blur the page content when loader is active */}
       <div style={{
-        filter: loading ? "blur(6px) brightness(0.85)" : "none",
+        filter: loading ? "blur(3px) brightness(0.9)" : "none",
         transition: "filter 0.25s ease",
         minHeight: "100vh",
       }}>
