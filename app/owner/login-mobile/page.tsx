@@ -71,8 +71,8 @@ export default function LoginMobilePage() {
 
       // Small pause so blur is visible on login page before navigating
       await new Promise((r) => setTimeout(r, 350));
-      // Loader stays visible — dashboard will hide it after 3s
-      router.push("/owner/dashboard");
+      // replace() removes login from history — back button won't return here
+      router.replace("/owner/dashboard");
     } catch {
       setError("Unable to connect. Check your internet and try again.");
       setIsLoading(false);

@@ -118,7 +118,7 @@ export default function SuccessPage() {
         <button
           onClick={() => {
             showLoader();
-            router.push("/owner/dashboard");
+            router.replace("/owner/dashboard");
           }}
           className="w-full rounded-full bg-[#E5E7EB] text-black font-semibold"
           style={{ fontSize: "18px", padding: "14px" }}

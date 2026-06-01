@@ -7,7 +7,7 @@ export default function PaymentPage() {
   const router = useRouter();
 
   const handleStartTrial = () => {
-    router.push("/owner/dashboard");
+    router.replace("/owner/dashboard");
   };
 
   return (

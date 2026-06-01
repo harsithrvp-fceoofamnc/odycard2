@@ -693,7 +693,7 @@ export default function EditMenuPage() {
                 <button
                   onClick={() => {
                     setShowReturnModal(false);
-                    router.push("/owner/dashboard");
+                    router.replace("/owner/dashboard");
                   }}
                   className="flex-1 py-3 rounded-full bg-[#0A84C1] text-white font-medium text-sm hover:bg-[#0970a0] transition"
                 >
