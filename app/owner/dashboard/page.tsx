@@ -33,15 +33,23 @@ export default function OwnerDashboard() {
     total_ratings: 0,
   });
 
-  // Hide global loader 3 seconds after dashboard data is ready
+  // Hide global loader 3 seconds after dashboard data is ready (or on error)
   useEffect(() => {
-    if (!isLoading && !loadError) {
+    if (!isLoading) {
       const timer = setTimeout(() => {
         hideLoader();
       }, 3000);
       return () => clearTimeout(timer);
     }
-  }, [isLoading, loadError, hideLoader]);
+  }, [isLoading, hideLoader]);
+
+  // Fallback: force-hide loader after 12 seconds no matter what
+  useEffect(() => {
+    const fallback = setTimeout(() => {
+      hideLoader();
+    }, 12000);
+    return () => clearTimeout(fallback);
+  }, [hideLoader]);
 
   // Load hotel data
   useEffect(() => {

@@ -136,7 +136,7 @@ export function LoaderProvider({ children }: { children: React.ReactNode }) {
   return (
     <LoaderContext.Provider value={{ showLoader, hideLoader, setProgress }}>
       {children}
-      {loading && <OdyLoader progress={progress} />}
+      {loading && <OdyLoader />}
     </LoaderContext.Provider>
   );
 }
