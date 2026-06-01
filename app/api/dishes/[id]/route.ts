@@ -20,7 +20,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     const { id } = await params;
     const body = await req.json();
     const update: Record<string, unknown> = {};
-    const fields = ["name","price","category","is_veg","quantity","description","timing_from","timing_to","photo_url","video_url","tags","menu_category_id"];
+    const fields = ["name","price","category","is_veg","quantity","description","timing_from","timing_to","photo_url","video_url","tags","menu_category_id","sort_order"];
     for (const f of fields) if (body[f] !== undefined) update[f] = body[f];
     if (body.is_active !== undefined) {
       update.is_active = body.is_active;

@@ -4,6 +4,22 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import EditMenuDishBlock from "@/components/dish/EditMenuDishBlock";
 import { API_BASE } from "@/lib/api";
+import {
+  DndContext,
+  DragEndEvent,
+  PointerSensor,
+  TouchSensor,
+  closestCenter,
+  useSensor,
+  useSensors,
+} from "@dnd-kit/core";
+import {
+  SortableContext,
+  arrayMove,
+  useSortable,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 
 const tabs = ["Ody Menu", "Menu"];
 
@@ -25,6 +41,7 @@ type DishForBlock = {
   menuCategoryId?: number | null;
   isVeg: boolean;
   tags?: string[] | null;
+  sort_order?: number | null;
 };
 
 function mapDishFromApi(row: {
@@ -41,6 +58,8 @@ function mapDishFromApi(row: {
   is_veg?: boolean;
   menu_category_id?: number | null;
   tags?: string[] | null;
+  sort_order?: number | null;
+  [k: string]: unknown;
 }): DishForBlock {
   return {
     id: String(row.id),
@@ -58,7 +77,55 @@ function mapDishFromApi(row: {
     menuCategoryId: row.menu_category_id ?? null,
     isVeg: row.is_veg !== false,
     tags: Array.isArray(row.tags) ? row.tags : null,
+    sort_order: row.sort_order ?? null,
   };
+}
+
+/** Draggable dish item used inside the reorder DndContext. */
+function SortableDishItem({
+  dish,
+  restaurantId,
+  onRefresh,
+}: {
+  dish: DishForBlock;
+  restaurantId?: string;
+  onRefresh: () => void;
+}) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
+    useSortable({ id: dish.id });
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={{
+        transform: CSS.Transform.toString(transform),
+        transition,
+        opacity: isDragging ? 0.45 : 1,
+        position: "relative",
+        zIndex: isDragging ? 50 : "auto",
+      }}
+      className="flex items-center gap-2 mb-4 last:mb-0"
+    >
+      {/* Drag handle */}
+      <button
+        {...attributes}
+        {...listeners}
+        className="flex items-center justify-center w-9 h-9 shrink-0 rounded-xl bg-black/20 active:bg-black/40 transition"
+        style={{ touchAction: "none", cursor: "grab" }}
+        aria-label="Drag to reorder"
+      >
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="white" strokeWidth="2.2" strokeLinecap="round">
+          <line x1="4" y1="6" x2="20" y2="6"/>
+          <line x1="4" y1="12" x2="20" y2="12"/>
+          <line x1="4" y1="18" x2="20" y2="18"/>
+        </svg>
+      </button>
+      {/* Full dish block (read-only during reorder) */}
+      <div className="flex-1 min-w-0 pointer-events-none">
+        <EditMenuDishBlock dish={dish} restaurantId={restaurantId} onRefresh={onRefresh} />
+      </div>
+    </div>
+  );
 }
 
 export default function EditMenuPage() {
@@ -99,6 +166,60 @@ export default function EditMenuPage() {
 
   // RETURN MODAL
   const [showReturnModal, setShowReturnModal] = useState(false);
+
+  // REORDER MODE
+  const [reorderingCatId, setReorderingCatId] = useState<number | null>(null);
+  const [reorderDraft, setReorderDraft] = useState<DishForBlock[]>([]);
+  const [isSavingOrder, setIsSavingOrder] = useState(false);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
+    useSensor(TouchSensor, { activationConstraint: { delay: 150, tolerance: 5 } })
+  );
+
+  const startReorder = (catId: number) => {
+    setReorderingCatId(catId);
+    setReorderDraft([...(menuDishes[catId] ?? [])]);
+  };
+
+  const cancelReorder = () => {
+    setReorderingCatId(null);
+    setReorderDraft([]);
+  };
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+    setReorderDraft((prev) => {
+      const oldIndex = prev.findIndex((d) => d.id === active.id);
+      const newIndex = prev.findIndex((d) => d.id === over.id);
+      return arrayMove(prev, oldIndex, newIndex);
+    });
+  };
+
+  const saveReorder = async () => {
+    if (reorderingCatId === null) return;
+    setIsSavingOrder(true);
+    try {
+      await Promise.all(
+        reorderDraft.map((dish, index) =>
+          fetch(`${API_BASE}/api/dishes/${dish.id}`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ sort_order: index }),
+          })
+        )
+      );
+      // Commit new order to local state
+      setMenuDishes((prev) => ({ ...prev, [reorderingCatId]: reorderDraft }));
+      setReorderingCatId(null);
+      setReorderDraft([]);
+    } catch (e) {
+      console.error("saveReorder error:", e);
+    } finally {
+      setIsSavingOrder(false);
+    }
+  };
 
   // Scroll to correct tab from URL param (e.g. ?tab=1 after adding a menu dish)
   useEffect(() => {
@@ -513,53 +634,96 @@ export default function EditMenuPage() {
 
               {categories.map((cat, index) => {
                 const catDishes = menuDishes[cat.id] ?? [];
+                const isReordering = reorderingCatId === cat.id;
                 return (
                   <div key={cat.id} className="mb-10">
 
                     {/* HEADER */}
                     <div className="flex items-center justify-between mb-3">
                       <h2 className="text-white text-2xl font-bold">{cat.name}</h2>
-                      <button
-                        onClick={() => openEdit(cat)}
-                        className="text-[#0A84C1] text-sm font-medium"
-                      >
-                        Edit
-                      </button>
+                      <div className="flex items-center gap-3">
+                        {/* Reorder button — only when not reordering and 2+ dishes exist */}
+                        {!isReordering && reorderingCatId === null && catDishes.length >= 2 && (
+                          <button
+                            onClick={() => startReorder(cat.id)}
+                            className="text-white/60 text-sm font-medium"
+                          >
+                            Reorder
+                          </button>
+                        )}
+                        {/* Edit name button — hidden when this category is being reordered */}
+                        {!isReordering && (
+                          <button
+                            onClick={() => openEdit(cat)}
+                            className="text-[#0A84C1] text-sm font-medium"
+                          >
+                            Edit
+                          </button>
+                        )}
+                        {/* Reordering label */}
+                        {isReordering && (
+                          <span className="text-white/50 text-sm font-medium">Drag to reorder</span>
+                        )}
+                      </div>
                     </div>
 
                     {/* CATEGORY BLOCK — auto-sizes to contents */}
                     <div className="bg-[#DADDE4] rounded-[28px] px-4 py-4 w-full">
 
-                      {/* DISH BLOCKS inside category */}
-                      {catDishes.map((dish) => (
-                        <EditMenuDishBlock
-                          key={dish.id}
-                          dish={dish}
-                          restaurantId={restaurantId}
-                          onRefresh={reloadDishes}
-                        />
-                      ))}
-
-                      {/* ADD DISH BUTTON inside block */}
-                      <div className={catDishes.length > 0 ? "mt-4 flex justify-center" : "flex justify-center py-6"}>
-                        <button
-                          onClick={() => {
-                            if (!restaurantId) return;
-                            localStorage.setItem("addDishMenuCategoryId", String(cat.id));
-                            router.push(`/owner/hotel/${restaurantId}/add-dish`);
-                          }}
-                          className="flex items-center gap-3"
+                      {/* DISH BLOCKS — sortable when reordering, normal otherwise */}
+                      {isReordering ? (
+                        <DndContext
+                          sensors={sensors}
+                          collisionDetection={closestCenter}
+                          onDragEnd={handleDragEnd}
                         >
-                          <div className="w-10 h-10 rounded-full border-2 border-[#0A84C1] flex items-center justify-center bg-white">
-                            <span className="text-[#0A84C1] text-xl font-medium leading-none">+</span>
-                          </div>
-                          <span className="text-[#0A84C1] text-base font-medium">Add dish</span>
-                        </button>
-                      </div>
+                          <SortableContext
+                            items={reorderDraft.map((d) => d.id)}
+                            strategy={verticalListSortingStrategy}
+                          >
+                            {reorderDraft.map((dish) => (
+                              <SortableDishItem
+                                key={dish.id}
+                                dish={dish}
+                                restaurantId={restaurantId}
+                                onRefresh={reloadDishes}
+                              />
+                            ))}
+                          </SortableContext>
+                        </DndContext>
+                      ) : (
+                        catDishes.map((dish) => (
+                          <EditMenuDishBlock
+                            key={dish.id}
+                            dish={dish}
+                            restaurantId={restaurantId}
+                            onRefresh={reloadDishes}
+                          />
+                        ))
+                      )}
+
+                      {/* ADD DISH BUTTON inside block — hidden during reorder */}
+                      {!isReordering && (
+                        <div className={catDishes.length > 0 ? "mt-4 flex justify-center" : "flex justify-center py-6"}>
+                          <button
+                            onClick={() => {
+                              if (!restaurantId) return;
+                              localStorage.setItem("addDishMenuCategoryId", String(cat.id));
+                              router.push(`/owner/hotel/${restaurantId}/add-dish`);
+                            }}
+                            className="flex items-center gap-3"
+                          >
+                            <div className="w-10 h-10 rounded-full border-2 border-[#0A84C1] flex items-center justify-center bg-white">
+                              <span className="text-[#0A84C1] text-xl font-medium leading-none">+</span>
+                            </div>
+                            <span className="text-[#0A84C1] text-base font-medium">Add dish</span>
+                          </button>
+                        </div>
+                      )}
                     </div>
 
-                    {/* DELETE BUTTON — only for non-first categories */}
-                    {index > 0 && (
+                    {/* DELETE BUTTON — only for non-first categories, hidden during reorder */}
+                    {index > 0 && !isReordering && reorderingCatId === null && (
                       <div className="mt-3 px-1">
                         <button onClick={() => confirmDelete(cat)}>
                           <img
@@ -573,8 +737,8 @@ export default function EditMenuPage() {
                       </div>
                     )}
 
-                    {/* ADD CATEGORY BUTTON — after last category */}
-                    {index === categories.length - 1 && (
+                    {/* ADD CATEGORY BUTTON — after last category, hidden during reorder */}
+                    {index === categories.length - 1 && reorderingCatId === null && (
                       <div className="flex justify-center mt-10">
                         <button
                           onClick={() => setShowAddConfirm(true)}
@@ -671,6 +835,30 @@ export default function EditMenuPage() {
                 className="w-full py-3 rounded-full bg-white text-[#0A84C1]"
               >
                 Cancel
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* REORDER SAVE / CANCEL BAR */}
+        {reorderingCatId !== null && (
+          <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md z-[999] px-6 pb-10 pt-6"
+            style={{ background: "linear-gradient(to top, #000000 60%, transparent)" }}
+          >
+            <div className="flex gap-3">
+              <button
+                onClick={cancelReorder}
+                disabled={isSavingOrder}
+                className="flex-1 py-3.5 rounded-full bg-white/10 text-white font-semibold text-base backdrop-blur-sm disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={saveReorder}
+                disabled={isSavingOrder}
+                className="flex-1 py-3.5 rounded-full bg-[#0A84C1] text-white font-semibold text-base disabled:opacity-70"
+              >
+                {isSavingOrder ? "Saving..." : "Save Order"}
               </button>
             </div>
           </div>

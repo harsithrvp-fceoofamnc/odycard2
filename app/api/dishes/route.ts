@@ -81,6 +81,16 @@ export async function GET(req: NextRequest) {
       };
     });
 
+    // Sort by sort_order asc (nulls last), then created_at desc as fallback
+    result.sort((a, b) => {
+      const aOrder = (a.sort_order as number) ?? Infinity;
+      const bOrder = (b.sort_order as number) ?? Infinity;
+      if (aOrder !== bOrder) return aOrder - bOrder;
+      const aTime = new Date((a.created_at as string) || 0).getTime();
+      const bTime = new Date((b.created_at as string) || 0).getTime();
+      return bTime - aTime;
+    });
+
     return NextResponse.json(result);
   } catch (e: unknown) {
     console.error("GET /api/dishes:", e);

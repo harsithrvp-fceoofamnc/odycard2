@@ -69,6 +69,7 @@ type OdyDish = {
   eatLaterCount: number;
   menuCategoryId?: number | null;
   tags?: string[] | null;
+  sort_order?: number | null;
 };
 
 /** Extract YouTube video ID from watch URL, embed URL, or short url. */
@@ -434,6 +435,7 @@ function mapDishFromApi(row: {
   timing_to?: string;
   photo_url?: string | null;
   video_url?: string | null;
+  sort_order?: number | null;
   [k: string]: unknown;
 }): OdyDish {
   return {
@@ -455,6 +457,7 @@ function mapDishFromApi(row: {
     eatLaterCount: Number(row.eat_later_count) || 0,
     menuCategoryId: row.menu_category_id ? Number(row.menu_category_id) : null,
     tags: Array.isArray(row.tags) ? row.tags : null,
+    sort_order: row.sort_order ?? null,
   };
 }
 
@@ -1310,7 +1313,14 @@ export default function HotelHomePage() {
               </div>
             ) : (
               <div className="mb-6 sm:mb-8">
-                {dishes.filter(d => isWithinTiming(d.timing)).sort((a, b) => b.price - a.price).map((dish, index) => (
+                {dishes
+                  .filter(d => isWithinTiming(d.timing))
+                  .sort((a, b) =>
+                    activeFilters.length > 0
+                      ? b.price - a.price
+                      : ((a.sort_order ?? Infinity) - (b.sort_order ?? Infinity))
+                  )
+                  .map((dish, index) => (
                   <div
                     key={dish.id}
                     ref={(el) => {
@@ -1532,9 +1542,10 @@ export default function HotelHomePage() {
                     </div>
                   );
                 }
+                // No filters active — respect owner's custom sort_order
                 blocks = catsWithDishes.map(cat => ({
                   name: cat.name,
-                  dishes: (menuDishes[cat.id] ?? []).filter(d => isWithinTiming(d.timing)).sort((a, b) => b.price - a.price),
+                  dishes: (menuDishes[cat.id] ?? []).filter(d => isWithinTiming(d.timing)),
                 }));
               }
 
