@@ -4,22 +4,6 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import EditMenuDishBlock from "@/components/dish/EditMenuDishBlock";
 import { API_BASE } from "@/lib/api";
-import {
-  DndContext,
-  DragEndEvent,
-  PointerSensor,
-  TouchSensor,
-  closestCenter,
-  useSensor,
-  useSensors,
-} from "@dnd-kit/core";
-import {
-  SortableContext,
-  arrayMove,
-  useSortable,
-  verticalListSortingStrategy,
-} from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
 
 const tabs = ["Ody Menu", "Menu"];
 
@@ -81,48 +65,53 @@ function mapDishFromApi(row: {
   };
 }
 
-/** Draggable dish item used inside the reorder DndContext. */
-function SortableDishItem({
+/** Compact dish row used in reorder mode — shows photo, name, price + ↑/↓ buttons. */
+function ArrowSortItem({
   dish,
-  restaurantId,
-  onRefresh,
+  index,
+  total,
+  onMoveUp,
+  onMoveDown,
 }: {
   dish: DishForBlock;
-  restaurantId?: string;
-  onRefresh: () => void;
+  index: number;
+  total: number;
+  onMoveUp: () => void;
+  onMoveDown: () => void;
 }) {
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
-    useSortable({ id: dish.id });
-
   return (
-    <div
-      ref={setNodeRef}
-      style={{
-        transform: CSS.Transform.toString(transform),
-        transition,
-        opacity: isDragging ? 0.45 : 1,
-        position: "relative",
-        zIndex: isDragging ? 50 : "auto",
-      }}
-      className="flex items-center gap-2 mb-4 last:mb-0"
-    >
-      {/* Drag handle */}
-      <button
-        {...attributes}
-        {...listeners}
-        className="flex items-center justify-center w-9 h-9 shrink-0 rounded-xl bg-black/20 active:bg-black/40 transition"
-        style={{ touchAction: "none", cursor: "grab" }}
-        aria-label="Drag to reorder"
-      >
-        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="white" strokeWidth="2.2" strokeLinecap="round">
-          <line x1="4" y1="6" x2="20" y2="6"/>
-          <line x1="4" y1="12" x2="20" y2="12"/>
-          <line x1="4" y1="18" x2="20" y2="18"/>
-        </svg>
-      </button>
-      {/* Full dish block (read-only during reorder) */}
-      <div className="flex-1 min-w-0 pointer-events-none">
-        <EditMenuDishBlock dish={dish} restaurantId={restaurantId} onRefresh={onRefresh} />
+    <div className="flex items-center gap-3 bg-white rounded-2xl px-3 py-3 mb-3 last:mb-0 shadow-sm">
+      {/* Thumbnail */}
+      <img
+        src={dish.photoUrl || "/food_item_logo.png"}
+        alt={dish.name}
+        className="w-14 h-14 rounded-xl object-cover shrink-0"
+      />
+      {/* Name + price */}
+      <div className="flex-1 min-w-0">
+        <p className="text-black font-semibold text-[15px] truncate">{dish.name}</p>
+        <p className="text-gray-500 text-sm mt-0.5">₹{dish.price}</p>
+      </div>
+      {/* Up / Down buttons */}
+      <div className="flex flex-col gap-1.5 shrink-0">
+        <button
+          onClick={onMoveUp}
+          disabled={index === 0}
+          className="w-9 h-9 rounded-xl bg-gray-100 active:bg-gray-200 flex items-center justify-center disabled:opacity-20 transition"
+        >
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#111" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="18 15 12 9 6 15"/>
+          </svg>
+        </button>
+        <button
+          onClick={onMoveDown}
+          disabled={index === total - 1}
+          className="w-9 h-9 rounded-xl bg-gray-100 active:bg-gray-200 flex items-center justify-center disabled:opacity-20 transition"
+        >
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#111" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="6 9 12 15 18 9"/>
+          </svg>
+        </button>
       </div>
     </div>
   );
@@ -172,11 +161,6 @@ export default function EditMenuPage() {
   const [reorderDraft, setReorderDraft] = useState<DishForBlock[]>([]);
   const [isSavingOrder, setIsSavingOrder] = useState(false);
 
-  const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
-    useSensor(TouchSensor, { activationConstraint: { delay: 150, tolerance: 5 } })
-  );
-
   const startReorder = (catId: number) => {
     setReorderingCatId(catId);
     setReorderDraft([...(menuDishes[catId] ?? [])]);
@@ -187,13 +171,12 @@ export default function EditMenuPage() {
     setReorderDraft([]);
   };
 
-  const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event;
-    if (!over || active.id === over.id) return;
+  const moveDish = (fromIndex: number, toIndex: number) => {
     setReorderDraft((prev) => {
-      const oldIndex = prev.findIndex((d) => d.id === active.id);
-      const newIndex = prev.findIndex((d) => d.id === over.id);
-      return arrayMove(prev, oldIndex, newIndex);
+      const next = [...prev];
+      const [moved] = next.splice(fromIndex, 1);
+      next.splice(toIndex, 0, moved);
+      return next;
     });
   };
 
@@ -662,7 +645,7 @@ export default function EditMenuPage() {
                         )}
                         {/* Reordering label */}
                         {isReordering && (
-                          <span className="text-white/50 text-sm font-medium">Drag to reorder</span>
+                          <span className="text-white/50 text-sm font-medium">Tap ↑ ↓ to reorder</span>
                         )}
                       </div>
                     </div>
@@ -670,27 +653,20 @@ export default function EditMenuPage() {
                     {/* CATEGORY BLOCK — auto-sizes to contents */}
                     <div className="bg-[#DADDE4] rounded-[28px] px-4 py-4 w-full">
 
-                      {/* DISH BLOCKS — sortable when reordering, normal otherwise */}
+                      {/* DISH BLOCKS — arrow-sort when reordering, normal otherwise */}
                       {isReordering ? (
-                        <DndContext
-                          sensors={sensors}
-                          collisionDetection={closestCenter}
-                          onDragEnd={handleDragEnd}
-                        >
-                          <SortableContext
-                            items={reorderDraft.map((d) => d.id)}
-                            strategy={verticalListSortingStrategy}
-                          >
-                            {reorderDraft.map((dish) => (
-                              <SortableDishItem
-                                key={dish.id}
-                                dish={dish}
-                                restaurantId={restaurantId}
-                                onRefresh={reloadDishes}
-                              />
-                            ))}
-                          </SortableContext>
-                        </DndContext>
+                        <div>
+                          {reorderDraft.map((dish, idx) => (
+                            <ArrowSortItem
+                              key={dish.id}
+                              dish={dish}
+                              index={idx}
+                              total={reorderDraft.length}
+                              onMoveUp={() => moveDish(idx, idx - 1)}
+                              onMoveDown={() => moveDish(idx, idx + 1)}
+                            />
+                          ))}
+                        </div>
                       ) : (
                         catDishes.map((dish) => (
                           <EditMenuDishBlock
