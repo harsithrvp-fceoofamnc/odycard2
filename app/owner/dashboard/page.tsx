@@ -123,24 +123,16 @@ export default function OwnerDashboard() {
 
   const card = "border border-gray-200 rounded-2xl p-4 bg-white h-24 flex flex-col justify-center";
 
-  if (isLoading || loadError) {
-    return (
-      <div className="min-h-screen bg-black flex flex-col items-center justify-center gap-4 px-6">
-        {isLoading && !loadError ? (
-          <>
-            <div className="w-10 h-10 border-4 border-white/20 border-t-white rounded-full animate-spin" />
-            <p className="text-white/60 text-sm">Loading your dashboard...</p>
-          </>
-        ) : (
-          <p className="text-white/80 text-center">{loadError}</p>
-        )}
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen bg-black flex justify-center">
       <div className="relative w-full max-w-md min-h-screen overflow-hidden bg-[#1c1c1c]">
+
+        {/* Error banner — shown inside dashboard if load failed */}
+        {loadError && (
+          <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 bg-red-600 text-white text-sm px-4 py-2 rounded-full shadow-lg">
+            {loadError}
+          </div>
+        )}
 
         {/* COVER + LOGO FIXED SECTION */}
         <div className="fixed top-0 left-1/2 -translate-x-1/2 w-full max-w-md h-[50vh] z-10 overflow-hidden">
