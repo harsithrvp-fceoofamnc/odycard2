@@ -65,28 +65,40 @@ function mapDishFromApi(row: {
   };
 }
 
-/** Compact dish row used in reorder mode — position badge + photo + name/price + ↑↓ pill. */
+/** Compact dish row used in reorder mode — dark themed with blue glow animation on move. */
 function ArrowSortItem({
   dish,
   index,
   total,
+  isJustMoved,
   onMoveUp,
   onMoveDown,
 }: {
   dish: DishForBlock;
   index: number;
   total: number;
+  isJustMoved: boolean;
   onMoveUp: () => void;
   onMoveDown: () => void;
 }) {
   return (
     <div
-      className="flex items-center gap-3 bg-white rounded-2xl px-3 py-3 mb-2.5 last:mb-0"
-      style={{ boxShadow: "0 2px 10px rgba(0,0,0,0.07)" }}
+      className="flex items-center gap-3 rounded-2xl px-3 py-3 mb-2.5 last:mb-0"
+      style={{
+        backgroundColor: isJustMoved ? "#0d2a3a" : "#2a2a2a",
+        boxShadow: isJustMoved
+          ? "0 0 0 1.5px #0A84C1, 0 6px 28px rgba(10,132,193,0.35)"
+          : "0 2px 12px rgba(0,0,0,0.35)",
+        transform: isJustMoved ? "scale(1.025)" : "scale(1)",
+        transition: "background-color 0.35s ease, box-shadow 0.35s ease, transform 0.25s ease",
+      }}
     >
-      {/* Position number */}
-      <div className="w-7 h-7 rounded-full bg-[#F0F4FF] flex items-center justify-center shrink-0">
-        <span className="text-[11px] font-bold text-[#0A84C1]">{index + 1}</span>
+      {/* Position badge */}
+      <div
+        className="w-7 h-7 rounded-full flex items-center justify-center shrink-0"
+        style={{ backgroundColor: "#0A84C1" }}
+      >
+        <span className="text-[11px] font-bold text-white">{index + 1}</span>
       </div>
 
       {/* Thumbnail */}
@@ -94,35 +106,41 @@ function ArrowSortItem({
         src={dish.photoUrl || "/food_item_logo.png"}
         alt={dish.name}
         className="w-12 h-12 rounded-xl object-cover shrink-0"
+        style={{ border: "1px solid rgba(255,255,255,0.08)" }}
       />
 
       {/* Name + price */}
       <div className="flex-1 min-w-0">
-        <p className="text-black font-semibold text-[14px] leading-tight truncate">{dish.name}</p>
-        <p className="text-gray-400 text-xs mt-0.5">₹{dish.price}</p>
+        <p className="font-semibold text-[14px] leading-tight truncate" style={{ color: "#ffffff" }}>
+          {dish.name}
+        </p>
+        <p className="text-xs mt-0.5" style={{ color: "rgba(255,255,255,0.45)" }}>
+          ₹{dish.price}
+        </p>
       </div>
 
       {/* ↑↓ connected pill */}
       <div
         className="flex flex-col shrink-0 overflow-hidden"
-        style={{ border: "1.5px solid #E5E7EB", borderRadius: 12 }}
+        style={{ border: "1.5px solid rgba(255,255,255,0.15)", borderRadius: 12 }}
       >
         <button
           onClick={onMoveUp}
           disabled={index === 0}
-          className="w-9 h-9 flex items-center justify-center bg-white active:bg-gray-50 disabled:opacity-20 transition-colors"
-          style={{ borderBottom: "1.5px solid #E5E7EB" }}
+          className="w-9 h-9 flex items-center justify-center active:opacity-60 disabled:opacity-20 transition-opacity"
+          style={{ borderBottom: "1.5px solid rgba(255,255,255,0.15)", backgroundColor: "transparent" }}
         >
-          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="#374151" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="#ffffff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <polyline points="18 15 12 9 6 15"/>
           </svg>
         </button>
         <button
           onClick={onMoveDown}
           disabled={index === total - 1}
-          className="w-9 h-9 flex items-center justify-center bg-white active:bg-gray-50 disabled:opacity-20 transition-colors"
+          className="w-9 h-9 flex items-center justify-center active:opacity-60 disabled:opacity-20 transition-opacity"
+          style={{ backgroundColor: "transparent" }}
         >
-          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="#374151" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="#ffffff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <polyline points="6 9 12 15 18 9"/>
           </svg>
         </button>
@@ -174,6 +192,7 @@ export default function EditMenuPage() {
   const [reorderingCatId, setReorderingCatId] = useState<number | null>(null);
   const [reorderDraft, setReorderDraft] = useState<DishForBlock[]>([]);
   const [isSavingOrder, setIsSavingOrder] = useState(false);
+  const [justMovedId, setJustMovedId] = useState<string | null>(null);
 
   const startReorder = (catId: number) => {
     setReorderingCatId(catId);
@@ -183,15 +202,21 @@ export default function EditMenuPage() {
   const cancelReorder = () => {
     setReorderingCatId(null);
     setReorderDraft([]);
+    setJustMovedId(null);
   };
 
   const moveDish = (fromIndex: number, toIndex: number) => {
+    const movedId = reorderDraft[fromIndex]?.id ?? null;
     setReorderDraft((prev) => {
       const next = [...prev];
       const [moved] = next.splice(fromIndex, 1);
       next.splice(toIndex, 0, moved);
       return next;
     });
+    if (movedId) {
+      setJustMovedId(movedId);
+      setTimeout(() => setJustMovedId(null), 420);
+    }
   };
 
   const saveReorder = async () => {
@@ -667,7 +692,7 @@ export default function EditMenuPage() {
                     {/* CATEGORY BLOCK — auto-sizes to contents */}
                     <div
                       className="rounded-[28px] px-4 py-4 w-full transition-colors duration-300"
-                      style={{ backgroundColor: isReordering ? "#EEF4FF" : "#DADDE4" }}
+                      style={{ backgroundColor: isReordering ? "#141414" : "#DADDE4" }}
                     >
 
                       {/* DISH BLOCKS — arrow-sort when reordering, normal otherwise */}
@@ -679,6 +704,7 @@ export default function EditMenuPage() {
                               dish={dish}
                               index={idx}
                               total={reorderDraft.length}
+                              isJustMoved={dish.id === justMovedId}
                               onMoveUp={() => moveDish(idx, idx - 1)}
                               onMoveDown={() => moveDish(idx, idx + 1)}
                             />
