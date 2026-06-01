@@ -80,8 +80,9 @@ export default function VisualsPage() {
   // Menu dishes only need a photo; Ody Menu dishes also require a YouTube video
   const canProceed = isMenuDish ? (hasImage && !isUploadingImage) : (hasImage && hasYoutube && !isUploadingImage);
 
-  const BASE_PROGRESS = 33;
-  const VISUALS_COMPLETE_PROGRESS = 66;
+  const TOTAL_PAGES = isMenuDish ? 4 : 3;
+  const BASE_PROGRESS = isMenuDish ? 25 : 33;
+  const VISUALS_COMPLETE_PROGRESS = isMenuDish ? 50 : 66;
   const computedProgress = canProceed ? VISUALS_COMPLETE_PROGRESS : BASE_PROGRESS;
 
   const handleNext = () => {
@@ -369,7 +370,7 @@ export default function VisualsPage() {
             {/* PROGRESS (RIGHT) — same layout as add-dish page */}
             <div className="flex items-center gap-3 min-w-[140px]">
               <span className="text-xs text-gray-500 whitespace-nowrap">
-                Page 2 of 3
+                Page 2 of {TOTAL_PAGES}
               </span>
               <ProgressBar progress={computedProgress} className="flex-1 h-[6px]" />
             </div>

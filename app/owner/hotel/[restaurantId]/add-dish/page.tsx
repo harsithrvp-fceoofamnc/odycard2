@@ -40,13 +40,14 @@ export default function AddDishPage() {
   };
 
   /* ---------- PAGE / PROGRESS LOGIC ---------- */
-  const TOTAL_PAGES = 3;
+  const isMenuDish = typeof window !== "undefined" && !!localStorage.getItem("addDishMenuCategoryId");
+  const TOTAL_PAGES = isMenuDish ? 4 : 3;
   const CURRENT_PAGE = 1;
 
   // Progress fills ONLY after selection
   const progress =
     selectedType !== null
-      ? Math.round((CURRENT_PAGE / TOTAL_PAGES) * 100) // 33%
+      ? Math.round((CURRENT_PAGE / TOTAL_PAGES) * 100) // 25% for 4-page flow, 33% for 3-page
       : 0;
 
   const handleReturn = () => {
