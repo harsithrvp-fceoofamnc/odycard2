@@ -33,10 +33,15 @@ export default function OwnerDashboard() {
     total_ratings: 0,
   });
 
-  // Hide global loader when dashboard mounts
+  // Hide global loader 3 seconds after dashboard data is ready
   useEffect(() => {
-    hideLoader();
-  }, [hideLoader]);
+    if (!isLoading && !loadError) {
+      const timer = setTimeout(() => {
+        hideLoader();
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [isLoading, loadError, hideLoader]);
 
   // Load hotel data
   useEffect(() => {

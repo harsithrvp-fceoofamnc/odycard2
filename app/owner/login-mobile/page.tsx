@@ -4,10 +4,12 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { API_BASE } from "@/lib/api";
+import { useLoader } from "@/context/LoaderContext";
 
 export default function LoginMobilePage() {
   const router = useRouter();
 
+  const { showLoader, hideLoader } = useLoader();
   const [mobile, setMobile] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -36,6 +38,7 @@ export default function LoginMobilePage() {
 
     setError("");
     setIsLoading(true);
+    showLoader();
 
     try {
       const res = await fetch(`${API_BASE}/api/auth/login`, {
@@ -49,6 +52,7 @@ export default function LoginMobilePage() {
       if (!res.ok) {
         setError(data?.error || "Invalid mobile number or password");
         setIsLoading(false);
+        hideLoader();
         return;
       }
 
@@ -56,6 +60,7 @@ export default function LoginMobilePage() {
       if (!hotel) {
         setError("Invalid response. Please try again.");
         setIsLoading(false);
+        hideLoader();
         return;
       }
 
@@ -64,10 +69,12 @@ export default function LoginMobilePage() {
       localStorage.setItem("restaurantName", hotel.name);
       localStorage.setItem("userName", hotel.name);
 
+      // Loader stays visible — dashboard will hide it after 3s
       router.push("/owner/dashboard");
     } catch {
       setError("Unable to connect. Check your internet and try again.");
       setIsLoading(false);
+      hideLoader();
     }
   };
 
