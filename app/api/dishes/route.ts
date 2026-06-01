@@ -82,7 +82,7 @@ export async function GET(req: NextRequest) {
     });
 
     // Sort by sort_order asc (nulls last), then created_at desc as fallback
-    result.sort((a, b) => {
+    (result as Record<string, unknown>[]).sort((a, b) => {
       const aOrder = (a.sort_order as number) ?? Infinity;
       const bOrder = (b.sort_order as number) ?? Infinity;
       if (aOrder !== bOrder) return aOrder - bOrder;
