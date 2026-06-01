@@ -65,7 +65,7 @@ function mapDishFromApi(row: {
   };
 }
 
-/** Compact dish row used in reorder mode — shows photo, name, price + ↑/↓ buttons. */
+/** Compact dish row used in reorder mode — position badge + photo + name/price + ↑↓ pill. */
 function ArrowSortItem({
   dish,
   index,
@@ -80,35 +80,49 @@ function ArrowSortItem({
   onMoveDown: () => void;
 }) {
   return (
-    <div className="flex items-center gap-3 bg-white rounded-2xl px-3 py-3 mb-3 last:mb-0 shadow-sm">
+    <div
+      className="flex items-center gap-3 bg-white rounded-2xl px-3 py-3 mb-2.5 last:mb-0"
+      style={{ boxShadow: "0 2px 10px rgba(0,0,0,0.07)" }}
+    >
+      {/* Position number */}
+      <div className="w-7 h-7 rounded-full bg-[#F0F4FF] flex items-center justify-center shrink-0">
+        <span className="text-[11px] font-bold text-[#0A84C1]">{index + 1}</span>
+      </div>
+
       {/* Thumbnail */}
       <img
         src={dish.photoUrl || "/food_item_logo.png"}
         alt={dish.name}
-        className="w-14 h-14 rounded-xl object-cover shrink-0"
+        className="w-12 h-12 rounded-xl object-cover shrink-0"
       />
+
       {/* Name + price */}
       <div className="flex-1 min-w-0">
-        <p className="text-black font-semibold text-[15px] truncate">{dish.name}</p>
-        <p className="text-gray-500 text-sm mt-0.5">₹{dish.price}</p>
+        <p className="text-black font-semibold text-[14px] leading-tight truncate">{dish.name}</p>
+        <p className="text-gray-400 text-xs mt-0.5">₹{dish.price}</p>
       </div>
-      {/* Up / Down buttons */}
-      <div className="flex flex-col gap-1.5 shrink-0">
+
+      {/* ↑↓ connected pill */}
+      <div
+        className="flex flex-col shrink-0 overflow-hidden"
+        style={{ border: "1.5px solid #E5E7EB", borderRadius: 12 }}
+      >
         <button
           onClick={onMoveUp}
           disabled={index === 0}
-          className="w-9 h-9 rounded-xl bg-gray-100 active:bg-gray-200 flex items-center justify-center disabled:opacity-20 transition"
+          className="w-9 h-9 flex items-center justify-center bg-white active:bg-gray-50 disabled:opacity-20 transition-colors"
+          style={{ borderBottom: "1.5px solid #E5E7EB" }}
         >
-          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#111" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="#374151" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <polyline points="18 15 12 9 6 15"/>
           </svg>
         </button>
         <button
           onClick={onMoveDown}
           disabled={index === total - 1}
-          className="w-9 h-9 rounded-xl bg-gray-100 active:bg-gray-200 flex items-center justify-center disabled:opacity-20 transition"
+          className="w-9 h-9 flex items-center justify-center bg-white active:bg-gray-50 disabled:opacity-20 transition-colors"
         >
-          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#111" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="#374151" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <polyline points="6 9 12 15 18 9"/>
           </svg>
         </button>
@@ -645,13 +659,16 @@ export default function EditMenuPage() {
                         )}
                         {/* Reordering label */}
                         {isReordering && (
-                          <span className="text-white/50 text-sm font-medium">Tap ↑ ↓ to reorder</span>
+                          <span className="text-[#0A84C1] text-sm font-medium">Arranging...</span>
                         )}
                       </div>
                     </div>
 
                     {/* CATEGORY BLOCK — auto-sizes to contents */}
-                    <div className="bg-[#DADDE4] rounded-[28px] px-4 py-4 w-full">
+                    <div
+                      className="rounded-[28px] px-4 py-4 w-full transition-colors duration-300"
+                      style={{ backgroundColor: isReordering ? "#EEF4FF" : "#DADDE4" }}
+                    >
 
                       {/* DISH BLOCKS — arrow-sort when reordering, normal otherwise */}
                       {isReordering ? (
