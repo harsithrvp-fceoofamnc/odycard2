@@ -37,19 +37,17 @@ body {
 .loader-wrapper {
   position: fixed;
   inset: 0;
-  backdrop-filter: blur(52px) saturate(180%);
-  -webkit-backdrop-filter: blur(52px) saturate(180%);
-  background: rgba(0, 0, 0, 0.25);
+  background: transparent;
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 9999;
-  animation: loaderFadeIn 0.22s ease forwards;
+  animation: loaderFadeIn 0.2s ease forwards;
 }
 
 @keyframes loaderFadeIn {
-  from { opacity: 0; backdrop-filter: blur(0px); -webkit-backdrop-filter: blur(0px); }
-  to   { opacity: 1; backdrop-filter: blur(52px) saturate(180%); -webkit-backdrop-filter: blur(52px) saturate(180%); }
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
 
 .ody-logo {

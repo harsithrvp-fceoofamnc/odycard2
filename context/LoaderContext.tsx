@@ -135,7 +135,14 @@ export function LoaderProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <LoaderContext.Provider value={{ showLoader, hideLoader, setProgress }}>
-      {children}
+      {/* Blur the page content when loader is active */}
+      <div style={{
+        filter: loading ? "blur(14px) brightness(0.7)" : "none",
+        transition: "filter 0.25s ease",
+        minHeight: "100vh",
+      }}>
+        {children}
+      </div>
       {loading && <OdyLoader />}
     </LoaderContext.Provider>
   );

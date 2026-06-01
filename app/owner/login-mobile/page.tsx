@@ -69,6 +69,8 @@ export default function LoginMobilePage() {
       localStorage.setItem("restaurantName", hotel.name);
       localStorage.setItem("userName", hotel.name);
 
+      // Small pause so blur is visible on login page before navigating
+      await new Promise((r) => setTimeout(r, 350));
       // Loader stays visible — dashboard will hide it after 3s
       router.push("/owner/dashboard");
     } catch {
