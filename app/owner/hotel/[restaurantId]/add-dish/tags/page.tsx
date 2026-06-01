@@ -173,9 +173,19 @@ export default function DishTagsPage() {
       <div className="w-full max-w-md min-h-screen bg-white px-6 pt-10 pb-28 relative">
 
         {/* HEADER */}
-        <h1 className="text-black mb-2" style={{ fontSize: 36, fontWeight: 600, lineHeight: "1.1" }}>
-          Add Tags
-        </h1>
+        <div className="flex items-start justify-between mb-2">
+          <h1 className="text-black" style={{ fontSize: 36, fontWeight: 600, lineHeight: "1.1" }}>
+            Add Tags
+          </h1>
+          <button
+            type="button"
+            onClick={() => proceed(true)}
+            disabled={isSubmitting}
+            className="mt-2 text-sm font-medium text-gray-400 underline underline-offset-2 disabled:opacity-50"
+          >
+            {isSubmitting && submittingMode === "skip" ? "Skipping..." : "Skip"}
+          </button>
+        </div>
         <p className="text-gray-400 text-sm mb-8">
           Optional · max {MAX_TAGS} tags — helps customers find this dish
         </p>
@@ -288,15 +298,6 @@ export default function DishTagsPage() {
                 className="px-6 py-3 rounded-xl border border-gray-300 text-base font-medium text-gray-700 disabled:opacity-50"
               >
                 Back
-              </button>
-
-              <button
-                type="button"
-                onClick={() => proceed(true)}
-                disabled={isSubmitting}
-                className="px-6 py-3 rounded-xl border border-gray-300 text-base font-medium text-gray-500 disabled:opacity-50"
-              >
-                {isSubmitting && submittingMode === "skip" ? "Adding..." : "Skip"}
               </button>
 
               <button
