@@ -48,6 +48,32 @@ export default function DishTagsPage() {
   const [submittingMode, setSubmittingMode] = useState<"skip" | "add" | null>(null);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
+  // Restore saved tags when coming back from a previous navigation
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const saved = localStorage.getItem("addDishTags");
+    if (!saved) return;
+    try {
+      const parsed: string[] = JSON.parse(saved);
+      if (!Array.isArray(parsed)) return;
+      const predefined = parsed.filter(t => PREDEFINED_TAGS.includes(t));
+      const custom = parsed.find(t => !PREDEFINED_TAGS.includes(t)) ?? null;
+      setSelected(predefined);
+      if (custom) setCustomAdded(custom);
+    } catch {}
+  }, []);
+
+  // Auto-save tag selections so Back → Forward restores them
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const all = [...selected, ...(customAdded ? [customAdded] : [])];
+    if (all.length > 0) {
+      localStorage.setItem("addDishTags", JSON.stringify(all));
+    } else {
+      localStorage.removeItem("addDishTags");
+    }
+  }, [selected, customAdded]);
+
   const totalSelected = selected.length + (customAdded ? 1 : 0);
   const canAddMore = totalSelected < MAX_TAGS;
 

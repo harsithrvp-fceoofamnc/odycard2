@@ -66,6 +66,15 @@ export default function VisualsPage() {
   const [youtubeUrl, setYoutubeUrl] = useState<string | null>(null);
   const [invalidLinkError, setInvalidLinkError] = useState(false);
 
+  // Restore saved photo and video when coming back from step 3
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const savedPhoto = localStorage.getItem("addDishPhoto");
+    if (savedPhoto) setImageUrl(savedPhoto);
+    const savedVideoId = localStorage.getItem("addDishVideoId");
+    if (savedVideoId) setYoutubeUrl(savedVideoId);
+  }, []);
+
   /* ---------- CROP ---------- */
   const [showCrop, setShowCrop] = useState(false);
   const [crop, setCrop] = useState({ x: 0, y: 0 });

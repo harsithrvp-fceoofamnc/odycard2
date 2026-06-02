@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 
 type DishType = "food_item" | "dessert" | "beverage" | null;
@@ -13,6 +13,15 @@ export default function AddDishPage() {
 
   const [selectedType, setSelectedType] = useState<DishType>(null);
   const [navError, setNavError] = useState<string | null>(null);
+
+  // Restore saved type when coming back from step 2
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const saved = localStorage.getItem("addDishType") as DishType;
+    if (saved === "food_item" || saved === "dessert" || saved === "beverage") {
+      setSelectedType(saved);
+    }
+  }, []);
 
   const handleNext = () => {
     console.log("Next clicked");

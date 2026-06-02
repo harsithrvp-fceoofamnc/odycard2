@@ -56,6 +56,18 @@ export default function DishDetailsPage() {
   const [fromTime, setFromTime] = useState("09:00");
   const [toTime, setToTime] = useState("22:00");
 
+  // Restore saved fields when coming back from step 4 (or forward from step 2)
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const n = localStorage.getItem("addDishName"); if (n) setName(n);
+    const p = localStorage.getItem("addDishPrice"); if (p) setPrice(p);
+    const v = localStorage.getItem("addDishIsVeg"); if (v === "veg" || v === "nonveg") setVegType(v);
+    const q = localStorage.getItem("addDishQuantity"); if (q) setQuantity(q);
+    const d = localStorage.getItem("addDishDescription"); if (d) setDescription(d);
+    const tf = localStorage.getItem("addDishTimingFrom"); if (tf) setFromTime(tf);
+    const tt = localStorage.getItem("addDishTimingTo"); if (tt) setToTime(tt);
+  }, []);
+
   /* ---------- VALIDATION ---------- */
   const canProceed =
     name.trim() !== "" &&
@@ -276,7 +288,19 @@ export default function DishDetailsPage() {
             <div className="flex items-center gap-3">
               <button
                 type="button"
-                onClick={() => router.back()}
+                onClick={() => {
+                  // Save current fields so they survive navigating back and returning
+                  if (typeof window !== "undefined") {
+                    localStorage.setItem("addDishName", name.trim());
+                    localStorage.setItem("addDishPrice", price.trim());
+                    if (vegType) localStorage.setItem("addDishIsVeg", vegType);
+                    localStorage.setItem("addDishQuantity", quantity.trim());
+                    localStorage.setItem("addDishDescription", description.trim());
+                    localStorage.setItem("addDishTimingFrom", fromTime);
+                    localStorage.setItem("addDishTimingTo", toTime);
+                  }
+                  router.back();
+                }}
                 className="px-8 py-3 rounded-xl border border-gray-300
                            text-base font-medium text-gray-700"
               >
