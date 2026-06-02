@@ -199,7 +199,8 @@ export default function EditMenuDishBlock({ dish, restaurantId, onRefresh }: Edi
             </button>
             <button
               onClick={() => setShowHideConfirm(true)}
-              className="flex-1 py-2 rounded-lg border border-gray-300 text-sm font-medium text-gray-700 active:bg-gray-50"
+              disabled={!!(isHidden && dish.autoHiddenByName)}
+              className="flex-1 py-2 rounded-lg border border-gray-300 text-sm font-medium text-gray-700 active:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed"
             >
               {isHidden ? "Unhide" : "Hide"}
             </button>
