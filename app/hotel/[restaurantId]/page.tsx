@@ -70,6 +70,8 @@ type OdyDish = {
   menuCategoryId?: number | null;
   tags?: string[] | null;
   sort_order?: number | null;
+  category?: string | null;
+  comboDishIds?: string[] | null;
 };
 
 /** Extract YouTube video ID from watch URL, embed URL, or short url. */
@@ -458,6 +460,8 @@ function mapDishFromApi(row: {
     menuCategoryId: row.menu_category_id ? Number(row.menu_category_id) : null,
     tags: Array.isArray(row.tags) ? row.tags : null,
     sort_order: row.sort_order ?? null,
+    category: (row.category as string) ?? null,
+    comboDishIds: Array.isArray(row.combo_dish_ids) ? (row.combo_dish_ids as string[]) : null,
   };
 }
 
@@ -1567,12 +1571,42 @@ export default function HotelHomePage() {
                         <h2 className="text-white text-xl sm:text-2xl font-bold mb-3 px-1">{block.name}</h2>
                       ) : null}
                       <div className="bg-[#DADDE4] rounded-[28px] px-4 py-4 w-full">
-                        {block.dishes.map((dish) => (
+                        {block.dishes.map((dish) => {
+                          // Resolve combo component dish photos from all menu dishes
+                          const allMenuDishesFlat = Object.values(menuDishes).flat();
+                          const comboPhoto1 = dish.comboDishIds?.[0]
+                            ? (allMenuDishesFlat.find((d) => d.id === dish.comboDishIds![0])?.photoUrl ?? "/food_item_logo.png")
+                            : null;
+                          const comboPhoto2 = dish.comboDishIds?.[1]
+                            ? (allMenuDishesFlat.find((d) => d.id === dish.comboDishIds![1])?.photoUrl ?? "/food_item_logo.png")
+                            : null;
+
+                          return (
                           <div
                             key={dish.id}
                             className="w-full rounded-xl sm:rounded-2xl bg-white border border-gray-200 mb-4 last:mb-0 shadow-md"
                           >
                             {/* Media */}
+                            {dish.category === "combo" ? (
+                              /* Combo: two images 50/50 side by side */
+                              <div className="w-full aspect-[4/3] flex rounded-t-xl sm:rounded-t-2xl overflow-hidden">
+                                <div className="flex-1 h-full overflow-hidden">
+                                  <img
+                                    src={comboPhoto1 ?? "/food_item_logo.png"}
+                                    alt={`${dish.name} item 1`}
+                                    className="w-full h-full object-cover"
+                                  />
+                                </div>
+                                <div className="w-[2px] bg-white shrink-0" />
+                                <div className="flex-1 h-full overflow-hidden">
+                                  <img
+                                    src={comboPhoto2 ?? "/food_item_logo.png"}
+                                    alt={`${dish.name} item 2`}
+                                    className="w-full h-full object-cover"
+                                  />
+                                </div>
+                              </div>
+                            ) : (
                             <div className={`w-full bg-black relative overflow-hidden rounded-t-xl sm:rounded-t-2xl ${extractYouTubeVideoId(dish.videoUrl ?? "") ? "aspect-video" : "aspect-[4/3]"}`}>
                               {dish.videoUrl && dish.videoUrl.trim() ? (
                                 <DishMediaCarousel
@@ -1593,6 +1627,7 @@ export default function HotelHomePage() {
                                 />
                               )}
                             </div>
+                            )}
                             {/* Info */}
                             <div className="p-3 sm:p-4 rounded-b-xl sm:rounded-b-2xl bg-white">
                               <div className="flex justify-between items-start gap-2">
@@ -1690,7 +1725,8 @@ export default function HotelHomePage() {
                               ) : null}
                             </div>
                           </div>
-                        ))}
+                          );
+                        })}
                       </div>
                     </div>
                   ))}

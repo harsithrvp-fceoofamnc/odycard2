@@ -173,7 +173,7 @@ function DishCard({
       className={`w-36 h-36 border-2 rounded-3xl flex flex-col items-center justify-center gap-2 transition
         ${selectedType === type ? "border-[#0A84C1] bg-[#EAF4FB]" : "border-gray-200 bg-white"}`}
     >
-      <img src={img} alt={label} className="w-20 h-20 object-contain" />
+      <img src={img} alt={label} className="w-28 h-28 object-contain" />
       <span className="text-base font-semibold text-black">{label}</span>
     </button>
   );
