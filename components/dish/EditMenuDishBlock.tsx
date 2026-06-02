@@ -22,6 +22,8 @@ type EditMenuDishBlockProps = {
     // Resolved photos for combo items (populated by parent from allDishes)
     comboPhoto1?: string | null;
     comboPhoto2?: string | null;
+    // Name of the component dish that caused this combo to be auto-hidden
+    autoHiddenByName?: string | null;
   };
   restaurantId?: string;
   onRefresh?: () => void;
@@ -108,8 +110,15 @@ export default function EditMenuDishBlock({ dish, restaurantId, onRefresh }: Edi
       <div className="rounded-2xl border border-gray-200 overflow-hidden bg-white mb-6">
         {/* Hidden badge for owner */}
         {showHiddenBadge && (
-          <div className="bg-gray-800 text-white text-xs font-semibold text-center py-1 tracking-wide">
-            {outsideTiming && !isHidden ? "HIDDEN FROM CUSTOMERS (OUTSIDE TIMING)" : "HIDDEN FROM CUSTOMERS"}
+          <div
+            className="text-white text-xs font-semibold text-center py-1.5 tracking-wide"
+            style={{ backgroundColor: dish.autoHiddenByName && isHidden ? "#b45309" : "#1f2937" }}
+          >
+            {dish.autoHiddenByName && isHidden
+              ? `⚠ AUTO-HIDDEN — "${dish.autoHiddenByName}" IS HIDDEN`
+              : outsideTiming && !isHidden
+              ? "HIDDEN FROM CUSTOMERS (OUTSIDE TIMING)"
+              : "HIDDEN FROM CUSTOMERS"}
           </div>
         )}
         {/* MEDIA */}

@@ -45,6 +45,7 @@ type DishForBlock = {
   sort_order?: number | null;
   category?: string | null;
   comboDishIds?: string[] | null;
+  autoHiddenBy?: string | null;
 };
 
 function mapDishFromApi(row: {
@@ -64,6 +65,7 @@ function mapDishFromApi(row: {
   sort_order?: number | null;
   category?: string | null;
   combo_dish_ids?: string[] | null;
+  auto_hidden_by?: string | null;
   [k: string]: unknown;
 }): DishForBlock {
   return {
@@ -85,6 +87,7 @@ function mapDishFromApi(row: {
     sort_order: row.sort_order ?? null,
     category: (row.category as string) ?? null,
     comboDishIds: Array.isArray(row.combo_dish_ids) ? (row.combo_dish_ids as string[]) : null,
+    autoHiddenBy: (row.auto_hidden_by as string) ?? null,
   };
 }
 
@@ -606,9 +609,20 @@ export default function EditMenuPage() {
             {/* OWNER DISH BLOCKS */}
             {dishes.length > 0 && (
               <div className="mb-8">
-                {dishes.map((dish) => (
-                  <EditMenuDishBlock key={dish.id} dish={dish} restaurantId={restaurantId} onRefresh={reloadDishes} />
-                ))}
+                {dishes.map((dish) => {
+                  const allDishesFlat = [...dishes, ...Object.values(menuDishes).flat()];
+                  const autoHiddenByName = dish.autoHiddenBy
+                    ? (allDishesFlat.find(d => d.id === dish.autoHiddenBy)?.name ?? null)
+                    : null;
+                  return (
+                    <EditMenuDishBlock
+                      key={dish.id}
+                      dish={{ ...dish, autoHiddenByName }}
+                      restaurantId={restaurantId}
+                      onRefresh={reloadDishes}
+                    />
+                  );
+                })}
               </div>
             )}
 
@@ -738,16 +752,20 @@ export default function EditMenuPage() {
                         catDishes.map((dish) => {
                           // For combo blocks, resolve the two component dish photos
                           const allMenuDishes = Object.values(menuDishes).flat();
+                          const allDishesFlat = [...dishes, ...allMenuDishes];
                           const comboPhoto1 = dish.comboDishIds?.[0]
                             ? allMenuDishes.find((d) => d.id === dish.comboDishIds![0])?.photoUrl ?? null
                             : null;
                           const comboPhoto2 = dish.comboDishIds?.[1]
                             ? allMenuDishes.find((d) => d.id === dish.comboDishIds![1])?.photoUrl ?? null
                             : null;
+                          const autoHiddenByName = dish.autoHiddenBy
+                            ? (allDishesFlat.find(d => d.id === dish.autoHiddenBy)?.name ?? null)
+                            : null;
                           return (
                             <EditMenuDishBlock
                               key={dish.id}
-                              dish={{ ...dish, comboPhoto1, comboPhoto2 }}
+                              dish={{ ...dish, comboPhoto1, comboPhoto2, autoHiddenByName }}
                               restaurantId={restaurantId}
                               onRefresh={reloadDishes}
                             />

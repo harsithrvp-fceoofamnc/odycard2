@@ -1,20 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDb, getNextId, qDocData } from "@/lib/firebase";
 
-function hasTimingWindowRestarted(hiddenAt: string, timingFrom: string, timingTo: string): boolean {
-  if (!hiddenAt || !timingFrom || !timingTo) return false;
-  if (timingFrom === timingTo) return false;
-  const now = new Date();
-  const hidden = new Date(hiddenAt);
-  const [fh, fm] = timingFrom.split(":").map(Number);
-  const [th, tm] = timingTo.split(":").map(Number);
-  const windowEndAfterHide = new Date(hidden);
-  windowEndAfterHide.setHours(th, tm, 0, 0);
-  if (windowEndAfterHide <= hidden) windowEndAfterHide.setDate(windowEndAfterHide.getDate() + 1);
-  const windowStartAfterEnd = new Date(windowEndAfterHide);
-  windowStartAfterEnd.setHours(fh, fm, 0, 0);
-  if (windowStartAfterEnd <= windowEndAfterHide) windowStartAfterEnd.setDate(windowStartAfterEnd.getDate() + 1);
-  return now >= windowStartAfterEnd;
+/** A dish auto-unhides after 24 hours from the moment it was hidden. */
+function is24hPassed(hiddenAt: string): boolean {
+  if (!hiddenAt) return false;
+  return Date.now() - new Date(hiddenAt).getTime() >= 24 * 60 * 60 * 1000;
 }
 
 export async function GET(req: NextRequest) {
@@ -38,8 +28,8 @@ export async function GET(req: NextRequest) {
     let hasRestore = false;
     for (const doc of hiddenSnap.docs) {
       const d = doc.data();
-      if (d.hidden_at && hasTimingWindowRestarted(d.hidden_at, d.timing_from, d.timing_to)) {
-        restoreBatch.update(doc.ref, { is_active: true, hidden_at: null });
+      if (d.hidden_at && is24hPassed(d.hidden_at)) {
+        restoreBatch.update(doc.ref, { is_active: true, hidden_at: null, auto_hidden_by: null });
         hasRestore = true;
       }
     }
