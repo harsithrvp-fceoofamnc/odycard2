@@ -105,7 +105,7 @@ export async function POST(req: NextRequest) {
       hotel_id, name, price,
       category = "food_item", is_veg = true,
       quantity, description, timing_from, timing_to, photo_url, video_url,
-      menu_category_id, tags,
+      menu_category_id, tags, combo_dish_ids,
     } = await req.json();
 
     if (!hotel_id || !name || !price)
@@ -127,6 +127,7 @@ export async function POST(req: NextRequest) {
       video_url: video_url ?? null,
       menu_category_id: menu_category_id ?? null,
       tags: Array.isArray(tags) && tags.length > 0 ? tags : [],
+      combo_dish_ids: Array.isArray(combo_dish_ids) && combo_dish_ids.length === 2 ? combo_dish_ids : null,
       favorite_count: 0,
       eat_later_count: 0,
       hidden_at: null,

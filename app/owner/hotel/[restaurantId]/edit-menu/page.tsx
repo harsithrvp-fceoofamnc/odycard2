@@ -21,6 +21,7 @@ const ADD_DISH_KEYS = [
   "addDishDescription",
   "addDishTimingFrom",
   "addDishTimingTo",
+  "addDishComboIds",
 ];
 
 type Category = {
@@ -42,6 +43,8 @@ type DishForBlock = {
   isVeg: boolean;
   tags?: string[] | null;
   sort_order?: number | null;
+  category?: string | null;
+  comboDishIds?: string[] | null;
 };
 
 function mapDishFromApi(row: {
@@ -59,6 +62,8 @@ function mapDishFromApi(row: {
   menu_category_id?: number | null;
   tags?: string[] | null;
   sort_order?: number | null;
+  category?: string | null;
+  combo_dish_ids?: string[] | null;
   [k: string]: unknown;
 }): DishForBlock {
   return {
@@ -78,6 +83,8 @@ function mapDishFromApi(row: {
     isVeg: row.is_veg !== false,
     tags: Array.isArray(row.tags) ? row.tags : null,
     sort_order: row.sort_order ?? null,
+    category: (row.category as string) ?? null,
+    comboDishIds: Array.isArray(row.combo_dish_ids) ? (row.combo_dish_ids as string[]) : null,
   };
 }
 
@@ -728,14 +735,24 @@ export default function EditMenuPage() {
                           ))}
                         </div>
                       ) : (
-                        catDishes.map((dish) => (
-                          <EditMenuDishBlock
-                            key={dish.id}
-                            dish={dish}
-                            restaurantId={restaurantId}
-                            onRefresh={reloadDishes}
-                          />
-                        ))
+                        catDishes.map((dish) => {
+                          // For combo blocks, resolve the two component dish photos
+                          const allMenuDishes = Object.values(menuDishes).flat();
+                          const comboPhoto1 = dish.comboDishIds?.[0]
+                            ? allMenuDishes.find((d) => d.id === dish.comboDishIds![0])?.photoUrl ?? null
+                            : null;
+                          const comboPhoto2 = dish.comboDishIds?.[1]
+                            ? allMenuDishes.find((d) => d.id === dish.comboDishIds![1])?.photoUrl ?? null
+                            : null;
+                          return (
+                            <EditMenuDishBlock
+                              key={dish.id}
+                              dish={{ ...dish, comboPhoto1, comboPhoto2 }}
+                              restaurantId={restaurantId}
+                              onRefresh={reloadDishes}
+                            />
+                          );
+                        })
                       )}
 
                       {/* ADD DISH BUTTON inside block — hidden during reorder */}

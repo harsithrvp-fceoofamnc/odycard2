@@ -45,6 +45,8 @@ export default function DishDetailsPage() {
 
   // later this should come from selected dish type
   const isDrink = false;
+  const isCombo = typeof window !== "undefined" && localStorage.getItem("addDishType") === "combo";
+  const NAME_MAX = isCombo ? 30 : 60;
 
   const [name, setName] = useState("");
   const [vegType, setVegType] = useState<"veg" | "nonveg" | null>(null);
@@ -100,14 +102,22 @@ export default function DishDetailsPage() {
 
         {/* DISH NAME */}
         <div className="mb-5">
-          <label className="block text-base font-semibold text-gray-700 mb-1">
-            Dish Name *
-          </label>
+          <div className="flex justify-between items-center mb-1">
+            <label className="text-base font-semibold text-gray-700">
+              {isCombo ? "Combo Name *" : "Dish Name *"}
+            </label>
+            {isCombo && (
+              <span className={`text-xs ${name.length >= NAME_MAX ? "text-red-500" : "text-gray-400"}`}>
+                {name.length}/{NAME_MAX}
+              </span>
+            )}
+          </div>
           <input
             type="text"
             value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="Eg: Paneer Butter Masala"
+            maxLength={NAME_MAX}
+            onChange={(e) => setName(e.target.value.slice(0, NAME_MAX))}
+            placeholder={isCombo ? "Eg: Burger + Fries Combo" : "Eg: Paneer Butter Masala"}
             className="w-full border border-gray-300 rounded-xl px-4 py-3 text-base text-black
                        placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#0A84C1]"
           />

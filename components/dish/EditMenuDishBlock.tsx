@@ -17,6 +17,11 @@ type EditMenuDishBlockProps = {
     photoUrl: string;
     videoUrl?: string | null;
     isActive?: boolean;
+    category?: string | null;
+    comboDishIds?: string[] | null;
+    // Resolved photos for combo items (populated by parent from allDishes)
+    comboPhoto1?: string | null;
+    comboPhoto2?: string | null;
   };
   restaurantId?: string;
   onRefresh?: () => void;
@@ -109,7 +114,26 @@ export default function EditMenuDishBlock({ dish, restaurantId, onRefresh }: Edi
         )}
         {/* MEDIA */}
         <div className="w-full h-[180px] bg-gray-100">
-          {hasVideo && youtubeId ? (
+          {dish.category === "combo" ? (
+            /* Combo: two images 50/50 side by side */
+            <div className="w-full h-full flex">
+              <div className="flex-1 h-full overflow-hidden">
+                <img
+                  src={dish.comboPhoto1 || dish.photoUrl || "/food_item_logo.png"}
+                  alt={`${dish.name} item 1`}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <div className="w-px bg-white/60 shrink-0" />
+              <div className="flex-1 h-full overflow-hidden">
+                <img
+                  src={dish.comboPhoto2 || "/food_item_logo.png"}
+                  alt={`${dish.name} item 2`}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            </div>
+          ) : hasVideo && youtubeId ? (
             <div className="w-full h-full flex overflow-x-auto snap-x snap-mandatory scrollbar-hide">
               <div className="flex-[0_0_100%] min-w-0 snap-center snap-always h-full">
                 <img src={dish.photoUrl} alt={dish.name} className="w-full h-full object-cover" />

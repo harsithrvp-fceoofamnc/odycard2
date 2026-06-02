@@ -33,6 +33,7 @@ const ALL_DISH_KEYS = [
   "addDishDescription",
   "addDishTimingFrom",
   "addDishTimingTo",
+  "addDishComboIds",
 ];
 
 export default function DishTagsPage() {
@@ -141,6 +142,11 @@ export default function DishTagsPage() {
       const dishDescription = localStorage.getItem("addDishDescription") || "";
       const dishTimingFrom = localStorage.getItem("addDishTimingFrom") || "09:00";
       const dishTimingTo = localStorage.getItem("addDishTimingTo") || "22:00";
+      // Combo: two dish IDs selected in combo-picker step
+      const comboIdsRaw = localStorage.getItem("addDishComboIds");
+      const comboDishIds: string[] | null = comboIdsRaw
+        ? (() => { try { return JSON.parse(comboIdsRaw); } catch { return null; } })()
+        : null;
 
       // Resolve hotel from slug
       const hotelRes = await fetchWithRetry(
@@ -173,6 +179,7 @@ export default function DishTagsPage() {
           video_url: videoId ? `https://www.youtube.com/watch?v=${videoId}` : null,
           menu_category_id: menuCategoryId ? parseInt(menuCategoryId) : null,
           tags: dishTags.length > 0 ? dishTags : null,
+          combo_dish_ids: comboDishIds ?? null,
         }),
       });
 
