@@ -116,7 +116,7 @@ export default function ComboPickerPage() {
     // Auto-save timing from selected dishes so dish-details doesn't need to ask
     localStorage.setItem("addDishTimingFrom", dish1.timingFrom);
     localStorage.setItem("addDishTimingTo", dish1.timingTo);
-    router.push(`/owner/hotel/${restaurantId}/add-dish/dish-details`);
+    window.location.href = `/owner/hotel/${restaurantId}/add-dish/dish-details`;
   };
 
   if (isLoading) {
