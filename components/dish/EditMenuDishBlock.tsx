@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { API_BASE } from "@/lib/api";
 
@@ -63,6 +63,8 @@ export default function EditMenuDishBlock({ dish, restaurantId, onRefresh }: Edi
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isHidden, setIsHidden] = useState(dish.isActive === false);
+  // Sync local hidden state when parent refreshes dish data (e.g. after cascade hide/unhide)
+  useEffect(() => { setIsHidden(dish.isActive === false); }, [dish.isActive]);
   const [isDeleted, setIsDeleted] = useState(false);
 
   const outsideTiming = isOutsideTiming(dish.timing.from, dish.timing.to);
@@ -82,11 +84,10 @@ export default function EditMenuDishBlock({ dish, restaurantId, onRefresh }: Edi
         body: JSON.stringify({ is_active: isHidden }), // true = unhide, false = hide
       });
       if (res.ok) {
-        // Just toggle local state — keep dish visible to owner (greyed out)
-        // Customer page will detect the change via polling and show buffer screen
         setIsHidden(!isHidden);
         setShowHideConfirm(false);
-        // Do NOT call onRefresh — that would re-fetch and lose hidden dishes from owner view
+        // Refresh so cascaded combo hides/unhides are reflected immediately
+        onRefresh?.();
       }
     } catch {
       // ignore
