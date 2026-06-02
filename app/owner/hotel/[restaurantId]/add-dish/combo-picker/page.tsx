@@ -110,14 +110,12 @@ export default function ComboPickerPage() {
       )
     : [];
 
-  const canProceed = !!dish1 && !!dish2;
-
   const handleNext = () => {
-    if (!canProceed || !restaurantId) return;
-    localStorage.setItem("addDishComboIds", JSON.stringify([dish1!.id, dish2!.id]));
+    if (!dish1 || !dish2 || !restaurantId) return;
+    localStorage.setItem("addDishComboIds", JSON.stringify([dish1.id, dish2.id]));
     // Auto-save timing from selected dishes so dish-details doesn't need to ask
-    localStorage.setItem("addDishTimingFrom", dish1!.timingFrom);
-    localStorage.setItem("addDishTimingTo", dish1!.timingTo);
+    localStorage.setItem("addDishTimingFrom", dish1.timingFrom);
+    localStorage.setItem("addDishTimingTo", dish1.timingTo);
     router.push(`/owner/hotel/${restaurantId}/add-dish/dish-details`);
   };
 
@@ -251,9 +249,9 @@ export default function ComboPickerPage() {
               <button
                 type="button"
                 onClick={handleNext}
-                disabled={!canProceed}
+                disabled={!dish1 || !dish2}
                 className={`px-8 py-3 rounded-xl text-base font-semibold disabled:opacity-70 disabled:cursor-not-allowed ${
-                  canProceed ? "bg-[#0A84C1] text-white" : "bg-gray-200 text-gray-400"
+                  dish1 && dish2 ? "bg-[#0A84C1] text-white" : "bg-gray-200 text-gray-400"
                 }`}
               >
                 Next
@@ -264,7 +262,7 @@ export default function ComboPickerPage() {
                 Page 2 of 4
               </span>
               <ProgressBar
-                progress={canProceed ? 50 : 25}
+                progress={dish1 && dish2 ? 50 : 25}
                 className="flex-1 h-[6px]"
               />
             </div>
