@@ -46,9 +46,11 @@ export default function ComboPickerPage() {
         if (!dishesRes.ok) throw new Error("Failed to load dishes");
         const rows = await dishesRes.json();
 
-        // Only Menu tab dishes (those inside a category)
+        // Only Menu tab dishes (inside a category), exclude existing combo blocks
         const menuDishes: PickerDish[] = rows
-          .filter((r: { menu_category_id?: number | null }) => r.menu_category_id)
+          .filter((r: { menu_category_id?: number | null; category?: string | null }) =>
+            r.menu_category_id && r.category !== "combo"
+          )
           .map((r: {
             id: number | string;
             name: string;
@@ -112,10 +114,10 @@ export default function ComboPickerPage() {
 
   const handleNext = () => {
     if (!canProceed || !restaurantId) return;
-    localStorage.setItem(
-      "addDishComboIds",
-      JSON.stringify([dish1!.id, dish2!.id])
-    );
+    localStorage.setItem("addDishComboIds", JSON.stringify([dish1!.id, dish2!.id]));
+    // Auto-save timing from selected dishes so dish-details doesn't need to ask
+    localStorage.setItem("addDishTimingFrom", dish1!.timingFrom);
+    localStorage.setItem("addDishTimingTo", dish1!.timingTo);
     router.push(`/owner/hotel/${restaurantId}/add-dish/dish-details`);
   };
 
@@ -241,7 +243,7 @@ export default function ComboPickerPage() {
             <div className="flex items-center gap-3">
               <button
                 type="button"
-                onClick={() => router.back()}
+                onClick={() => router.push(`/owner/hotel/${restaurantId}/add-dish`)}
                 className="px-8 py-3 rounded-xl border border-gray-300 text-base text-gray-700 font-medium"
               >
                 Back

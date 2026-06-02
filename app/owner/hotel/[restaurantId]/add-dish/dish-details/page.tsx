@@ -216,8 +216,8 @@ export default function DishDetailsPage() {
           />
         </div>
 
-        {/* DISH TIMING — FROM / TO (30 MIN GAP) */}
-        <div className="mb-12">
+        {/* DISH TIMING — hidden for combos (timing auto-derived from selected dishes) */}
+        <div className={`mb-12 ${isCombo ? "hidden" : ""}`}>
           <label className="block text-base font-semibold text-gray-700 mb-2">
             Dish Timing
           </label>
@@ -306,10 +306,17 @@ export default function DishDetailsPage() {
                     if (vegType) localStorage.setItem("addDishIsVeg", vegType);
                     localStorage.setItem("addDishQuantity", quantity.trim());
                     localStorage.setItem("addDishDescription", description.trim());
-                    localStorage.setItem("addDishTimingFrom", fromTime);
-                    localStorage.setItem("addDishTimingTo", toTime);
+                    if (!isCombo) {
+                      localStorage.setItem("addDishTimingFrom", fromTime);
+                      localStorage.setItem("addDishTimingTo", toTime);
+                    }
                   }
-                  router.back();
+                  // Use explicit navigation for combo flow (router.back() can be unreliable)
+                  if (isCombo && restaurantId) {
+                    router.push(`/owner/hotel/${restaurantId}/add-dish/combo-picker`);
+                  } else {
+                    router.back();
+                  }
                 }}
                 className="px-8 py-3 rounded-xl border border-gray-300
                            text-base font-medium text-gray-700"
