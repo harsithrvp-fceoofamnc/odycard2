@@ -1498,11 +1498,13 @@ export default function HotelHomePage() {
                             <button
                               key={tag}
                               onClick={() => toggleMenuTagFilter(tag)}
-                              className="shrink-0 flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold transition-all"
+                              className="shrink-0 flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold"
                               style={{
                                 background: isActive ? "#ffffff" : "linear-gradient(to right, #0D5F8E 0%, #14AADA 100%)",
                                 color: isActive ? "#0A84C1" : "#ffffff",
                                 border: isActive ? "2px solid #0A84C1" : "2px solid transparent",
+                                WebkitAppearance: "none",
+                                appearance: "none",
                               }}
                             >
                               {isActive && (
