@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Cropper from "react-easy-crop";
 import ProgressBar from "@/components/ProgressBar";
