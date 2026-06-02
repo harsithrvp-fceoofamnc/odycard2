@@ -1502,7 +1502,7 @@ export default function HotelHomePage() {
                               style={{
                                 background: isActive ? "#ffffff" : "linear-gradient(to right, #0D5F8E 0%, #14AADA 100%)",
                                 color: isActive ? "#0A84C1" : "#ffffff",
-                                border: isActive ? "2px solid #0A84C1" : "2px solid transparent",
+                                border: isActive ? "2px solid #0A84C1" : "none",
                                 WebkitAppearance: "none",
                                 appearance: "none",
                               }}
