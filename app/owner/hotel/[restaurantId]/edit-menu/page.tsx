@@ -633,7 +633,7 @@ export default function EditMenuPage() {
                           <span
                             key={tag}
                             className="shrink-0 px-4 py-2 rounded-full text-sm font-semibold text-white"
-                            style={{ backgroundColor: "#0A84C1" }}
+                            style={{ background: "linear-gradient(135deg, #0D5F8E 0%, #14AADA 100%)" }}
                           >
                             {tag}
                           </span>

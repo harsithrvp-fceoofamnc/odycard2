@@ -1500,7 +1500,7 @@ export default function HotelHomePage() {
                               onClick={() => toggleMenuTagFilter(tag)}
                               className="shrink-0 flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold transition-all"
                               style={{
-                                backgroundColor: isActive ? "#ffffff" : "#0A84C1",
+                                background: isActive ? "#ffffff" : "linear-gradient(135deg, #0D5F8E 0%, #14AADA 100%)",
                                 color: isActive ? "#0A84C1" : "#ffffff",
                                 border: isActive ? "2px solid #0A84C1" : "2px solid transparent",
                               }}
@@ -1680,7 +1680,7 @@ export default function HotelHomePage() {
                               {dish.tags && dish.tags.length > 0 ? (
                                 <div className="flex flex-wrap gap-2 mt-2 px-1">
                                   {dish.tags.map(tag => (
-                                    <span key={tag} className="px-3 py-1 rounded-full text-sm font-semibold text-white" style={{ backgroundColor: "#0A84C1" }}>
+                                    <span key={tag} className="px-3 py-1 rounded-full text-sm font-semibold text-white" style={{ background: "linear-gradient(135deg, #0D5F8E 0%, #14AADA 100%)" }}>
                                       {tag}
                                     </span>
                                   ))}

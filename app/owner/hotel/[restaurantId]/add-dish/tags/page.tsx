@@ -200,9 +200,10 @@ export default function DishTagsPage() {
                 key={tag}
                 onClick={() => toggleTag(tag)}
                 disabled={isDisabled || isSubmitting}
+                style={isSelected ? { background: "linear-gradient(135deg, #0D5F8E 0%, #14AADA 100%)" } : {}}
                 className={`px-4 py-2 rounded-full text-sm font-semibold border transition
                   ${isSelected
-                    ? "bg-[#0A84C1] text-white border-[#0A84C1]"
+                    ? "text-white border-[#0A84C1]"
                     : isDisabled
                     ? "bg-gray-100 text-gray-300 border-gray-200 cursor-not-allowed"
                     : "bg-white text-gray-700 border-gray-300 hover:border-[#0A84C1]"
@@ -222,7 +223,7 @@ export default function DishTagsPage() {
 
           {customAdded ? (
             <div className="flex items-center gap-2">
-              <span className="px-4 py-2 rounded-full text-sm font-semibold bg-[#0A84C1] text-white">
+              <span className="px-4 py-2 rounded-full text-sm font-semibold text-white" style={{ background: "linear-gradient(135deg, #0D5F8E 0%, #14AADA 100%)" }}>
                 {customAdded}
               </span>
               <button
@@ -276,7 +277,7 @@ export default function DishTagsPage() {
           <div className="mb-4 flex flex-wrap gap-2">
             <p className="w-full text-sm text-gray-500 mb-1">Selected ({totalSelected}/{MAX_TAGS}):</p>
             {[...selected, ...(customAdded ? [customAdded] : [])].map((t) => (
-              <span key={t} className="px-3 py-1 rounded-full bg-[#0A84C1] text-white text-sm font-semibold">
+              <span key={t} className="px-3 py-1 rounded-full text-white text-sm font-semibold" style={{ background: "linear-gradient(135deg, #0D5F8E 0%, #14AADA 100%)" }}>
                 {t}
               </span>
             ))}
