@@ -259,16 +259,44 @@ const YouTubePlayerWrapper = forwardRef<
 });
 
 /** Photo-only dish block for Favorites/Eat Later tabs (no video, no carousel, no autoplay). */
-function PhotoOnlyDishBlock({ dish }: { dish: OdyDish }) {
+function PhotoOnlyDishBlock({ dish, allDishes = [] }: { dish: OdyDish; allDishes?: OdyDish[] }) {
+  const isCombo = dish.category === "combo";
+  const comboPhoto1 = isCombo && dish.comboDishIds?.[0]
+    ? (allDishes.find(d => d.id === dish.comboDishIds![0])?.photoUrl ?? "/food_item_logo.png")
+    : null;
+  const comboPhoto2 = isCombo && dish.comboDishIds?.[1]
+    ? (allDishes.find(d => d.id === dish.comboDishIds![1])?.photoUrl ?? "/food_item_logo.png")
+    : null;
+
   return (
     <div className="w-full rounded-xl sm:rounded-2xl overflow-hidden bg-white border border-gray-200 mb-4 sm:mb-6">
-      <div className="aspect-[4/3] w-full bg-gray-100">
-        <img
-          src={dish.photoUrl || "/food_item_logo.png"}
-          alt={dish.name}
-          className="w-full h-full object-cover"
-        />
-      </div>
+      {isCombo ? (
+        <div className="w-full aspect-[4/3] flex">
+          <div className="flex-1 overflow-hidden">
+            <img
+              src={comboPhoto1 ?? "/food_item_logo.png"}
+              alt={`${dish.name} item 1`}
+              className="w-full h-full object-cover"
+            />
+          </div>
+          <div className="w-[2px] bg-white shrink-0" />
+          <div className="flex-1 overflow-hidden">
+            <img
+              src={comboPhoto2 ?? "/food_item_logo.png"}
+              alt={`${dish.name} item 2`}
+              className="w-full h-full object-cover"
+            />
+          </div>
+        </div>
+      ) : (
+        <div className="aspect-[4/3] w-full bg-gray-100">
+          <img
+            src={dish.photoUrl || "/food_item_logo.png"}
+            alt={dish.name}
+            className="w-full h-full object-cover"
+          />
+        </div>
+      )}
       <div className="p-3 sm:p-4">
         <div className="flex justify-between items-start mb-1.5 sm:mb-2 gap-2">
           <p className="text-base sm:text-lg font-semibold text-black flex-1 min-w-0 break-words">{dish.name}</p>
@@ -1772,7 +1800,7 @@ export default function HotelHomePage() {
             ) : (
               <div className="mb-6 sm:mb-8">
                 {eatLater.map((dish) => (
-                  <PhotoOnlyDishBlock key={dish.id} dish={dish} />
+                  <PhotoOnlyDishBlock key={dish.id} dish={dish} allDishes={Object.values(menuDishes).flat()} />
                 ))}
               </div>
             )}
@@ -1814,7 +1842,7 @@ export default function HotelHomePage() {
             ) : (
               <div className="mb-6 sm:mb-8">
                 {favorites.map((dish) => (
-                  <PhotoOnlyDishBlock key={dish.id} dish={dish} />
+                  <PhotoOnlyDishBlock key={dish.id} dish={dish} allDishes={Object.values(menuDishes).flat()} />
                 ))}
               </div>
             )}
