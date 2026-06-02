@@ -7,6 +7,22 @@ import { API_BASE } from "@/lib/api";
 
 const tabs = ["Ody Menu", "Menu"];
 
+// All localStorage keys used across the add-dish flow — cleared before starting a fresh flow
+const ADD_DISH_KEYS = [
+  "addDishPhoto",
+  "addDishVideoId",
+  "addDishType",
+  "addDishMenuCategoryId",
+  "addDishTags",
+  "addDishName",
+  "addDishPrice",
+  "addDishIsVeg",
+  "addDishQuantity",
+  "addDishDescription",
+  "addDishTimingFrom",
+  "addDishTimingTo",
+];
+
 type Category = {
   id: number;
   name: string;
@@ -85,10 +101,10 @@ function ArrowSortItem({
     <div
       className="flex items-center gap-3 rounded-2xl px-3 py-3 mb-2.5 last:mb-0"
       style={{
-        backgroundColor: isJustMoved ? "#0d2a3a" : "#2a2a2a",
+        backgroundColor: isJustMoved ? "#EBF5FB" : "#ffffff",
         boxShadow: isJustMoved
-          ? "0 0 0 1.5px #0A84C1, 0 6px 28px rgba(10,132,193,0.35)"
-          : "0 2px 12px rgba(0,0,0,0.35)",
+          ? "0 0 0 1.5px #0A84C1, 0 6px 28px rgba(10,132,193,0.25)"
+          : "0 2px 8px rgba(0,0,0,0.08)",
         transform: isJustMoved ? "scale(1.025)" : "scale(1)",
         transition: "background-color 0.35s ease, box-shadow 0.35s ease, transform 0.25s ease",
       }}
@@ -106,15 +122,15 @@ function ArrowSortItem({
         src={dish.photoUrl || "/food_item_logo.png"}
         alt={dish.name}
         className="w-12 h-12 rounded-xl object-cover shrink-0"
-        style={{ border: "1px solid rgba(255,255,255,0.08)" }}
+        style={{ border: "1px solid #E5E7EB" }}
       />
 
       {/* Name + price */}
       <div className="flex-1 min-w-0">
-        <p className="font-semibold text-[14px] leading-tight truncate" style={{ color: "#ffffff" }}>
+        <p className="font-semibold text-[14px] leading-tight truncate" style={{ color: "#111111" }}>
           {dish.name}
         </p>
-        <p className="text-xs mt-0.5" style={{ color: "rgba(255,255,255,0.45)" }}>
+        <p className="text-xs mt-0.5" style={{ color: "#6B7280" }}>
           ₹{dish.price}
         </p>
       </div>
@@ -122,15 +138,15 @@ function ArrowSortItem({
       {/* ↑↓ connected pill */}
       <div
         className="flex flex-col shrink-0 overflow-hidden"
-        style={{ border: "1.5px solid rgba(255,255,255,0.15)", borderRadius: 12 }}
+        style={{ border: "1.5px solid #E5E7EB", borderRadius: 12 }}
       >
         <button
           onClick={onMoveUp}
           disabled={index === 0}
           className="w-9 h-9 flex items-center justify-center active:opacity-60 disabled:opacity-20 transition-opacity"
-          style={{ borderBottom: "1.5px solid rgba(255,255,255,0.15)", backgroundColor: "transparent" }}
+          style={{ borderBottom: "1.5px solid #E5E7EB", backgroundColor: "transparent" }}
         >
-          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="#ffffff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="#374151" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <polyline points="18 15 12 9 6 15"/>
           </svg>
         </button>
@@ -140,7 +156,7 @@ function ArrowSortItem({
           className="w-9 h-9 flex items-center justify-center active:opacity-60 disabled:opacity-20 transition-opacity"
           style={{ backgroundColor: "transparent" }}
         >
-          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="#ffffff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="#374151" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <polyline points="6 9 12 15 18 9"/>
           </svg>
         </button>
@@ -594,6 +610,7 @@ export default function EditMenuPage() {
               <button
                 onClick={() => {
                   if (!restaurantId) return;
+                  ADD_DISH_KEYS.forEach((k) => localStorage.removeItem(k));
                   router.push(`/owner/hotel/${restaurantId}/add-dish`);
                 }}
                 className="flex items-center gap-3"
@@ -727,6 +744,7 @@ export default function EditMenuPage() {
                           <button
                             onClick={() => {
                               if (!restaurantId) return;
+                              ADD_DISH_KEYS.forEach((k) => localStorage.removeItem(k));
                               localStorage.setItem("addDishMenuCategoryId", String(cat.id));
                               router.push(`/owner/hotel/${restaurantId}/add-dish`);
                             }}
