@@ -692,7 +692,7 @@ export default function EditMenuPage() {
                     {/* CATEGORY BLOCK — auto-sizes to contents */}
                     <div
                       className="rounded-[28px] px-4 py-4 w-full transition-colors duration-300"
-                      style={{ backgroundColor: isReordering ? "#141414" : "#DADDE4" }}
+                      style={{ backgroundColor: "#DADDE4" }}
                     >
 
                       {/* DISH BLOCKS — arrow-sort when reordering, normal otherwise */}
