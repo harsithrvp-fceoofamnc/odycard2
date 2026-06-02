@@ -131,9 +131,9 @@ export default function EditMenuDishBlock({ dish, restaurantId, onRefresh }: Edi
 
         {/* CONTENT */}
         <div className="p-4">
-          <div className="flex justify-between items-start mb-2">
-            <h3 className="text-lg font-semibold text-black">{dish.name}</h3>
-            <span className="text-lg font-semibold text-black">₹{dish.price}</span>
+          <div className="flex justify-between items-start mb-2 gap-2">
+            <h3 className="text-lg font-semibold text-black flex-1 min-w-0 break-words">{dish.name}</h3>
+            <span className="text-lg font-semibold text-black shrink-0">₹{dish.price}</span>
           </div>
           <div className="text-sm text-gray-600 mb-2">
             {dish.quantity && <span>{dish.quantity} • </span>}

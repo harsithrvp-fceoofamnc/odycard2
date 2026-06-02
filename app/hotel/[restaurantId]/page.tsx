@@ -268,9 +268,9 @@ function PhotoOnlyDishBlock({ dish }: { dish: OdyDish }) {
         />
       </div>
       <div className="p-3 sm:p-4">
-        <div className="flex justify-between items-start mb-1.5 sm:mb-2">
-          <p className="text-base sm:text-lg font-semibold text-black">{dish.name}</p>
-          <p className="text-base sm:text-lg font-semibold text-black">₹{dish.price}</p>
+        <div className="flex justify-between items-start mb-1.5 sm:mb-2 gap-2">
+          <p className="text-base sm:text-lg font-semibold text-black flex-1 min-w-0 break-words">{dish.name}</p>
+          <p className="text-base sm:text-lg font-semibold text-black shrink-0">₹{dish.price}</p>
         </div>
         {dish.description ? (
           <p className="text-xs sm:text-sm text-gray-700 mt-1.5 sm:mt-2">{dish.description}</p>
@@ -1361,14 +1361,14 @@ export default function HotelHomePage() {
                         {/* Left: veg+name, price, description, rate */}
                         <div className="flex flex-col flex-1">
                           {/* Veg indicator + name */}
-                          <div className="flex items-center gap-2">
-                            <div className={`w-5 h-5 shrink-0 border-2 rounded-sm flex items-center justify-center ${dish.isVeg ? "border-green-600" : "border-red-600"}`}>
+                          <div className="flex items-start gap-2">
+                            <div className={`w-5 h-5 mt-0.5 shrink-0 border-2 rounded-sm flex items-center justify-center ${dish.isVeg ? "border-green-600" : "border-red-600"}`}>
                               <div className={`w-2.5 h-2.5 rounded-full ${dish.isVeg ? "bg-green-600" : "bg-red-600"}`}/>
                             </div>
-                            <p className="text-base sm:text-lg font-semibold text-black leading-tight">{dish.name}</p>
+                            <p className="text-base sm:text-lg font-semibold text-black leading-tight flex-1 min-w-0 break-words">{dish.name}</p>
                           </div>
                           {/* Price indented under name */}
-                          <p className="text-base sm:text-lg font-semibold text-black mt-0.5 ml-6">₹{dish.price}</p>
+                          <p className="text-base sm:text-lg font-semibold text-black mt-0.5 ml-7">₹{dish.price}</p>
                           {/* Quantity + timing */}
                           {(dish.quantity || dish.timing) ? (
                             <p className="text-xs text-gray-400 mt-1">
@@ -1597,13 +1597,13 @@ export default function HotelHomePage() {
                             <div className="p-3 sm:p-4 rounded-b-xl sm:rounded-b-2xl bg-white">
                               <div className="flex justify-between items-start gap-2">
                                 <div className="flex flex-col flex-1 min-w-0">
-                                  <div className="flex items-center gap-2">
-                                    <div className={`w-5 h-5 shrink-0 border-2 rounded-sm flex items-center justify-center ${dish.isVeg ? "border-green-600" : "border-red-600"}`}>
+                                  <div className="flex items-start gap-2">
+                                    <div className={`w-5 h-5 mt-0.5 shrink-0 border-2 rounded-sm flex items-center justify-center ${dish.isVeg ? "border-green-600" : "border-red-600"}`}>
                                       <div className={`w-2.5 h-2.5 rounded-full ${dish.isVeg ? "bg-green-600" : "bg-red-600"}`} />
                                     </div>
-                                    <p className="text-base sm:text-lg font-semibold text-black leading-tight">{dish.name}</p>
+                                    <p className="text-base sm:text-lg font-semibold text-black leading-tight flex-1 min-w-0 break-words">{dish.name}</p>
                                   </div>
-                                  <p className="text-base sm:text-lg font-semibold text-black mt-0.5 ml-6">₹{dish.price}</p>
+                                  <p className="text-base sm:text-lg font-semibold text-black mt-0.5 ml-7">₹{dish.price}</p>
                                   {(dish.quantity || dish.timing) ? (
                                     <p className="text-xs text-gray-400 mt-1">
                                       {[dish.quantity || null, dish.timing ? `${dish.timing.from} – ${dish.timing.to}` : null].filter(Boolean).join(" • ")}
