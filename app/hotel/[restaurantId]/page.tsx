@@ -902,20 +902,11 @@ export default function HotelHomePage() {
     return () => clearInterval(interval);
   }, [step, showPopup]);
 
-  // Track active tab in a ref so handleScroll closure is never stale
-  const activeTabRef = useRef(activeTab);
-  useEffect(() => { activeTabRef.current = activeTab; }, [activeTab]);
-
   const handleScroll = () => {
     if (!containerRef.current) return;
     const { scrollLeft, clientWidth } = containerRef.current;
     const index = Math.round(scrollLeft / clientWidth);
-    if (index !== activeTabRef.current) {
-      activeTabRef.current = index;
-      setActiveTab(index);
-      // Each tab has its own scroll — reset window to top on tab change
-      window.scrollTo({ top: 0 });
-    }
+    setActiveTab(index);
   };
 
   const goToTab = (index: number) => {
@@ -924,9 +915,7 @@ export default function HotelHomePage() {
       left: containerRef.current.clientWidth * index,
       behavior: "smooth",
     });
-    activeTabRef.current = index;
     setActiveTab(index);
-    window.scrollTo({ top: 0 });
   };
 
   // Helper: update a single dish field in BOTH ody-menu dishes and menu-category dishes
@@ -1244,7 +1233,7 @@ export default function HotelHomePage() {
 
   return (
     <div className="min-h-screen bg-black flex justify-center">
-      <div className="relative w-full max-w-md min-h-screen bg-[#1c1c1c] overflow-visible">
+      <div className="relative w-full max-w-md bg-[#1c1c1c] flex flex-col overflow-hidden" style={{ height: "100dvh" }}>
 
         {/* MENU UPDATE OVERLAY */}
         {isRefreshing && (
@@ -1327,11 +1316,11 @@ export default function HotelHomePage() {
         <div
           ref={containerRef}
           onScroll={handleScroll}
-          className="flex w-full overflow-x-auto snap-x snap-mandatory no-scrollbar"
+          className="flex w-full overflow-x-auto snap-x snap-mandatory no-scrollbar flex-1 min-h-0"
         >
 
           {/* ODY MENU */}
-          <div ref={menuScrollRef} className="min-w-full snap-center snap-always px-4 pt-6 sm:px-6 sm:pt-8 overflow-y-auto min-h-screen pb-64 sm:pb-72" style={{ scrollBehavior: 'smooth' }}>
+          <div ref={menuScrollRef} className="min-w-full snap-center snap-always px-4 pt-6 sm:px-6 sm:pt-8 overflow-y-auto h-full min-h-0 pb-20" style={{ scrollBehavior: 'smooth' }}>
             {isLoading ? (
               <div className="flex flex-col items-center justify-start pt-24 gap-4">
                 <div style={{ display: "flex", gap: 8 }}>
@@ -1501,7 +1490,7 @@ export default function HotelHomePage() {
           </div>
 
           {/* MENU */}
-          <div className="min-w-full snap-center snap-always overflow-y-auto min-h-screen pb-64 sm:pb-72">
+          <div className="min-w-full snap-center snap-always overflow-y-auto h-full min-h-0 pb-20">
 
             {/* SEARCH + TAGS HEADER */}
             <div className="px-4 sm:px-6 pt-4 sm:pt-5">
@@ -1776,7 +1765,7 @@ export default function HotelHomePage() {
           </div>
 
           {/* EAT LATER */}
-          <div className="min-w-full snap-center snap-always px-4 pt-6 sm:px-6 sm:pt-8 overflow-y-auto min-h-screen pb-10 sm:pb-12">
+          <div className="min-w-full snap-center snap-always px-4 pt-6 sm:px-6 sm:pt-8 overflow-y-auto h-full min-h-0 pb-20">
             {!user ? (
               <div className="flex flex-col items-center justify-start gap-4 sm:gap-5 px-4 pt-16 sm:pt-20">
                 <img src="/User.png" className="w-16 h-16 sm:w-20 sm:h-20 opacity-90 invert" alt="" />
@@ -1818,7 +1807,7 @@ export default function HotelHomePage() {
           </div>
 
           {/* FAVORITES */}
-          <div className="min-w-full snap-center snap-always px-4 pt-6 sm:px-6 sm:pt-8 overflow-y-auto min-h-screen pb-10 sm:pb-12">
+          <div className="min-w-full snap-center snap-always px-4 pt-6 sm:px-6 sm:pt-8 overflow-y-auto h-full min-h-0 pb-20">
             {!user ? (
               <div className="flex flex-col items-center justify-start gap-4 sm:gap-5 px-4 pt-16 sm:pt-20">
                 <img src="/User.png" className="w-16 h-16 sm:w-20 sm:h-20 opacity-90 invert" alt="" />
