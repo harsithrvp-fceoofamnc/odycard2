@@ -530,6 +530,8 @@ export default function HotelHomePage() {
   const [menuDishes, setMenuDishes] = useState<Record<number, OdyDish[]>>({});
   const containerRef = useRef<HTMLDivElement>(null);
   const menuScrollRef = useRef<HTMLDivElement>(null);
+  // One ref per tab panel — used to reset scroll to top when switching tabs
+  const tabScrollRefs = useRef<(HTMLDivElement | null)[]>([null, null, null, null]);
 
   /** Refs for Instagram-style video: one observer watches all card containers. */
   const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
@@ -917,6 +919,12 @@ export default function HotelHomePage() {
     });
     setActiveTab(index);
   };
+
+  // Reset the newly active tab's scroll to top every time the tab changes
+  useEffect(() => {
+    const ref = tabScrollRefs.current[activeTab];
+    if (ref) ref.scrollTop = 0;
+  }, [activeTab]);
 
   // Helper: update a single dish field in BOTH ody-menu dishes and menu-category dishes
   const patchDish = useCallback((dishId: string, patch: Partial<OdyDish>) => {
@@ -1320,7 +1328,7 @@ export default function HotelHomePage() {
         >
 
           {/* ODY MENU */}
-          <div ref={menuScrollRef} className="min-w-full snap-center snap-always px-4 pt-6 sm:px-6 sm:pt-8 overflow-y-auto h-full min-h-0 pb-20 no-scrollbar" style={{ scrollBehavior: 'smooth' }}>
+          <div ref={(el) => { menuScrollRef.current = el; tabScrollRefs.current[0] = el; }} className="min-w-full snap-center snap-always px-4 pt-6 sm:px-6 sm:pt-8 overflow-y-auto h-full min-h-0 pb-20 no-scrollbar" style={{ scrollBehavior: 'smooth' }}>
             {isLoading ? (
               <div className="flex flex-col items-center justify-start pt-24 gap-4">
                 <div style={{ display: "flex", gap: 8 }}>
@@ -1490,7 +1498,7 @@ export default function HotelHomePage() {
           </div>
 
           {/* MENU */}
-          <div className="min-w-full snap-center snap-always overflow-y-auto h-full min-h-0 pb-20 no-scrollbar">
+          <div ref={(el) => { tabScrollRefs.current[1] = el; }} className="min-w-full snap-center snap-always overflow-y-auto h-full min-h-0 pb-20 no-scrollbar">
 
             {/* SEARCH + TAGS HEADER */}
             <div className="px-4 sm:px-6 pt-4 sm:pt-5">
@@ -1765,7 +1773,7 @@ export default function HotelHomePage() {
           </div>
 
           {/* EAT LATER */}
-          <div className="min-w-full snap-center snap-always px-4 pt-6 sm:px-6 sm:pt-8 overflow-y-auto h-full min-h-0 pb-20 no-scrollbar">
+          <div ref={(el) => { tabScrollRefs.current[2] = el; }} className="min-w-full snap-center snap-always px-4 pt-6 sm:px-6 sm:pt-8 overflow-y-auto h-full min-h-0 pb-20 no-scrollbar">
             {!user ? (
               <div className="flex flex-col items-center justify-start gap-4 sm:gap-5 px-4 pt-16 sm:pt-20">
                 <img src="/User.png" className="w-16 h-16 sm:w-20 sm:h-20 opacity-90 invert" alt="" />
@@ -1807,7 +1815,7 @@ export default function HotelHomePage() {
           </div>
 
           {/* FAVORITES */}
-          <div className="min-w-full snap-center snap-always px-4 pt-6 sm:px-6 sm:pt-8 overflow-y-auto h-full min-h-0 pb-20 no-scrollbar">
+          <div ref={(el) => { tabScrollRefs.current[3] = el; }} className="min-w-full snap-center snap-always px-4 pt-6 sm:px-6 sm:pt-8 overflow-y-auto h-full min-h-0 pb-20 no-scrollbar">
             {!user ? (
               <div className="flex flex-col items-center justify-start gap-4 sm:gap-5 px-4 pt-16 sm:pt-20">
                 <img src="/User.png" className="w-16 h-16 sm:w-20 sm:h-20 opacity-90 invert" alt="" />
