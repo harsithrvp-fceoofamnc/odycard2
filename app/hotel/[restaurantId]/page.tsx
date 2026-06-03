@@ -902,11 +902,20 @@ export default function HotelHomePage() {
     return () => clearInterval(interval);
   }, [step, showPopup]);
 
+  // Track active tab in a ref so handleScroll closure is never stale
+  const activeTabRef = useRef(activeTab);
+  useEffect(() => { activeTabRef.current = activeTab; }, [activeTab]);
+
   const handleScroll = () => {
     if (!containerRef.current) return;
     const { scrollLeft, clientWidth } = containerRef.current;
     const index = Math.round(scrollLeft / clientWidth);
-    setActiveTab(index);
+    if (index !== activeTabRef.current) {
+      activeTabRef.current = index;
+      setActiveTab(index);
+      // Each tab has its own scroll — reset window to top on tab change
+      window.scrollTo({ top: 0 });
+    }
   };
 
   const goToTab = (index: number) => {
@@ -915,7 +924,9 @@ export default function HotelHomePage() {
       left: containerRef.current.clientWidth * index,
       behavior: "smooth",
     });
+    activeTabRef.current = index;
     setActiveTab(index);
+    window.scrollTo({ top: 0 });
   };
 
   // Helper: update a single dish field in BOTH ody-menu dishes and menu-category dishes
