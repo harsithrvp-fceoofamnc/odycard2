@@ -1320,7 +1320,7 @@ export default function HotelHomePage() {
         >
 
           {/* ODY MENU */}
-          <div ref={menuScrollRef} className="min-w-full snap-center snap-always px-4 pt-6 sm:px-6 sm:pt-8 overflow-y-auto h-full min-h-0 pb-20 no-scrollbar" style={{ scrollBehavior: 'smooth' }}>
+          <div ref={menuScrollRef} className="min-w-full snap-center snap-always px-4 pt-6 sm:px-6 sm:pt-8 overflow-y-auto h-full min-h-0 pb-20" style={{ scrollBehavior: 'smooth' }}>
             {isLoading ? (
               <div className="flex flex-col items-center justify-start pt-24 gap-4">
                 <div style={{ display: "flex", gap: 8 }}>
@@ -1490,7 +1490,7 @@ export default function HotelHomePage() {
           </div>
 
           {/* MENU */}
-          <div className="min-w-full snap-center snap-always overflow-y-auto h-full min-h-0 pb-20 no-scrollbar">
+          <div className="min-w-full snap-center snap-always overflow-y-auto h-full min-h-0 pb-20">
 
             {/* SEARCH + TAGS HEADER */}
             <div className="px-4 sm:px-6 pt-4 sm:pt-5">
@@ -1765,7 +1765,7 @@ export default function HotelHomePage() {
           </div>
 
           {/* EAT LATER */}
-          <div className="min-w-full snap-center snap-always px-4 pt-6 sm:px-6 sm:pt-8 overflow-y-auto h-full min-h-0 pb-20 no-scrollbar">
+          <div className="min-w-full snap-center snap-always px-4 pt-6 sm:px-6 sm:pt-8 overflow-y-auto h-full min-h-0 pb-20">
             {!user ? (
               <div className="flex flex-col items-center justify-start gap-4 sm:gap-5 px-4 pt-16 sm:pt-20">
                 <img src="/User.png" className="w-16 h-16 sm:w-20 sm:h-20 opacity-90 invert" alt="" />
@@ -1807,7 +1807,7 @@ export default function HotelHomePage() {
           </div>
 
           {/* FAVORITES */}
-          <div className="min-w-full snap-center snap-always px-4 pt-6 sm:px-6 sm:pt-8 overflow-y-auto h-full min-h-0 pb-20 no-scrollbar">
+          <div className="min-w-full snap-center snap-always px-4 pt-6 sm:px-6 sm:pt-8 overflow-y-auto h-full min-h-0 pb-20">
             {!user ? (
               <div className="flex flex-col items-center justify-start gap-4 sm:gap-5 px-4 pt-16 sm:pt-20">
                 <img src="/User.png" className="w-16 h-16 sm:w-20 sm:h-20 opacity-90 invert" alt="" />
