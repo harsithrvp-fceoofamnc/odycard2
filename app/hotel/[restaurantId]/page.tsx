@@ -532,6 +532,7 @@ export default function HotelHomePage() {
   const menuScrollRef = useRef<HTMLDivElement>(null);
   // One ref per tab panel — used to reset scroll to top when switching tabs
   const tabScrollRefs = useRef<(HTMLDivElement | null)[]>([null, null, null, null]);
+  const coverSectionRef = useRef<HTMLDivElement>(null);
 
   /** Refs for Instagram-style video: one observer watches all card containers. */
   const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
@@ -1241,7 +1242,7 @@ export default function HotelHomePage() {
 
   return (
     <div className="min-h-screen bg-black flex justify-center">
-      <div className="relative w-full max-w-md bg-[#1c1c1c] flex flex-col overflow-hidden" style={{ height: "100dvh" }}>
+      <div className="relative w-full max-w-md bg-[#1c1c1c]">
 
         {/* MENU UPDATE OVERLAY */}
         {isRefreshing && (
@@ -1279,8 +1280,8 @@ export default function HotelHomePage() {
           </div>
         </div>
 
-        {/* 🔥 COVER SECTION */}
-        <div className="relative w-full h-[50vh] overflow-hidden">
+        {/* 🔥 COVER SECTION — scrolls naturally with the page */}
+        <div ref={coverSectionRef} className="relative w-full h-[50vh] overflow-hidden">
           {cover ? (
             <>
               <img src={cover} className="w-full h-full object-cover" alt="" />
@@ -1297,35 +1298,37 @@ export default function HotelHomePage() {
               </div>
             )}
           </div>
-
-          <div className="absolute bottom-0 left-0 right-0 z-30 w-full">
-            <div className="flex w-full px-2 h-12 sm:h-14 items-center bg-black/60 backdrop-blur-md border-t border-white/10">
-              {tabs.filter(t => odyMenuHidden ? t !== "Ody Menu" : true).map((tab) => {
-                const index = tabs.indexOf(tab);
-                return (
-                  <button
-                    key={tab}
-                    onClick={() => goToTab(index)}
-                    className={`flex-1 py-2 rounded-full whitespace-nowrap ${odyMenuHidden ? "text-base" : "text-sm"} font-semibold transition ${
-                      activeTab === index
-                        ? "bg-white text-black shadow-md"
-                        : "text-white/80 hover:text-white"
-                    }`}
-                  >
-                    {tab}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
         </div>
 
-        {/* 🔥 HORIZONTAL SWIPE AREA */}
-        <div
-          ref={containerRef}
-          onScroll={handleScroll}
-          className="flex w-full overflow-x-auto snap-x snap-mandatory no-scrollbar flex-1 min-h-0"
-        >
+        {/* 🔥 STICKY TAB AREA — sticks below nav bar once cover scrolls away; tabs scroll independently */}
+        <div className="sticky top-12 sm:top-14 z-[100] flex flex-col w-full h-dvh">
+
+          {/* Tab bar */}
+          <div className="shrink-0 flex w-full px-2 h-12 sm:h-14 items-center bg-black/60 backdrop-blur-md border-t border-white/10">
+            {tabs.filter(t => odyMenuHidden ? t !== "Ody Menu" : true).map((tab) => {
+              const index = tabs.indexOf(tab);
+              return (
+                <button
+                  key={tab}
+                  onClick={() => goToTab(index)}
+                  className={`flex-1 py-2 rounded-full whitespace-nowrap ${odyMenuHidden ? "text-base" : "text-sm"} font-semibold transition ${
+                    activeTab === index
+                      ? "bg-white text-black shadow-md"
+                      : "text-white/80 hover:text-white"
+                  }`}
+                >
+                  {tab}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* 🔥 HORIZONTAL SWIPE AREA */}
+          <div
+            ref={containerRef}
+            onScroll={handleScroll}
+            className="flex-1 min-h-0 flex w-full overflow-x-auto snap-x snap-mandatory no-scrollbar"
+          >
 
           {/* ODY MENU */}
           <div ref={(el) => { menuScrollRef.current = el; tabScrollRefs.current[0] = el; }} className="min-w-full snap-center snap-always px-4 pt-6 sm:px-6 sm:pt-8 overflow-y-auto h-full min-h-0 pb-20 no-scrollbar" style={{ scrollBehavior: 'smooth' }}>
@@ -1856,6 +1859,8 @@ export default function HotelHomePage() {
             )}
           </div>
 
+        </div>
+        {/* end sticky tab area */}
         </div>
 
         {/* 🔥 ASK ODY - positioned within mobile frame */}
