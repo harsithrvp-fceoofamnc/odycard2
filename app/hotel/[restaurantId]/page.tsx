@@ -923,13 +923,10 @@ export default function HotelHomePage() {
   };
 
   // On tab switch, scroll window to top of tab content (below cover), skip initial render
+  // Reset each tab's scroll to top instantly when switching — cover is always visible on arrival
   useEffect(() => {
-    if (isFirstRender.current) {
-      isFirstRender.current = false;
-      return;
-    }
-    const coverHeight = coverSectionRef.current?.offsetHeight ?? 0;
-    window.scrollTo({ top: coverHeight, behavior: 'instant' });
+    const ref = tabScrollRefs.current[activeTab];
+    if (ref) ref.scrollTop = 0;
   }, [activeTab]);
 
   // Helper: update a single dish field in BOTH ody-menu dishes and menu-category dishes
@@ -1247,7 +1244,7 @@ export default function HotelHomePage() {
 
   return (
     <div className="min-h-screen bg-black flex justify-center">
-      <div className="relative w-full max-w-md bg-[#1c1c1c]">
+      <div className="relative w-full max-w-md bg-[#1c1c1c] flex flex-col overflow-hidden" style={{ height: "100dvh" }}>
 
         {/* MENU UPDATE OVERLAY */}
         {isRefreshing && (
@@ -1285,55 +1282,34 @@ export default function HotelHomePage() {
           </div>
         </div>
 
-        {/* 🔥 COVER SECTION — scrolls naturally with the page */}
-        <div ref={coverSectionRef} className="relative w-full h-[50vh] overflow-hidden">
-          {cover ? (
-            <>
-              <img src={cover} className="w-full h-full object-cover" alt="" />
-              <div className="absolute inset-0 bg-black/30" />
-            </>
-          ) : (
-            <div className="w-full h-full bg-[#1c1c1c]" />
-          )}
-
-          <div className="absolute inset-0 flex items-center justify-center -translate-y-6">
-            {logo && (
-              <div className="w-44 h-44 rounded-full overflow-hidden shadow-[0_35px_70px_rgba(0,0,0,0.85)]">
-                <img src={logo} className="w-full h-full object-cover" alt="" />
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* 🔥 TAB BAR — sticky below nav bar */}
-        <div className="sticky top-12 sm:top-14 z-[100] flex w-full px-2 h-12 sm:h-14 items-center bg-black/60 backdrop-blur-md border-t border-white/10">
-          {tabs.filter(t => odyMenuHidden ? t !== "Ody Menu" : true).map((tab) => {
-            const index = tabs.indexOf(tab);
-            return (
-              <button
-                key={tab}
-                onClick={() => goToTab(index)}
-                className={`flex-1 py-2 rounded-full whitespace-nowrap ${odyMenuHidden ? "text-base" : "text-sm"} font-semibold transition ${
-                  activeTab === index
-                    ? "bg-white text-black shadow-md"
-                    : "text-white/80 hover:text-white"
-                }`}
-              >
-                {tab}
-              </button>
-            );
-          })}
-        </div>
-
-        {/* 🔥 HORIZONTAL SWIPE AREA */}
+        {/* 🔥 HORIZONTAL SWIPE AREA — each tab has the cover at the top of its own scroll container */}
         <div
           ref={containerRef}
           onScroll={handleScroll}
-          className="flex w-full overflow-x-auto snap-x snap-mandatory no-scrollbar"
+          className="flex-1 min-h-0 flex w-full overflow-x-auto snap-x snap-mandatory no-scrollbar"
         >
 
           {/* ODY MENU */}
-          <div ref={(el) => { menuScrollRef.current = el; tabScrollRefs.current[0] = el; }} className="min-w-full snap-center snap-always px-4 pt-6 sm:px-6 sm:pt-8 min-h-screen pb-32 no-scrollbar">
+          <div ref={(el) => { menuScrollRef.current = el; tabScrollRefs.current[0] = el; }} className="min-w-full snap-center snap-always h-full overflow-y-auto no-scrollbar">
+            {/* Cover — scrolls away as user reads; reappears when tab is revisited */}
+            <div className="relative w-full h-[50vh] overflow-hidden shrink-0">
+              {cover ? (
+                <>
+                  <img src={cover} className="w-full h-full object-cover" alt="" />
+                  <div className="absolute inset-0 bg-black/30" />
+                </>
+              ) : (
+                <div className="w-full h-full bg-[#1c1c1c]" />
+              )}
+              <div className="absolute inset-0 flex items-center justify-center -translate-y-6">
+                {logo && (
+                  <div className="w-44 h-44 rounded-full overflow-hidden shadow-[0_35px_70px_rgba(0,0,0,0.85)]">
+                    <img src={logo} className="w-full h-full object-cover" alt="" />
+                  </div>
+                )}
+              </div>
+            </div>
+            <div className="px-4 pt-6 sm:px-6 sm:pt-8 pb-32">
             {isLoading ? (
               <div className="flex flex-col items-center justify-start pt-24 gap-4">
                 <div style={{ display: "flex", gap: 8 }}>
@@ -1349,7 +1325,7 @@ export default function HotelHomePage() {
                 <p className="text-white/70 text-lg sm:text-xl font-medium">Coming soon</p>
               </div>
             ) : dishesLoadError ? (
-              <div className="min-h-screen flex flex-col items-center justify-center">
+              <div className="py-20 flex flex-col items-center justify-center">
                 <p className="text-white/70 text-lg sm:text-xl font-medium">{dishesLoadError}</p>
               </div>
             ) : dishes.filter(d => isWithinTiming(d.timing)).length === 0 ? (
@@ -1500,10 +1476,29 @@ export default function HotelHomePage() {
                 ))}
               </div>
             )}
+            </div>{/* end ODY MENU content wrapper */}
           </div>
 
           {/* MENU */}
-          <div ref={(el) => { tabScrollRefs.current[1] = el; }} className="min-w-full snap-center snap-always min-h-screen pb-32 no-scrollbar">
+          <div ref={(el) => { tabScrollRefs.current[1] = el; }} className="min-w-full snap-center snap-always h-full overflow-y-auto no-scrollbar">
+            {/* Cover */}
+            <div className="relative w-full h-[50vh] overflow-hidden shrink-0">
+              {cover ? (
+                <>
+                  <img src={cover} className="w-full h-full object-cover" alt="" />
+                  <div className="absolute inset-0 bg-black/30" />
+                </>
+              ) : (
+                <div className="w-full h-full bg-[#1c1c1c]" />
+              )}
+              <div className="absolute inset-0 flex items-center justify-center -translate-y-6">
+                {logo && (
+                  <div className="w-44 h-44 rounded-full overflow-hidden shadow-[0_35px_70px_rgba(0,0,0,0.85)]">
+                    <img src={logo} className="w-full h-full object-cover" alt="" />
+                  </div>
+                )}
+              </div>
+            </div>
 
             {/* SEARCH + TAGS HEADER */}
             <div className="px-4 sm:px-6 pt-4 sm:pt-5">
@@ -1778,7 +1773,26 @@ export default function HotelHomePage() {
           </div>
 
           {/* EAT LATER */}
-          <div ref={(el) => { tabScrollRefs.current[2] = el; }} className="min-w-full snap-center snap-always px-4 pt-6 sm:px-6 sm:pt-8 min-h-screen pb-32 no-scrollbar">
+          <div ref={(el) => { tabScrollRefs.current[2] = el; }} className="min-w-full snap-center snap-always h-full overflow-y-auto no-scrollbar">
+            {/* Cover */}
+            <div className="relative w-full h-[50vh] overflow-hidden shrink-0">
+              {cover ? (
+                <>
+                  <img src={cover} className="w-full h-full object-cover" alt="" />
+                  <div className="absolute inset-0 bg-black/30" />
+                </>
+              ) : (
+                <div className="w-full h-full bg-[#1c1c1c]" />
+              )}
+              <div className="absolute inset-0 flex items-center justify-center -translate-y-6">
+                {logo && (
+                  <div className="w-44 h-44 rounded-full overflow-hidden shadow-[0_35px_70px_rgba(0,0,0,0.85)]">
+                    <img src={logo} className="w-full h-full object-cover" alt="" />
+                  </div>
+                )}
+              </div>
+            </div>
+            <div className="px-4 pt-6 sm:px-6 sm:pt-8 pb-32">
             {!user ? (
               <div className="flex flex-col items-center justify-start gap-4 sm:gap-5 px-4 pt-16 sm:pt-20">
                 <img src="/User.png" className="w-16 h-16 sm:w-20 sm:h-20 opacity-90 invert" alt="" />
@@ -1817,10 +1831,30 @@ export default function HotelHomePage() {
                 ))}
               </div>
             )}
+            </div>{/* end EAT LATER content wrapper */}
           </div>
 
           {/* FAVORITES */}
-          <div ref={(el) => { tabScrollRefs.current[3] = el; }} className="min-w-full snap-center snap-always px-4 pt-6 sm:px-6 sm:pt-8 min-h-screen pb-32 no-scrollbar">
+          <div ref={(el) => { tabScrollRefs.current[3] = el; }} className="min-w-full snap-center snap-always h-full overflow-y-auto no-scrollbar">
+            {/* Cover */}
+            <div className="relative w-full h-[50vh] overflow-hidden shrink-0">
+              {cover ? (
+                <>
+                  <img src={cover} className="w-full h-full object-cover" alt="" />
+                  <div className="absolute inset-0 bg-black/30" />
+                </>
+              ) : (
+                <div className="w-full h-full bg-[#1c1c1c]" />
+              )}
+              <div className="absolute inset-0 flex items-center justify-center -translate-y-6">
+                {logo && (
+                  <div className="w-44 h-44 rounded-full overflow-hidden shadow-[0_35px_70px_rgba(0,0,0,0.85)]">
+                    <img src={logo} className="w-full h-full object-cover" alt="" />
+                  </div>
+                )}
+              </div>
+            </div>
+            <div className="px-4 pt-6 sm:px-6 sm:pt-8 pb-32">
             {!user ? (
               <div className="flex flex-col items-center justify-start gap-4 sm:gap-5 px-4 pt-16 sm:pt-20">
                 <img src="/User.png" className="w-16 h-16 sm:w-20 sm:h-20 opacity-90 invert" alt="" />
@@ -1859,12 +1893,33 @@ export default function HotelHomePage() {
                 ))}
               </div>
             )}
+            </div>{/* end FAVORITES content wrapper */}
           </div>
 
+        </div>{/* end swipe container */}
+
+        {/* 🔥 TAB BAR — fixed at bottom of the h-dvh frame */}
+        <div className="shrink-0 flex w-full px-2 h-12 sm:h-14 items-center bg-black/60 backdrop-blur-md border-t border-white/10">
+          {tabs.filter(t => odyMenuHidden ? t !== "Ody Menu" : true).map((tab) => {
+            const index = tabs.indexOf(tab);
+            return (
+              <button
+                key={tab}
+                onClick={() => goToTab(index)}
+                className={`flex-1 py-2 rounded-full whitespace-nowrap ${odyMenuHidden ? "text-base" : "text-sm"} font-semibold transition ${
+                  activeTab === index
+                    ? "bg-white text-black shadow-md"
+                    : "text-white/80 hover:text-white"
+                }`}
+              >
+                {tab}
+              </button>
+            );
+          })}
         </div>
 
         {/* 🔥 ASK ODY - positioned within mobile frame */}
-        <div className="fixed bottom-4 sm:bottom-6 left-1/2 -translate-x-1/2 w-full max-w-md px-3 sm:px-4 z-50 flex justify-end pointer-events-none">
+        <div className="fixed bottom-16 left-1/2 -translate-x-1/2 w-full max-w-md px-3 sm:px-4 z-50 flex justify-end pointer-events-none">
           <div className="pointer-events-auto">
             <button className="flex items-center gap-2 sm:gap-3 bg-black/70 backdrop-blur-md text-white px-4 py-3 sm:px-5 sm:py-3.5 rounded-full shadow-lg border border-white/10">
               <img src="/ody-face.png" className="w-8 h-8 sm:w-10 sm:h-10 rounded-full" alt="Ody" />
