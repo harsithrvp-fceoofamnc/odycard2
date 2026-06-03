@@ -533,6 +533,7 @@ export default function HotelHomePage() {
   // One ref per tab panel — used to reset scroll to top when switching tabs
   const tabScrollRefs = useRef<(HTMLDivElement | null)[]>([null, null, null, null]);
   const coverSectionRef = useRef<HTMLDivElement>(null);
+  const isFirstRender = useRef(true);
 
   /** Refs for Instagram-style video: one observer watches all card containers. */
   const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
@@ -921,10 +922,14 @@ export default function HotelHomePage() {
     setActiveTab(index);
   };
 
-  // Reset the newly active tab's scroll to top every time the tab changes
+  // On tab switch, scroll window to top of tab content (below cover), skip initial render
   useEffect(() => {
-    const ref = tabScrollRefs.current[activeTab];
-    if (ref) ref.scrollTop = 0;
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+    const coverHeight = coverSectionRef.current?.offsetHeight ?? 0;
+    window.scrollTo({ top: coverHeight, behavior: 'instant' });
   }, [activeTab]);
 
   // Helper: update a single dish field in BOTH ody-menu dishes and menu-category dishes
@@ -1300,38 +1305,35 @@ export default function HotelHomePage() {
           </div>
         </div>
 
-        {/* 🔥 STICKY TAB AREA — sticks below nav bar once cover scrolls away; tabs scroll independently */}
-        <div className="sticky top-12 sm:top-14 z-[100] flex flex-col w-full h-dvh">
+        {/* 🔥 TAB BAR — sticky below nav bar */}
+        <div className="sticky top-12 sm:top-14 z-[100] flex w-full px-2 h-12 sm:h-14 items-center bg-black/60 backdrop-blur-md border-t border-white/10">
+          {tabs.filter(t => odyMenuHidden ? t !== "Ody Menu" : true).map((tab) => {
+            const index = tabs.indexOf(tab);
+            return (
+              <button
+                key={tab}
+                onClick={() => goToTab(index)}
+                className={`flex-1 py-2 rounded-full whitespace-nowrap ${odyMenuHidden ? "text-base" : "text-sm"} font-semibold transition ${
+                  activeTab === index
+                    ? "bg-white text-black shadow-md"
+                    : "text-white/80 hover:text-white"
+                }`}
+              >
+                {tab}
+              </button>
+            );
+          })}
+        </div>
 
-          {/* Tab bar */}
-          <div className="shrink-0 flex w-full px-2 h-12 sm:h-14 items-center bg-black/60 backdrop-blur-md border-t border-white/10">
-            {tabs.filter(t => odyMenuHidden ? t !== "Ody Menu" : true).map((tab) => {
-              const index = tabs.indexOf(tab);
-              return (
-                <button
-                  key={tab}
-                  onClick={() => goToTab(index)}
-                  className={`flex-1 py-2 rounded-full whitespace-nowrap ${odyMenuHidden ? "text-base" : "text-sm"} font-semibold transition ${
-                    activeTab === index
-                      ? "bg-white text-black shadow-md"
-                      : "text-white/80 hover:text-white"
-                  }`}
-                >
-                  {tab}
-                </button>
-              );
-            })}
-          </div>
-
-          {/* 🔥 HORIZONTAL SWIPE AREA */}
-          <div
-            ref={containerRef}
-            onScroll={handleScroll}
-            className="flex-1 min-h-0 flex w-full overflow-x-auto snap-x snap-mandatory no-scrollbar"
-          >
+        {/* 🔥 HORIZONTAL SWIPE AREA */}
+        <div
+          ref={containerRef}
+          onScroll={handleScroll}
+          className="flex w-full overflow-x-auto snap-x snap-mandatory no-scrollbar"
+        >
 
           {/* ODY MENU */}
-          <div ref={(el) => { menuScrollRef.current = el; tabScrollRefs.current[0] = el; }} className="min-w-full snap-center snap-always px-4 pt-6 sm:px-6 sm:pt-8 overflow-y-auto h-full min-h-0 pb-20 no-scrollbar" style={{ scrollBehavior: 'smooth' }}>
+          <div ref={(el) => { menuScrollRef.current = el; tabScrollRefs.current[0] = el; }} className="min-w-full snap-center snap-always px-4 pt-6 sm:px-6 sm:pt-8 min-h-screen pb-32 no-scrollbar">
             {isLoading ? (
               <div className="flex flex-col items-center justify-start pt-24 gap-4">
                 <div style={{ display: "flex", gap: 8 }}>
@@ -1501,7 +1503,7 @@ export default function HotelHomePage() {
           </div>
 
           {/* MENU */}
-          <div ref={(el) => { tabScrollRefs.current[1] = el; }} className="min-w-full snap-center snap-always overflow-y-auto h-full min-h-0 pb-20 no-scrollbar">
+          <div ref={(el) => { tabScrollRefs.current[1] = el; }} className="min-w-full snap-center snap-always min-h-screen pb-32 no-scrollbar">
 
             {/* SEARCH + TAGS HEADER */}
             <div className="px-4 sm:px-6 pt-4 sm:pt-5">
@@ -1776,7 +1778,7 @@ export default function HotelHomePage() {
           </div>
 
           {/* EAT LATER */}
-          <div ref={(el) => { tabScrollRefs.current[2] = el; }} className="min-w-full snap-center snap-always px-4 pt-6 sm:px-6 sm:pt-8 overflow-y-auto h-full min-h-0 pb-20 no-scrollbar">
+          <div ref={(el) => { tabScrollRefs.current[2] = el; }} className="min-w-full snap-center snap-always px-4 pt-6 sm:px-6 sm:pt-8 min-h-screen pb-32 no-scrollbar">
             {!user ? (
               <div className="flex flex-col items-center justify-start gap-4 sm:gap-5 px-4 pt-16 sm:pt-20">
                 <img src="/User.png" className="w-16 h-16 sm:w-20 sm:h-20 opacity-90 invert" alt="" />
@@ -1818,7 +1820,7 @@ export default function HotelHomePage() {
           </div>
 
           {/* FAVORITES */}
-          <div ref={(el) => { tabScrollRefs.current[3] = el; }} className="min-w-full snap-center snap-always px-4 pt-6 sm:px-6 sm:pt-8 overflow-y-auto h-full min-h-0 pb-20 no-scrollbar">
+          <div ref={(el) => { tabScrollRefs.current[3] = el; }} className="min-w-full snap-center snap-always px-4 pt-6 sm:px-6 sm:pt-8 min-h-screen pb-32 no-scrollbar">
             {!user ? (
               <div className="flex flex-col items-center justify-start gap-4 sm:gap-5 px-4 pt-16 sm:pt-20">
                 <img src="/User.png" className="w-16 h-16 sm:w-20 sm:h-20 opacity-90 invert" alt="" />
@@ -1859,8 +1861,6 @@ export default function HotelHomePage() {
             )}
           </div>
 
-        </div>
-        {/* end sticky tab area */}
         </div>
 
         {/* 🔥 ASK ODY - positioned within mobile frame */}
