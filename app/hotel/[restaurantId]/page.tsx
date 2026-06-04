@@ -1489,15 +1489,15 @@ export default function HotelHomePage() {
 
         </div>{/* end swipe container */}
 
-        {/* 🔥 BOTTOM BAR — floating pill nav + compact Ask Ody */}
-        <div className="shrink-0 w-full flex items-center justify-between px-3 py-2.5 border-t border-white/10 bg-[#1c1c1c]">
+        {/* 🔥 BOTTOM BAR — floating pill nav + Ask Ody */}
+        <div className="shrink-0 w-full flex items-center justify-between px-4 py-3 bg-transparent">
           {/* Pill navigation */}
-          <div className="flex items-center bg-black/60 backdrop-blur-md rounded-full p-1 border border-white/10 shadow-lg">
+          <div className="flex items-center bg-black/75 backdrop-blur-md rounded-full p-1.5 border border-white/15 shadow-xl">
             {tabs.map((tab, index) => (
               <button
                 key={tab}
                 onClick={() => goToTab(index)}
-                className={`px-3.5 py-2 rounded-full text-xs font-semibold whitespace-nowrap transition ${
+                className={`px-4 py-2.5 rounded-full text-sm font-semibold whitespace-nowrap transition ${
                   activeTab === index
                     ? "bg-white text-black shadow-sm"
                     : "text-white/60 hover:text-white"
@@ -1507,10 +1507,10 @@ export default function HotelHomePage() {
               </button>
             ))}
           </div>
-          {/* Ask Ody — compact */}
-          <button className="flex items-center gap-1.5 bg-black/60 backdrop-blur-md text-white px-3 py-2 rounded-full border border-white/10 shadow-lg shrink-0">
-            <img src="/ody-face.png" className="w-5 h-5 rounded-full" alt="Ody" />
-            <span className="text-xs font-medium">Ask Ody</span>
+          {/* Ask Ody */}
+          <button className="flex items-center gap-2 bg-black/75 backdrop-blur-md text-white px-4 py-2.5 rounded-full border border-white/15 shadow-xl shrink-0">
+            <img src="/ody-face.png" className="w-7 h-7 rounded-full" alt="Ody" />
+            <span className="text-sm font-semibold">Ask Ody</span>
           </button>
         </div>
 
