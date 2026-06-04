@@ -1053,7 +1053,7 @@ export default function HotelHomePage() {
               </button>
             )}
 
-            <img src="/logo.png" className="w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 object-contain -mr-1" alt="" />
+            <img src="/logo.png" className="w-14 h-14 sm:w-16 sm:h-16 object-contain" alt="" />
           </div>
         </div>
 
@@ -1484,14 +1484,14 @@ export default function HotelHomePage() {
         </div>{/* end swipe container */}
 
         {/* 🔥 BOTTOM BAR — floating pill nav + Ask Ody */}
-        <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md flex items-center justify-between px-4 pb-5 pt-2 z-50 pointer-events-none">
+        <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md flex items-center justify-between px-3 pb-5 pt-2 z-50 pointer-events-none">
           {/* Pill navigation */}
-          <div className="flex items-center bg-black/75 backdrop-blur-md rounded-full p-2 border border-white/15 shadow-xl pointer-events-auto">
+          <div className="flex items-center bg-black/75 backdrop-blur-md rounded-full p-1 border border-white/15 shadow-xl pointer-events-auto">
             {tabs.map((tab, index) => (
               <button
                 key={tab}
                 onClick={() => goToTab(index)}
-                className={`px-5 py-3 rounded-full text-base font-semibold whitespace-nowrap transition ${
+                className={`px-3 py-3 rounded-full text-sm font-semibold whitespace-nowrap transition ${
                   activeTab === index
                     ? "bg-white text-black shadow-sm"
                     : "text-white/60 hover:text-white"
@@ -1502,9 +1502,9 @@ export default function HotelHomePage() {
             ))}
           </div>
           {/* Ask Ody */}
-          <button className="flex items-center gap-2 bg-black/75 backdrop-blur-md text-white px-5 py-3 rounded-full border border-white/15 shadow-xl shrink-0 pointer-events-auto">
-            <img src="/ody-face.png" className="w-8 h-8 rounded-full" alt="Ody" />
-            <span className="text-base font-semibold">Ask Ody</span>
+          <button className="flex items-center gap-1.5 bg-black/75 backdrop-blur-md text-white px-3 py-3 rounded-full border border-white/15 shadow-xl shrink-0 pointer-events-auto">
+            <img src="/ody-face.png" className="w-6 h-6 rounded-full" alt="Ody" />
+            <span className="text-sm font-semibold">Ask Ody</span>
           </button>
         </div>
 
