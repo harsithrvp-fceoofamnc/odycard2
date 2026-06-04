@@ -38,20 +38,7 @@ interface YTPlayer {
   getPlayerState: () => number;
 }
 
-const tabs = ["Ody Menu", "Menu", "Eat Later", "Favorites"];
-
-const filters = [
-  "Veg Only",
-  "Non-Veg Only",
-  "Must Try",
-  "Best Selling",
-  "New Arrival",
-  "Kid's Favorite",
-  "Couple's Favorite",
-  "Chef's Special",
-  "High Protein",
-  "Hot & Spicy",
-];
+const tabs = ["Menu", "Eat Later", "Favorites"];
 
 type OdyDish = {
   id: string;
@@ -509,17 +496,8 @@ export default function HotelHomePage() {
   const [logo, setLogo] = useState("");
   const [cover, setCover] = useState("");
   const [restaurantName, setRestaurantName] = useState("");
-  const [odyMenuHidden, setOdyMenuHidden] = useState(false);
-  const prevOdyMenuHiddenRef = useRef(false);
-  const [dishesLoadError, setDishesLoadError] = useState<string | null>(null);
-  const [activeFilters, setActiveFilters] = useState<string[]>([]);
   const [menuTagFilters, setMenuTagFilters] = useState<string[]>([]);
-  const [dishes, setDishes] = useState<OdyDish[]>([]);
-  const [expandedDescriptions, setExpandedDescriptions] = useState<Record<string, boolean>>({});
   const [hotelId, setHotelId] = useState<string | null>(null);
-  // Stores a signature of each dish so edits, hides and deletes all trigger the buffer
-  const prevDishIdsRef = useRef<Set<string>>(new Set());
-  const prevDishSigRef = useRef<string>("");
   const isFetchingRef = useRef(false);
   const [favorites, setFavorites] = useState<OdyDish[]>([]);
   const [eatLater, setEatLater] = useState<OdyDish[]>([]);
@@ -529,119 +507,8 @@ export default function HotelHomePage() {
   const [menuCategories, setMenuCategories] = useState<{ id: number; name: string }[]>([]);
   const [menuDishes, setMenuDishes] = useState<Record<number, OdyDish[]>>({});
   const containerRef = useRef<HTMLDivElement>(null);
-  const menuScrollRef = useRef<HTMLDivElement>(null);
   // One ref per tab panel — used to reset scroll to top when switching tabs
-  const tabScrollRefs = useRef<(HTMLDivElement | null)[]>([null, null, null, null]);
-  const coverSectionRef = useRef<HTMLDivElement>(null);
-  const isFirstRender = useRef(true);
-
-  /** Refs for Instagram-style video: one observer watches all card containers. */
-  const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
-  const videoContainerRefs = useRef<(HTMLDivElement | null)[]>([]);
-  const videoElRefs = useRef<(HTMLVideoElement | null)[]>([]);
-  const youtubePlayersRef = useRef<Map<number, YTPlayer>>(new Map());
-  const containerToIndexRef = useRef<WeakMap<Element, number>>(new WeakMap());
-  const visibilityRatiosRef = useRef<Map<number, number>>(new Map());
-  const activeVideoIndexRef = useRef<number | null>(null);
-  const [activeVideoIndex, setActiveVideoIndex] = useState<number | null>(null);
-
-  const registerYoutubePlayer = useCallback((index: number, player: YTPlayer) => {
-    youtubePlayersRef.current.set(index, player);
-    if (activeVideoIndexRef.current === index) {
-      try {
-        if (typeof player.playVideo === "function") player.playVideo();
-      } catch {
-        // ignore
-      }
-    }
-  }, []);
-
-  const unregisterYoutubePlayer = useCallback((index: number) => {
-    youtubePlayersRef.current.delete(index);
-  }, []);
-
-  /** Keep ref in sync for registerYoutubePlayer to use. */
-  useEffect(() => {
-    activeVideoIndexRef.current = activeVideoIndex;
-  }, [activeVideoIndex]);
-
-  /** IntersectionObserver: watches full card elements. Plays when card is 30% visible. */
-  useEffect(() => {
-    const cards = cardRefs.current;
-    const visibilityRatios = visibilityRatiosRef.current;
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) {
-          const index = containerToIndexRef.current.get(entry.target);
-          if (index != null) {
-            visibilityRatios.set(index, entry.intersectionRatio);
-          }
-        }
-        let bestIndex: number | null = null;
-        let bestRatio = 0;
-        visibilityRatios.forEach((ratio, index) => {
-          if (ratio >= 0.1 && ratio > bestRatio) {
-            bestRatio = ratio;
-            bestIndex = index;
-          }
-        });
-        setActiveVideoIndex((prev) => (prev !== bestIndex ? bestIndex : prev));
-      },
-      {
-        root: null,
-        rootMargin: "-30% 0px -30% 0px",
-        threshold: [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1],
-      }
-    );
-
-    visibilityRatios.clear();
-    cards.forEach((el) => {
-      if (el) {
-        observer.observe(el);
-      }
-    });
-
-    return () => {
-      observer.disconnect();
-      visibilityRatios.clear();
-    };
-  }, [dishes]);
-
-  /** When activeVideoIndex changes: pause all MP4/YouTube, play only the active one. */
-  useEffect(() => {
-    const videos = videoElRefs.current;
-    videos.forEach((v) => {
-      if (v) {
-        try {
-          v.pause();
-        } catch {
-          // ignore
-        }
-      }
-    });
-    youtubePlayersRef.current.forEach((player, idx) => {
-      if (idx !== activeVideoIndex) {
-        try {
-          if (typeof player.pauseVideo === "function") player.pauseVideo();
-        } catch {
-          // ignore
-        }
-      }
-    });
-    if (activeVideoIndex != null) {
-      const v = videoElRefs.current[activeVideoIndex];
-      if (v) { v.muted = true; v.play().catch(() => {}); }
-      const yt = youtubePlayersRef.current.get(activeVideoIndex);
-      if (yt && typeof yt.playVideo === "function") {
-        try {
-          yt.playVideo();
-        } catch {
-          // ignore
-        }
-      }
-    }
-  }, [activeVideoIndex]);
+  const tabScrollRefs = useRef<(HTMLDivElement | null)[]>([null, null, null]);
 
   // 🔐 AUTH STATES
   const [showPopup, setShowPopup] = useState(false);
@@ -690,19 +557,6 @@ export default function HotelHomePage() {
     }
   }, []);
 
-  /** Build a lightweight signature — catches adds, deletes, hides AND edits.
-   *  Excludes photoUrl (base64, too large to compare every 5s). */
-  const buildSig = (dishes: OdyDish[]) =>
-    dishes.map(d =>
-      `${d.id}|${d.name}|${d.price}|${d.description ?? ""}|${d.quantity ?? ""}|${d.videoUrl ?? ""}`
-    ).sort().join(";;");
-
-  /** Detect if menu changed: any add, delete, hide or edit triggers this */
-  const menuChanged = useCallback((newDishes: OdyDish[]): boolean => {
-    const newSig = buildSig(newDishes);
-    return newSig !== prevDishSigRef.current;
-  }, []);
-
   // Initial load: hotel + dishes
   useEffect(() => {
     if (!restaurantId || typeof restaurantId !== "string") return;
@@ -713,11 +567,7 @@ export default function HotelHomePage() {
       try {
         const hotelRes = await fetch(`${API_BASE}/api/hotels/${encodeURIComponent(slug)}`);
         if (!hotelRes.ok) {
-          if (hotelRes.status === 404) {
-            setDishesLoadError("Hotel not found");
-          } else {
-            setDishesLoadError("Failed to load menu");
-          }
+          if (!cancelled) setIsLoading(false);
           return;
         }
         const hotel = await hotelRes.json();
@@ -727,9 +577,6 @@ export default function HotelHomePage() {
         setCover(hotel.cover_url || "");
         setRestaurantName(hotel.name || "");
         setHotelId(String(hotel.id));
-        const newOdyHidden = hotel.ody_menu_hidden === true;
-        prevOdyMenuHiddenRef.current = newOdyHidden;
-        setOdyMenuHidden(newOdyHidden);
 
         // Fetch dishes + categories in parallel to save one round-trip
         const hId = String(hotel.id);
@@ -741,17 +588,7 @@ export default function HotelHomePage() {
         ]);
 
         if (cancelled) return;
-        if (newDishes === null) {
-          setDishesLoadError("Failed to load dishes");
-          return;
-        }
-
-        // Ody Menu shows only dishes without a menu_category_id
-        const odyMenuDishes = newDishes.filter(d => !d.menuCategoryId);
-        setDishes(odyMenuDishes);
-        setDishesLoadError(null);
-        prevDishIdsRef.current = new Set(odyMenuDishes.map((d) => d.id));
-        prevDishSigRef.current = buildSig(odyMenuDishes);
+        if (newDishes === null) return;
 
         // Group menu dishes by category for Menu tab
         const byCategory: Record<number, OdyDish[]> = {};
@@ -769,7 +606,6 @@ export default function HotelHomePage() {
       } catch (err) {
         if (!cancelled) {
           console.error("Load hotel/dishes error:", err);
-          setDishesLoadError("Failed to load menu");
         }
       } finally {
         if (!cancelled) setIsLoading(false);
@@ -787,47 +623,10 @@ export default function HotelHomePage() {
     if (!hotelId || !restaurantId) return;
 
     const poll = async () => {
-      // Check hotel for ody_menu_hidden changes
-      try {
-        const hotelRes = await fetch(`${API_BASE}/api/hotels/${encodeURIComponent(restaurantId)}?_t=${Date.now()}`, { cache: "no-store" });
-        if (hotelRes.ok) {
-          const hotel = await hotelRes.json();
-          const newOdyHidden = hotel.ody_menu_hidden === true;
-          if (newOdyHidden && !prevOdyMenuHiddenRef.current) {
-            // Owner just hid Ody Menu — show buffer, then remove tab
-            prevOdyMenuHiddenRef.current = true;
-            setIsRefreshing(true);
-            try {
-              await new Promise((r) => setTimeout(r, 1800));
-              setOdyMenuHidden(true);
-              setActiveTab(1);
-              if (containerRef.current) {
-                containerRef.current.scrollTo({ left: containerRef.current.clientWidth * 1, behavior: "smooth" });
-              }
-            } finally {
-              setIsRefreshing(false);
-            }
-            return;
-          }
-          if (!newOdyHidden && prevOdyMenuHiddenRef.current) {
-            // Owner unhid Ody Menu
-            prevOdyMenuHiddenRef.current = false;
-            setOdyMenuHidden(false);
-          }
-        }
-      } catch { /* ignore */ }
-
-      // Check dishes for changes — lite=true so polls never send base64 photos
+      // Refresh menu dishes from server
       const newDishes = await fetchDishes(hotelId, true);
       if (newDishes === null) return;
-      const odyDishes = newDishes.filter(d => !d.menuCategoryId);
-      if (!menuChanged(odyDishes)) return;
 
-      // Silent update — no overlay for dish data changes (avoids black-screen stuck state)
-      prevDishIdsRef.current = new Set(odyDishes.map((d) => d.id));
-      prevDishSigRef.current = buildSig(odyDishes);
-      setDishes(odyDishes);
-      // Also refresh menu dishes
       const byCategory: Record<number, OdyDish[]> = {};
       for (const d of newDishes) {
         if (d.menuCategoryId) {
@@ -836,10 +635,9 @@ export default function HotelHomePage() {
         }
       }
       setMenuDishes(byCategory);
-      setDishesLoadError(null);
     };
 
-    const interval = setInterval(poll, 15000); // 15s — was 2s, which was blowing through bandwidth
+    const interval = setInterval(poll, 15000);
 
     // Also poll immediately when tab becomes visible again (mobile browser wake)
     const onVisible = () => { if (document.visibilityState === "visible") poll(); };
@@ -849,7 +647,7 @@ export default function HotelHomePage() {
       clearInterval(interval);
       document.removeEventListener("visibilitychange", onVisible);
     };
-  }, [hotelId, restaurantId, fetchDishes, menuChanged]);
+  }, [hotelId, restaurantId, fetchDishes]);
 
   // Load user auth on mount
   useEffect(() => {
@@ -929,9 +727,8 @@ export default function HotelHomePage() {
     if (ref) ref.scrollTop = 0;
   }, [activeTab]);
 
-  // Helper: update a single dish field in BOTH ody-menu dishes and menu-category dishes
+  // Helper: update a single dish field in menu-category dishes
   const patchDish = useCallback((dishId: string, patch: Partial<OdyDish>) => {
-    setDishes(prev => prev.map(d => d.id === dishId ? { ...d, ...patch } : d));
     setMenuDishes(prev => {
       const next: Record<number, OdyDish[]> = {};
       for (const catId of Object.keys(prev)) {
@@ -1106,34 +903,6 @@ export default function HotelHomePage() {
     return eatLater.some((d) => d.id === dishId);
   };
 
-  // 🔥 FILTER LOGIC — sliding window for regular tags, diet tags are sticky
-  const toggleFilter = (filter: string) => {
-    setActiveFilters((prev) => {
-      const isVeg = filter === "Veg Only";
-      const isNonVeg = filter === "Non-Veg Only";
-      const isDiet = isVeg || isNonVeg;
-
-      // Toggle off if already selected
-      if (prev.includes(filter)) return prev.filter((f) => f !== filter);
-
-      // Handle mutual exclusivity for diet tags
-      let updated = [...prev];
-      if (isVeg) updated = updated.filter((f) => f !== "Non-Veg Only");
-      if (isNonVeg) updated = updated.filter((f) => f !== "Veg Only");
-
-      // Diet tags are sticky — just add, no sliding window
-      if (isDiet) return [...updated, filter];
-
-      // Regular tag: sliding window of max 2
-      const regularInOrder = updated.filter((f) => f !== "Veg Only" && f !== "Non-Veg Only");
-      if (regularInOrder.length < 2) return [...updated, filter];
-
-      // Drop the oldest regular tag, add the new one
-      const oldestRegular = regularInOrder[0];
-      return [...updated.filter((f) => f !== oldestRegular), filter];
-    });
-  };
-
   // Menu tab tag filter toggle — sliding window for regular tags, diet tags are sticky
   const toggleMenuTagFilter = (tag: string) => {
     setMenuTagFilters(prev => {
@@ -1289,198 +1058,8 @@ export default function HotelHomePage() {
           className="flex-1 min-h-0 flex w-full overflow-x-auto snap-x snap-mandatory no-scrollbar"
         >
 
-          {/* ODY MENU */}
-          <div ref={(el) => { menuScrollRef.current = el; tabScrollRefs.current[0] = el; }} className="min-w-full snap-center snap-always h-full overflow-y-auto no-scrollbar">
-            {/* Cover — scrolls away as user reads; reappears when tab is revisited */}
-            <div className="relative w-full h-[50vh] overflow-hidden shrink-0">
-              {cover ? (
-                <>
-                  <img src={cover} className="w-full h-full object-cover" alt="" />
-                  <div className="absolute inset-0 bg-black/30" />
-                </>
-              ) : (
-                <div className="w-full h-full bg-[#1c1c1c]" />
-              )}
-              <div className="absolute inset-0 flex items-center justify-center -translate-y-6">
-                {logo && (
-                  <div className="w-44 h-44 rounded-full overflow-hidden shadow-[0_35px_70px_rgba(0,0,0,0.85)]">
-                    <img src={logo} className="w-full h-full object-cover" alt="" />
-                  </div>
-                )}
-              </div>
-            </div>
-            <div className="px-4 pt-6 sm:px-6 sm:pt-8 pb-32">
-            {isLoading ? (
-              <div className="flex flex-col items-center justify-start pt-24 gap-4">
-                <div style={{ display: "flex", gap: 8 }}>
-                  {[0, 1, 2].map((i) => (
-                    <div key={i} style={{ width: 10, height: 10, borderRadius: "50%", background: "rgba(255,255,255,0.6)", animation: "ody-bounce 0.9s ease-in-out infinite", animationDelay: `${i * 0.18}s` }} />
-                  ))}
-                </div>
-                <p className="text-white/50 text-sm">Loading menu…</p>
-                <style>{`@keyframes ody-bounce { 0%,80%,100%{transform:translateY(0);opacity:.4} 40%{transform:translateY(-9px);opacity:1} }`}</style>
-              </div>
-            ) : odyMenuHidden ? (
-              <div className="flex flex-col items-center justify-start pt-16 sm:pt-20">
-                <p className="text-white/70 text-lg sm:text-xl font-medium">Coming soon</p>
-              </div>
-            ) : dishesLoadError ? (
-              <div className="py-20 flex flex-col items-center justify-center">
-                <p className="text-white/70 text-lg sm:text-xl font-medium">{dishesLoadError}</p>
-              </div>
-            ) : dishes.filter(d => isWithinTiming(d.timing)).length === 0 ? (
-              <div className="flex flex-col items-center justify-start pt-16 sm:pt-20">
-                <p className="text-white/70 text-lg sm:text-xl font-medium">Coming soon</p>
-              </div>
-            ) : (
-              <div className="mb-6 sm:mb-8">
-                {dishes
-                  .filter(d => isWithinTiming(d.timing))
-                  .sort((a, b) =>
-                    activeFilters.length > 0
-                      ? b.price - a.price
-                      : ((a.sort_order ?? Infinity) - (b.sort_order ?? Infinity))
-                  )
-                  .map((dish, index) => (
-                  <div
-                    key={dish.id}
-                    ref={(el) => {
-                      cardRefs.current[index] = el ?? null;
-                      if (el) containerToIndexRef.current.set(el, index);
-                    }}
-                    className="w-full rounded-xl sm:rounded-2xl bg-white border border-gray-200 mb-10 sm:mb-12"
-                  >
-                    <div
-                      className={`w-full bg-black relative overflow-hidden rounded-t-xl sm:rounded-t-2xl ${extractYouTubeVideoId(dish.videoUrl ?? "") ? "aspect-video" : "aspect-[4/3]"}`}
-                    >
-                      {dish.videoUrl && dish.videoUrl.trim() ? (
-                        <DishMediaCarousel
-                          dish={dish}
-                          dishIndex={index}
-                          containerRef={(el) => {
-                            videoContainerRefs.current[index] = el ?? null;
-                            if (el) containerToIndexRef.current.set(el, index);
-                          }}
-                          videoRef={(el) => {
-                            videoElRefs.current[index] = el ?? null;
-                          }}
-                          isActive={activeVideoIndex === index}
-                          isYouTube={!!extractYouTubeVideoId(dish.videoUrl)}
-                          registerPlayer={registerYoutubePlayer}
-                          unregisterPlayer={unregisterYoutubePlayer}
-                        />
-                      ) : (
-                        <img
-                          src={dish.photoUrl || "/food_item_logo.png"}
-                          alt={dish.name}
-                          className="w-full h-full object-cover"
-                        />
-                      )}
-                    </div>
-                    <div className="p-3 sm:p-4 rounded-b-xl sm:rounded-b-2xl bg-white">
-                      <div className="flex justify-between items-start gap-2">
-                        {/* Left: veg+name, price, description, rate */}
-                        <div className="flex flex-col flex-1">
-                          {/* Veg indicator + name */}
-                          <div className="flex items-start gap-2">
-                            <div className={`w-5 h-5 mt-0.5 shrink-0 border-2 rounded-sm flex items-center justify-center ${dish.isVeg ? "border-green-600" : "border-red-600"}`}>
-                              <div className={`w-2.5 h-2.5 rounded-full ${dish.isVeg ? "bg-green-600" : "bg-red-600"}`}/>
-                            </div>
-                            <p className="text-base sm:text-lg font-semibold text-black leading-tight flex-1 min-w-0 break-words">{dish.name}</p>
-                          </div>
-                          {/* Price indented under name */}
-                          <p className="text-base sm:text-lg font-semibold text-black mt-0.5 ml-7">₹{dish.price}</p>
-                          {/* Quantity + timing */}
-                          {(dish.quantity || dish.timing) ? (
-                            <p className="text-xs text-gray-400 mt-1">
-                              {[
-                                dish.quantity || null,
-                                dish.timing ? `${dish.timing.from} – ${dish.timing.to}` : null
-                              ].filter(Boolean).join(" • ")}
-                            </p>
-                          ) : null}
-                          {/* Pill badges — rating, liked, saved */}
-                          {(dish.ratingCount > 0 && dish.avgRating >= 3) || dish.favoriteCount > 0 || dish.eatLaterCount > 0 ? (
-                            <div className="flex flex-nowrap gap-1 mt-2">
-                              {dish.ratingCount > 0 && dish.avgRating >= 3 ? (
-                                <span className="flex items-center gap-0.5 px-2 py-0.5 rounded-full text-xs font-semibold text-white shrink-0" style={{ backgroundColor: "#111" }}>
-                                  <span style={{ color: "#FBBF24" }}>★</span>
-                                  {dish.avgRating.toFixed(1)}({formatCount(dish.ratingCount)})
-                                </span>
-                              ) : null}
-                              {dish.favoriteCount > 0 ? (
-                                <span className="flex items-center gap-0.5 px-2 py-0.5 rounded-full text-xs font-semibold text-white shrink-0" style={{ backgroundColor: "#ef4444" }}>
-                                  <svg viewBox="0 0 24 24" style={{ width: 11, height: 11 }} fill="white" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
-                                  </svg>
-                                  Liked by {formatCount(dish.favoriteCount)}{dish.favoriteCount >= 5 ? " people" : ""}
-                                </span>
-                              ) : null}
-                              {dish.eatLaterCount > 0 ? (
-                                <span className="flex items-center gap-0.5 px-2 py-0.5 rounded-full text-xs font-semibold text-white shrink-0" style={{ backgroundColor: "#3b82f6" }}>
-                                  <svg viewBox="0 0 24 24" style={{ width: 11, height: 11 }} fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                    <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
-                                  </svg>
-                                  Saved by {formatCount(dish.eatLaterCount)}{dish.eatLaterCount >= 5 ? " people" : ""}
-                                </span>
-                              ) : null}
-                            </div>
-                          ) : null}
-                          {/* Description */}
-                          {dish.description ? (
-                            <div className="mt-2">
-                              <p className={`text-xs sm:text-sm text-gray-500 leading-snug ${expandedDescriptions[dish.id] ? "" : "line-clamp-2"}`}>
-                                {dish.description}
-                              </p>
-                              {dish.description.length > 80 ? (
-                                <button
-                                  onClick={() => setExpandedDescriptions(prev => ({ ...prev, [dish.id]: !prev[dish.id] }))}
-                                  className="text-xs text-blue-500 font-medium mt-0.5"
-                                >
-                                  {expandedDescriptions[dish.id] ? "less" : "...more"}
-                                </button>
-                              ) : null}
-                            </div>
-                          ) : null}
-                          {/* Review button */}
-                          <button
-                            onClick={() => openDishRating(dish)}
-                            className="mt-2 self-start flex items-center gap-1 px-3 py-1.5 rounded-full border border-gray-300 text-xs text-gray-500 font-medium"
-                          >
-                            <span>+</span>
-                            <span>{dishRatings[dish.id] ? "Edit review" : "Review"}</span>
-                            {dishRatings[dish.id] ? (
-                              <span style={{ color: "#FBBF24" }}>{"★".repeat(dishRatings[dish.id])}</span>
-                            ) : null}
-                          </button>
-                        </div>
-                        {/* Right: favorites + eat later */}
-                        <div className="flex items-center gap-4 shrink-0">
-                          <button onClick={() => toggleFavorite(dish)} className="flex flex-col items-center gap-0.5">
-                            <svg viewBox="0 0 24 24" className="w-7 h-7" fill={isFavorite(dish.id) ? "#ef4444" : "none"} stroke={isFavorite(dish.id) ? "#ef4444" : "#374151"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
-                            </svg>
-                            <span className="text-xs font-medium text-gray-600">Like</span>
-                          </button>
-                          <button onClick={() => toggleEatLater(dish)} className="flex flex-col items-center gap-0.5">
-                            <svg viewBox="0 0 24 24" className="w-7 h-7" fill="none" stroke={isInEatLater(dish.id) ? "#3b82f6" : "#374151"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                              <circle cx="12" cy="12" r="10"/>
-                              <polyline points="12 6 12 12 16 14"/>
-                            </svg>
-                            <span className="text-xs font-medium text-gray-600">Save</span>
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-            </div>{/* end ODY MENU content wrapper */}
-          </div>
-
           {/* MENU */}
-          <div ref={(el) => { tabScrollRefs.current[1] = el; }} className="min-w-full snap-center snap-always h-full overflow-y-auto no-scrollbar">
+          <div ref={(el) => { tabScrollRefs.current[0] = el; }} className="min-w-full snap-center snap-always h-full overflow-y-auto no-scrollbar">
             {/* Cover */}
             <div className="relative w-full h-[50vh] overflow-hidden shrink-0">
               {cover ? (
@@ -1773,7 +1352,7 @@ export default function HotelHomePage() {
           </div>
 
           {/* EAT LATER */}
-          <div ref={(el) => { tabScrollRefs.current[2] = el; }} className="min-w-full snap-center snap-always h-full overflow-y-auto no-scrollbar">
+          <div ref={(el) => { tabScrollRefs.current[1] = el; }} className="min-w-full snap-center snap-always h-full overflow-y-auto no-scrollbar">
             {/* Cover */}
             <div className="relative w-full h-[50vh] overflow-hidden shrink-0">
               {cover ? (
@@ -1835,7 +1414,7 @@ export default function HotelHomePage() {
           </div>
 
           {/* FAVORITES */}
-          <div ref={(el) => { tabScrollRefs.current[3] = el; }} className="min-w-full snap-center snap-always h-full overflow-y-auto no-scrollbar">
+          <div ref={(el) => { tabScrollRefs.current[2] = el; }} className="min-w-full snap-center snap-always h-full overflow-y-auto no-scrollbar">
             {/* Cover */}
             <div className="relative w-full h-[50vh] overflow-hidden shrink-0">
               {cover ? (
@@ -1900,22 +1479,19 @@ export default function HotelHomePage() {
 
         {/* 🔥 TAB BAR — fixed at bottom of the h-dvh frame */}
         <div className="shrink-0 flex w-full px-2 h-12 sm:h-14 items-center bg-black/60 backdrop-blur-md border-t border-white/10">
-          {tabs.filter(t => odyMenuHidden ? t !== "Ody Menu" : true).map((tab) => {
-            const index = tabs.indexOf(tab);
-            return (
-              <button
-                key={tab}
-                onClick={() => goToTab(index)}
-                className={`flex-1 py-2 rounded-full whitespace-nowrap ${odyMenuHidden ? "text-base" : "text-sm"} font-semibold transition ${
-                  activeTab === index
-                    ? "bg-white text-black shadow-md"
-                    : "text-white/80 hover:text-white"
-                }`}
-              >
-                {tab}
-              </button>
-            );
-          })}
+          {tabs.map((tab, index) => (
+            <button
+              key={tab}
+              onClick={() => goToTab(index)}
+              className={`flex-1 py-2 rounded-full whitespace-nowrap text-sm font-semibold transition ${
+                activeTab === index
+                  ? "bg-white text-black shadow-md"
+                  : "text-white/80 hover:text-white"
+              }`}
+            >
+              {tab}
+            </button>
+          ))}
         </div>
 
         {/* 🔥 ASK ODY - positioned within mobile frame */}
