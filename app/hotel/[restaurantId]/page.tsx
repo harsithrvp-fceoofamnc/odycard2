@@ -732,12 +732,6 @@ export default function HotelHomePage() {
     setActiveTab(index);
   };
 
-  // On tab switch, scroll window to top of tab content (below cover), skip initial render
-  // Reset each tab's scroll to top instantly when switching — cover is always visible on arrival
-  useEffect(() => {
-    const ref = tabScrollRefs.current[activeTab];
-    if (ref) ref.scrollTop = 0;
-  }, [activeTab]);
 
   // Helper: update a single dish field in menu-category dishes
   const patchDish = useCallback((dishId: string, patch: Partial<OdyDish>) => {
