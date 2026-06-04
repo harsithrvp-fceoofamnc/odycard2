@@ -1489,31 +1489,29 @@ export default function HotelHomePage() {
 
         </div>{/* end swipe container */}
 
-        {/* 🔥 TAB BAR — fixed at bottom of the h-dvh frame */}
-        <div className="shrink-0 flex w-full px-2 h-12 sm:h-14 items-center bg-black/60 backdrop-blur-md border-t border-white/10">
-          {tabs.map((tab, index) => (
-            <button
-              key={tab}
-              onClick={() => goToTab(index)}
-              className={`flex-1 py-2 rounded-full whitespace-nowrap text-sm font-semibold transition ${
-                activeTab === index
-                  ? "bg-white text-black shadow-md"
-                  : "text-white/80 hover:text-white"
-              }`}
-            >
-              {tab}
-            </button>
-          ))}
-        </div>
-
-        {/* 🔥 ASK ODY - positioned within mobile frame */}
-        <div className="fixed bottom-16 left-1/2 -translate-x-1/2 w-full max-w-md px-3 sm:px-4 z-50 flex justify-end pointer-events-none">
-          <div className="pointer-events-auto">
-            <button className="flex items-center gap-2 sm:gap-3 bg-black/70 backdrop-blur-md text-white px-4 py-3 sm:px-5 sm:py-3.5 rounded-full shadow-lg border border-white/10">
-              <img src="/ody-face.png" className="w-8 h-8 sm:w-10 sm:h-10 rounded-full" alt="Ody" />
-              <span className="text-sm sm:text-base font-medium">Ask Ody</span>
-            </button>
+        {/* 🔥 BOTTOM BAR — floating pill nav + compact Ask Ody */}
+        <div className="shrink-0 w-full flex items-center justify-between px-3 py-2.5 border-t border-white/10 bg-[#1c1c1c]">
+          {/* Pill navigation */}
+          <div className="flex items-center bg-black/60 backdrop-blur-md rounded-full p-1 border border-white/10 shadow-lg">
+            {tabs.map((tab, index) => (
+              <button
+                key={tab}
+                onClick={() => goToTab(index)}
+                className={`px-3.5 py-2 rounded-full text-xs font-semibold whitespace-nowrap transition ${
+                  activeTab === index
+                    ? "bg-white text-black shadow-sm"
+                    : "text-white/60 hover:text-white"
+                }`}
+              >
+                {tab}
+              </button>
+            ))}
           </div>
+          {/* Ask Ody — compact */}
+          <button className="flex items-center gap-1.5 bg-black/60 backdrop-blur-md text-white px-3 py-2 rounded-full border border-white/10 shadow-lg shrink-0">
+            <img src="/ody-face.png" className="w-5 h-5 rounded-full" alt="Ody" />
+            <span className="text-xs font-medium">Ask Ody</span>
+          </button>
         </div>
 
         {/* 🔥 PROFILE POPUP */}
