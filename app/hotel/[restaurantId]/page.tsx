@@ -1037,7 +1037,7 @@ export default function HotelHomePage() {
 
         {/* 🔥 TOP TASK BAR */}
         <div className="fixed top-0 left-1/2 -translate-x-1/2 w-full max-w-md z-[999]">
-          <div className="h-12 sm:h-14 pl-4 pr-2 sm:pl-5 flex items-center justify-between bg-black/60 backdrop-blur-md">
+          <div className="h-12 sm:h-14 pl-4 pr-0 sm:pl-5 flex items-center justify-between bg-black/60 backdrop-blur-md">
 
             {!user ? (
               <button
@@ -1059,7 +1059,7 @@ export default function HotelHomePage() {
               </button>
             )}
 
-            <img src="/logo.png" className="w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 object-contain" alt="" />
+            <img src="/logo.png" className="w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 object-contain -mr-1" alt="" />
           </div>
         </div>
 
@@ -1490,14 +1490,14 @@ export default function HotelHomePage() {
         </div>{/* end swipe container */}
 
         {/* 🔥 BOTTOM BAR — floating pill nav + Ask Ody */}
-        <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md flex items-center justify-between px-4 py-3 z-50 pointer-events-none">
+        <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md flex items-center justify-between px-4 pb-5 pt-2 z-50 pointer-events-none">
           {/* Pill navigation */}
-          <div className="flex items-center bg-black/75 backdrop-blur-md rounded-full p-1.5 border border-white/15 shadow-xl pointer-events-auto">
+          <div className="flex items-center bg-black/75 backdrop-blur-md rounded-full p-2 border border-white/15 shadow-xl pointer-events-auto">
             {tabs.map((tab, index) => (
               <button
                 key={tab}
                 onClick={() => goToTab(index)}
-                className={`px-4 py-2.5 rounded-full text-sm font-semibold whitespace-nowrap transition ${
+                className={`px-5 py-3 rounded-full text-base font-semibold whitespace-nowrap transition ${
                   activeTab === index
                     ? "bg-white text-black shadow-sm"
                     : "text-white/60 hover:text-white"
@@ -1508,9 +1508,9 @@ export default function HotelHomePage() {
             ))}
           </div>
           {/* Ask Ody */}
-          <button className="flex items-center gap-2 bg-black/75 backdrop-blur-md text-white px-4 py-2.5 rounded-full border border-white/15 shadow-xl shrink-0 pointer-events-auto">
-            <img src="/ody-face.png" className="w-7 h-7 rounded-full" alt="Ody" />
-            <span className="text-sm font-semibold">Ask Ody</span>
+          <button className="flex items-center gap-2 bg-black/75 backdrop-blur-md text-white px-5 py-3 rounded-full border border-white/15 shadow-xl shrink-0 pointer-events-auto">
+            <img src="/ody-face.png" className="w-8 h-8 rounded-full" alt="Ody" />
+            <span className="text-base font-semibold">Ask Ody</span>
           </button>
         </div>
 
