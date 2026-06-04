@@ -1490,9 +1490,9 @@ export default function HotelHomePage() {
         </div>{/* end swipe container */}
 
         {/* 🔥 BOTTOM BAR — floating pill nav + Ask Ody */}
-        <div className="shrink-0 w-full flex items-center justify-between px-4 py-3 bg-transparent">
+        <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md flex items-center justify-between px-4 py-3 z-50 pointer-events-none">
           {/* Pill navigation */}
-          <div className="flex items-center bg-black/75 backdrop-blur-md rounded-full p-1.5 border border-white/15 shadow-xl">
+          <div className="flex items-center bg-black/75 backdrop-blur-md rounded-full p-1.5 border border-white/15 shadow-xl pointer-events-auto">
             {tabs.map((tab, index) => (
               <button
                 key={tab}
@@ -1508,7 +1508,7 @@ export default function HotelHomePage() {
             ))}
           </div>
           {/* Ask Ody */}
-          <button className="flex items-center gap-2 bg-black/75 backdrop-blur-md text-white px-4 py-2.5 rounded-full border border-white/15 shadow-xl shrink-0">
+          <button className="flex items-center gap-2 bg-black/75 backdrop-blur-md text-white px-4 py-2.5 rounded-full border border-white/15 shadow-xl shrink-0 pointer-events-auto">
             <img src="/ody-face.png" className="w-7 h-7 rounded-full" alt="Ody" />
             <span className="text-sm font-semibold">Ask Ody</span>
           </button>
