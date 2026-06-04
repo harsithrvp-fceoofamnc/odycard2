@@ -623,18 +623,30 @@ export default function HotelHomePage() {
     if (!hotelId || !restaurantId) return;
 
     const poll = async () => {
-      // Refresh menu dishes from server
+      // Refresh menu dishes from server (lite=true skips photo_url to save bandwidth)
       const newDishes = await fetchDishes(hotelId, true);
       if (newDishes === null) return;
 
-      const byCategory: Record<number, OdyDish[]> = {};
-      for (const d of newDishes) {
-        if (d.menuCategoryId) {
-          if (!byCategory[d.menuCategoryId]) byCategory[d.menuCategoryId] = [];
-          byCategory[d.menuCategoryId].push(d);
+      setMenuDishes(prev => {
+        const byCategory: Record<number, OdyDish[]> = {};
+        // Build a flat lookup of existing dishes so we can preserve real photo URLs
+        const existingFlat: Record<string, OdyDish> = {};
+        for (const catDishes of Object.values(prev)) {
+          for (const d of catDishes) existingFlat[d.id] = d;
         }
-      }
-      setMenuDishes(byCategory);
+        for (const d of newDishes) {
+          if (d.menuCategoryId) {
+            if (!byCategory[d.menuCategoryId]) byCategory[d.menuCategoryId] = [];
+            // lite fetch returns fallback for photoUrl — keep the real URL from state
+            const existing = existingFlat[d.id];
+            byCategory[d.menuCategoryId].push({
+              ...d,
+              photoUrl: existing?.photoUrl ?? d.photoUrl,
+            });
+          }
+        }
+        return byCategory;
+      });
     };
 
     const interval = setInterval(poll, 15000);
