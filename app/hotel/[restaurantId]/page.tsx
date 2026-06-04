@@ -1053,7 +1053,7 @@ export default function HotelHomePage() {
               </button>
             )}
 
-            <img src="/logo.png" className="w-14 h-14 sm:w-16 sm:h-16 object-contain" alt="" />
+            <img src="/logo.png" className="w-16 h-16 sm:w-20 sm:h-20 object-contain" alt="" />
           </div>
         </div>
 
@@ -1484,14 +1484,14 @@ export default function HotelHomePage() {
         </div>{/* end swipe container */}
 
         {/* 🔥 BOTTOM BAR — floating pill nav + Ask Ody */}
-        <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md flex items-center justify-between px-3 pb-5 pt-2 z-50 pointer-events-none">
-          {/* Pill navigation */}
-          <div className="flex items-center bg-black/75 backdrop-blur-md rounded-full p-1 border border-white/15 shadow-xl pointer-events-auto">
+        <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md flex items-center gap-3 px-3 pb-5 pt-2 z-50 pointer-events-none">
+          {/* Pill navigation — flex-1 fills all space left of Ask Ody, tabs split it equally */}
+          <div className="flex-1 min-w-0 flex items-center bg-black/75 backdrop-blur-md rounded-full p-1.5 border border-white/15 shadow-xl pointer-events-auto">
             {tabs.map((tab, index) => (
               <button
                 key={tab}
                 onClick={() => goToTab(index)}
-                className={`px-3 py-3 rounded-full text-sm font-semibold whitespace-nowrap transition ${
+                className={`flex-1 py-3 rounded-full text-base font-semibold whitespace-nowrap transition text-center ${
                   activeTab === index
                     ? "bg-white text-black shadow-sm"
                     : "text-white/60 hover:text-white"
@@ -1501,10 +1501,10 @@ export default function HotelHomePage() {
               </button>
             ))}
           </div>
-          {/* Ask Ody */}
-          <button className="flex items-center gap-1.5 bg-black/75 backdrop-blur-md text-white px-3 py-3 rounded-full border border-white/15 shadow-xl shrink-0 pointer-events-auto">
-            <img src="/ody-face.png" className="w-6 h-6 rounded-full" alt="Ody" />
-            <span className="text-sm font-semibold">Ask Ody</span>
+          {/* Ask Ody — shrink-0 so it's always full size */}
+          <button className="shrink-0 flex items-center gap-2 bg-black/75 backdrop-blur-md text-white px-4 py-3 rounded-full border border-white/15 shadow-xl pointer-events-auto">
+            <img src="/ody-face.png" className="w-8 h-8 rounded-full" alt="Ody" />
+            <span className="text-base font-semibold">Ask Ody</span>
           </button>
         </div>
 
