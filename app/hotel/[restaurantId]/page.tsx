@@ -1484,9 +1484,14 @@ export default function HotelHomePage() {
         </div>{/* end swipe container */}
 
         {/* 🔥 BOTTOM BAR — floating pill nav + Ask Ody */}
-        <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md flex items-center gap-3 px-3 pb-5 pt-2 z-50 pointer-events-none">
-          {/* Pill navigation — flex-1 fills all space left of Ask Ody, tabs split it equally */}
-          <div className="flex-1 min-w-0 flex items-center bg-black/75 backdrop-blur-md rounded-full p-1.5 border border-white/15 shadow-xl pointer-events-auto">
+        <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md px-3 pb-4 z-50 pointer-events-none flex flex-col items-end gap-2">
+          {/* Ask Ody — sits above-right, unchanged size */}
+          <button className="shrink-0 flex items-center gap-2 bg-black/75 backdrop-blur-md text-white px-4 py-3 rounded-full border border-white/15 shadow-xl pointer-events-auto">
+            <img src="/ody-face.png" className="w-8 h-8 rounded-full" alt="Ody" />
+            <span className="text-base font-semibold">Ask Ody</span>
+          </button>
+          {/* Pill navigation — full width, tabs split equally */}
+          <div className="w-full flex items-center bg-black/75 backdrop-blur-md rounded-full p-1.5 border border-white/15 shadow-xl pointer-events-auto">
             {tabs.map((tab, index) => (
               <button
                 key={tab}
@@ -1501,11 +1506,6 @@ export default function HotelHomePage() {
               </button>
             ))}
           </div>
-          {/* Ask Ody — shrink-0 so it's always full size */}
-          <button className="shrink-0 flex items-center gap-2 bg-black/75 backdrop-blur-md text-white px-4 py-3 rounded-full border border-white/15 shadow-xl pointer-events-auto">
-            <img src="/ody-face.png" className="w-8 h-8 rounded-full" alt="Ody" />
-            <span className="text-base font-semibold">Ask Ody</span>
-          </button>
         </div>
 
         {/* 🔥 PROFILE POPUP */}
