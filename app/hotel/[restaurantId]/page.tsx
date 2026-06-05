@@ -483,9 +483,9 @@ function mapDishFromApi(row: {
 /** Tab icon — scales + morphs when active */
 function TabIcon({ tab, isActive }: { tab: string; isActive: boolean }) {
   const base = {
-    width: 15, height: 15, flexShrink: 0,
+    width: 17, height: 17, flexShrink: 0,
     transition: 'transform 0.45s cubic-bezier(0.34, 1.3, 0.64, 1)',
-    transform: isActive ? 'scale(1.25)' : 'scale(1)',
+    transform: isActive ? 'scale(1.2)' : 'scale(1)',
   };
   if (tab === "Menu") return (
     <svg viewBox="0 0 24 24" style={base} fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
