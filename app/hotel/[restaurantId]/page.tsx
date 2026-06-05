@@ -1359,21 +1359,15 @@ export default function HotelHomePage() {
 
           {/* EAT LATER */}
           <div ref={(el) => { tabScrollRefs.current[1] = el; }} className="min-w-full snap-center snap-always h-full overflow-y-auto no-scrollbar">
-            {/* Cart-style header */}
-            <div className="pt-16 pb-5 px-5 flex flex-col items-center gap-3">
-              <div className="w-16 h-16 rounded-full flex items-center justify-center" style={{ background: "rgba(10,132,193,0.15)" }}>
-                <svg viewBox="0 0 24 24" className="w-8 h-8" fill="none" stroke="#0A84C1" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                  <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
-                </svg>
-              </div>
-              <div className="text-center">
-                <h1 className="text-white text-2xl font-bold">Eat Later</h1>
-                <p className="text-white/45 text-sm mt-0.5">Dishes you want to try</p>
-              </div>
+            {/* Header */}
+            <div className="pt-16 pb-6 px-5 flex flex-col items-center gap-2">
+              <svg viewBox="0 0 24 24" className="w-10 h-10 text-white/80" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+              </svg>
+              <h1 className="text-white text-2xl font-bold mt-1">Eat Later</h1>
+              <p className="text-white/40 text-sm">Dishes you want to try</p>
               {user && eatLater.length > 0 && (
-                <div className="px-4 py-1.5 rounded-full border" style={{ background: "rgba(10,132,193,0.12)", borderColor: "rgba(10,132,193,0.3)" }}>
-                  <span className="text-[#0A84C1] text-sm font-semibold">{eatLater.length} {eatLater.length === 1 ? "dish" : "dishes"} saved</span>
-                </div>
+                <p className="text-white/50 text-sm font-medium mt-1">{eatLater.length} {eatLater.length === 1 ? "dish" : "dishes"} saved</p>
               )}
             </div>
             <div className="h-px bg-white/10 mx-5" />
@@ -1408,21 +1402,15 @@ export default function HotelHomePage() {
 
           {/* FAVORITES */}
           <div ref={(el) => { tabScrollRefs.current[2] = el; }} className="min-w-full snap-center snap-always h-full overflow-y-auto no-scrollbar">
-            {/* Cart-style header */}
-            <div className="pt-16 pb-5 px-5 flex flex-col items-center gap-3">
-              <div className="w-16 h-16 rounded-full flex items-center justify-center" style={{ background: "rgba(239,68,68,0.15)" }}>
-                <svg viewBox="0 0 24 24" className="w-8 h-8" fill="#ef4444" stroke="#ef4444" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
-                </svg>
-              </div>
-              <div className="text-center">
-                <h1 className="text-white text-2xl font-bold">Favorites</h1>
-                <p className="text-white/45 text-sm mt-0.5">Dishes you love</p>
-              </div>
+            {/* Header */}
+            <div className="pt-16 pb-6 px-5 flex flex-col items-center gap-2">
+              <svg viewBox="0 0 24 24" className="w-10 h-10 text-white/80" fill="currentColor" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+              </svg>
+              <h1 className="text-white text-2xl font-bold mt-1">Favorites</h1>
+              <p className="text-white/40 text-sm">Dishes you love</p>
               {user && favorites.length > 0 && (
-                <div className="px-4 py-1.5 rounded-full border" style={{ background: "rgba(239,68,68,0.12)", borderColor: "rgba(239,68,68,0.3)" }}>
-                  <span className="text-red-400 text-sm font-semibold">{favorites.length} {favorites.length === 1 ? "dish" : "dishes"} liked</span>
-                </div>
+                <p className="text-white/50 text-sm font-medium mt-1">{favorites.length} {favorites.length === 1 ? "dish" : "dishes"} liked</p>
               )}
             </div>
             <div className="h-px bg-white/10 mx-5" />
