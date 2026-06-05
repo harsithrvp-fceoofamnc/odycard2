@@ -480,6 +480,30 @@ function mapDishFromApi(row: {
   };
 }
 
+/** Tab icon — scales + morphs when active */
+function TabIcon({ tab, isActive }: { tab: string; isActive: boolean }) {
+  const base = {
+    width: 15, height: 15, flexShrink: 0,
+    transition: 'transform 0.45s cubic-bezier(0.34, 1.3, 0.64, 1)',
+    transform: isActive ? 'scale(1.25)' : 'scale(1)',
+  };
+  if (tab === "Menu") return (
+    <svg viewBox="0 0 24 24" style={base} fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
+      <line x1="3" y1="7" x2="21" y2="7"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="17" x2="21" y2="17"/>
+    </svg>
+  );
+  if (tab === "Eat Later") return (
+    <svg viewBox="0 0 24 24" style={base} fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="9"/><polyline points="12 6.5 12 12 15.5 13.5"/>
+    </svg>
+  );
+  return (
+    <svg viewBox="0 0 24 24" style={{ ...base, fill: isActive ? 'currentColor' : 'none' }} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+    </svg>
+  );
+}
+
 export default function HotelHomePage() {
   const params = useParams();
   const restaurantId = params?.restaurantId as string | undefined;
@@ -508,8 +532,14 @@ export default function HotelHomePage() {
   const [menuCategories, setMenuCategories] = useState<{ id: number; name: string }[]>([]);
   const [menuDishes, setMenuDishes] = useState<Record<number, OdyDish[]>>({});
   const containerRef = useRef<HTMLDivElement>(null);
-  // One ref per tab panel — used to reset scroll to top when switching tabs
+  // One ref per tab panel — used for scroll reset + animation
   const tabScrollRefs = useRef<(HTMLDivElement | null)[]>([null, null, null]);
+  // Spotlight animation refs
+  const pillRef = useRef<HTMLDivElement>(null);
+  const spotlightRef = useRef<HTMLDivElement>(null);
+  const tabBtnRefs = useRef<(HTMLButtonElement | null)[]>([null, null, null]);
+  const scrollSettleTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const tapScrolling = useRef(false);
 
   // 🔐 AUTH STATES
   const [showPopup, setShowPopup] = useState(false);
@@ -717,23 +747,70 @@ export default function HotelHomePage() {
     return () => clearInterval(interval);
   }, [step, showPopup]);
 
-  const handleScroll = () => {
-    if (!containerRef.current) return;
-    const { scrollLeft, clientWidth } = containerRef.current;
-    const index = Math.round(scrollLeft / clientWidth);
-    setActiveTab(index);
-  };
-
-  // VisionOS glass panel spring animation — runs whenever active tab changes
-  useEffect(() => {
+  // Animate spotlight + pages to a given index (shared by goToTab and settle)
+  const animateToIndex = useCallback((index: number, spring = true) => {
+    const transition = spring ? 'transform 0.48s cubic-bezier(0.34, 1.2, 0.64, 1)' : 'none';
+    if (spotlightRef.current && pillRef.current) {
+      const slotW = (pillRef.current.clientWidth - 12) / tabs.length;
+      spotlightRef.current.style.transition = transition;
+      spotlightRef.current.style.transform = `translateX(${index * slotW}px)`;
+    }
     tabScrollRefs.current.forEach((el, i) => {
       if (!el) return;
-      const isActive = i === activeTab;
-      el.style.transition = 'transform 0.55s cubic-bezier(0.34, 1.15, 0.64, 1), opacity 0.4s ease';
-      el.style.transform = isActive ? 'scale(1)' : 'scale(0.97)';
-      el.style.opacity = isActive ? '1' : '0.78';
+      el.style.transition = spring
+        ? 'transform 0.52s cubic-bezier(0.34, 1.15, 0.64, 1), opacity 0.4s ease'
+        : 'none';
+      el.style.transform = i === index ? 'scale(1)' : 'scale(0.97)';
+      el.style.opacity = i === index ? '1' : '0.78';
     });
-  }, [activeTab]);
+    tabBtnRefs.current.forEach((btn, i) => {
+      if (!btn) return;
+      btn.style.transition = spring ? 'color 0.3s ease' : 'none';
+      btn.style.color = i === index ? 'rgb(0,0,0)' : 'rgba(255,255,255,0.6)';
+    });
+  }, []);
+
+  const handleScroll = useCallback(() => {
+    if (!containerRef.current) return;
+    const { scrollLeft, clientWidth } = containerRef.current;
+    if (!clientWidth) return;
+    const ratio = scrollLeft / clientWidth;
+    const snappedIndex = Math.round(ratio);
+    setActiveTab(snappedIndex);
+
+    if (tapScrolling.current) return; // tap-initiated: let animateToIndex handle it
+
+    // Spotlight leads the swipe — no transition, direct 1:1 follow
+    if (spotlightRef.current && pillRef.current) {
+      const slotW = (pillRef.current.clientWidth - 12) / tabs.length;
+      spotlightRef.current.style.transition = 'none';
+      spotlightRef.current.style.transform = `translateX(${ratio * slotW}px)`;
+    }
+
+    // Pages follow with subtle magnetic lag (8ms eases scale/opacity slightly behind finger)
+    tabScrollRefs.current.forEach((el, i) => {
+      if (!el) return;
+      const dist = Math.min(Math.abs(ratio - i), 1);
+      el.style.transition = 'transform 0.08s ease-out, opacity 0.08s ease-out';
+      el.style.transform = `scale(${(1 - dist * 0.03).toFixed(4)})`;
+      el.style.opacity = (1 - dist * 0.12).toFixed(4);
+    });
+
+    // Tab label colors follow spotlight in real time
+    tabBtnRefs.current.forEach((btn, i) => {
+      if (!btn) return;
+      const dist = Math.abs(ratio - i);
+      const t = Math.min(dist, 1);
+      btn.style.transition = 'none';
+      btn.style.color = t < 0.5
+        ? `rgb(${Math.round(t * 2 * 90)},${Math.round(t * 2 * 90)},${Math.round(t * 2 * 90)})`
+        : 'rgba(255,255,255,0.6)';
+    });
+
+    // Spring settle after finger lifts
+    if (scrollSettleTimer.current) clearTimeout(scrollSettleTimer.current);
+    scrollSettleTimer.current = setTimeout(() => animateToIndex(snappedIndex, true), 50);
+  }, [animateToIndex]);
 
   // Top bar auto-hide: only tracks Menu tab (index 0) which has the cover photo.
   // Eat Later & Favorites have no cover so the bar always stays visible there.
@@ -762,11 +839,17 @@ export default function HotelHomePage() {
 
   const goToTab = (index: number) => {
     if (!containerRef.current) return;
+    // Flag tap-scroll so handleScroll doesn't override the spring animation
+    tapScrolling.current = true;
+    if (scrollSettleTimer.current) clearTimeout(scrollSettleTimer.current);
+    setTimeout(() => { tapScrolling.current = false; }, 550);
+
     containerRef.current.scrollTo({
       left: containerRef.current.clientWidth * index,
       behavior: "smooth",
     });
     setActiveTab(index);
+    animateToIndex(index, true);
   };
 
 
@@ -1488,25 +1571,40 @@ export default function HotelHomePage() {
 
         </div>{/* end swipe container */}
 
-        {/* 🔥 BOTTOM BAR — floating pill nav + Ask Ody */}
+        {/* 🔥 BOTTOM BAR — spotlight pill + Ask Ody */}
         <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md flex items-center gap-2.5 px-2 pb-5 pt-2 z-50 pointer-events-none">
-          {/* Pill navigation — flex-1 takes all remaining space, tabs split equally */}
-          <div className="flex-1 min-w-0 flex items-center bg-black/75 backdrop-blur-md rounded-full p-1.5 border border-white/15 shadow-xl pointer-events-auto">
+          {/* Category Island — floating white spotlight leads the swipe */}
+          <div
+            ref={pillRef}
+            className="flex-1 min-w-0 relative flex items-center bg-black/75 backdrop-blur-md rounded-full p-1.5 border border-white/15 shadow-xl pointer-events-auto overflow-hidden"
+          >
+            {/* The spotlight: absolutely-positioned white pill that slides under active tab */}
+            <div
+              ref={spotlightRef}
+              className="absolute top-1.5 bottom-1.5 left-1.5 rounded-full pointer-events-none"
+              style={{
+                width: `calc((100% - 12px) / ${tabs.length})`,
+                background: 'white',
+                boxShadow: '0 2px 16px rgba(0,0,0,0.14)',
+                transform: 'translateX(0)',
+                zIndex: 0,
+              }}
+            />
+            {/* Tab buttons — sit above spotlight */}
             {tabs.map((tab, index) => (
               <button
                 key={tab}
+                ref={(el) => { tabBtnRefs.current[index] = el; }}
                 onClick={() => goToTab(index)}
-                className={`flex-1 py-3 rounded-full text-base font-semibold whitespace-nowrap transition text-center ${
-                  activeTab === index
-                    ? "bg-white text-black shadow-sm"
-                    : "text-white/60 hover:text-white"
-                }`}
+                className="flex-1 relative py-3 rounded-full text-base font-semibold whitespace-nowrap text-center flex items-center justify-center gap-1.5"
+                style={{ zIndex: 1, color: activeTab === index ? 'rgb(0,0,0)' : 'rgba(255,255,255,0.6)' }}
               >
-                {tab}
+                <TabIcon tab={tab} isActive={activeTab === index} />
+                <span>{tab}</span>
               </button>
             ))}
           </div>
-          {/* Ask Ody — compact to give pill more room */}
+          {/* Ask Ody */}
           <button className="shrink-0 flex items-center gap-1.5 bg-black/75 backdrop-blur-md text-white px-4 py-3 rounded-full border border-white/15 shadow-xl pointer-events-auto">
             <img src="/ody-face.png" className="w-7 h-7 rounded-full" alt="Ody" />
             <span className="text-sm font-semibold">Ask Ody</span>
