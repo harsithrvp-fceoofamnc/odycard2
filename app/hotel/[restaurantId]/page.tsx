@@ -1359,126 +1359,100 @@ export default function HotelHomePage() {
 
           {/* EAT LATER */}
           <div ref={(el) => { tabScrollRefs.current[1] = el; }} className="min-w-full snap-center snap-always h-full overflow-y-auto no-scrollbar">
-            {/* Cover */}
-            <div className="relative w-full h-[50vh] overflow-hidden shrink-0">
-              {cover ? (
-                <>
-                  <img src={cover} className="w-full h-full object-cover" alt="" />
-                  <div className="absolute inset-0 bg-black/30" />
-                </>
-              ) : (
-                <div className="w-full h-full bg-[#1c1c1c]" />
-              )}
-              <div className="absolute inset-0 flex items-center justify-center -translate-y-6">
-                {logo && (
-                  <div className="w-44 h-44 rounded-full overflow-hidden shadow-[0_35px_70px_rgba(0,0,0,0.85)]">
-                    <img src={logo} className="w-full h-full object-cover" alt="" />
-                  </div>
-                )}
+            {/* Cart-style header */}
+            <div className="pt-16 pb-5 px-5 flex flex-col items-center gap-3">
+              <div className="w-16 h-16 rounded-full flex items-center justify-center" style={{ background: "rgba(10,132,193,0.15)" }}>
+                <svg viewBox="0 0 24 24" className="w-8 h-8" fill="none" stroke="#0A84C1" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+                </svg>
               </div>
+              <div className="text-center">
+                <h1 className="text-white text-2xl font-bold">Eat Later</h1>
+                <p className="text-white/45 text-sm mt-0.5">Dishes you want to try</p>
+              </div>
+              {user && eatLater.length > 0 && (
+                <div className="px-4 py-1.5 rounded-full border" style={{ background: "rgba(10,132,193,0.12)", borderColor: "rgba(10,132,193,0.3)" }}>
+                  <span className="text-[#0A84C1] text-sm font-semibold">{eatLater.length} {eatLater.length === 1 ? "dish" : "dishes"} saved</span>
+                </div>
+              )}
             </div>
-            <div className="px-4 pt-6 sm:px-6 sm:pt-8 pb-32">
+            <div className="h-px bg-white/10 mx-5" />
+            {/* Content */}
+            <div className="px-4 pt-5 pb-32">
             {!user ? (
-              <div className="flex flex-col items-center justify-start gap-4 sm:gap-5 px-4 pt-16 sm:pt-20">
-                <img src="/User.png" className="w-16 h-16 sm:w-20 sm:h-20 opacity-90 invert" alt="" />
-                <p className="text-white/70 text-center text-sm sm:text-base">
-                  Register or Log in to use Eat Later
-                </p>
-                <div className="flex gap-3 sm:gap-4">
-                  <button
-                    onClick={() => {
-                      setMode("register");
-                      setShowPopup(true);
-                    }}
-                    className="px-4 py-2.5 sm:px-6 sm:py-3 rounded-full bg-[#0A84C1] text-white text-sm sm:text-base"
-                  >
-                    Register
-                  </button>
-                  <button
-                    onClick={() => {
-                      setMode("login");
-                      setShowPopup(true);
-                    }}
-                    className="px-4 py-2.5 sm:px-6 sm:py-3 rounded-full bg-white text-[#0A84C1] text-sm sm:text-base"
-                  >
-                    Log In
-                  </button>
+              <div className="flex flex-col items-center justify-start gap-4 sm:gap-5 px-4 pt-12">
+                <img src="/User.png" className="w-14 h-14 opacity-60 invert" alt="" />
+                <p className="text-white/60 text-center text-sm sm:text-base">Register or Log in to use Eat Later</p>
+                <div className="flex gap-3">
+                  <button onClick={() => { setMode("register"); setShowPopup(true); }} className="px-5 py-2.5 rounded-full bg-[#0A84C1] text-white text-sm font-semibold">Register</button>
+                  <button onClick={() => { setMode("login"); setShowPopup(true); }} className="px-5 py-2.5 rounded-full bg-white text-[#0A84C1] text-sm font-semibold">Log In</button>
                 </div>
               </div>
             ) : eatLater.length === 0 ? (
-              <div className="flex flex-col items-center justify-start pt-16 sm:pt-20 px-4">
-                <p className="text-white/70 text-lg sm:text-xl text-center">Your Eat Later list is empty</p>
+              <div className="flex flex-col items-center justify-start pt-12 px-4 gap-3">
+                <svg viewBox="0 0 24 24" className="w-12 h-12 opacity-30" fill="none" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+                </svg>
+                <p className="text-white/50 text-base text-center">Nothing saved yet</p>
+                <p className="text-white/30 text-sm text-center">Tap the clock icon on any dish to save it here</p>
               </div>
             ) : (
-              <div className="mb-6 sm:mb-8">
+              <div className="mb-6">
                 {eatLater.map((dish) => (
                   <PhotoOnlyDishBlock key={dish.id} dish={dish} allDishes={Object.values(menuDishes).flat()} />
                 ))}
               </div>
             )}
-            </div>{/* end EAT LATER content wrapper */}
+            </div>
           </div>
 
           {/* FAVORITES */}
           <div ref={(el) => { tabScrollRefs.current[2] = el; }} className="min-w-full snap-center snap-always h-full overflow-y-auto no-scrollbar">
-            {/* Cover */}
-            <div className="relative w-full h-[50vh] overflow-hidden shrink-0">
-              {cover ? (
-                <>
-                  <img src={cover} className="w-full h-full object-cover" alt="" />
-                  <div className="absolute inset-0 bg-black/30" />
-                </>
-              ) : (
-                <div className="w-full h-full bg-[#1c1c1c]" />
-              )}
-              <div className="absolute inset-0 flex items-center justify-center -translate-y-6">
-                {logo && (
-                  <div className="w-44 h-44 rounded-full overflow-hidden shadow-[0_35px_70px_rgba(0,0,0,0.85)]">
-                    <img src={logo} className="w-full h-full object-cover" alt="" />
-                  </div>
-                )}
+            {/* Cart-style header */}
+            <div className="pt-16 pb-5 px-5 flex flex-col items-center gap-3">
+              <div className="w-16 h-16 rounded-full flex items-center justify-center" style={{ background: "rgba(239,68,68,0.15)" }}>
+                <svg viewBox="0 0 24 24" className="w-8 h-8" fill="#ef4444" stroke="#ef4444" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                </svg>
               </div>
+              <div className="text-center">
+                <h1 className="text-white text-2xl font-bold">Favorites</h1>
+                <p className="text-white/45 text-sm mt-0.5">Dishes you love</p>
+              </div>
+              {user && favorites.length > 0 && (
+                <div className="px-4 py-1.5 rounded-full border" style={{ background: "rgba(239,68,68,0.12)", borderColor: "rgba(239,68,68,0.3)" }}>
+                  <span className="text-red-400 text-sm font-semibold">{favorites.length} {favorites.length === 1 ? "dish" : "dishes"} liked</span>
+                </div>
+              )}
             </div>
-            <div className="px-4 pt-6 sm:px-6 sm:pt-8 pb-32">
+            <div className="h-px bg-white/10 mx-5" />
+            {/* Content */}
+            <div className="px-4 pt-5 pb-32">
             {!user ? (
-              <div className="flex flex-col items-center justify-start gap-4 sm:gap-5 px-4 pt-16 sm:pt-20">
-                <img src="/User.png" className="w-16 h-16 sm:w-20 sm:h-20 opacity-90 invert" alt="" />
-                <p className="text-white/70 text-center text-sm sm:text-base">
-                  Register or Log in to save Favorites
-                </p>
-                <div className="flex gap-3 sm:gap-4">
-                  <button
-                    onClick={() => {
-                      setMode("register");
-                      setShowPopup(true);
-                    }}
-                    className="px-4 py-2.5 sm:px-6 sm:py-3 rounded-full bg-[#0A84C1] text-white text-sm sm:text-base"
-                  >
-                    Register
-                  </button>
-                  <button
-                    onClick={() => {
-                      setMode("login");
-                      setShowPopup(true);
-                    }}
-                    className="px-4 py-2.5 sm:px-6 sm:py-3 rounded-full bg-white text-[#0A84C1] text-sm sm:text-base"
-                  >
-                    Log In
-                  </button>
+              <div className="flex flex-col items-center justify-start gap-4 sm:gap-5 px-4 pt-12">
+                <img src="/User.png" className="w-14 h-14 opacity-60 invert" alt="" />
+                <p className="text-white/60 text-center text-sm sm:text-base">Register or Log in to save Favorites</p>
+                <div className="flex gap-3">
+                  <button onClick={() => { setMode("register"); setShowPopup(true); }} className="px-5 py-2.5 rounded-full bg-[#0A84C1] text-white text-sm font-semibold">Register</button>
+                  <button onClick={() => { setMode("login"); setShowPopup(true); }} className="px-5 py-2.5 rounded-full bg-white text-[#0A84C1] text-sm font-semibold">Log In</button>
                 </div>
               </div>
             ) : favorites.length === 0 ? (
-              <div className="flex flex-col items-center justify-start pt-16 sm:pt-20 px-4">
-                <p className="text-white/70 text-lg sm:text-xl text-center">Your Favorites list is empty</p>
+              <div className="flex flex-col items-center justify-start pt-12 px-4 gap-3">
+                <svg viewBox="0 0 24 24" className="w-12 h-12 opacity-30" fill="none" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                </svg>
+                <p className="text-white/50 text-base text-center">No favorites yet</p>
+                <p className="text-white/30 text-sm text-center">Tap the heart on any dish to save it here</p>
               </div>
             ) : (
-              <div className="mb-6 sm:mb-8">
+              <div className="mb-6">
                 {favorites.map((dish) => (
                   <PhotoOnlyDishBlock key={dish.id} dish={dish} allDishes={Object.values(menuDishes).flat()} />
                 ))}
               </div>
             )}
-            </div>{/* end FAVORITES content wrapper */}
+            </div>
           </div>
 
         </div>{/* end swipe container */}
