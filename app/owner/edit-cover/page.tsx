@@ -131,6 +131,9 @@ export default function EditCoverPage() {
     const file = e.target.files[0];
     if (!file.type.startsWith("image/")) return;
 
+    // Reset input so selecting the same file again always fires onChange
+    e.target.value = "";
+
     const src = URL.createObjectURL(file);
     const rawBase64 = await fileToBase64(file);
     const base64 = await compressImage(rawBase64); // compress before storing
@@ -172,16 +175,17 @@ export default function EditCoverPage() {
     setShowCrop(false);
   };
 
-  // 🔥 SAVE — PATCH hotel: new file = both; re-crop = cover_url only
+  // 🔥 SAVE — PATCH hotel using hotelId already in state (no extra GET)
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
+
   const handleSubmit = async () => {
-    const slug = localStorage.getItem("restaurantId");
-    if (!slug) return;
+    if (!hotelId) { setSaveError("Hotel not loaded yet — please wait a moment and try again."); return; }
+    if (saving) return;
+    setSaving(true);
+    setSaveError(null);
 
     try {
-      const hotelRes = await fetch(`${API_BASE}/api/hotels/${encodeURIComponent(slug)}`);
-      if (!hotelRes.ok) throw new Error("Hotel not found");
-      const hotel = await hotelRes.json();
-
       const body: Record<string, string | null> = { cover_url: croppedCover ?? null };
       if (newFileBase64) {
         // New image file: update both original and cropped
@@ -192,20 +196,19 @@ export default function EditCoverPage() {
       }
       // Re-crop only: do not send cover_original_url (leave existing)
 
-      const res = await fetch(`${API_BASE}/api/hotels/${hotel.id}`, {
+      const res = await fetch(`${API_BASE}/api/hotels/${hotelId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
       });
-      if (!res.ok) throw new Error("Failed to save cover");
-      // Update cache with new cover so dashboard shows it instantly
+      if (!res.ok) throw new Error(`Save failed (${res.status})`);
+
       if (croppedCover) localStorage.setItem("cached_cover_url", croppedCover);
       else localStorage.removeItem("cached_cover_url");
-      setCroppedCover("");
       window.location.href = "/owner/dashboard";
-    } catch {
-      // show error - for now just redirect
-      window.location.href = "/owner/dashboard";
+    } catch (err: unknown) {
+      setSaveError(err instanceof Error ? err.message : "Something went wrong. Please try again.");
+      setSaving(false);
     }
   };
 
@@ -282,13 +285,17 @@ export default function EditCoverPage() {
           </div>
 
           {/* ACTION BUTTONS */}
+          {saveError && (
+            <p className="text-red-500 text-sm text-center mb-3 px-2">{saveError}</p>
+          )}
           <div className="flex flex-col gap-4">
             <button
               onClick={handleSubmit}
-              className="w-full rounded-full bg-[#0A84C1] text-white font-semibold"
+              disabled={saving}
+              className="w-full rounded-full bg-[#0A84C1] text-white font-semibold disabled:opacity-60"
               style={{ fontSize: "18px", padding: "14px" }}
             >
-              Save
+              {saving ? "Saving…" : "Save"}
             </button>
 
             <button
