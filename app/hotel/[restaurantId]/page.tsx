@@ -1446,14 +1446,14 @@ export default function HotelHomePage() {
         </div>{/* end swipe container */}
 
         {/* 🔥 BOTTOM BAR — floating pill nav + Ask Ody */}
-        <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md flex items-center gap-2.5 px-3 pb-5 pt-2 z-50 pointer-events-none">
+        <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md flex items-center gap-2.5 px-4 pb-5 pt-2 z-50 pointer-events-none">
           {/* Pill navigation — flex-1 takes all remaining space, tabs split equally */}
           <div className="flex-1 min-w-0 flex items-center bg-black/75 backdrop-blur-md rounded-full p-1.5 border border-white/15 shadow-xl pointer-events-auto">
             {tabs.map((tab, index) => (
               <button
                 key={tab}
                 onClick={() => goToTab(index)}
-                className={`flex-1 py-3 rounded-full text-base font-semibold whitespace-nowrap transition text-center ${
+                className={`flex-1 py-3.5 rounded-full text-base font-semibold whitespace-nowrap transition text-center ${
                   activeTab === index
                     ? "bg-white text-black shadow-sm"
                     : "text-white/60 hover:text-white"
@@ -1464,7 +1464,7 @@ export default function HotelHomePage() {
             ))}
           </div>
           {/* Ask Ody — compact to give pill more room */}
-          <button className="shrink-0 flex items-center gap-1.5 bg-black/75 backdrop-blur-md text-white px-3 py-3 rounded-full border border-white/15 shadow-xl pointer-events-auto">
+          <button className="shrink-0 flex items-center gap-1.5 bg-black/75 backdrop-blur-md text-white px-3 py-3.5 rounded-full border border-white/15 shadow-xl pointer-events-auto">
             <img src="/ody-face.png" className="w-7 h-7 rounded-full" alt="Ody" />
             <span className="text-sm font-semibold">Ask Ody</span>
           </button>
