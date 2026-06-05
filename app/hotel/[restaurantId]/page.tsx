@@ -493,6 +493,7 @@ export default function HotelHomePage() {
   }, []);
 
   const [activeTab, setActiveTab] = useState(0);
+  const [topBarVisible, setTopBarVisible] = useState(true);
   const [logo, setLogo] = useState("");
   const [cover, setCover] = useState("");
   const [restaurantName, setRestaurantName] = useState("");
@@ -732,6 +733,31 @@ export default function HotelHomePage() {
       el.style.transform = isActive ? 'scale(1)' : 'scale(0.97)';
       el.style.opacity = isActive ? '1' : '0.78';
     });
+  }, [activeTab]);
+
+  // Top bar auto-hide: only tracks Menu tab (index 0) which has the cover photo.
+  // Eat Later & Favorites have no cover so the bar always stays visible there.
+  useEffect(() => {
+    // Non-menu tabs: bar always visible
+    if (activeTab !== 0) {
+      setTopBarVisible(true);
+      return;
+    }
+
+    const menuPanel = tabScrollRefs.current[0];
+    if (!menuPanel) { setTopBarVisible(true); return; }
+
+    const coverHeight = window.innerHeight * 0.5; // matches h-[50vh]
+
+    const checkVisibility = () => {
+      setTopBarVisible(menuPanel.scrollTop < coverHeight - 10);
+    };
+
+    // Run immediately so switching back to Menu reflects current scroll
+    checkVisibility();
+
+    menuPanel.addEventListener('scroll', checkVisibility, { passive: true });
+    return () => menuPanel.removeEventListener('scroll', checkVisibility);
   }, [activeTab]);
 
   const goToTab = (index: number) => {
@@ -1041,7 +1067,13 @@ export default function HotelHomePage() {
 
 
         {/* 🔥 TOP TASK BAR */}
-        <div className="fixed top-0 left-1/2 -translate-x-1/2 w-full max-w-md z-[999]">
+        <div
+          className="fixed top-0 left-1/2 -translate-x-1/2 w-full max-w-md z-[999]"
+          style={{
+            transform: topBarVisible ? 'translateY(0)' : 'translateY(-100%)',
+            transition: 'transform 0.35s ease',
+          }}
+        >
           <div className="h-12 sm:h-14 pl-4 pr-0 sm:pl-5 flex items-center justify-between bg-black/60 backdrop-blur-md">
 
             {!user ? (
