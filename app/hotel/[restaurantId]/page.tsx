@@ -1150,7 +1150,7 @@ export default function HotelHomePage() {
             })()}
 
             {/* CATEGORY CONTENT */}
-            <div className="px-4 sm:px-6 pt-6 sm:pt-8">
+            <div className="px-2 sm:px-3 pt-6 sm:pt-8">
             {(() => {
               // Compute which blocks to render: filtered (1 unnamed block) or normal categories
               type Block = { name: string | null; dishes: OdyDish[] };
@@ -1191,7 +1191,7 @@ export default function HotelHomePage() {
                       {block.name ? (
                         <h2 className="text-white text-xl sm:text-2xl font-bold mb-3 px-1">{block.name}</h2>
                       ) : null}
-                      <div className="bg-[#DADDE4] rounded-[28px] px-4 py-4 w-full">
+                      <div className="bg-[#DADDE4] rounded-[28px] px-3 py-4 w-full">
                         {block.dishes.map((dish) => {
                           // Resolve combo component dish photos from all menu dishes
                           const allMenuDishesFlat = Object.values(menuDishes).flat();
