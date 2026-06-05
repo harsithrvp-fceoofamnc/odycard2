@@ -723,6 +723,17 @@ export default function HotelHomePage() {
     setActiveTab(index);
   };
 
+  // VisionOS glass panel spring animation — runs whenever active tab changes
+  useEffect(() => {
+    tabScrollRefs.current.forEach((el, i) => {
+      if (!el) return;
+      const isActive = i === activeTab;
+      el.style.transition = 'transform 0.55s cubic-bezier(0.34, 1.15, 0.64, 1), opacity 0.4s ease';
+      el.style.transform = isActive ? 'scale(1)' : 'scale(0.97)';
+      el.style.opacity = isActive ? '1' : '0.78';
+    });
+  }, [activeTab]);
+
   const goToTab = (index: number) => {
     if (!containerRef.current) return;
     containerRef.current.scrollTo({
@@ -1065,7 +1076,7 @@ export default function HotelHomePage() {
         >
 
           {/* MENU */}
-          <div ref={(el) => { tabScrollRefs.current[0] = el; }} className="min-w-full snap-center snap-always h-full overflow-y-auto no-scrollbar">
+          <div ref={(el) => { tabScrollRefs.current[0] = el; }} className="min-w-full snap-center snap-always h-full overflow-y-auto no-scrollbar" style={{ willChange: 'transform, opacity', transformOrigin: 'top center' }}>
             {/* Cover */}
             <div className="relative w-full h-[50vh] overflow-hidden shrink-0">
               {cover ? (
@@ -1358,7 +1369,7 @@ export default function HotelHomePage() {
           </div>
 
           {/* EAT LATER */}
-          <div ref={(el) => { tabScrollRefs.current[1] = el; }} className="min-w-full snap-center snap-always h-full overflow-y-auto no-scrollbar">
+          <div ref={(el) => { tabScrollRefs.current[1] = el; }} className="min-w-full snap-center snap-always h-full overflow-y-auto no-scrollbar" style={{ willChange: 'transform, opacity', transformOrigin: 'top center' }}>
             {/* Header */}
             <div className="pt-16 pb-6 px-5 flex flex-col items-center gap-2">
               <svg viewBox="0 0 24 24" className="w-10 h-10 text-white/80" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
@@ -1401,7 +1412,7 @@ export default function HotelHomePage() {
           </div>
 
           {/* FAVORITES */}
-          <div ref={(el) => { tabScrollRefs.current[2] = el; }} className="min-w-full snap-center snap-always h-full overflow-y-auto no-scrollbar">
+          <div ref={(el) => { tabScrollRefs.current[2] = el; }} className="min-w-full snap-center snap-always h-full overflow-y-auto no-scrollbar" style={{ willChange: 'transform, opacity', transformOrigin: 'top center' }}>
             {/* Header */}
             <div className="pt-16 pb-6 px-5 flex flex-col items-center gap-2">
               <svg viewBox="0 0 24 24" className="w-10 h-10 text-white/80" fill="currentColor" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -1464,7 +1475,7 @@ export default function HotelHomePage() {
             ))}
           </div>
           {/* Ask Ody — compact to give pill more room */}
-          <button className="shrink-0 flex items-center gap-1.5 bg-black/75 backdrop-blur-md text-white px-3 py-3 rounded-full border border-white/15 shadow-xl pointer-events-auto">
+          <button className="shrink-0 flex items-center gap-1.5 bg-black/75 backdrop-blur-md text-white px-4 py-3 rounded-full border border-white/15 shadow-xl pointer-events-auto">
             <img src="/ody-face.png" className="w-7 h-7 rounded-full" alt="Ody" />
             <span className="text-sm font-semibold">Ask Ody</span>
           </button>
