@@ -1,6 +1,6 @@
 "use client";
 
-import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState } from "react";
+import { forwardRef, useCallback, useEffect, useLayoutEffect, useImperativeHandle, useRef, useState } from "react";
 import { useParams } from "next/navigation";
 import RatingModal from "@/components/RatingModal";
 import { useLoader } from "@/context/LoaderContext";
@@ -513,6 +513,11 @@ export default function HotelHomePage() {
   const showLoaderRef = useRef(showLoader);
   const hideLoaderRef = useRef(hideLoader);
   useEffect(() => { showLoaderRef.current = showLoader; hideLoaderRef.current = hideLoader; }, [showLoader, hideLoader]);
+
+  // Show buffer screen immediately — before browser paints anything
+  useLayoutEffect(() => {
+    showLoaderRef.current();
+  }, []);
   const [isLoading, setIsLoading] = useState(true);
   // Ticks every minute so timing-based dish visibility updates automatically
   const [, setTimeTick] = useState(0);
@@ -600,7 +605,6 @@ export default function HotelHomePage() {
     let cancelled = false;
 
     async function loadHotelAndDishes() {
-      showLoaderRef.current();
       try {
         const hotelRes = await fetch(`${API_BASE}/api/hotels/${encodeURIComponent(slug)}`);
         if (!hotelRes.ok) {
