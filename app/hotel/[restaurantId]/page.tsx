@@ -1604,7 +1604,7 @@ export default function HotelHomePage() {
             ))}
           </div>
           {/* Ask Ody */}
-          <button className="shrink-0 flex items-center gap-2 bg-black/75 backdrop-blur-md text-white px-4 py-3 rounded-full border border-white/15 shadow-xl pointer-events-auto">
+          <button className="shrink-0 flex items-center gap-2 bg-black/75 backdrop-blur-md text-white px-4 py-3.5 rounded-full border border-white/15 shadow-xl pointer-events-auto">
             <img src="/ody-face.png" className="w-7 h-7 rounded-full" alt="Ody" />
             <span className="text-sm font-semibold">Ask Ody</span>
           </button>
