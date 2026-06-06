@@ -510,6 +510,9 @@ export default function HotelHomePage() {
   const restaurantId = params?.restaurantId as string | undefined;
   const [isRefreshing, setIsRefreshing] = useState(false);
   const { showLoader, hideLoader } = useLoader();
+  const showLoaderRef = useRef(showLoader);
+  const hideLoaderRef = useRef(hideLoader);
+  useEffect(() => { showLoaderRef.current = showLoader; hideLoaderRef.current = hideLoader; }, [showLoader, hideLoader]);
   const [isLoading, setIsLoading] = useState(true);
   // Ticks every minute so timing-based dish visibility updates automatically
   const [, setTimeTick] = useState(0);
@@ -597,7 +600,7 @@ export default function HotelHomePage() {
     let cancelled = false;
 
     async function loadHotelAndDishes() {
-      showLoader();
+      showLoaderRef.current();
       try {
         const hotelRes = await fetch(`${API_BASE}/api/hotels/${encodeURIComponent(slug)}`);
         if (!hotelRes.ok) {
@@ -644,7 +647,7 @@ export default function HotelHomePage() {
       } finally {
         if (!cancelled) {
           setIsLoading(false);
-          hideLoader();
+          hideLoaderRef.current();
         }
       }
     }
@@ -653,7 +656,8 @@ export default function HotelHomePage() {
     return () => {
       cancelled = true;
     };
-  }, [restaurantId, fetchDishes, showLoader, hideLoader]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [restaurantId, fetchDishes]);
 
   // Polling: refetch dishes + hotel every 4s
   useEffect(() => {
