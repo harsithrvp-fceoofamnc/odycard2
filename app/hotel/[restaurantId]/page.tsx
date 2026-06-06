@@ -765,8 +765,8 @@ export default function HotelHomePage() {
     });
     tabBtnRefs.current.forEach((btn, i) => {
       if (!btn) return;
-      btn.style.transition = spring ? 'color 0.3s ease' : 'none';
-      btn.style.color = i === index ? 'rgb(0,0,0)' : 'rgba(255,255,255,0.6)';
+      btn.style.transition = spring ? 'color 0.35s ease' : 'none';
+      btn.style.color = i === index ? 'rgba(255,255,255,1)' : 'rgba(255,255,255,0.38)';
     });
   }, []);
 
@@ -802,9 +802,9 @@ export default function HotelHomePage() {
       const dist = Math.abs(ratio - i);
       const t = Math.min(dist, 1);
       btn.style.transition = 'none';
-      btn.style.color = t < 0.5
-        ? `rgb(${Math.round(t * 2 * 90)},${Math.round(t * 2 * 90)},${Math.round(t * 2 * 90)})`
-        : 'rgba(255,255,255,0.6)';
+      // Interpolate between bright white (active) and dim white (inactive)
+      const alpha = t < 0.5 ? 1 - t * 2 * 0.62 : 0.38;
+      btn.style.color = `rgba(255,255,255,${alpha.toFixed(2)})`;
     });
 
     // Spring settle after finger lifts
@@ -1573,31 +1573,34 @@ export default function HotelHomePage() {
 
         {/* 🔥 BOTTOM BAR — spotlight pill + Ask Ody */}
         <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md flex items-center gap-2.5 px-2 pb-5 pt-2 z-50 pointer-events-none">
-          {/* Category Island — floating white spotlight leads the swipe */}
+          {/* Category Island — soft spotlight glow follows active tab */}
           <div
             ref={pillRef}
-            className="flex-1 min-w-0 relative flex items-center bg-black/75 backdrop-blur-md rounded-full p-1.5 border border-white/15 shadow-xl pointer-events-auto overflow-hidden"
+            className="flex-1 min-w-0 relative flex items-center bg-black/80 backdrop-blur-md rounded-full p-1.5 border border-white/10 shadow-xl pointer-events-auto overflow-hidden"
           >
-            {/* The spotlight: absolutely-positioned white pill that slides under active tab */}
+            {/* Soft radial spotlight — no solid fill, just a glow that follows the active tab */}
             <div
               ref={spotlightRef}
-              className="absolute top-1.5 bottom-1.5 left-1.5 rounded-full pointer-events-none"
+              className="absolute pointer-events-none"
               style={{
-                width: `calc((100% - 12px) / ${tabs.length})`,
-                background: 'white',
-                boxShadow: '0 2px 16px rgba(0,0,0,0.14)',
+                width: `calc((100% - 12px) / ${tabs.length} + 24px)`,
+                top: '-6px', bottom: '-6px',
+                left: '-6px',
+                background: 'radial-gradient(ellipse 80% 90% at 50% 50%, rgba(255,255,255,0.82) 0%, rgba(255,255,255,0.32) 42%, rgba(255,255,255,0.06) 70%, transparent 100%)',
+                borderRadius: '9999px',
+                filter: 'blur(3px)',
                 transform: 'translateX(0)',
                 zIndex: 0,
               }}
             />
-            {/* Tab buttons — sit above spotlight */}
+            {/* Tab buttons */}
             {tabs.map((tab, index) => (
               <button
                 key={tab}
                 ref={(el) => { tabBtnRefs.current[index] = el; }}
                 onClick={() => goToTab(index)}
                 className="flex-1 relative py-3 rounded-full text-base font-semibold whitespace-nowrap text-center flex items-center justify-center gap-1.5"
-                style={{ zIndex: 1, color: activeTab === index ? 'rgb(0,0,0)' : 'rgba(255,255,255,0.6)' }}
+                style={{ zIndex: 1, color: activeTab === index ? 'rgba(255,255,255,1)' : 'rgba(255,255,255,0.38)' }}
               >
                 <TabIcon tab={tab} isActive={activeTab === index} />
                 <span>{tab}</span>
