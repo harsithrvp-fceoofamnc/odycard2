@@ -751,7 +751,7 @@ export default function HotelHomePage() {
   const animateToIndex = useCallback((index: number, spring = true) => {
     const transition = spring ? 'transform 0.48s cubic-bezier(0.34, 1.2, 0.64, 1)' : 'none';
     if (spotlightRef.current && pillRef.current) {
-      const slotW = (pillRef.current.clientWidth - 12) / tabs.length;
+      const slotW = (pillRef.current.clientWidth - 20) / tabs.length;
       spotlightRef.current.style.transition = transition;
       spotlightRef.current.style.transform = `translateX(${index * slotW}px)`;
     }
@@ -782,7 +782,7 @@ export default function HotelHomePage() {
 
     // Spotlight leads the swipe — no transition, direct 1:1 follow
     if (spotlightRef.current && pillRef.current) {
-      const slotW = (pillRef.current.clientWidth - 12) / tabs.length;
+      const slotW = (pillRef.current.clientWidth - 20) / tabs.length;
       spotlightRef.current.style.transition = 'none';
       spotlightRef.current.style.transform = `translateX(${ratio * slotW}px)`;
     }
@@ -1202,7 +1202,7 @@ export default function HotelHomePage() {
               ) : (
                 <div className="w-full h-full bg-[#1c1c1c]" />
               )}
-              <div className="absolute inset-0 flex items-center justify-center -translate-y-6">
+              <div className="absolute inset-0 flex items-center justify-center translate-y-2">
                 {logo && (
                   <div className="w-44 h-44 rounded-full overflow-hidden shadow-[0_35px_70px_rgba(0,0,0,0.85)]">
                     <img src={logo} className="w-full h-full object-cover" alt="" />
@@ -1276,7 +1276,7 @@ export default function HotelHomePage() {
             })()}
 
             {/* CATEGORY CONTENT */}
-            <div className="px-2 sm:px-3 pt-6 sm:pt-8">
+            <div className="px-2 sm:px-3 pt-6 sm:pt-8 pb-44">
             {(() => {
               // Compute which blocks to render: filtered (1 unnamed block) or normal categories
               type Block = { name: string | null; dishes: OdyDish[] };
@@ -1581,9 +1581,9 @@ export default function HotelHomePage() {
             {/* Sliding transparent pill behind active tab */}
             <div
               ref={spotlightRef}
-              className="absolute top-1.5 bottom-1.5 left-1.5 rounded-full pointer-events-none"
+              className="absolute top-2.5 bottom-2.5 left-2.5 rounded-full pointer-events-none"
               style={{
-                width: `calc((100% - 12px) / ${tabs.length})`,
+                width: `calc((100% - 20px) / ${tabs.length})`,
                 background: 'rgba(255,255,255,0.13)',
                 transform: 'translateX(0)',
                 zIndex: 0,
@@ -1604,9 +1604,9 @@ export default function HotelHomePage() {
             ))}
           </div>
           {/* Ask Ody */}
-          <button className="shrink-0 flex items-center gap-1.5 bg-black/75 backdrop-blur-md text-white px-4 py-3 rounded-full border border-white/15 shadow-xl pointer-events-auto">
-            <img src="/ody-face.png" className="w-7 h-7 rounded-full" alt="Ody" />
-            <span className="text-sm font-semibold">Ask Ody</span>
+          <button className="shrink-0 flex flex-col items-center justify-center gap-0.5 bg-black/75 backdrop-blur-md text-white px-4 py-1.5 rounded-full border border-white/15 shadow-xl pointer-events-auto">
+            <img src="/ody-face.png" className="w-5 h-5 rounded-full" alt="Ody" />
+            <span className="text-xs font-semibold">Ask Ody</span>
           </button>
         </div>
 
