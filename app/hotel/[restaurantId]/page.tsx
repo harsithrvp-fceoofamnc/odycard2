@@ -3,6 +3,7 @@
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState } from "react";
 import { useParams } from "next/navigation";
 import RatingModal from "@/components/RatingModal";
+import { useLoader } from "@/context/LoaderContext";
 
 const API_BASE = (process.env.NEXT_PUBLIC_API_URL && process.env.NEXT_PUBLIC_API_URL.trim() !== "") ? process.env.NEXT_PUBLIC_API_URL.trim() : "";
 
@@ -508,6 +509,7 @@ export default function HotelHomePage() {
   const params = useParams();
   const restaurantId = params?.restaurantId as string | undefined;
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const { showLoader, hideLoader } = useLoader();
   const [isLoading, setIsLoading] = useState(true);
   // Ticks every minute so timing-based dish visibility updates automatically
   const [, setTimeTick] = useState(0);
@@ -595,6 +597,7 @@ export default function HotelHomePage() {
     let cancelled = false;
 
     async function loadHotelAndDishes() {
+      showLoader();
       try {
         const hotelRes = await fetch(`${API_BASE}/api/hotels/${encodeURIComponent(slug)}`);
         if (!hotelRes.ok) {
@@ -639,7 +642,10 @@ export default function HotelHomePage() {
           console.error("Load hotel/dishes error:", err);
         }
       } finally {
-        if (!cancelled) setIsLoading(false);
+        if (!cancelled) {
+          setIsLoading(false);
+          hideLoader();
+        }
       }
     }
 
@@ -647,7 +653,7 @@ export default function HotelHomePage() {
     return () => {
       cancelled = true;
     };
-  }, [restaurantId, fetchDishes]);
+  }, [restaurantId, fetchDishes, showLoader, hideLoader]);
 
   // Polling: refetch dishes + hotel every 4s
   useEffect(() => {
