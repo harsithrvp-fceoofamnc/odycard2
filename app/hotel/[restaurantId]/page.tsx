@@ -1212,7 +1212,7 @@ export default function HotelHomePage() {
             </div>
 
             {/* SEARCH + TAGS HEADER */}
-            <div className="px-4 sm:px-6 pt-4 sm:pt-5">
+            <div className="px-4 sm:px-6 pt-6 pb-6">
               {/* Search bar */}
               <div className="w-full rounded-full bg-white flex items-center px-4 sm:px-5 shadow-md gap-3 h-12 sm:h-14">
                 <img src="/search.png" className="w-5 h-5 sm:w-6 sm:h-6 opacity-60" alt="" />
@@ -1236,7 +1236,7 @@ export default function HotelHomePage() {
               }
               const tagList = Array.from(tagSet);
               return (
-                <div className="mt-7 w-full">
+                <div className="mt-0 w-full">
                   <div className="h-px bg-white/20 w-full" />
                   <div className="min-h-[64px] w-full overflow-x-auto no-scrollbar">
                     {tagList.length === 0 ? (
