@@ -1,6 +1,6 @@
 "use client";
 
-import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState } from "react";
+import { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from "react";
 import { useParams } from "next/navigation";
 import RatingModal from "@/components/RatingModal";
 import OdyLoader from "@/components/OdyLoader";
@@ -481,6 +481,31 @@ function mapDishFromApi(row: {
   };
 }
 
+/** Compact horizontal dish card used in search results */
+function SearchDishBlock({ dish }: { dish: OdyDish }) {
+  return (
+    <div className="flex gap-3 rounded-2xl overflow-hidden mb-3" style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.07)' }}>
+      <img
+        src={dish.photoUrl || "/food_item_logo.png"}
+        alt={dish.name}
+        className="w-24 h-24 object-cover shrink-0"
+      />
+      <div className="flex-1 py-3 pr-3 min-w-0 flex flex-col justify-center gap-1">
+        <div className="flex items-center gap-1.5">
+          <div className={`w-3.5 h-3.5 shrink-0 border-2 rounded-sm flex items-center justify-center ${dish.isVeg ? "border-green-500" : "border-red-500"}`}>
+            <div className={`w-1.5 h-1.5 rounded-full ${dish.isVeg ? "bg-green-500" : "bg-red-500"}`} />
+          </div>
+          <p className="text-white font-semibold text-sm leading-tight line-clamp-1">{dish.name}</p>
+        </div>
+        <p className="text-white/60 font-semibold text-sm ml-5">₹{dish.price}</p>
+        {dish.description ? (
+          <p className="text-white/35 text-xs ml-5 line-clamp-2 leading-snug">{dish.description}</p>
+        ) : null}
+      </div>
+    </div>
+  );
+}
+
 /** Tab icon — scales + morphs when active */
 function TabIcon({ tab, isActive }: { tab: string; isActive: boolean }) {
   const base = {
@@ -558,6 +583,41 @@ export default function HotelHomePage() {
   const [user, setUser] = useState<{ phone: string; name: string } | null>(null);
   const [showProfile, setShowProfile] = useState(false);
   const [search, setSearch] = useState("");
+  // Search page state
+  const [showSearch, setShowSearch] = useState(false);
+  const [searchMounted, setSearchMounted] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const searchInputRef = useRef<HTMLInputElement>(null);
+
+  const openSearch = () => {
+    setShowSearch(true);
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      setSearchMounted(true);
+      setTimeout(() => searchInputRef.current?.focus(), 220);
+    }));
+  };
+
+  const closeSearch = () => {
+    setSearchMounted(false);
+    setTimeout(() => { setShowSearch(false); setSearchQuery(""); }, 300);
+  };
+
+  // 4 most expensive dishes for "Recommended by Ody"
+  const recommendedDishes = useMemo(() =>
+    Object.values(menuDishes).flat().sort((a, b) => b.price - a.price).slice(0, 4),
+    [menuDishes]
+  );
+
+  // Live search across name, description, tags
+  const searchResults = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase();
+    if (!q) return [];
+    return Object.values(menuDishes).flat().filter(d =>
+      d.name.toLowerCase().includes(q) ||
+      d.description?.toLowerCase().includes(q) ||
+      d.tags?.some(t => t.toLowerCase().includes(q))
+    );
+  }, [searchQuery, menuDishes]);
   // Tracks which dish ids have expanded descriptions in Menu tab
   const [expandedDescs, setExpandedDescs] = useState<Set<string>>(new Set());
   const toggleDesc = (id: string) =>
@@ -1229,16 +1289,16 @@ export default function HotelHomePage() {
 
             {/* SEARCH + TAGS HEADER */}
             <div className="px-4 sm:px-6 pt-6 pb-6">
-              {/* Search bar */}
-              <div className="w-full rounded-full bg-white flex items-center px-4 sm:px-5 shadow-md gap-3 h-12 sm:h-14">
+              {/* Search bar — tapping opens full search page */}
+              <button
+                onClick={openSearch}
+                className="w-full rounded-full bg-white flex items-center px-4 sm:px-5 shadow-md gap-3 h-12 sm:h-14 text-left"
+              >
                 <img src="/search.png" className="w-5 h-5 sm:w-6 sm:h-6 opacity-60" alt="" />
-                <input
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  placeholder={`Search in ${restaurantName || "this restaurant"}`}
-                  className="flex-1 bg-transparent outline-none text-base sm:text-lg text-black placeholder-gray-400 min-w-0"
-                />
-              </div>
+                <span className="flex-1 text-base sm:text-lg text-gray-400 min-w-0 truncate">
+                  Search in {restaurantName || "this restaurant"}
+                </span>
+              </button>
             </div>
 
             {/* TAG ISLAND — live computed from menu dishes */}
@@ -1625,6 +1685,85 @@ export default function HotelHomePage() {
             <span className="text-sm font-semibold">Ask Ody</span>
           </button>
         </div>
+
+        {/* 🔥 SEARCH PAGE OVERLAY */}
+        {showSearch && (
+          <div
+            className="fixed top-0 bottom-0 w-full max-w-md z-[500] flex flex-col bg-[#1c1c1c]"
+            style={{
+              left: '50%',
+              opacity: searchMounted ? 1 : 0,
+              transform: `translateX(-50%) translateY(${searchMounted ? 0 : 20}px)`,
+              transition: 'opacity 0.28s cubic-bezier(0.4,0,0.2,1), transform 0.28s cubic-bezier(0.4,0,0.2,1)',
+            }}
+          >
+            {/* Top bar: back + search input */}
+            <div className="shrink-0 px-4 pt-14 pb-3 border-b border-white/8">
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={closeSearch}
+                  className="w-9 h-9 rounded-full flex items-center justify-center shrink-0"
+                  style={{ background: 'rgba(255,255,255,0.1)' }}
+                >
+                  <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M19 12H5M12 19l-7-7 7-7"/>
+                  </svg>
+                </button>
+                <div className="flex-1 rounded-full bg-white flex items-center px-4 h-12 gap-3">
+                  <img src="/search.png" className="w-5 h-5 opacity-50" alt="" />
+                  <input
+                    ref={searchInputRef}
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder={`Search in ${restaurantName || "menu"}…`}
+                    className="flex-1 bg-transparent outline-none text-base text-black placeholder-gray-400"
+                    autoComplete="off"
+                  />
+                  {searchQuery.length > 0 && (
+                    <button onClick={() => setSearchQuery("")} className="shrink-0">
+                      <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="#999" strokeWidth="2.5" strokeLinecap="round">
+                        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                      </svg>
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Content */}
+            <div className="flex-1 overflow-y-auto px-4 pb-10 no-scrollbar">
+              {searchQuery.trim() === "" ? (
+                <>
+                  {/* Recommended by Ody */}
+                  <div className="flex items-center gap-2.5 mt-5 mb-4">
+                    <img src="/ody-face.png" className="w-7 h-7 rounded-full" alt="" />
+                    <span className="text-white font-bold text-base">Recommended by Ody</span>
+                  </div>
+                  {recommendedDishes.length === 0 ? (
+                    <p className="text-white/30 text-sm text-center mt-10">Menu is loading…</p>
+                  ) : (
+                    recommendedDishes.map(dish => <SearchDishBlock key={dish.id} dish={dish} />)
+                  )}
+                </>
+              ) : searchResults.length === 0 ? (
+                <div className="flex flex-col items-center pt-20 gap-3">
+                  <svg viewBox="0 0 24 24" className="w-12 h-12 opacity-20" fill="none" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+                  </svg>
+                  <p className="text-white/50 text-base font-medium">No dishes found</p>
+                  <p className="text-white/30 text-sm">Try a different name</p>
+                </div>
+              ) : (
+                <>
+                  <p className="text-white/40 text-xs font-semibold uppercase tracking-wide mt-5 mb-4">
+                    {searchResults.length} result{searchResults.length !== 1 ? "s" : ""} for &ldquo;{searchQuery}&rdquo;
+                  </p>
+                  {searchResults.map(dish => <SearchDishBlock key={dish.id} dish={dish} />)}
+                </>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* 🔥 PROFILE POPUP */}
         {showProfile && (
