@@ -1,9 +1,9 @@
 "use client";
 
-import { forwardRef, useCallback, useEffect, useLayoutEffect, useImperativeHandle, useRef, useState } from "react";
+import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState } from "react";
 import { useParams } from "next/navigation";
 import RatingModal from "@/components/RatingModal";
-import { useLoader } from "@/context/LoaderContext";
+import OdyLoader from "@/components/OdyLoader";
 
 const API_BASE = (process.env.NEXT_PUBLIC_API_URL && process.env.NEXT_PUBLIC_API_URL.trim() !== "") ? process.env.NEXT_PUBLIC_API_URL.trim() : "";
 
@@ -509,15 +509,7 @@ export default function HotelHomePage() {
   const params = useParams();
   const restaurantId = params?.restaurantId as string | undefined;
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const { showLoader, hideLoader } = useLoader();
-  const showLoaderRef = useRef(showLoader);
-  const hideLoaderRef = useRef(hideLoader);
-  useEffect(() => { showLoaderRef.current = showLoader; hideLoaderRef.current = hideLoader; }, [showLoader, hideLoader]);
-
-  // Show buffer screen immediately — before browser paints anything
-  useLayoutEffect(() => {
-    showLoaderRef.current();
-  }, []);
+  const [initialLoading, setInitialLoading] = useState(true);
   const [isLoading, setIsLoading] = useState(true);
   // Ticks every minute so timing-based dish visibility updates automatically
   const [, setTimeTick] = useState(0);
@@ -651,7 +643,7 @@ export default function HotelHomePage() {
       } finally {
         if (!cancelled) {
           setIsLoading(false);
-          hideLoaderRef.current();
+          setInitialLoading(false);
         }
       }
     }
@@ -1153,7 +1145,17 @@ export default function HotelHomePage() {
 
   return (
     <div className="min-h-screen bg-black flex justify-center">
-      <div className="relative w-full max-w-md bg-[#1c1c1c] flex flex-col overflow-hidden" style={{ height: "100dvh" }}>
+      {/* Buffer screen — visible from first render, hides after all data loads */}
+      {initialLoading && <OdyLoader />}
+
+      <div
+        className="relative w-full max-w-md bg-[#1c1c1c] flex flex-col overflow-hidden"
+        style={{
+          height: "100dvh",
+          filter: initialLoading ? 'blur(3px) brightness(0.85)' : 'none',
+          transition: 'filter 0.4s ease',
+        }}
+      >
 
         {/* MENU UPDATE OVERLAY */}
         {isRefreshing && (
