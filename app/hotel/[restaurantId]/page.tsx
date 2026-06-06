@@ -483,9 +483,9 @@ function mapDishFromApi(row: {
 /** Tab icon — scales + morphs when active */
 function TabIcon({ tab, isActive }: { tab: string; isActive: boolean }) {
   const base = {
-    width: 17, height: 17, flexShrink: 0,
+    width: 22, height: 22, flexShrink: 0,
     transition: 'transform 0.45s cubic-bezier(0.34, 1.3, 0.64, 1)',
-    transform: isActive ? 'scale(1.2)' : 'scale(1)',
+    transform: isActive ? 'scale(1.15)' : 'scale(1)',
   };
   if (tab === "Menu") return (
     <svg viewBox="0 0 24 24" style={base} fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
@@ -766,7 +766,7 @@ export default function HotelHomePage() {
     tabBtnRefs.current.forEach((btn, i) => {
       if (!btn) return;
       btn.style.transition = spring ? 'color 0.35s ease' : 'none';
-      btn.style.color = i === index ? 'rgb(0,0,0)' : 'rgba(255,255,255,0.55)';
+      btn.style.color = i === index ? 'rgba(255,255,255,1)' : 'rgba(255,255,255,0.45)';
     });
   }, []);
 
@@ -803,9 +803,8 @@ export default function HotelHomePage() {
       const t = Math.min(dist, 1);
       btn.style.transition = 'none';
       // Interpolate between bright white (active) and dim white (inactive)
-      btn.style.color = t < 0.5
-        ? `rgb(${Math.round(t * 2 * 90)},${Math.round(t * 2 * 90)},${Math.round(t * 2 * 90)})`
-        : 'rgba(255,255,255,0.55)';
+      const a = t < 0.5 ? 1 - t * 2 * 0.55 : 0.45;
+      btn.style.color = `rgba(255,255,255,${a.toFixed(2)})`;
     });
 
     // Spring settle after finger lifts
@@ -1579,29 +1578,28 @@ export default function HotelHomePage() {
             ref={pillRef}
             className="flex-1 min-w-0 relative flex items-center bg-black/75 backdrop-blur-md rounded-full p-1.5 border border-white/15 shadow-xl pointer-events-auto overflow-hidden"
           >
-            {/* Sliding white pill behind active tab */}
+            {/* Sliding transparent pill behind active tab */}
             <div
               ref={spotlightRef}
               className="absolute top-1.5 bottom-1.5 left-1.5 rounded-full pointer-events-none"
               style={{
                 width: `calc((100% - 12px) / ${tabs.length})`,
-                background: 'white',
-                boxShadow: '0 2px 12px rgba(0,0,0,0.12)',
-                transform: 'translate(0, 0)',
+                background: 'rgba(255,255,255,0.13)',
+                transform: 'translateX(0)',
                 zIndex: 0,
               }}
             />
-            {/* Tab buttons */}
+            {/* Tab buttons — icon on top, text below */}
             {tabs.map((tab, index) => (
               <button
                 key={tab}
                 ref={(el) => { tabBtnRefs.current[index] = el; }}
                 onClick={() => goToTab(index)}
-                className="flex-1 relative py-3 rounded-full text-base font-semibold whitespace-nowrap text-center flex items-center justify-center gap-1.5"
-                style={{ zIndex: 1, color: activeTab === index ? 'rgb(0,0,0)' : 'rgba(255,255,255,0.55)' }}
+                className="flex-1 relative py-2.5 rounded-full whitespace-nowrap text-center flex flex-col items-center justify-center gap-1"
+                style={{ zIndex: 1, color: activeTab === index ? 'rgba(255,255,255,1)' : 'rgba(255,255,255,0.45)' }}
               >
                 <TabIcon tab={tab} isActive={activeTab === index} />
-                <span>{tab}</span>
+                <span className="text-xs font-semibold">{tab}</span>
               </button>
             ))}
           </div>
