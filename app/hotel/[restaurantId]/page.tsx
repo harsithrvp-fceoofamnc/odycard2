@@ -483,7 +483,7 @@ function mapDishFromApi(row: {
 /** Tab icon — scales + morphs when active */
 function TabIcon({ tab, isActive }: { tab: string; isActive: boolean }) {
   const base = {
-    width: 22, height: 22, flexShrink: 0,
+    width: 19, height: 19, flexShrink: 0,
     transition: 'transform 0.45s cubic-bezier(0.34, 1.3, 0.64, 1)',
     transform: isActive ? 'scale(1.15)' : 'scale(1)',
   };
@@ -1595,7 +1595,7 @@ export default function HotelHomePage() {
                 key={tab}
                 ref={(el) => { tabBtnRefs.current[index] = el; }}
                 onClick={() => goToTab(index)}
-                className="flex-1 relative py-2.5 rounded-full whitespace-nowrap text-center flex flex-col items-center justify-center gap-1"
+                className="flex-1 relative py-1.5 rounded-full whitespace-nowrap text-center flex flex-col items-center justify-center gap-0.5"
                 style={{ zIndex: 1, color: activeTab === index ? 'rgba(255,255,255,1)' : 'rgba(255,255,255,0.45)' }}
               >
                 <TabIcon tab={tab} isActive={activeTab === index} />
