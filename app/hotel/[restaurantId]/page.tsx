@@ -753,7 +753,7 @@ export default function HotelHomePage() {
     if (spotlightRef.current && pillRef.current) {
       const slotW = (pillRef.current.clientWidth - 12) / tabs.length;
       spotlightRef.current.style.transition = transition;
-      spotlightRef.current.style.transform = `translateX(${index * slotW}px)`;
+      spotlightRef.current.style.transform = `translate(${index * slotW}px, -50%)`;
     }
     tabScrollRefs.current.forEach((el, i) => {
       if (!el) return;
@@ -784,7 +784,7 @@ export default function HotelHomePage() {
     if (spotlightRef.current && pillRef.current) {
       const slotW = (pillRef.current.clientWidth - 12) / tabs.length;
       spotlightRef.current.style.transition = 'none';
-      spotlightRef.current.style.transform = `translateX(${ratio * slotW}px)`;
+      spotlightRef.current.style.transform = `translate(${ratio * slotW}px, -50%)`;
     }
 
     // Pages follow with subtle magnetic lag (8ms eases scale/opacity slightly behind finger)
@@ -1573,23 +1573,25 @@ export default function HotelHomePage() {
 
         {/* 🔥 BOTTOM BAR — spotlight pill + Ask Ody */}
         <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md flex items-center gap-2.5 px-2 pb-5 pt-2 z-50 pointer-events-none">
-          {/* Category Island — soft spotlight glow follows active tab */}
+          {/* Category Island — soft floating spotlight */}
           <div
             ref={pillRef}
-            className="flex-1 min-w-0 relative flex items-center bg-black/80 backdrop-blur-md rounded-full p-1.5 border border-white/10 shadow-xl pointer-events-auto overflow-hidden"
+            className="flex-1 min-w-0 relative flex items-center backdrop-blur-md rounded-full p-1.5 border border-white/10 shadow-xl pointer-events-auto"
+            style={{ background: 'rgba(15,15,15,0.85)', overflow: 'visible' }}
           >
-            {/* Soft radial spotlight — no solid fill, just a glow that follows the active tab */}
+            {/* Soft spotlight glow — large blur, clearly not a solid pill */}
             <div
               ref={spotlightRef}
               className="absolute pointer-events-none"
               style={{
-                width: `calc((100% - 12px) / ${tabs.length} + 24px)`,
-                top: '-6px', bottom: '-6px',
-                left: '-6px',
-                background: 'radial-gradient(ellipse 80% 90% at 50% 50%, rgba(255,255,255,0.82) 0%, rgba(255,255,255,0.32) 42%, rgba(255,255,255,0.06) 70%, transparent 100%)',
+                width: `calc((100% - 12px) / ${tabs.length})`,
+                top: '50%',
+                left: '6px',
+                height: '200%',
+                transform: 'translate(0, -50%)',
+                background: 'radial-gradient(ellipse 90% 70% at 50% 50%, rgba(255,255,255,0.55) 0%, rgba(255,255,255,0.18) 45%, rgba(255,255,255,0.04) 72%, transparent 100%)',
                 borderRadius: '9999px',
-                filter: 'blur(3px)',
-                transform: 'translateX(0)',
+                filter: 'blur(6px)',
                 zIndex: 0,
               }}
             />
