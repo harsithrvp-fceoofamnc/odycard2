@@ -1572,7 +1572,7 @@ export default function HotelHomePage() {
         </div>{/* end swipe container */}
 
         {/* 🔥 BOTTOM BAR — spotlight pill + Ask Ody */}
-        <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md flex items-center gap-2.5 px-2 pb-5 pt-2 z-50 pointer-events-none">
+        <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md flex items-center gap-2 px-1 pb-5 pt-2 z-50 pointer-events-none">
           {/* Category Island — solid white pill highlight */}
           <div
             ref={pillRef}
@@ -1604,7 +1604,7 @@ export default function HotelHomePage() {
             ))}
           </div>
           {/* Ask Ody */}
-          <button className="shrink-0 flex items-center gap-2 bg-black/75 backdrop-blur-md text-white px-4 py-3.5 rounded-full border border-white/15 shadow-xl pointer-events-auto">
+          <button className="shrink-0 flex items-center gap-2 bg-black/75 backdrop-blur-md text-white px-5 py-3.5 rounded-full border border-white/15 shadow-xl pointer-events-auto">
             <img src="/ody-face.png" className="w-7 h-7 rounded-full" alt="Ody" />
             <span className="text-sm font-semibold">Ask Ody</span>
           </button>
