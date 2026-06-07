@@ -1700,30 +1700,35 @@ export default function HotelHomePage() {
             }}
           >
             {/* Top bar: back + search input */}
-            <div className="shrink-0 px-4 pt-14 pb-3 border-b border-white/8">
-              <div className="flex items-center gap-3">
+            <div
+              className="shrink-0 px-4 pb-4"
+              style={{ paddingTop: 'max(env(safe-area-inset-top, 0px) + 10px, 48px)' }}
+            >
+              <div className="flex items-center gap-2.5">
                 <button
                   onClick={closeSearch}
-                  className="w-9 h-9 rounded-full flex items-center justify-center shrink-0"
-                  style={{ background: 'rgba(255,255,255,0.1)' }}
+                  className="w-8 h-8 rounded-full flex items-center justify-center shrink-0"
+                  style={{ background: 'rgba(255,255,255,0.12)' }}
                 >
-                  <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M19 12H5M12 19l-7-7 7-7"/>
                   </svg>
                 </button>
-                <div className="flex-1 rounded-full bg-white flex items-center px-4 h-12 gap-3">
-                  <img src="/search.png" className="w-5 h-5 opacity-50" alt="" />
+                <div className="flex-1 rounded-2xl bg-white flex items-center px-4 h-11 gap-2.5">
+                  <svg viewBox="0 0 24 24" className="w-4 h-4 shrink-0 opacity-40" fill="none" stroke="black" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+                  </svg>
                   <input
                     ref={searchInputRef}
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder={`Search in ${restaurantName || "menu"}…`}
-                    className="flex-1 bg-transparent outline-none text-base text-black placeholder-gray-400"
+                    className="flex-1 bg-transparent outline-none text-sm text-black placeholder-gray-400"
                     autoComplete="off"
                   />
                   {searchQuery.length > 0 && (
                     <button onClick={() => setSearchQuery("")} className="shrink-0">
-                      <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="#999" strokeWidth="2.5" strokeLinecap="round">
+                      <svg viewBox="0 0 24 24" className="w-3.5 h-3.5" fill="none" stroke="#aaa" strokeWidth="2.5" strokeLinecap="round">
                         <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
                       </svg>
                     </button>
@@ -1731,6 +1736,7 @@ export default function HotelHomePage() {
                 </div>
               </div>
             </div>
+            <div className="h-px bg-white/8 mx-4" />
 
             {/* Content */}
             <div className="flex-1 overflow-y-auto px-4 pb-10 no-scrollbar">
