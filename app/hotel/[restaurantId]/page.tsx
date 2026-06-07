@@ -491,13 +491,13 @@ function SearchResultRow({ dish, onTap }: { dish: OdyDish; onTap: () => void }) 
       <img
         src={dish.photoUrl || "/food_item_logo.png"}
         alt={dish.name}
-        className="w-24 h-20 object-cover shrink-0"
+        className="w-28 h-28 object-cover shrink-0"
       />
-      <div className="flex-1 flex items-center gap-2 pr-3 min-w-0">
-        <div className={`w-3.5 h-3.5 shrink-0 border-2 rounded-sm flex items-center justify-center ${dish.isVeg ? "border-green-600" : "border-red-600"}`}>
-          <div className={`w-1.5 h-1.5 rounded-full ${dish.isVeg ? "bg-green-600" : "bg-red-600"}`} />
+      <div className="flex-1 flex items-center gap-2.5 pr-4 min-w-0">
+        <div className={`w-4 h-4 shrink-0 border-2 rounded-sm flex items-center justify-center ${dish.isVeg ? "border-green-600" : "border-red-600"}`}>
+          <div className={`w-2 h-2 rounded-full ${dish.isVeg ? "bg-green-600" : "bg-red-600"}`} />
         </div>
-        <span className="text-black font-semibold text-sm leading-snug line-clamp-2 flex-1">{dish.name}</span>
+        <span className="text-black font-semibold text-base leading-snug line-clamp-2 flex-1">{dish.name}</span>
       </div>
     </button>
   );
@@ -632,11 +632,13 @@ export default function HotelHomePage() {
   const searchResults = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
     if (!q) return [];
-    return Object.values(menuDishes).flat().filter(d =>
-      d.name.toLowerCase().includes(q) ||
-      d.description?.toLowerCase().includes(q) ||
-      d.tags?.some(t => t.toLowerCase().includes(q))
-    );
+    return Object.values(menuDishes).flat().filter(d => {
+      const name = d.name.toLowerCase();
+      // Match if dish name starts with query OR any word in the name starts with query
+      const nameMatch = name.startsWith(q) || name.split(/\s+/).some(w => w.startsWith(q));
+      const tagMatch = d.tags?.some(t => t.toLowerCase().startsWith(q));
+      return nameMatch || tagMatch;
+    });
   }, [searchQuery, menuDishes]);
   // Tracks which dish ids have expanded descriptions in Menu tab
   const [expandedDescs, setExpandedDescs] = useState<Set<string>>(new Set());
