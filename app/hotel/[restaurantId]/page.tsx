@@ -1605,39 +1605,30 @@ export default function HotelHomePage() {
 
           {/* EAT LATER */}
           <div ref={(el) => { tabScrollRefs.current[1] = el; }} className="min-w-full snap-center snap-always h-full overflow-y-auto no-scrollbar" style={{ willChange: 'transform, opacity', transformOrigin: 'top center' }}>
-            {/* Hero Header */}
-            <div className="relative overflow-hidden" style={{ height: 220 }}>
-              {/* Blurred dish photos as dynamic background */}
-              {eatLater.length > 0 ? (
-                <div className="absolute inset-0 grid gap-0.5" style={{ gridTemplateColumns: eatLater.length === 1 ? '1fr' : '1fr 1fr', transform: 'scale(1.15)', filter: 'blur(10px)' }}>
-                  {eatLater.slice(0, 4).map((d, i) => (
-                    <img key={i} src={d.photoUrl || "/food_item_logo.png"} className="w-full h-full object-cover" alt="" />
-                  ))}
+            {/* Header */}
+            <div className="pt-16 px-5 pb-5">
+              {/* Top row: icon + big count */}
+              <div className="flex items-start justify-between mt-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-11 h-11 rounded-2xl flex items-center justify-center" style={{ background: 'rgba(10,132,193,0.2)' }}>
+                    <svg viewBox="0 0 24 24" className="w-6 h-6" fill="none" stroke="#0A84C1" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                      <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+                    </svg>
+                  </div>
+                  <div>
+                    <h1 className="text-white text-xl font-bold leading-tight">Eat Later</h1>
+                    <p className="text-white/40 text-xs">Dishes you want to try</p>
+                  </div>
                 </div>
-              ) : (
-                <div className="absolute inset-0" style={{ background: 'linear-gradient(135deg, #0a3d5c 0%, #0A84C1 100%)' }} />
-              )}
-              {/* Blue tint overlay */}
-              <div className="absolute inset-0" style={{ background: 'rgba(10,60,100,0.65)' }} />
-              {/* Bottom fade into page */}
-              <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-[#1c1c1c] to-transparent" />
-              {/* Top fade for status bar */}
-              <div className="absolute top-0 left-0 right-0 h-20 bg-gradient-to-b from-[#1c1c1c]/80 to-transparent" />
-              {/* Content */}
-              <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 pt-12">
-                <div className="w-14 h-14 rounded-full flex items-center justify-center backdrop-blur-sm" style={{ background: 'rgba(255,255,255,0.18)', boxShadow: '0 0 0 1px rgba(255,255,255,0.25)' }}>
-                  <svg viewBox="0 0 24 24" className="w-7 h-7" fill="none" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                    <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
-                  </svg>
-                </div>
-                <h1 className="text-white text-2xl font-bold drop-shadow">Eat Later</h1>
-                <p className="text-white/65 text-sm">Dishes you want to try</p>
                 {user && eatLater.length > 0 && (
-                  <div className="px-3.5 py-1 rounded-full mt-1 backdrop-blur-sm" style={{ background: 'rgba(255,255,255,0.18)', border: '1px solid rgba(255,255,255,0.25)' }}>
-                    <span className="text-white text-xs font-semibold">{eatLater.length} saved</span>
+                  <div className="text-right">
+                    <p className="text-white font-bold leading-none" style={{ fontSize: 48 }}>{eatLater.length}</p>
+                    <p className="text-white/40 text-xs mt-0.5">saved</p>
                   </div>
                 )}
               </div>
+              {/* Accent bar */}
+              <div className="mt-5 h-0.5 rounded-full" style={{ background: 'linear-gradient(to right, #0A84C1, transparent)' }} />
             </div>
             {/* Content */}
             <div className="px-4 pt-5 pb-32">
@@ -1670,39 +1661,30 @@ export default function HotelHomePage() {
 
           {/* FAVORITES */}
           <div ref={(el) => { tabScrollRefs.current[2] = el; }} className="min-w-full snap-center snap-always h-full overflow-y-auto no-scrollbar" style={{ willChange: 'transform, opacity', transformOrigin: 'top center' }}>
-            {/* Hero Header */}
-            <div className="relative overflow-hidden" style={{ height: 220 }}>
-              {/* Blurred dish photos as dynamic background */}
-              {favorites.length > 0 ? (
-                <div className="absolute inset-0 grid gap-0.5" style={{ gridTemplateColumns: favorites.length === 1 ? '1fr' : '1fr 1fr', transform: 'scale(1.15)', filter: 'blur(10px)' }}>
-                  {favorites.slice(0, 4).map((d, i) => (
-                    <img key={i} src={d.photoUrl || "/food_item_logo.png"} className="w-full h-full object-cover" alt="" />
-                  ))}
+            {/* Header */}
+            <div className="pt-16 px-5 pb-5">
+              {/* Top row: icon + big count */}
+              <div className="flex items-start justify-between mt-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-11 h-11 rounded-2xl flex items-center justify-center" style={{ background: 'rgba(239,68,68,0.18)' }}>
+                    <svg viewBox="0 0 24 24" className="w-6 h-6" fill="#ef4444" stroke="#ef4444" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                    </svg>
+                  </div>
+                  <div>
+                    <h1 className="text-white text-xl font-bold leading-tight">Favorites</h1>
+                    <p className="text-white/40 text-xs">Dishes you love</p>
+                  </div>
                 </div>
-              ) : (
-                <div className="absolute inset-0" style={{ background: 'linear-gradient(135deg, #7f1d1d 0%, #ef4444 100%)' }} />
-              )}
-              {/* Red tint overlay */}
-              <div className="absolute inset-0" style={{ background: 'rgba(100,10,10,0.65)' }} />
-              {/* Bottom fade into page */}
-              <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-[#1c1c1c] to-transparent" />
-              {/* Top fade for status bar */}
-              <div className="absolute top-0 left-0 right-0 h-20 bg-gradient-to-b from-[#1c1c1c]/80 to-transparent" />
-              {/* Content */}
-              <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 pt-12">
-                <div className="w-14 h-14 rounded-full flex items-center justify-center backdrop-blur-sm" style={{ background: 'rgba(255,255,255,0.18)', boxShadow: '0 0 0 1px rgba(255,255,255,0.25)' }}>
-                  <svg viewBox="0 0 24 24" className="w-7 h-7" fill="white" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
-                  </svg>
-                </div>
-                <h1 className="text-white text-2xl font-bold drop-shadow">Favorites</h1>
-                <p className="text-white/65 text-sm">Dishes you love</p>
                 {user && favorites.length > 0 && (
-                  <div className="px-3.5 py-1 rounded-full mt-1 backdrop-blur-sm" style={{ background: 'rgba(255,255,255,0.18)', border: '1px solid rgba(255,255,255,0.25)' }}>
-                    <span className="text-white text-xs font-semibold">{favorites.length} liked</span>
+                  <div className="text-right">
+                    <p className="text-white font-bold leading-none" style={{ fontSize: 48 }}>{favorites.length}</p>
+                    <p className="text-white/40 text-xs mt-0.5">liked</p>
                   </div>
                 )}
               </div>
+              {/* Accent bar */}
+              <div className="mt-5 h-0.5 rounded-full" style={{ background: 'linear-gradient(to right, #ef4444, transparent)' }} />
             </div>
             {/* Content */}
             <div className="px-4 pt-5 pb-32">
