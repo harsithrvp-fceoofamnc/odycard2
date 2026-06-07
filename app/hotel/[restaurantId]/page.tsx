@@ -503,6 +503,27 @@ function SearchResultRow({ dish, onTap }: { dish: OdyDish; onTap: () => void }) 
   );
 }
 
+/** Instagram-style square grid card for Eat Later / Favorites */
+function DishGridCard({ dish, onTap }: { dish: OdyDish; onTap: () => void }) {
+  return (
+    <button onClick={onTap} className="relative w-full aspect-square rounded-2xl overflow-hidden bg-[#2a2a2a]">
+      <img src={dish.photoUrl || "/food_item_logo.png"} alt={dish.name} className="w-full h-full object-cover" />
+      {/* Bottom gradient */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent" />
+      {/* Veg/non-veg badge top-left */}
+      <div className="absolute top-2 left-2">
+        <div className={`w-4 h-4 rounded-sm border-2 flex items-center justify-center bg-white/90 ${dish.isVeg ? "border-green-500" : "border-red-500"}`}>
+          <div className={`w-1.5 h-1.5 rounded-full ${dish.isVeg ? "bg-green-500" : "bg-red-500"}`} />
+        </div>
+      </div>
+      {/* Dish name bottom */}
+      <div className="absolute bottom-0 left-0 right-0 px-2.5 pb-2.5">
+        <p className="text-white font-semibold text-xs leading-tight line-clamp-2 drop-shadow">{dish.name}</p>
+      </div>
+    </button>
+  );
+}
+
 /** Tab icon — scales + morphs when active */
 function TabIcon({ tab, isActive }: { tab: string; isActive: boolean }) {
   const base = {
@@ -1585,87 +1606,85 @@ export default function HotelHomePage() {
           {/* EAT LATER */}
           <div ref={(el) => { tabScrollRefs.current[1] = el; }} className="min-w-full snap-center snap-always h-full overflow-y-auto no-scrollbar" style={{ willChange: 'transform, opacity', transformOrigin: 'top center' }}>
             {/* Header */}
-            <div className="pt-16 pb-6 px-5 flex flex-col items-center gap-2">
-              <svg viewBox="0 0 24 24" className="w-10 h-10 text-white/80" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
-              </svg>
-              <h1 className="text-white text-2xl font-bold mt-1">Eat Later</h1>
-              <p className="text-white/40 text-sm">Dishes you want to try</p>
+            <div className="pt-16 px-4 pb-3 flex items-center justify-between">
+              <div>
+                <h1 className="text-white text-2xl font-bold">Eat Later</h1>
+                <p className="text-white/40 text-sm mt-0.5">Dishes you want to try</p>
+              </div>
               {user && eatLater.length > 0 && (
-                <p className="text-white/50 text-sm font-medium mt-1">{eatLater.length} {eatLater.length === 1 ? "dish" : "dishes"} saved</p>
+                <span className="text-white/50 text-xs font-semibold px-3 py-1.5 rounded-full" style={{ background: 'rgba(255,255,255,0.08)' }}>
+                  {eatLater.length} saved
+                </span>
               )}
             </div>
-            <div className="h-px bg-white/10 mx-5" />
+            <div className="h-px bg-white/8 mx-4 mb-4" />
             {/* Content */}
-            <div className="px-4 pt-5 pb-32">
             {!user ? (
-              <div className="flex flex-col items-center justify-start gap-4 sm:gap-5 px-4 pt-12">
-                <img src="/User.png" className="w-14 h-14 opacity-60 invert" alt="" />
-                <p className="text-white/60 text-center text-sm sm:text-base">Register or Log in to use Eat Later</p>
+              <div className="flex flex-col items-center justify-start gap-4 px-4 pt-16">
+                <img src="/User.png" className="w-14 h-14 opacity-50 invert" alt="" />
+                <p className="text-white/50 text-center text-sm">Register or Log in to use Eat Later</p>
                 <div className="flex gap-3">
                   <button onClick={() => { setMode("register"); setShowPopup(true); }} className="px-5 py-2.5 rounded-full bg-[#0A84C1] text-white text-sm font-semibold">Register</button>
                   <button onClick={() => { setMode("login"); setShowPopup(true); }} className="px-5 py-2.5 rounded-full bg-white text-[#0A84C1] text-sm font-semibold">Log In</button>
                 </div>
               </div>
             ) : eatLater.length === 0 ? (
-              <div className="flex flex-col items-center justify-start pt-12 px-4 gap-3">
-                <svg viewBox="0 0 24 24" className="w-12 h-12 opacity-30" fill="none" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <div className="flex flex-col items-center justify-start pt-16 px-4 gap-3">
+                <svg viewBox="0 0 24 24" className="w-12 h-12 opacity-20" fill="none" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                   <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
                 </svg>
-                <p className="text-white/50 text-base text-center">Nothing saved yet</p>
-                <p className="text-white/30 text-sm text-center">Tap the clock icon on any dish to save it here</p>
+                <p className="text-white/40 text-base text-center">Nothing saved yet</p>
+                <p className="text-white/25 text-sm text-center">Tap the clock icon on any dish</p>
               </div>
             ) : (
-              <div className="mb-6">
-                {eatLater.map((dish) => (
-                  <PhotoOnlyDishBlock key={dish.id} dish={dish} allDishes={Object.values(menuDishes).flat()} />
+              <div className="grid grid-cols-2 gap-2.5 px-4 pb-36">
+                {eatLater.map(dish => (
+                  <DishGridCard key={dish.id} dish={dish} onTap={() => scrollToDish(dish.id)} />
                 ))}
               </div>
             )}
-            </div>
           </div>
 
           {/* FAVORITES */}
           <div ref={(el) => { tabScrollRefs.current[2] = el; }} className="min-w-full snap-center snap-always h-full overflow-y-auto no-scrollbar" style={{ willChange: 'transform, opacity', transformOrigin: 'top center' }}>
             {/* Header */}
-            <div className="pt-16 pb-6 px-5 flex flex-col items-center gap-2">
-              <svg viewBox="0 0 24 24" className="w-10 h-10 text-white/80" fill="currentColor" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
-              </svg>
-              <h1 className="text-white text-2xl font-bold mt-1">Favorites</h1>
-              <p className="text-white/40 text-sm">Dishes you love</p>
+            <div className="pt-16 px-4 pb-3 flex items-center justify-between">
+              <div>
+                <h1 className="text-white text-2xl font-bold">Favorites</h1>
+                <p className="text-white/40 text-sm mt-0.5">Dishes you love</p>
+              </div>
               {user && favorites.length > 0 && (
-                <p className="text-white/50 text-sm font-medium mt-1">{favorites.length} {favorites.length === 1 ? "dish" : "dishes"} liked</p>
+                <span className="text-white/50 text-xs font-semibold px-3 py-1.5 rounded-full" style={{ background: 'rgba(255,255,255,0.08)' }}>
+                  {favorites.length} liked
+                </span>
               )}
             </div>
-            <div className="h-px bg-white/10 mx-5" />
+            <div className="h-px bg-white/8 mx-4 mb-4" />
             {/* Content */}
-            <div className="px-4 pt-5 pb-32">
             {!user ? (
-              <div className="flex flex-col items-center justify-start gap-4 sm:gap-5 px-4 pt-12">
-                <img src="/User.png" className="w-14 h-14 opacity-60 invert" alt="" />
-                <p className="text-white/60 text-center text-sm sm:text-base">Register or Log in to save Favorites</p>
+              <div className="flex flex-col items-center justify-start gap-4 px-4 pt-16">
+                <img src="/User.png" className="w-14 h-14 opacity-50 invert" alt="" />
+                <p className="text-white/50 text-center text-sm">Register or Log in to save Favorites</p>
                 <div className="flex gap-3">
                   <button onClick={() => { setMode("register"); setShowPopup(true); }} className="px-5 py-2.5 rounded-full bg-[#0A84C1] text-white text-sm font-semibold">Register</button>
                   <button onClick={() => { setMode("login"); setShowPopup(true); }} className="px-5 py-2.5 rounded-full bg-white text-[#0A84C1] text-sm font-semibold">Log In</button>
                 </div>
               </div>
             ) : favorites.length === 0 ? (
-              <div className="flex flex-col items-center justify-start pt-12 px-4 gap-3">
-                <svg viewBox="0 0 24 24" className="w-12 h-12 opacity-30" fill="none" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <div className="flex flex-col items-center justify-start pt-16 px-4 gap-3">
+                <svg viewBox="0 0 24 24" className="w-12 h-12 opacity-20" fill="none" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
                 </svg>
-                <p className="text-white/50 text-base text-center">No favorites yet</p>
-                <p className="text-white/30 text-sm text-center">Tap the heart on any dish to save it here</p>
+                <p className="text-white/40 text-base text-center">No favorites yet</p>
+                <p className="text-white/25 text-sm text-center">Tap the heart on any dish</p>
               </div>
             ) : (
-              <div className="mb-6">
-                {favorites.map((dish) => (
-                  <PhotoOnlyDishBlock key={dish.id} dish={dish} allDishes={Object.values(menuDishes).flat()} />
+              <div className="grid grid-cols-2 gap-2.5 px-4 pb-36">
+                {favorites.map(dish => (
+                  <DishGridCard key={dish.id} dish={dish} onTap={() => scrollToDish(dish.id)} />
                 ))}
               </div>
             )}
-            </div>
           </div>
 
         </div>{/* end swipe container */}
