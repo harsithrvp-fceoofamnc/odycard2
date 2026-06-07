@@ -484,7 +484,7 @@ function mapDishFromApi(row: {
 /** Compact horizontal dish card used in search results */
 function SearchDishBlock({ dish }: { dish: OdyDish }) {
   return (
-    <div className="flex gap-3 rounded-2xl overflow-hidden mb-3" style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.07)' }}>
+    <div className="flex gap-3 rounded-2xl overflow-hidden mb-3 bg-white shadow-sm">
       <img
         src={dish.photoUrl || "/food_item_logo.png"}
         alt={dish.name}
@@ -492,14 +492,14 @@ function SearchDishBlock({ dish }: { dish: OdyDish }) {
       />
       <div className="flex-1 py-3 pr-3 min-w-0 flex flex-col justify-center gap-1">
         <div className="flex items-center gap-1.5">
-          <div className={`w-3.5 h-3.5 shrink-0 border-2 rounded-sm flex items-center justify-center ${dish.isVeg ? "border-green-500" : "border-red-500"}`}>
-            <div className={`w-1.5 h-1.5 rounded-full ${dish.isVeg ? "bg-green-500" : "bg-red-500"}`} />
+          <div className={`w-3.5 h-3.5 shrink-0 border-2 rounded-sm flex items-center justify-center ${dish.isVeg ? "border-green-600" : "border-red-600"}`}>
+            <div className={`w-1.5 h-1.5 rounded-full ${dish.isVeg ? "bg-green-600" : "bg-red-600"}`} />
           </div>
-          <p className="text-white font-semibold text-sm leading-tight line-clamp-1">{dish.name}</p>
+          <p className="text-black font-semibold text-sm leading-tight line-clamp-1">{dish.name}</p>
         </div>
-        <p className="text-white/60 font-semibold text-sm ml-5">₹{dish.price}</p>
+        <p className="text-gray-500 font-semibold text-sm ml-5">₹{dish.price}</p>
         {dish.description ? (
-          <p className="text-white/35 text-xs ml-5 line-clamp-2 leading-snug">{dish.description}</p>
+          <p className="text-gray-400 text-xs ml-5 line-clamp-2 leading-snug">{dish.description}</p>
         ) : null}
       </div>
     </div>
@@ -590,6 +590,7 @@ export default function HotelHomePage() {
   const searchInputRef = useRef<HTMLInputElement>(null);
 
   const openSearch = () => {
+    setTopBarVisible(false);
     setShowSearch(true);
     requestAnimationFrame(() => requestAnimationFrame(() => {
       setSearchMounted(true);
@@ -599,6 +600,7 @@ export default function HotelHomePage() {
 
   const closeSearch = () => {
     setSearchMounted(false);
+    setTopBarVisible(true);
     setTimeout(() => { setShowSearch(false); setSearchQuery(""); }, 300);
   };
 
