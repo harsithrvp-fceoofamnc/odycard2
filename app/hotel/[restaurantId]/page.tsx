@@ -1616,7 +1616,7 @@ export default function HotelHomePage() {
               ) : (
                 <div className="absolute inset-0" style={{ background: 'linear-gradient(135deg,#0a3d5c,#0A84C1)' }} />
               )}
-              <div className="absolute inset-0" style={{ background: 'rgba(8,45,85,0.68)' }} />
+              <div className="absolute inset-0" style={{ background: 'linear-gradient(160deg, rgba(14,110,200,0.5) 0%, rgba(8,50,100,0.7) 50%, rgba(4,18,38,0.88) 100%)' }} />
               <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-[#1c1c1c] to-transparent" />
               <div className="absolute bottom-2 left-0 right-0 flex flex-col items-center gap-1.5">
                 <div className="w-12 h-12 rounded-full flex items-center justify-center mb-1" style={{ background: 'rgba(255,255,255,0.16)', backdropFilter: 'blur(8px)', boxShadow: '0 0 0 1px rgba(255,255,255,0.22)' }}>
@@ -1675,7 +1675,7 @@ export default function HotelHomePage() {
               ) : (
                 <div className="absolute inset-0" style={{ background: 'linear-gradient(135deg,#4a0a0a,#c0392b)' }} />
               )}
-              <div className="absolute inset-0" style={{ background: 'rgba(70,8,8,0.68)' }} />
+              <div className="absolute inset-0" style={{ background: 'linear-gradient(160deg, rgba(220,30,30,0.48) 0%, rgba(140,10,10,0.7) 50%, rgba(35,4,4,0.88) 100%)' }} />
               <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-[#1c1c1c] to-transparent" />
               <div className="absolute bottom-2 left-0 right-0 flex flex-col items-center gap-1.5">
                 <div className="w-12 h-12 rounded-full flex items-center justify-center mb-1" style={{ background: 'rgba(255,255,255,0.16)', backdropFilter: 'blur(8px)', boxShadow: '0 0 0 1px rgba(255,255,255,0.22)' }}>
