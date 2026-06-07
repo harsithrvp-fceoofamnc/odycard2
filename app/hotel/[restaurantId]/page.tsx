@@ -1606,22 +1606,30 @@ export default function HotelHomePage() {
           {/* EAT LATER */}
           <div ref={(el) => { tabScrollRefs.current[1] = el; }} className="min-w-full snap-center snap-always h-full overflow-y-auto no-scrollbar" style={{ willChange: 'transform, opacity', transformOrigin: 'top center' }}>
             {/* Header */}
-            <div className="relative overflow-hidden" style={{ height: 195 }}>
-              {cover ? (
-                <img src={cover} className="absolute inset-0 w-full h-full object-cover" style={{ filter: 'blur(18px)', transform: 'scale(1.25)' }} alt="" />
+            <div className="relative overflow-hidden" style={{ height: 210 }}>
+              {eatLater.length > 0 ? (
+                <div className="absolute inset-0 grid gap-0.5" style={{ gridTemplateColumns: eatLater.length === 1 ? '1fr' : '1fr 1fr', filter: 'blur(14px)', transform: 'scale(1.2)' }}>
+                  {eatLater.slice(0, 4).map((d, i) => (
+                    <img key={i} src={d.photoUrl || "/food_item_logo.png"} className="w-full h-full object-cover" alt="" />
+                  ))}
+                </div>
               ) : (
-                <div className="absolute inset-0" style={{ background: 'linear-gradient(135deg,#0a3d5c,#0d6fa8)' }} />
+                <div className="absolute inset-0" style={{ background: 'linear-gradient(135deg,#0a3d5c,#0A84C1)' }} />
               )}
-              <div className="absolute inset-0" style={{ background: 'rgba(5,30,60,0.62)' }} />
-              <div className="absolute bottom-0 left-0 right-0 h-14 bg-gradient-to-t from-[#1c1c1c] to-transparent" />
-              <div className="absolute bottom-5 left-0 right-0 flex flex-col items-center gap-1.5">
-                <svg viewBox="0 0 24 24" className="w-8 h-8 mb-0.5" fill="none" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: 0.9 }}>
-                  <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
-                </svg>
-                <h1 className="text-white text-2xl font-bold tracking-tight">Eat Later</h1>
+              <div className="absolute inset-0" style={{ background: 'rgba(8,45,85,0.68)' }} />
+              <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-[#1c1c1c] to-transparent" />
+              <div className="absolute bottom-6 left-0 right-0 flex flex-col items-center gap-1.5">
+                <div className="w-12 h-12 rounded-full flex items-center justify-center mb-1" style={{ background: 'rgba(255,255,255,0.16)', backdropFilter: 'blur(8px)', boxShadow: '0 0 0 1px rgba(255,255,255,0.22)' }}>
+                  <svg viewBox="0 0 24 24" className="w-6 h-6" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+                  </svg>
+                </div>
+                <h1 className="text-white text-2xl font-bold">Eat Later</h1>
                 <p className="text-white/55 text-sm">Dishes you want to try</p>
                 {user && eatLater.length > 0 && (
-                  <p className="text-white/40 text-xs font-medium mt-0.5">{eatLater.length} {eatLater.length === 1 ? 'dish' : 'dishes'} saved</p>
+                  <div className="px-3 py-1 rounded-full mt-1" style={{ background: 'rgba(255,255,255,0.15)', backdropFilter: 'blur(6px)' }}>
+                    <span className="text-white text-xs font-semibold">{eatLater.length} saved</span>
+                  </div>
                 )}
               </div>
             </div>
@@ -1657,22 +1665,30 @@ export default function HotelHomePage() {
           {/* FAVORITES */}
           <div ref={(el) => { tabScrollRefs.current[2] = el; }} className="min-w-full snap-center snap-always h-full overflow-y-auto no-scrollbar" style={{ willChange: 'transform, opacity', transformOrigin: 'top center' }}>
             {/* Header */}
-            <div className="relative overflow-hidden" style={{ height: 195 }}>
-              {cover ? (
-                <img src={cover} className="absolute inset-0 w-full h-full object-cover" style={{ filter: 'blur(18px)', transform: 'scale(1.25)' }} alt="" />
+            <div className="relative overflow-hidden" style={{ height: 210 }}>
+              {favorites.length > 0 ? (
+                <div className="absolute inset-0 grid gap-0.5" style={{ gridTemplateColumns: favorites.length === 1 ? '1fr' : '1fr 1fr', filter: 'blur(14px)', transform: 'scale(1.2)' }}>
+                  {favorites.slice(0, 4).map((d, i) => (
+                    <img key={i} src={d.photoUrl || "/food_item_logo.png"} className="w-full h-full object-cover" alt="" />
+                  ))}
+                </div>
               ) : (
                 <div className="absolute inset-0" style={{ background: 'linear-gradient(135deg,#4a0a0a,#c0392b)' }} />
               )}
-              <div className="absolute inset-0" style={{ background: 'rgba(60,5,5,0.62)' }} />
-              <div className="absolute bottom-0 left-0 right-0 h-14 bg-gradient-to-t from-[#1c1c1c] to-transparent" />
-              <div className="absolute bottom-5 left-0 right-0 flex flex-col items-center gap-1.5">
-                <svg viewBox="0 0 24 24" className="w-8 h-8 mb-0.5" fill="white" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: 0.9 }}>
-                  <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
-                </svg>
-                <h1 className="text-white text-2xl font-bold tracking-tight">Favorites</h1>
+              <div className="absolute inset-0" style={{ background: 'rgba(70,8,8,0.68)' }} />
+              <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-[#1c1c1c] to-transparent" />
+              <div className="absolute bottom-6 left-0 right-0 flex flex-col items-center gap-1.5">
+                <div className="w-12 h-12 rounded-full flex items-center justify-center mb-1" style={{ background: 'rgba(255,255,255,0.16)', backdropFilter: 'blur(8px)', boxShadow: '0 0 0 1px rgba(255,255,255,0.22)' }}>
+                  <svg viewBox="0 0 24 24" className="w-6 h-6" fill="white" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                  </svg>
+                </div>
+                <h1 className="text-white text-2xl font-bold">Favorites</h1>
                 <p className="text-white/55 text-sm">Dishes you love</p>
                 {user && favorites.length > 0 && (
-                  <p className="text-white/40 text-xs font-medium mt-0.5">{favorites.length} {favorites.length === 1 ? 'dish' : 'dishes'} liked</p>
+                  <div className="px-3 py-1 rounded-full mt-1" style={{ background: 'rgba(255,255,255,0.15)', backdropFilter: 'blur(6px)' }}>
+                    <span className="text-white text-xs font-semibold">{favorites.length} liked</span>
+                  </div>
                 )}
               </div>
             </div>
