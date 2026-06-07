@@ -1606,20 +1606,27 @@ export default function HotelHomePage() {
           {/* EAT LATER */}
           <div ref={(el) => { tabScrollRefs.current[1] = el; }} className="min-w-full snap-center snap-always h-full overflow-y-auto no-scrollbar" style={{ willChange: 'transform, opacity', transformOrigin: 'top center' }}>
             {/* Header */}
-            <div className="pt-16 pb-5 px-5 flex flex-col items-center gap-2">
-              <svg viewBox="0 0 24 24" className="w-10 h-10 text-white/80" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
-              </svg>
-              <h1 className="text-white text-2xl font-bold mt-1">Eat Later</h1>
-              <p className="text-white/40 text-sm">Dishes you want to try</p>
+            <div className="pt-16 pb-6 px-5 flex flex-col items-center gap-3">
+              <div className="w-16 h-16 rounded-full flex items-center justify-center" style={{ background: 'rgba(10,132,193,0.15)', boxShadow: '0 0 0 1px rgba(10,132,193,0.25)' }}>
+                <svg viewBox="0 0 24 24" className="w-8 h-8" fill="none" stroke="#0A84C1" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+                </svg>
+              </div>
+              <div className="text-center">
+                <h1 className="text-white text-2xl font-bold">Eat Later</h1>
+                <p className="text-white/40 text-sm mt-1">Dishes you want to try</p>
+              </div>
               {user && eatLater.length > 0 && (
-                <span className="text-white/50 text-xs font-semibold px-3 py-1.5 rounded-full mt-1" style={{ background: 'rgba(255,255,255,0.08)' }}>{eatLater.length} saved</span>
+                <div className="px-4 py-1.5 rounded-full" style={{ background: 'rgba(10,132,193,0.15)', border: '1px solid rgba(10,132,193,0.3)' }}>
+                  <span className="text-[#0A84C1] text-sm font-semibold">{eatLater.length} {eatLater.length === 1 ? "dish" : "dishes"} saved</span>
+                </div>
               )}
             </div>
-            <div className="h-px bg-white/10 mx-5 mb-4" />
+            <div className="h-px bg-white/10 mx-5" />
             {/* Content */}
+            <div className="px-4 pt-5 pb-32">
             {!user ? (
-              <div className="flex flex-col items-center gap-4 px-4 pt-12">
+              <div className="flex flex-col items-center gap-4 pt-12">
                 <img src="/User.png" className="w-14 h-14 opacity-50 invert" alt="" />
                 <p className="text-white/50 text-center text-sm">Register or Log in to use Eat Later</p>
                 <div className="flex gap-3">
@@ -1628,7 +1635,7 @@ export default function HotelHomePage() {
                 </div>
               </div>
             ) : eatLater.length === 0 ? (
-              <div className="flex flex-col items-center pt-12 px-4 gap-3">
+              <div className="flex flex-col items-center pt-12 gap-3">
                 <svg viewBox="0 0 24 24" className="w-12 h-12 opacity-20" fill="none" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                   <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
                 </svg>
@@ -1636,31 +1643,39 @@ export default function HotelHomePage() {
                 <p className="text-white/25 text-sm text-center">Tap the clock icon on any dish</p>
               </div>
             ) : (
-              <div className="grid grid-cols-2 gap-3 px-4 pb-36">
+              <div className="mb-6">
                 {eatLater.map(dish => (
-                  <DishGridCard key={dish.id} dish={dish} onTap={() => scrollToDish(dish.id)} />
+                  <PhotoOnlyDishBlock key={dish.id} dish={dish} allDishes={Object.values(menuDishes).flat()} />
                 ))}
               </div>
             )}
+            </div>
           </div>
 
           {/* FAVORITES */}
           <div ref={(el) => { tabScrollRefs.current[2] = el; }} className="min-w-full snap-center snap-always h-full overflow-y-auto no-scrollbar" style={{ willChange: 'transform, opacity', transformOrigin: 'top center' }}>
             {/* Header */}
-            <div className="pt-16 pb-5 px-5 flex flex-col items-center gap-2">
-              <svg viewBox="0 0 24 24" className="w-10 h-10 text-white/80" fill="currentColor" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
-              </svg>
-              <h1 className="text-white text-2xl font-bold mt-1">Favorites</h1>
-              <p className="text-white/40 text-sm">Dishes you love</p>
+            <div className="pt-16 pb-6 px-5 flex flex-col items-center gap-3">
+              <div className="w-16 h-16 rounded-full flex items-center justify-center" style={{ background: 'rgba(239,68,68,0.12)', boxShadow: '0 0 0 1px rgba(239,68,68,0.25)' }}>
+                <svg viewBox="0 0 24 24" className="w-8 h-8" fill="#ef4444" stroke="#ef4444" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                </svg>
+              </div>
+              <div className="text-center">
+                <h1 className="text-white text-2xl font-bold">Favorites</h1>
+                <p className="text-white/40 text-sm mt-1">Dishes you love</p>
+              </div>
               {user && favorites.length > 0 && (
-                <span className="text-white/50 text-xs font-semibold px-3 py-1.5 rounded-full mt-1" style={{ background: 'rgba(255,255,255,0.08)' }}>{favorites.length} liked</span>
+                <div className="px-4 py-1.5 rounded-full" style={{ background: 'rgba(239,68,68,0.12)', border: '1px solid rgba(239,68,68,0.25)' }}>
+                  <span className="text-red-400 text-sm font-semibold">{favorites.length} {favorites.length === 1 ? "dish" : "dishes"} liked</span>
+                </div>
               )}
             </div>
-            <div className="h-px bg-white/10 mx-5 mb-4" />
+            <div className="h-px bg-white/10 mx-5" />
             {/* Content */}
+            <div className="px-4 pt-5 pb-32">
             {!user ? (
-              <div className="flex flex-col items-center gap-4 px-4 pt-12">
+              <div className="flex flex-col items-center gap-4 pt-12">
                 <img src="/User.png" className="w-14 h-14 opacity-50 invert" alt="" />
                 <p className="text-white/50 text-center text-sm">Register or Log in to save Favorites</p>
                 <div className="flex gap-3">
@@ -1669,7 +1684,7 @@ export default function HotelHomePage() {
                 </div>
               </div>
             ) : favorites.length === 0 ? (
-              <div className="flex flex-col items-center pt-12 px-4 gap-3">
+              <div className="flex flex-col items-center pt-12 gap-3">
                 <svg viewBox="0 0 24 24" className="w-12 h-12 opacity-20" fill="none" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
                 </svg>
@@ -1677,12 +1692,13 @@ export default function HotelHomePage() {
                 <p className="text-white/25 text-sm text-center">Tap the heart on any dish</p>
               </div>
             ) : (
-              <div className="grid grid-cols-2 gap-3 px-4 pb-36">
+              <div className="mb-6">
                 {favorites.map(dish => (
-                  <DishGridCard key={dish.id} dish={dish} onTap={() => scrollToDish(dish.id)} />
+                  <PhotoOnlyDishBlock key={dish.id} dish={dish} allDishes={Object.values(menuDishes).flat()} />
                 ))}
               </div>
             )}
+            </div>
           </div>
 
         </div>{/* end swipe container */}
