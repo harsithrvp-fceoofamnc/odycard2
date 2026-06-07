@@ -1618,7 +1618,7 @@ export default function HotelHomePage() {
               )}
               <div className="absolute inset-0" style={{ background: 'rgba(8,45,85,0.68)' }} />
               <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-[#1c1c1c] to-transparent" />
-              <div className="absolute bottom-6 left-0 right-0 flex flex-col items-center gap-1.5">
+              <div className="absolute bottom-2 left-0 right-0 flex flex-col items-center gap-1.5">
                 <div className="w-12 h-12 rounded-full flex items-center justify-center mb-1" style={{ background: 'rgba(255,255,255,0.16)', backdropFilter: 'blur(8px)', boxShadow: '0 0 0 1px rgba(255,255,255,0.22)' }}>
                   <svg viewBox="0 0 24 24" className="w-6 h-6" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
@@ -1677,7 +1677,7 @@ export default function HotelHomePage() {
               )}
               <div className="absolute inset-0" style={{ background: 'rgba(70,8,8,0.68)' }} />
               <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-[#1c1c1c] to-transparent" />
-              <div className="absolute bottom-6 left-0 right-0 flex flex-col items-center gap-1.5">
+              <div className="absolute bottom-2 left-0 right-0 flex flex-col items-center gap-1.5">
                 <div className="w-12 h-12 rounded-full flex items-center justify-center mb-1" style={{ background: 'rgba(255,255,255,0.16)', backdropFilter: 'blur(8px)', boxShadow: '0 0 0 1px rgba(255,255,255,0.22)' }}>
                   <svg viewBox="0 0 24 24" className="w-6 h-6" fill="white" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
