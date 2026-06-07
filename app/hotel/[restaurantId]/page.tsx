@@ -481,28 +481,21 @@ function mapDishFromApi(row: {
   };
 }
 
-/** Compact horizontal dish card used in search results */
-function SearchDishBlock({ dish }: { dish: OdyDish }) {
+/** Search result row — tapping scrolls to that dish in the menu */
+function SearchResultRow({ dish, onTap }: { dish: OdyDish; onTap: () => void }) {
   return (
-    <div className="flex gap-3 rounded-2xl overflow-hidden mb-3 bg-white shadow-sm">
-      <img
-        src={dish.photoUrl || "/food_item_logo.png"}
-        alt={dish.name}
-        className="w-24 h-24 object-cover shrink-0"
-      />
-      <div className="flex-1 py-3 pr-3 min-w-0 flex flex-col justify-center gap-1">
-        <div className="flex items-center gap-1.5">
-          <div className={`w-3.5 h-3.5 shrink-0 border-2 rounded-sm flex items-center justify-center ${dish.isVeg ? "border-green-600" : "border-red-600"}`}>
-            <div className={`w-1.5 h-1.5 rounded-full ${dish.isVeg ? "bg-green-600" : "bg-red-600"}`} />
-          </div>
-          <p className="text-black font-semibold text-sm leading-tight line-clamp-1">{dish.name}</p>
-        </div>
-        <p className="text-gray-500 font-semibold text-sm ml-5">₹{dish.price}</p>
-        {dish.description ? (
-          <p className="text-gray-400 text-xs ml-5 line-clamp-2 leading-snug">{dish.description}</p>
-        ) : null}
+    <button
+      onClick={onTap}
+      className="w-full flex items-center gap-3 bg-white rounded-2xl px-4 py-3.5 mb-2.5 text-left shadow-sm"
+    >
+      <div className={`w-3.5 h-3.5 shrink-0 border-2 rounded-sm flex items-center justify-center ${dish.isVeg ? "border-green-600" : "border-red-600"}`}>
+        <div className={`w-1.5 h-1.5 rounded-full ${dish.isVeg ? "bg-green-600" : "bg-red-600"}`} />
       </div>
-    </div>
+      <span className="flex-1 text-black font-semibold text-sm leading-snug">{dish.name}</span>
+      <svg viewBox="0 0 24 24" className="w-4 h-4 opacity-25 shrink-0" fill="none" stroke="black" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M9 18l6-6-6-6"/>
+      </svg>
+    </button>
   );
 }
 
@@ -602,6 +595,27 @@ export default function HotelHomePage() {
     setSearchMounted(false);
     setTopBarVisible(true);
     setTimeout(() => { setShowSearch(false); setSearchQuery(""); }, 300);
+  };
+
+  const scrollToDish = (dishId: string) => {
+    closeSearch();
+    // Switch to Menu tab if needed, then scroll to dish
+    const doScroll = () => {
+      const el = document.getElementById(`dish-${dishId}`);
+      const menuPanel = tabScrollRefs.current[0];
+      if (el && menuPanel) {
+        const elRect = el.getBoundingClientRect();
+        const panelRect = menuPanel.getBoundingClientRect();
+        const scrollTo = menuPanel.scrollTop + (elRect.top - panelRect.top) - 80;
+        menuPanel.scrollTo({ top: Math.max(0, scrollTo), behavior: 'smooth' });
+      }
+    };
+    if (activeTab !== 0) {
+      goToTab(0);
+      setTimeout(doScroll, 500);
+    } else {
+      setTimeout(doScroll, 340);
+    }
   };
 
   // 4 most expensive dishes for "Recommended by Ody"
@@ -1409,6 +1423,7 @@ export default function HotelHomePage() {
                           return (
                           <div
                             key={dish.id}
+                            id={`dish-${dish.id}`}
                             className="w-full rounded-xl sm:rounded-2xl bg-white border border-gray-200 mb-4 last:mb-0 shadow-md"
                           >
                             {/* Media */}
@@ -1702,7 +1717,7 @@ export default function HotelHomePage() {
             {/* Top bar: back + search input */}
             <div
               className="shrink-0 px-4 pb-4"
-              style={{ paddingTop: 'max(env(safe-area-inset-top, 0px) + 10px, 48px)' }}
+              style={{ paddingTop: 'max(env(safe-area-inset-top, 0px), 12px)' }}
             >
               <div className="flex items-center gap-2.5">
                 <button
@@ -1750,7 +1765,9 @@ export default function HotelHomePage() {
                   {recommendedDishes.length === 0 ? (
                     <p className="text-white/30 text-sm text-center mt-10">Menu is loading…</p>
                   ) : (
-                    recommendedDishes.map(dish => <SearchDishBlock key={dish.id} dish={dish} />)
+                    recommendedDishes.map(dish => (
+                      <SearchResultRow key={dish.id} dish={dish} onTap={() => scrollToDish(dish.id)} />
+                    ))
                   )}
                 </>
               ) : searchResults.length === 0 ? (
@@ -1766,7 +1783,9 @@ export default function HotelHomePage() {
                   <p className="text-white/40 text-xs font-semibold uppercase tracking-wide mt-5 mb-4">
                     {searchResults.length} result{searchResults.length !== 1 ? "s" : ""} for &ldquo;{searchQuery}&rdquo;
                   </p>
-                  {searchResults.map(dish => <SearchDishBlock key={dish.id} dish={dish} />)}
+                  {searchResults.map(dish => (
+                    <SearchResultRow key={dish.id} dish={dish} onTap={() => scrollToDish(dish.id)} />
+                  ))}
                 </>
               )}
             </div>
