@@ -481,29 +481,25 @@ function mapDishFromApi(row: {
   };
 }
 
-/** Search result card — clean Material-style */
+/** Search result card — white card with classic veg indicator */
 function SearchResultRow({ dish, onTap }: { dish: OdyDish; onTap: () => void }) {
   return (
     <button
       onClick={onTap}
-      className="w-full flex mb-3 rounded-2xl overflow-hidden text-left"
-      style={{ background: 'rgba(255,255,255,0.07)', boxShadow: '0 2px 12px rgba(0,0,0,0.3)' }}
+      className="w-full flex mb-3 rounded-2xl overflow-hidden text-left bg-white shadow-md"
     >
       {/* Dish photo */}
       <img
         src={dish.photoUrl || "/food_item_logo.png"}
         alt={dish.name}
-        className="w-[90px] h-[90px] object-cover shrink-0"
+        className="w-[100px] h-[100px] object-cover shrink-0"
       />
       {/* Info */}
-      <div className="flex-1 flex flex-col justify-center px-4 py-3 min-w-0 gap-2">
-        <p className="text-white font-semibold text-[15px] leading-snug line-clamp-2">{dish.name}</p>
-        <div className={`self-start flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold tracking-wide ${
-          dish.isVeg ? 'bg-green-500/15 text-green-400' : 'bg-red-500/15 text-red-400'
-        }`}>
-          <div className={`w-1.5 h-1.5 rounded-full ${dish.isVeg ? 'bg-green-400' : 'bg-red-400'}`} />
-          {dish.isVeg ? 'Veg' : 'Non-Veg'}
+      <div className="flex-1 flex items-center px-4 py-3 min-w-0 gap-3">
+        <div className={`w-4 h-4 shrink-0 border-2 rounded-sm flex items-center justify-center ${dish.isVeg ? 'border-green-600' : 'border-red-600'}`}>
+          <div className={`w-2 h-2 rounded-full ${dish.isVeg ? 'bg-green-600' : 'bg-red-600'}`} />
         </div>
+        <p className="text-black font-semibold text-[15px] leading-snug line-clamp-2 flex-1">{dish.name}</p>
       </div>
     </button>
   );
