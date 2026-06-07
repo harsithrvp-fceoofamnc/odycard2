@@ -481,20 +481,24 @@ function mapDishFromApi(row: {
   };
 }
 
-/** Search result row — tapping scrolls to that dish in the menu */
+/** Search result card — image + veg badge + name, tapping scrolls to dish in menu */
 function SearchResultRow({ dish, onTap }: { dish: OdyDish; onTap: () => void }) {
   return (
     <button
       onClick={onTap}
-      className="w-full flex items-center gap-3 bg-white rounded-2xl px-4 py-3.5 mb-2.5 text-left shadow-sm"
+      className="w-full flex gap-3 bg-white rounded-2xl overflow-hidden mb-3 shadow-sm text-left"
     >
-      <div className={`w-3.5 h-3.5 shrink-0 border-2 rounded-sm flex items-center justify-center ${dish.isVeg ? "border-green-600" : "border-red-600"}`}>
-        <div className={`w-1.5 h-1.5 rounded-full ${dish.isVeg ? "bg-green-600" : "bg-red-600"}`} />
+      <img
+        src={dish.photoUrl || "/food_item_logo.png"}
+        alt={dish.name}
+        className="w-24 h-20 object-cover shrink-0"
+      />
+      <div className="flex-1 flex items-center gap-2 pr-3 min-w-0">
+        <div className={`w-3.5 h-3.5 shrink-0 border-2 rounded-sm flex items-center justify-center ${dish.isVeg ? "border-green-600" : "border-red-600"}`}>
+          <div className={`w-1.5 h-1.5 rounded-full ${dish.isVeg ? "bg-green-600" : "bg-red-600"}`} />
+        </div>
+        <span className="text-black font-semibold text-sm leading-snug line-clamp-2 flex-1">{dish.name}</span>
       </div>
-      <span className="flex-1 text-black font-semibold text-sm leading-snug">{dish.name}</span>
-      <svg viewBox="0 0 24 24" className="w-4 h-4 opacity-25 shrink-0" fill="none" stroke="black" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M9 18l6-6-6-6"/>
-      </svg>
     </button>
   );
 }
