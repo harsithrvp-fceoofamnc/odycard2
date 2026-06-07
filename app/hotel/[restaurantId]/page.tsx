@@ -1606,7 +1606,7 @@ export default function HotelHomePage() {
           {/* EAT LATER */}
           <div ref={(el) => { tabScrollRefs.current[1] = el; }} className="min-w-full snap-center snap-always h-full overflow-y-auto no-scrollbar" style={{ willChange: 'transform, opacity', transformOrigin: 'top center' }}>
             {/* Header */}
-            <div className="relative overflow-hidden" style={{ height: 210 }}>
+            <div className="relative overflow-hidden" style={{ height: 240 }}>
               {eatLater.length > 0 ? (
                 <div className="absolute inset-0 grid gap-0.5" style={{ gridTemplateColumns: eatLater.length === 1 ? '1fr' : '1fr 1fr', filter: 'blur(14px)', transform: 'scale(1.2)' }}>
                   {eatLater.slice(0, 4).map((d, i) => (
@@ -1616,7 +1616,7 @@ export default function HotelHomePage() {
               ) : (
                 <div className="absolute inset-0" style={{ background: 'linear-gradient(135deg,#0a3d5c,#0A84C1)' }} />
               )}
-              <div className="absolute inset-0" style={{ background: 'linear-gradient(160deg, rgba(14,110,200,0.5) 0%, rgba(8,50,100,0.7) 50%, rgba(4,18,38,0.88) 100%)' }} />
+              <div className="absolute inset-0" style={{ background: 'rgba(0,0,0,0.45)' }} />
               <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-[#1c1c1c] to-transparent" />
               <div className="absolute bottom-2 left-0 right-0 flex flex-col items-center gap-1.5">
                 <div className="w-12 h-12 rounded-full flex items-center justify-center mb-1" style={{ background: 'rgba(255,255,255,0.16)', backdropFilter: 'blur(8px)', boxShadow: '0 0 0 1px rgba(255,255,255,0.22)' }}>
@@ -1665,7 +1665,7 @@ export default function HotelHomePage() {
           {/* FAVORITES */}
           <div ref={(el) => { tabScrollRefs.current[2] = el; }} className="min-w-full snap-center snap-always h-full overflow-y-auto no-scrollbar" style={{ willChange: 'transform, opacity', transformOrigin: 'top center' }}>
             {/* Header */}
-            <div className="relative overflow-hidden" style={{ height: 210 }}>
+            <div className="relative overflow-hidden" style={{ height: 240 }}>
               {favorites.length > 0 ? (
                 <div className="absolute inset-0 grid gap-0.5" style={{ gridTemplateColumns: favorites.length === 1 ? '1fr' : '1fr 1fr', filter: 'blur(14px)', transform: 'scale(1.2)' }}>
                   {favorites.slice(0, 4).map((d, i) => (
@@ -1675,7 +1675,7 @@ export default function HotelHomePage() {
               ) : (
                 <div className="absolute inset-0" style={{ background: 'linear-gradient(135deg,#4a0a0a,#c0392b)' }} />
               )}
-              <div className="absolute inset-0" style={{ background: 'linear-gradient(160deg, rgba(220,30,30,0.48) 0%, rgba(140,10,10,0.7) 50%, rgba(35,4,4,0.88) 100%)' }} />
+              <div className="absolute inset-0" style={{ background: 'rgba(0,0,0,0.45)' }} />
               <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-[#1c1c1c] to-transparent" />
               <div className="absolute bottom-2 left-0 right-0 flex flex-col items-center gap-1.5">
                 <div className="w-12 h-12 rounded-full flex items-center justify-center mb-1" style={{ background: 'rgba(255,255,255,0.16)', backdropFilter: 'blur(8px)', boxShadow: '0 0 0 1px rgba(255,255,255,0.22)' }}>
