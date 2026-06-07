@@ -481,28 +481,27 @@ function mapDishFromApi(row: {
   };
 }
 
-/** Search result card — dark glass style, image + veg badge + name */
+/** Search result — minimal Spotify-style list row */
 function SearchResultRow({ dish, onTap }: { dish: OdyDish; onTap: () => void }) {
   return (
-    <button
-      onClick={onTap}
-      className="w-full flex items-center gap-3 mb-2.5 rounded-2xl overflow-hidden text-left"
-      style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.06)' }}
-    >
+    <button onClick={onTap} className="w-full flex items-center gap-3.5 py-3 text-left">
       <img
         src={dish.photoUrl || "/food_item_logo.png"}
         alt={dish.name}
-        className="w-[72px] h-[72px] object-cover shrink-0"
+        className="w-14 h-14 rounded-xl object-cover shrink-0"
       />
-      <div className="flex-1 flex items-center gap-2.5 pr-4 min-w-0">
-        <div className={`w-3.5 h-3.5 shrink-0 border-2 rounded-sm flex items-center justify-center ${dish.isVeg ? "border-green-500" : "border-red-500"}`}>
-          <div className={`w-1.5 h-1.5 rounded-full ${dish.isVeg ? "bg-green-500" : "bg-red-500"}`} />
+      <div className="flex-1 min-w-0">
+        <p className="text-white font-semibold text-sm leading-snug line-clamp-1">{dish.name}</p>
+        <div className="flex items-center gap-1.5 mt-1">
+          <div className={`w-2.5 h-2.5 shrink-0 border-2 rounded-[3px] flex items-center justify-center ${dish.isVeg ? "border-green-500" : "border-red-500"}`}>
+            <div className={`w-1 h-1 rounded-full ${dish.isVeg ? "bg-green-500" : "bg-red-500"}`} />
+          </div>
+          <span className="text-white/35 text-xs">{dish.isVeg ? "Veg" : "Non-veg"}</span>
         </div>
-        <span className="text-white font-semibold text-sm leading-snug line-clamp-2 flex-1">{dish.name}</span>
-        <svg viewBox="0 0 24 24" className="w-4 h-4 shrink-0 opacity-20" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M9 18l6-6-6-6"/>
-        </svg>
       </div>
+      <svg viewBox="0 0 24 24" className="w-4 h-4 shrink-0 opacity-15" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M9 18l6-6-6-6"/>
+      </svg>
     </button>
   );
 }
@@ -1810,8 +1809,11 @@ export default function HotelHomePage() {
                   {recommendedDishes.length === 0 ? (
                     <p className="text-white/30 text-sm text-center mt-10">Menu is loading…</p>
                   ) : (
-                    recommendedDishes.map(dish => (
-                      <SearchResultRow key={dish.id} dish={dish} onTap={() => scrollToDish(dish.id)} />
+                    recommendedDishes.map((dish, i) => (
+                      <div key={dish.id}>
+                        <SearchResultRow dish={dish} onTap={() => scrollToDish(dish.id)} />
+                        {i < recommendedDishes.length - 1 && <div className="h-px bg-white/6 ml-[70px]" />}
+                      </div>
                     ))
                   )}
                 </>
@@ -1828,8 +1830,11 @@ export default function HotelHomePage() {
                   <p className="text-white/40 text-xs font-semibold uppercase tracking-wide mt-5 mb-4">
                     {searchResults.length} result{searchResults.length !== 1 ? "s" : ""} for &ldquo;{searchQuery}&rdquo;
                   </p>
-                  {searchResults.map(dish => (
-                    <SearchResultRow key={dish.id} dish={dish} onTap={() => scrollToDish(dish.id)} />
+                  {searchResults.map((dish, i) => (
+                    <div key={dish.id}>
+                      <SearchResultRow dish={dish} onTap={() => scrollToDish(dish.id)} />
+                      {i < searchResults.length - 1 && <div className="h-px bg-white/6 ml-[70px]" />}
+                    </div>
                   ))}
                 </>
               )}
