@@ -550,6 +550,7 @@ export default function HotelHomePage() {
   const restaurantId = params?.restaurantId as string | undefined;
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
+  const [loadFailed, setLoadFailed] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   // Ticks every minute so timing-based dish visibility updates automatically
   const [, setTimeTick] = useState(0);
@@ -700,7 +701,7 @@ export default function HotelHomePage() {
       try {
         const hotelRes = await fetch(`${API_BASE}/api/hotels/${encodeURIComponent(slug)}`);
         if (!hotelRes.ok) {
-          if (!cancelled) setIsLoading(false);
+          if (!cancelled) { setLoadFailed(true); setIsLoading(false); }
           return;
         }
         const hotel = await hotelRes.json();
@@ -739,6 +740,7 @@ export default function HotelHomePage() {
       } catch (err) {
         if (!cancelled) {
           console.error("Load hotel/dishes error:", err);
+          setLoadFailed(true);
         }
       } finally {
         if (!cancelled) {
@@ -1248,6 +1250,21 @@ export default function HotelHomePage() {
       {/* Buffer screen — visible from first render, hides after all data loads */}
       {initialLoading && <OdyLoader />}
 
+      {/* Full-screen retry if load fails */}
+      {!initialLoading && loadFailed && (
+        <div className="fixed inset-0 z-[9000] bg-[#1c1c1c] flex flex-col items-center justify-center gap-5 px-8">
+          <img src="/logo.png" className="w-16 h-16 object-contain opacity-70" alt="" />
+          <p className="text-white font-semibold text-lg text-center">Couldn't load the menu</p>
+          <p className="text-white/40 text-sm text-center">Check your connection and try again</p>
+          <button
+            onClick={() => { setLoadFailed(false); setInitialLoading(true); window.location.reload(); }}
+            className="mt-2 px-8 py-3 rounded-full bg-white text-black font-semibold text-base"
+          >
+            Try Again
+          </button>
+        </div>
+      )}
+
       <div
         className="relative w-full max-w-md bg-[#1c1c1c] flex flex-col overflow-hidden"
         style={{
@@ -1399,10 +1416,10 @@ export default function HotelHomePage() {
               let blocks: Block[];
 
               if (menuTagFilters.length > 0) {
-                blocks = [{ name: null, dishes: menuFilteredDishes.filter(d => isWithinTiming(d.timing)) }];
+                blocks = [{ name: null, dishes: menuFilteredDishes }];
               } else {
                 const catsWithDishes = menuCategories.filter(cat =>
-                  (menuDishes[cat.id] ?? []).filter(d => isWithinTiming(d.timing)).length > 0
+                  (menuDishes[cat.id] ?? []).length > 0
                 );
                 if (catsWithDishes.length === 0) {
                   return (
@@ -1414,7 +1431,7 @@ export default function HotelHomePage() {
                 // No filters active — respect owner's custom sort_order
                 blocks = catsWithDishes.map(cat => ({
                   name: cat.name,
-                  dishes: (menuDishes[cat.id] ?? []).filter(d => isWithinTiming(d.timing)),
+                  dishes: menuDishes[cat.id] ?? [],
                 }));
               }
 
