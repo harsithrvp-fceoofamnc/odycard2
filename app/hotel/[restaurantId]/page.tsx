@@ -481,25 +481,20 @@ function mapDishFromApi(row: {
   };
 }
 
-/** Search result card — white card with classic veg indicator */
+/** Search result — full-width photo card with name overlay */
 function SearchResultRow({ dish, onTap }: { dish: OdyDish; onTap: () => void }) {
   return (
-    <button
-      onClick={onTap}
-      className="w-full flex mb-3 rounded-2xl overflow-hidden text-left bg-white shadow-md"
-    >
-      {/* Dish photo */}
-      <img
-        src={dish.photoUrl || "/food_item_logo.png"}
-        alt={dish.name}
-        className="w-[100px] h-[100px] object-cover shrink-0"
-      />
-      {/* Info */}
-      <div className="flex-1 flex items-center px-4 py-3 min-w-0 gap-3">
-        <div className={`w-4 h-4 shrink-0 border-2 rounded-sm flex items-center justify-center ${dish.isVeg ? 'border-green-600' : 'border-red-600'}`}>
+    <button onClick={onTap} className="relative w-full h-28 rounded-2xl overflow-hidden mb-3 text-left">
+      {/* Full photo */}
+      <img src={dish.photoUrl || "/food_item_logo.png"} alt={dish.name} className="w-full h-full object-cover" />
+      {/* Dark gradient at bottom */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+      {/* Name + veg indicator at bottom */}
+      <div className="absolute bottom-0 left-0 right-0 flex items-center gap-2 px-3.5 pb-3">
+        <div className={`w-4 h-4 shrink-0 border-2 rounded-sm flex items-center justify-center bg-white/90 ${dish.isVeg ? 'border-green-600' : 'border-red-600'}`}>
           <div className={`w-2 h-2 rounded-full ${dish.isVeg ? 'bg-green-600' : 'bg-red-600'}`} />
         </div>
-        <p className="text-black font-semibold text-[15px] leading-snug line-clamp-2 flex-1">{dish.name}</p>
+        <p className="text-white font-semibold text-[15px] leading-tight line-clamp-1 drop-shadow">{dish.name}</p>
       </div>
     </button>
   );
