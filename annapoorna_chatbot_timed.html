@@ -1,0 +1,569 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Annapoorna AI Waiter — Demo (by Odysra)</title>
+<style>
+  :root{--blue:#2645A8;--ink:#23262b;--mut:#7b8190;--line:#e7e2d6;--cream:#f6f1e6;--gold:#d9a93c;--card:#ffffff;}
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  body{margin:0;background:#0e1116;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;display:flex;justify-content:center;align-items:center;min-height:100vh;min-height:100dvh}
+  #phone{width:100%;max-width:440px;height:100vh;height:100dvh;background:var(--cream);overflow:hidden;display:flex;flex-direction:column;position:relative}
+  @media(min-width:480px){
+    body{padding:16px;box-sizing:border-box}
+    #phone{height:calc(100dvh - 32px);max-height:820px;border-radius:24px;box-shadow:0 18px 50px rgba(0,0,0,.45)}
+  }
+  header{background:var(--blue);color:#fff;padding:12px 16px 10px;display:flex;align-items:center;gap:10px}
+  header .logo{width:34px;height:34px;border-radius:9px;background:#fff;color:var(--blue);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:17px}
+  header h1{font-size:16px;margin:0;font-weight:700}
+  header .sub{font-size:11px;opacity:.85;margin-top:1px}
+  header .hback{background:rgba(255,255,255,.16);border:0;color:#fff;width:32px;height:32px;border-radius:9px;font-size:18px;line-height:1;cursor:pointer;flex:0 0 auto;display:none}
+  .langbar{display:flex;gap:6px;overflow-x:auto;padding:8px 12px;background:#1f3c93}
+  .langbar::-webkit-scrollbar{display:none}
+  .lang{flex:0 0 auto;font-size:12px;color:#dfe6ff;background:rgba(255,255,255,.12);border:0;padding:5px 11px;border-radius:20px;cursor:pointer}
+  .lang.on{background:#fff;color:var(--blue);font-weight:700}
+  #chat{flex:1;overflow-y:auto;padding:14px 12px 6px;display:flex;flex-direction:column;gap:10px;position:relative;z-index:1}
+  .wmark{align-self:center;text-align:center;margin-top:auto;padding-top:20px;padding-bottom:6px}
+  .wmark img{width:155px}
+  .wmark .cap{font-size:10.5px;color:var(--mut);letter-spacing:2px;margin-top:8px;text-transform:uppercase}
+  #wm{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:0;pointer-events:none;opacity:.05}
+  #wm img{width:250px}
+  .msg{max-width:88%;font-size:13.5px;line-height:1.45;padding:10px 13px;border-radius:15px}
+  .bot{align-self:flex-start;background:#fff;color:var(--ink);border:1px solid var(--line);border-bottom-left-radius:5px}
+  .me{align-self:flex-end;background:var(--blue);color:#fff;border-bottom-right-radius:5px}
+  .msg,.dish,.pair{animation:pop .25s ease}
+  @keyframes pop{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:none}}
+  .typing{display:inline-flex;gap:4px;align-items:center}
+  .typing .dot{width:6px;height:6px;border-radius:50%;background:#bdb4a2;display:inline-block;animation:blink 1.2s infinite}
+  .typing .dot:nth-child(2){animation-delay:.2s}
+  .typing .dot:nth-child(3){animation-delay:.4s}
+  @keyframes blink{0%,60%,100%{opacity:.3}30%{opacity:1}}
+  .outlet{display:grid;grid-template-columns:1fr 1fr;gap:9px;align-self:stretch;padding:2px}
+  .outlet button{background:#fff;border:1.4px solid var(--blue);color:var(--blue);font-weight:700;padding:15px 8px;border-radius:13px;font-size:13.5px;cursor:pointer}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;align-self:stretch;padding:2px}
+  .dish{background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden;display:flex;flex-direction:column}
+  .dish .pic{height:74px;background:#f0ead9;display:flex;align-items:center;justify-content:center;font-size:34px}
+  .dish .bd{padding:8px 9px;display:flex;flex-direction:column;gap:3px;flex:1}
+  .dish .nm{font-size:12.5px;font-weight:700;color:var(--ink);line-height:1.25;min-height:2.1em;overflow-wrap:anywhere}
+  .dish .pr{font-size:12px;color:var(--blue);font-weight:700}
+  .dish .tag{font-size:9.5px;color:var(--gold);font-weight:700}
+  .frow{display:flex;gap:5px;margin-top:auto;align-items:center}
+  .add{flex:1;border:1.4px solid var(--blue);background:#fff;color:var(--blue);font-weight:700;font-size:12px;padding:6px;border-radius:9px;cursor:pointer}
+  .add.in{background:var(--blue);color:#fff}
+  .qtys{flex:1;display:flex;align-items:center;justify-content:space-between;border:1.4px solid var(--blue);border-radius:9px;padding:1px 4px}
+  .qtys button{width:26px;height:24px;border:0;background:transparent;color:var(--blue);font-size:17px;font-weight:800;cursor:pointer;line-height:1}
+  .qtys span{font-size:13px;font-weight:800;color:var(--ink)}
+  .infob{border:1.3px solid var(--line);background:#fff;color:var(--blue);font-size:13px;padding:6px 8px;border-radius:9px;cursor:pointer}
+  .noteb{border:1.3px solid var(--line);background:#fff;color:var(--mut);font-size:13px;padding:5px 8px;border-radius:9px;cursor:pointer}
+  .noteb.has{border-color:var(--gold);color:#b8860b;background:#fff7e6}
+  .chips{display:flex;flex-wrap:wrap;gap:7px;align-self:flex-start;max-width:100%}
+  .chip{font-size:12.5px;background:#fff;border:1.3px solid var(--blue);color:var(--blue);padding:7px 12px;border-radius:20px;cursor:pointer;font-weight:600}
+  .chip.alt{border-color:var(--line);color:var(--ink)}
+  .chip.go{background:var(--blue);color:#fff}
+  .pair{align-self:stretch;background:#fff7e6;border:1px solid #f0dca8;border-radius:14px;padding:10px 11px}
+  .pair p{margin:0 0 8px;font-size:13px;color:#6b541a}
+  .pair .row{display:flex;gap:8px}
+  .pair .pi{flex:1;background:#fff;border:1px solid var(--line);border-radius:11px;padding:7px;text-align:center}
+  .pair .pi .e{font-size:24px}.pair .pi .n{font-size:11px;font-weight:700;margin:2px 0}
+  .barwrap{border-top:1px solid var(--line);background:var(--cream);padding:8px 10px 10px}
+  #cartbar{display:none;width:100%;background:var(--gold);color:#3a2a05;border:0;font-weight:800;font-size:13.5px;padding:11px;border-radius:12px;cursor:pointer;margin-bottom:8px}
+  .inputrow{display:flex;gap:7px;align-items:center}
+  .inputrow input{flex:1;border:1px solid var(--line);border-radius:20px;padding:9px 13px;font-size:13.5px;outline:none}
+  .mic{background:#fff;border:1px solid var(--line);color:var(--blue);width:38px;height:38px;border-radius:50%;font-size:16px;cursor:pointer}
+  .mic.on{background:#e53935;color:#fff;border-color:#e53935;animation:pulse 1s infinite}
+  @keyframes pulse{50%{opacity:.55}}
+  .send{background:var(--blue);color:#fff;border:0;width:38px;height:38px;border-radius:50%;font-size:16px;cursor:pointer}
+  .foot{text-align:center;font-size:9.5px;color:var(--mut);padding:5px}
+  #modal{position:absolute;inset:0;background:rgba(20,16,10,.45);display:none;align-items:flex-end;z-index:9}
+  .sheet{background:#fff;width:100%;max-height:92%;overflow-y:auto;border-radius:18px 18px 0 0;padding:16px 16px 20px}
+  .sheet h2{margin:2px 0 12px;font-size:17px;color:var(--ink)}
+  .ci{display:flex;align-items:flex-start;gap:10px;padding:9px 0;border-bottom:1px solid var(--line)}
+  .ci .e{font-size:24px}.ci .g{flex:1}.ci .g .n{font-size:13.5px;font-weight:700}.ci .g .p{font-size:12px;color:var(--mut)}
+  .ci .g .cnote{font-size:11px;color:#b8860b;margin-top:2px;font-style:italic}
+  .rc{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--line)}
+  .rc .e{font-size:22px}
+  .rc .rg{flex:1}.rc .rn{font-size:13px;font-weight:700;color:var(--ink)}.rc .rp{font-size:12px;color:var(--blue);font-weight:700}
+  .radd{flex:0 0 auto;border:1.4px solid var(--blue);background:#fff;color:var(--blue);font-weight:700;font-size:12px;padding:7px 15px;border-radius:9px;cursor:pointer}
+  .recohd{margin:16px 0 4px;font-weight:700;font-size:14px;color:var(--ink)}
+  .qty{display:flex;align-items:center;gap:9px}
+  .qty button{width:26px;height:26px;border-radius:7px;border:1px solid var(--line);background:#fff;font-size:15px;cursor:pointer;color:var(--blue);font-weight:800}
+  .tot{display:flex;justify-content:space-between;font-size:13.5px;padding:5px 0;color:var(--ink)}
+  .tot.big{font-size:16px;font-weight:800;border-top:2px solid var(--line);margin-top:6px;padding-top:9px}
+  .btn{display:block;width:100%;background:var(--blue);color:#fff;border:0;font-weight:700;font-size:14.5px;padding:12px;border-radius:12px;cursor:pointer;margin-top:12px}
+  .btn.g{background:var(--gold);color:#3a2a05}
+  .opt{display:flex;gap:10px;margin:6px 0 2px}
+  .opt button{flex:1;border:1.5px solid var(--blue);background:#fff;color:var(--blue);font-weight:700;padding:14px;border-radius:12px;cursor:pointer;font-size:14px}
+  .opt button.on{background:var(--blue);color:#fff}
+  .fld{margin:9px 0}
+  .fld label{font-size:12px;color:var(--mut);font-weight:600;display:block;margin-bottom:4px}
+  .fld input,.fld textarea{width:100%;border:1px solid var(--line);border-radius:10px;padding:11px;font-size:14px;outline:none;font-family:inherit}
+  .note{font-size:11.5px;color:var(--mut);background:#f3eee3;border-radius:9px;padding:8px 10px;margin-top:8px}
+  .ok{text-align:center;padding:14px 4px}
+  .ok .big{font-size:46px}.ok h2{margin:8px 0 4px}.ok p{color:var(--mut);font-size:13px;margin:4px 0}
+</style>
+</head>
+<body>
+<div id="phone">
+  <header><button id="back" class="hback" onclick="goOutlets()" title="Change outlet">←</button><div class="logo">A</div><div><h1 id="hname">Sree Annapoorna</h1><div class="sub" id="hsub">Choose your outlet — AI Waiter by Odysra</div></div></header>
+  <div class="langbar" id="langbar"></div>
+  <div id="wm"></div>
+  <div id="chat"></div>
+  <div class="barwrap" id="bar">
+    <button id="cartbar" onclick="openCart()"></button>
+    <div class="inputrow">
+      <button class="mic" id="mic" onclick="recordVoice()" title="Tap to speak">🎙️</button>
+      <input id="inp" placeholder="Ask me anything…" onkeydown="if(event.key==='Enter')sendText()"/>
+      <button class="send" onclick="sendText()">➤</button>
+    </div>
+    <div class="foot">Demo prototype · simulated AI &amp; payment · © Odysra</div>
+  </div>
+  <div id="modal" onclick="if(event.target.id==='modal')closeModal()"><div class="sheet" id="sheet"></div></div>
+</div>
+<script>
+const MENU={
+ idli:{n:"Idly (2)",p:50,e:"🍥",h:[[6,10.5],[18,22]],best:1},
+ idli1:{n:"Idly (1)",p:30,e:"🍥",h:[[6,10.5],[18,22]]},
+ sambaridli:{n:"Sambar Idly (2)",p:65,e:"🍥",h:[[6,10.5],[18,22]]},
+ sambaridli1:{n:"Sambar Idly (1)",p:42,e:"🍥",h:[[6,10.5],[18,22]]},
+ vada:{n:"Vadai (1)",p:33,e:"🍩",h:[[6,10.5],[18,22]]},
+ sambarvadai:{n:"Sambar Vadai (1)",p:44,e:"🍩",h:[[6,10.5],[18,22]]},
+ pongal:{n:"Pongal",p:80,e:"🥣",h:[[6,10.5],[18,22]],best:1},
+ ravakitchadi:{n:"Veg Rava Kitchadi",p:75,e:"🥣",h:[[6,10.5],[18,22]]},
+ poori2:{n:"Poori w/ Potato Masal (2)",p:95,e:"🫓",h:[[6,10.5],[18,22]]},
+ poori1:{n:"Poori w/ Potato Masal (1)",p:50,e:"🫓",h:[[6,10.5],[18,22]]},
+ idiyappam:{n:"Idiyappam w/ Coconut Milk & Stew",p:95,e:"🍝",h:[[6,10.5],[18,22]]},
+ lemonsevai:{n:"Lemon Sevai",p:77,e:"🍝",h:[[6,10.5],[18,22]]},
+ gheeminiidli:{n:"Ghee Mini Idly in Sambar",p:105,e:"🍥",h:[[6,10.5],[18,22]]},
+ wheatuppuma:{n:"Wheat Uppuma",p:75,e:"🥣",h:[[6,10.5]]},
+ wheatuppumacurd:{n:"Wheat Uppuma with Curd",p:88,e:"🥣",h:[[6,10.5]]},
+ channabhatura:{n:"Channa Bhatura (Chola Poori)",p:130,e:"🫓",h:[[18,22]]},
+ gheeroast:{n:"Ghee Roast",p:95,e:"🫓",h:[[6.5,22.5]],best:1},
+ paperroast:{n:"Paper Roast",p:135,e:"🫓",h:[[6.5,22.5]]},
+ familyroast:{n:"Family Roast",p:500,e:"🫓",h:[[6.5,22.5]]},
+ masalroast:{n:"Masal Roast (Potato Masal)",p:135,e:"🫓",h:[[6.5,22.5]],best:1},
+ gheemasalroast:{n:"Ghee Masal Roast (Potato Masal)",p:145,e:"🫓",h:[[6.5,22.5]]},
+ buttermasalroast:{n:"Butter Masal Roast (Potato Masal)",p:140,e:"🫓",h:[[6.5,22.5]]},
+ onionroast:{n:"Onion Roast",p:125,e:"🫓",h:[[6.5,22.5]]},
+ gheeonionroast:{n:"Ghee Onion Roast",p:135,e:"🫓",h:[[6.5,22.5]]},
+ podiroast:{n:"Podi Roast",p:120,e:"🫓",h:[[6.5,22.5]]},
+ uthappam:{n:"Uthappam",p:95,e:"🥞",h:[[6.5,22.5]],best:1},
+ gheeuthappam:{n:"Ghee Uthappam",p:130,e:"🥞",h:[[6.5,22.5]]},
+ onionuthappam:{n:"Onion Uthappam",p:125,e:"🥞",h:[[6.5,22.5]]},
+ gheeonionuthappam:{n:"Ghee Onion Uthappam",p:135,e:"🥞",h:[[6.5,22.5]]},
+ podiuthappam:{n:"Podi Uthappam",p:110,e:"🥞",h:[[6.5,22.5]]},
+ tomatouthappam:{n:"Tomato Uthappam",p:110,e:"🥞",h:[[6.5,22.5]]},
+ ravaroast:{n:"Rava Roast",p:135,e:"🫓",h:[[6.75,22.5]]},
+ gheeravaroast:{n:"Ghee Rava Roast",p:145,e:"🫓",h:[[6.75,22.5]]},
+ onionravaroast:{n:"Onion Rava Roast",p:145,e:"🫓",h:[[6.75,22.5]]},
+ ravamasalroast:{n:"Rava Masal Roast",p:145,e:"🫓",h:[[6.75,22.5]]},
+ chocolateroast:{n:"Chocolate Roast",p:160,e:"🍫",h:[[15,22]]},
+ cauliflowerroast:{n:"Cauliflower Masal Roast",p:140,e:"🫓",h:[[15,22]]},
+ mushroomroast:{n:"Mushroom Masal Roast",p:140,e:"🫓",h:[[15,22]]},
+ paneerroast:{n:"Paneer Masal Roast",p:160,e:"🫓",h:[[15,22]]},
+ garlicroast:{n:"Garlic Masal Roast",p:140,e:"🫓",h:[[15,22]]},
+ tomatoroast:{n:"Tomato Masal Roast",p:140,e:"🫓",h:[[15,22]]},
+ vendhayadosa:{n:"Vendhaya Dosa w/ Poondu Kolambu",p:110,e:"🫓",h:[[16,19]]},
+ adaiaviyal:{n:"Adai Aviyal",p:105,e:"🫓",h:[[16,19]]},
+ setdosa:{n:"Set Dosa with Vada Curry",p:105,e:"🫓",h:[[16,19]]},
+ vegomelette:{n:"Veg Omelette",p:85,e:"🍳",h:[[16,19]]},
+ siparotta:{n:"South Indian Parotta (1)",p:75,e:"🫓",h:[[11,22.5]]},
+ chapathi2:{n:"Chappathi (2)",p:70,e:"🫓",h:[[11,22.5]]},
+ chapati:{n:"Chappathi (1)",p:40,e:"🫓",h:[[11,22.5]]},
+ chilliparotta:{n:"Chilly Parotta",p:130,e:"🌶️",h:[[12,22.5]],best:1},
+ kothuparotta:{n:"Kothu Parotta",p:130,e:"🍳",h:[[12,22.5]]},
+ mushroomkothu:{n:"Mushroom Kothu Parotta",p:135,e:"🍳",h:[[12,22.5]]},
+ paneerkothu:{n:"Paneer Kothu Parotta",p:165,e:"🍳",h:[[12,22.5]]},
+ curdvadai:{n:"Curd Vadai (1)",p:52,e:"🍩",h:[[11,12.5],[16,17.5]]},
+ potatobonda:{n:"Potato Bonda (2)",p:40,e:"🧆",h:[[11,12.5],[16,17.5]]},
+ mysorebonda:{n:"Mysore Bonda (2)",p:40,e:"🧆",h:[[11,12.5],[16,17.5]]},
+ rawbananabajji:{n:"Raw Banana Bajji (2)",p:35,e:"🧆",h:[[11,12.5],[16,17.5]]},
+ onionbajji:{n:"Onion Bajji (2)",p:35,e:"🧆",h:[[11,12.5],[16,17.5]]},
+ masalvadai:{n:"Masal Vadai (2)",p:35,e:"🧆",h:[[11,12.5],[16,17.5]]},
+ frenchfries:{n:"French Fries",p:80,e:"🍟",h:[[11,12.5],[16,17.5]]},
+ rajabhojanam:{n:"Rajabhojanam (Full Thali)",p:278,e:"🍛",h:[[12,15]],best:1},
+ meals:{n:"South Indian Meals",p:180,e:"🍛",h:[[12,15.5]],best:1},
+ execlunch:{n:"Executive Lunch (Limited)",p:158,e:"🍛",h:[[11,15]]},
+ vegbriyani:{n:"Veg Briyani",p:110,e:"🍚",h:[[10.5,15.5]],best:1},
+ mushroombiriyani:{n:"Mushroom Biriyani",p:125,e:"🍚",h:[[10.5,15.5]]},
+ hydmushroombriyani:{n:"Special Hyderabadi Mushroom Briyani",p:190,e:"🍚",h:[[12,15.5]],best:1},
+ sambarrice:{n:"Sambar Rice",p:85,e:"🍚",h:[[10.5,15.5]]},
+ curdrice:{n:"Curd Rice",p:82,e:"🍚",h:[[10.5,15.5]]},
+ curdsemiya:{n:"Curd Semiya",p:85,e:"🍚",h:[[10.5,15.5]]},
+ lemonrice:{n:"Lemon Rice",p:75,e:"🍚",h:[[10.5,15.5]]},
+ tomatorice:{n:"Tomato Rice",p:75,e:"🍚",h:[[10.5,15.5]]},
+ tomatosoup:{n:"Tomato Soup",p:100,e:"🥣",h:[[12,15.5],[19,22.5]]},
+ sweetcornsoup:{n:"Sweet Corn Soup",p:100,e:"🥣",h:[[12,15.5],[19,22.5]]},
+ milagusoup:{n:"Milagu Dhania Soup",p:100,e:"🥣",h:[[12,15.5],[19,22.5]]},
+ vegclearsoup:{n:"Veg Clear Soup",p:100,e:"🥣",h:[[12,15.5],[19,22.5]]},
+ creammushroomsoup:{n:"Cream of Mushroom / Veg",p:105,e:"🥣",h:[[12,15.5],[19,22.5]]},
+ vegnoodles:{n:"Veg Noodles",p:175,e:"🍜",h:[[12,15.5],[19,22.5]]},
+ vegfriedrice:{n:"Veg Fried Rice",p:175,e:"🍚",h:[[12,15.5],[19,22.5]]},
+ mushfriedrice:{n:"Mushroom Fried Rice",p:180,e:"🍚",h:[[12,15.5],[19,22.5]]},
+ mushnoodles:{n:"Mushroom Noodles",p:180,e:"🍜",h:[[12,15.5],[19,22.5]]},
+ szechfriedrice:{n:"Veg Szechwan Fried Rice",p:180,e:"🍚",h:[[12,15.5],[19,22.5]]},
+ szechnoodles:{n:"Veg Szechwan Noodles",p:180,e:"🍜",h:[[12,15.5],[19,22.5]]},
+ paneerfriedrice:{n:"Paneer Fried Rice",p:225,e:"🍚",h:[[12,15.5],[19,22.5]]},
+ paneernoodles:{n:"Paneer Noodles",p:225,e:"🍜",h:[[12,15.5],[19,22.5]]},
+ paneertikka:{n:"Paneer Tikka",p:245,e:"🍢",h:[[12,15.5],[19,22.5]],best:1},
+ broccolitikka:{n:"Broccoli Tikka",p:240,e:"🍢",h:[[12,15.5],[19,22.5]]},
+ masalapapad:{n:"Masala Papad",p:50,e:"🫓",h:[[12,15.5],[19,22.5]]},
+ roastedpapad:{n:"Roasted Papad",p:30,e:"🫓",h:[[12,15.5],[19,22.5]]},
+ chilligobi:{n:"Chilli Gobi",p:165,e:"🍢",h:[[12,15.5],[19,22.5]],best:1},
+ chillipaneer:{n:"Chilli Paneer",p:245,e:"🍢",h:[[12,15.5],[19,22.5]]},
+ chillimushroom:{n:"Chilli Mushroom",p:200,e:"🍢",h:[[12,15.5],[19,22.5]]},
+ mushpepperfry:{n:"Mushroom Pepper Fry",p:190,e:"🍢",h:[[12,15.5],[19,22.5]]},
+ paneerpepperfry:{n:"Paneer Pepper Fry",p:225,e:"🍢",h:[[12,15.5],[19,22.5]]},
+ gobipepperfry:{n:"Gobi Pepper Fry",p:165,e:"🍢",h:[[12,15.5],[19,22.5]]},
+ chinchilligobi:{n:"Chinese Chilli Gobi",p:165,e:"🍢",h:[[12,15.5],[19,22.5]]},
+ chinchillimush:{n:"Chinese Chilli Mushroom",p:190,e:"🍢",h:[[12,15.5],[19,22.5]]},
+ chinchillipaneer:{n:"Chinese Chilli Paneer",p:225,e:"🍢",h:[[12,15.5],[19,22.5]]},
+ vegspringroll:{n:"Veg Spring Rolls (5)",p:220,e:"🥢",h:[[12,15.5],[19,22.5]]},
+ paneerspringroll:{n:"Paneer Spring Rolls (5)",p:245,e:"🥢",h:[[12,15.5],[19,22.5]]},
+ szechpaneer:{n:"Szechwan Paneer",p:235,e:"🍢",h:[[12,15.5],[19,22.5]]},
+ dragonpaneer:{n:"Dragon Paneer",p:230,e:"🍢",h:[[12,15.5],[19,22.5]]},
+ gobimanch:{n:"Gobi Manchurian",p:165,e:"🍢",h:[[12,15.5],[19,22.5]],best:1},
+ paneermanch:{n:"Paneer Manchurian",p:225,e:"🍢",h:[[12,15.5],[19,22.5]]},
+ mushmanch:{n:"Mushroom Manchurian",p:190,e:"🍢",h:[[12,15.5],[19,22.5]]},
+ babycornmanch:{n:"Babycorn Manchurian",p:195,e:"🍢",h:[[12,15.5],[19,22.5]]},
+ vegballmanch:{n:"Veg Ball Manchurian",p:200,e:"🍢",h:[[12,15.5],[19,22.5]]},
+ paneerbuttermasala:{n:"Paneer Butter Masala",p:235,e:"🍲",h:[[12,15.5],[19,22.5]],best:1},
+ mushroommasala:{n:"Mushroom Masala",p:190,e:"🍲",h:[[12,15.5],[19,22.5]]},
+ vegchettinadu:{n:"Veg Chettinadu",p:170,e:"🍲",h:[[12,15.5],[19,22.5]]},
+ paneerchettinadu:{n:"Paneer Chettinadu",p:235,e:"🍲",h:[[12,15.5],[19,22.5]]},
+ mushchettinadu:{n:"Mushroom Chettinadu",p:195,e:"🍲",h:[[12,15.5],[19,22.5]]},
+ kadaiveg:{n:"Kadai Veg",p:170,e:"🍲",h:[[12,15.5],[19,22.5]]},
+ kadaipaneer:{n:"Kadai Paneer",p:245,e:"🍲",h:[[12,15.5],[19,22.5]]},
+ kadaimushroom:{n:"Kadai Mushroom",p:195,e:"🍲",h:[[12,15.5],[19,22.5]]},
+ malaikofta:{n:"Malai Kofta Curry",p:245,e:"🍲",h:[[12,15.5],[19,22.5]]},
+ mixedvegcurry:{n:"Mixed Veg Curry",p:165,e:"🍲",h:[[12,15.5],[19,22.5]]},
+ greenpeasmasala:{n:"Green Peas Masala",p:165,e:"🍲",h:[[12,15.5],[19,22.5]]},
+ channamasala:{n:"Channa Masala",p:165,e:"🍲",h:[[12,15.5],[19,22.5]]},
+ paneerhyderabadi:{n:"Paneer Hyderabadi",p:235,e:"🍲",h:[[12,15.5],[19,22.5]]},
+ paneermatar:{n:"Paneer Matar Curry",p:235,e:"🍲",h:[[12,15.5],[19,22.5]]},
+ paneertikkamasala:{n:"Paneer Tikka Masala",p:260,e:"🍲",h:[[12,15.5],[19,22.5]]},
+ mushhyderabadi:{n:"Mushroom Hyderabadi",p:195,e:"🍲",h:[[12,15.5],[19,22.5]]},
+ mushvartha:{n:"Mushroom Vartha Curry",p:200,e:"🍲",h:[[12,15.5],[19,22.5]]},
+ dalfry:{n:"Dal Fry",p:165,e:"🍲",h:[[12,15.5],[19,22.5]]},
+ cashewmasala:{n:"Cashew Masala",p:225,e:"🍲",h:[[12,15.5],[19,22.5]]},
+ aloogobimasala:{n:"Aloo Gobi Masala",p:165,e:"🍲",h:[[12,15.5],[19,22.5]]},
+ roti:{n:"Roti",p:50,e:"🫓",h:[[12,15.5],[19,22.5]]},
+ naan:{n:"Naan",p:50,e:"🫓",h:[[12,15.5],[19,22.5]]},
+ kulcha:{n:"Kulcha",p:55,e:"🫓",h:[[12,15.5],[19,22.5]]},
+ butterbread:{n:"Butter Roti / Naan / Kulcha",p:65,e:"🫓",h:[[12,15.5],[19,22.5]]},
+ rumaliroti:{n:"Rumali Roti",p:60,e:"🫓",h:[[12,15.5],[19,22.5]]},
+ garlicroti:{n:"Garlic Roti",p:80,e:"🫓",h:[[12,15.5],[19,22.5]]},
+ garlickulcha:{n:"Garlic Kulcha",p:80,e:"🫓",h:[[12,15.5],[19,22.5]]},
+ tandooriparatha:{n:"Tandoori Paratha",p:65,e:"🫓",h:[[12,15.5],[19,22.5]]},
+ garlicbutternaan:{n:"Garlic Butter Naan",p:80,e:"🫓",h:[[12,15.5],[19,22.5]]},
+ vegpulav:{n:"Veg Pulav",p:175,e:"🍚",h:[[12,15.5],[19,22.5]]},
+ paneerpulav:{n:"Paneer Pulav",p:235,e:"🍚",h:[[12,15.5],[19,22.5]]},
+ mushpulav:{n:"Mushroom Pulav",p:180,e:"🍚",h:[[12,15.5],[19,22.5]]},
+ peaspulav:{n:"Peas Pulav",p:170,e:"🍚",h:[[12,15.5],[19,22.5]]},
+ cashewpulav:{n:"Cashew Pulav",p:245,e:"🍚",h:[[12,15.5],[19,22.5]]},
+ jeerarice:{n:"Jeera Rice",p:170,e:"🍚",h:[[12,15.5],[19,22.5]]},
+ gheerice:{n:"Ghee Rice",p:220,e:"🍚",h:[[12,15.5],[19,22.5]]},
+ chillyidly:{n:"Chilly Idly",p:100,e:"🌶️",h:[[18,22]]},
+ pepperidly:{n:"Pepper Idly",p:100,e:"🍥",h:[[18,22]]},
+ podiidly:{n:"Podi Idly",p:100,e:"🍥",h:[[18,22]]},
+ specialsevai:{n:"Special Sevai of the Day",p:95,e:"🍝",h:[[18,22]]},
+ aappam:{n:"Aappam w/ Coconut Milk & Stew",p:92,e:"🥞",h:[[18,22]]},
+ paniyaram:{n:"Paniyaram (6 pcs)",p:80,e:"🟤",h:[[18,22]]},
+ kuzhaputtu:{n:"Kuzha Puttu w/ Kadala Curry",p:105,e:"🍚",h:[[18,22]]},
+ coffee:{n:"Annapoorna Spl. Filter Coffee",p:43,e:"☕",h:[[6,22.75]],best:1,bev:1},
+ blackcoffee:{n:"Black Coffee",p:38,e:"☕",h:[[6,22.75]],bev:1},
+ hotmilk:{n:"Hot Milk",p:35,e:"🥛",h:[[6,22.75]],bev:1},
+ tea:{n:"Tea",p:40,e:"🍵",h:[[6,22.75]],bev:1},
+ blacktea:{n:"Black Tea",p:30,e:"🍵",h:[[6,22.75]],bev:1},
+ greentea:{n:"Green Tea (dip)",p:30,e:"🍵",h:[[6,22.75]],bev:1},
+ lemontea:{n:"Lemon Tea (dip)",p:30,e:"🍵",h:[[6,22.75]],bev:1},
+ bournvita:{n:"Bournvita",p:60,e:"🥛",h:[[6,22.75]],bev:1},
+ horlicks:{n:"Horlicks",p:60,e:"🥛",h:[[6,22.75]],bev:1},
+ coldcoffee:{n:"Cold Coffee",p:150,e:"🧋",h:[[6,22.75]],bev:1},
+ mango:{n:"Mango Milk Shake",p:90,e:"🥤",h:[[6,22.75]],bev:1},
+ rosemilk:{n:"Rose Milk",p:85,e:"🥛",h:[[6,22.75]],bev:1},
+ saltlassi:{n:"Salt Lassi",p:80,e:"🥛",h:[[6,22.75]],bev:1},
+ sweetlassi:{n:"Sweet Lassi",p:80,e:"🥛",h:[[6,22.75]],bev:1},
+ applejuice:{n:"Apple Juice",p:80,e:"🧃",h:[[8,22.5]],bev:1},
+ sweetlimejuice:{n:"Sweet Lime (Mozambi)",p:75,e:"🧃",h:[[8,22.5]],bev:1},
+ orangejuice:{n:"Orange Juice",p:80,e:"🧃",h:[[8,22.5]],bev:1},
+ muskmelonjuice:{n:"Musk Melon Juice",p:75,e:"🧃",h:[[8,22.5]],bev:1},
+ pineapplejuice:{n:"Pineapple Juice",p:75,e:"🧃",h:[[8,22.5]],bev:1},
+ watermelonjuice:{n:"Watermelon Juice",p:70,e:"🧃",h:[[8,22.5]],bev:1},
+ limesoda:{n:"Fresh Lime Soda",p:60,e:"🥤",h:[[8,22.5]],bev:1},
+ limejuice:{n:"Fresh Lime Juice",p:35,e:"🥤",h:[[8,22.5]],bev:1},
+ mintlime:{n:"Mint Lime Juice",p:45,e:"🥤",h:[[8,22.5]],bev:1},
+ carrotjuice:{n:"Carrot Juice",p:70,e:"🧃",h:[[8,22.5]],bev:1},
+ strawberryshake:{n:"Strawberry Milkshake",p:160,e:"🥤",h:[[10,22.5]],bev:1},
+ butterscotchshake:{n:"Butterscotch Milkshake",p:160,e:"🥤",h:[[10,22.5]],bev:1},
+ chocolateshake:{n:"Chocolate Milkshake",p:160,e:"🥤",h:[[10,22.5]],bev:1},
+ vanillashake:{n:"Vanilla Milkshake",p:160,e:"🥤",h:[[10,22.5]],bev:1},
+ pistashake:{n:"Pista Milkshake",p:160,e:"🥤",h:[[10,22.5]],bev:1},
+ almondshake:{n:"Almond Milkshake",p:180,e:"🥤",h:[[10,22.5]],bev:1},
+ icecreamshake:{n:"Milkshake with Ice Cream",p:220,e:"🥤",h:[[10,22.5]],bev:1},
+ rasamalai:{n:"Rasamalai",p:60,e:"🍮",h:[[10,22.5]]},
+ rasagulla:{n:"Rasagulla",p:40,e:"🍮",h:[[10,22.5]]},
+ carrothalwa:{n:"Carrot Halwa w/ Ice Cream",p:140,e:"🍨",h:[[10,22.5]]},
+ hotjamun:{n:"Hot Jamun w/ Ice Cream",p:145,e:"🍮",h:[[10,22.5]],best:1},
+ fruitsalad:{n:"Fruit Salad w/ Ice Cream",p:145,e:"🍨",h:[[10,22.5]]},
+ falooda:{n:"Falooda",p:225,e:"🍧",h:[[10,22.5]]},
+ chocobrownie:{n:"Chocolate Brownie w/ Ice Cream",p:180,e:"🍨",h:[[10,22.5]]},
+ icecreamnuts:{n:"Ice Cream w/ Choc Sauce & Nuts",p:125,e:"🍨",h:[[10,22.5]]},
+ choiceicecream:{n:"Choice of Ice Cream",p:105,e:"🍨",h:[[10,22.5]]}};
+const CATS=[
+ {name:"Tiffin",ids:["idli","idli1","sambaridli","sambaridli1","vada","sambarvadai","pongal","ravakitchadi","poori2","poori1","idiyappam","lemonsevai","gheeminiidli","wheatuppuma","wheatuppumacurd","channabhatura"]},
+ {name:"Roast & Uthappam",subs:[{name:"Roast",ids:["gheeroast","paperroast","familyroast","masalroast","gheemasalroast","buttermasalroast","onionroast","gheeonionroast","podiroast"]},{name:"Uthappam",ids:["uthappam","gheeuthappam","onionuthappam","gheeonionuthappam","podiuthappam","tomatouthappam"]},{name:"Rava Roast",ids:["ravaroast","gheeravaroast","onionravaroast","ravamasalroast"]},{name:"Roast Varieties",ids:["chocolateroast","cauliflowerroast","mushroomroast","paneerroast","garlicroast","tomatoroast"]},{name:"Special Dosa",ids:["vendhayadosa","adaiaviyal","setdosa","vegomelette"]}]},
+ {name:"Parotta & Chapathi",subs:[{name:"Chapathi & Parotta",ids:["siparotta","chapathi2","chapati"]},{name:"Kothu & Chilly",ids:["chilliparotta","kothuparotta","mushroomkothu","paneerkothu"]}]},
+ {name:"Meals",ids:["rajabhojanam","meals","execlunch"]},
+ {name:"Lunch (Rice)",ids:["vegbriyani","mushroombiriyani","hydmushroombriyani","sambarrice","curdrice","curdsemiya","lemonrice","tomatorice"]},
+ {name:"Soups",ids:["tomatosoup","sweetcornsoup","milagusoup","vegclearsoup","creammushroomsoup"]},
+ {name:"Rice & Noodles",ids:["vegnoodles","vegfriedrice","mushfriedrice","mushnoodles","szechfriedrice","szechnoodles","paneerfriedrice","paneernoodles"]},
+ {name:"Starters",subs:[{name:"North Indian",ids:["paneertikka","broccolitikka","masalapapad","roastedpapad"]},{name:"Chinese",ids:["chilligobi","chillipaneer","chillimushroom","mushpepperfry","paneerpepperfry","gobipepperfry","chinchilligobi","chinchillimush","chinchillipaneer","vegspringroll","paneerspringroll","szechpaneer","dragonpaneer","gobimanch","paneermanch","mushmanch","babycornmanch","vegballmanch"]}]},
+ {name:"North Indian",subs:[{name:"Gravies",ids:["paneerbuttermasala","mushroommasala","vegchettinadu","paneerchettinadu","mushchettinadu","kadaiveg","kadaipaneer","kadaimushroom","malaikofta","mixedvegcurry","greenpeasmasala","channamasala","paneerhyderabadi","paneermatar","paneertikkamasala","mushhyderabadi","mushvartha","dalfry","cashewmasala","aloogobimasala"]},{name:"Breads",ids:["roti","naan","kulcha","butterbread","rumaliroti","garlicroti","garlickulcha","tandooriparatha","garlicbutternaan"]},{name:"Pulav",ids:["vegpulav","paneerpulav","mushpulav","peaspulav","cashewpulav","jeerarice","gheerice"]}]},
+ {name:"Evening Specials",ids:["chillyidly","pepperidly","podiidly","specialsevai","aappam","paniyaram","kuzhaputtu"]},
+ {name:"Beverages",subs:[{name:"Hot",ids:["coffee","blackcoffee","hotmilk","tea","blacktea","greentea","lemontea","bournvita","horlicks"]},{name:"Cold",ids:["coldcoffee","mango","rosemilk","saltlassi","sweetlassi"]},{name:"Fresh Juices",ids:["applejuice","sweetlimejuice","orangejuice","muskmelonjuice","pineapplejuice","watermelonjuice","limesoda","limejuice","mintlime","carrotjuice"]},{name:"Milkshakes",ids:["strawberryshake","butterscotchshake","chocolateshake","vanillashake","pistashake","almondshake","icecreamshake"]}]},
+ {name:"Desserts & Ice Cream",ids:["rasamalai","rasagulla","carrothalwa","hotjamun","fruitsalad","falooda","chocobrownie","icecreamnuts","choiceicecream"]}
+];
+const OUTLETS=["RS Puram","Gandhipuram","Saibaba Colony","Peelamedu","Town Hall","Singanallur"];
+const LOGO="data:image/png;base64,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";
+const GREET={en:"Good %t! Welcome to Annapoorna, %o. 🙏 I'm your AI waiter — what are you in the mood for today?",
+ ta:"வணக்கம்! அன்னபூர்ணா %o-விற்கு வரவேற்கிறோம். 🙏 நான் உங்கள் AI வெயிட்டர் — இன்று என்ன சாப்பிட விரும்புகிறீர்கள்?",
+ hi:"नमस्ते! अन्नपूर्णा %o में आपका स्वागत है। 🙏 मैं आपका AI वेटर हूँ — आज आप क्या खाना पसंद करेंगे?",
+ ml:"നമസ്കാരം! അന്നപൂർണ %o-ലേക്ക് സ്വാഗതം. 🙏 ഞാൻ നിങ്ങളുടെ AI വെയിറ്റർ — ഇന്ന് എന്ത് കഴിക്കാൻ ആഗ്രഹിക്കുന്നു?",
+ te:"నమస్కారం! అన్నపూర్ణ %o-కు స్వాగతం. 🙏 నేను మీ AI వెయిటర్ — ఈ రోజు ఏం తినాలనుకుంటున్నారు?",
+ kn:"ನಮಸ್ಕಾರ! ಅನ್ನಪೂರ್ಣ %o-ಗೆ ಸ್ವಾಗತ. 🙏 ನಾನು ನಿಮ್ಮ AI ವೇಟರ್ — ಇಂದು ಏನು ತಿನ್ನಲು ಬಯಸುತ್ತೀರಿ?"};
+const LANGS=[["en","English"],["ta","தமிழ்"],["hi","हिन्दी"],["ml","മലയാളം"],["te","తెలుగు"],["kn","ಕನ್ನಡ"]];
+const FRESH={en:"Here's what's <b>hot &amp; fresh</b> right now 👇",
+ ta:"இப்போது <b>சூடாகவும் புதிதாகவும்</b> இருப்பவை 👇",
+ hi:"अभी जो <b>गरम और ताज़ा</b> है 👇",
+ ml:"ഇപ്പോൾ <b>ചൂടും പുതുമയും</b> ഉള്ളവ 👇",
+ te:"ఇప్పుడు <b>వేడిగా, తాజాగా</b> ఉన్నవి 👇",
+ kn:"ಈಗ <b>ಬಿಸಿಯಾಗಿ, ತಾಜಾ</b> ಇರುವವು 👇"};
+const NAMES={
+ idli:{ta:"இட்லி",hi:"इडली",ml:"ഇഡ്ലി",te:"ఇడ్లీ",kn:"ಇಡ್ಲಿ"},
+ vada:{ta:"மெது வடா",hi:"मेदु वड़ा",ml:"മേദു വട",te:"మేదు వడ",kn:"ಮೇದು ವಡ"},
+ pongal:{ta:"வெண் பொங்கல்",hi:"वेन पोंगल",ml:"വെൻ പൊങ്കൽ",te:"వెన్ పొంగల్",kn:"ವೆನ್ ಪೊಂಗಲ್"},
+ masaladosa:{ta:"மசாலா தோசா",hi:"मसाला डोसा",ml:"മസാല ദോശ",te:"మసాలా దోస",kn:"ಮಸಾಲಾ ದೋಸೆ"},
+ plaindosa:{ta:"பிளைன் தோசா",hi:"प्लेन डोसा",ml:"പ്ലെയിൻ ദോശ",te:"ప్లెయిన్ దోస",kn:"ಪ್ಲೇನ್ ದೋಸೆ"},
+ ravadosa:{ta:"ரவா தோசா",hi:"रवा डोसा",ml:"റവ ദോശ",te:"రవ్వ దోస",kn:"ರವಾ ದೋಸೆ"},
+ meals:{ta:"சவுத் இந்தியன் மீல்ஸ்",hi:"साउथ इंडियन मील्स",ml:"സൗത്ത് ഇന്ത്യൻ മീൽസ്",te:"సౌత్ ఇండియన్ మీల్స్",kn:"ಸೌತ್ ಇಂಡಿಯನ್ ಮೀಲ್ಸ್"},
+ minimeals:{ta:"மினி மீல்ஸ்",hi:"मिनी मील्स",ml:"മിനി മീൽസ്",te:"మినీ మీల్స్",kn:"ಮಿನಿ ಮೀಲ್ಸ್"},
+ curdrice:{ta:"கர்ட் ரைஸ்",hi:"कर्ड राइस",ml:"കർഡ് റൈസ്",te:"కర్డ్ రైస్",kn:"ಕರ್ಡ್ ರೈಸ್"},
+ chilliparotta:{ta:"சில்லி பரோட்டா",hi:"चिल्ली परोट्टा",ml:"ചില്ലി പൊറോട്ട",te:"చిల్లీ పరోటా",kn:"ಚಿಲ್ಲಿ ಪರೋಟಾ"},
+ parotta:{ta:"பரோட்டா",hi:"परोट्टा",ml:"പൊറോട്ട",te:"పరోటా",kn:"ಪರೋಟಾ"},
+ chapati:{ta:"சப்பாத்தி",hi:"चपाती",ml:"ചപ്പാത്തി",te:"చపాతీ",kn:"ಚಪಾತಿ"},
+ samosa:{ta:"சமோசா",hi:"समोसा",ml:"സമോസ",te:"సమోసా",kn:"ಸಮೋಸಾ"},
+ panipuri:{ta:"பானி பூரி",hi:"पानी पूरी",ml:"പാനി പൂരി",te:"పానీ పూరీ",kn:"ಪಾನಿ ಪೂರಿ"},
+ coffee:{ta:"பில்டர் காபி",hi:"फ़िल्टर कॉफ़ी",ml:"ഫിൽറ്റർ കോഫി",te:"ఫిల్టర్ కాఫీ",kn:"ಫಿಲ್ಟರ್ ಕಾಫಿ"},
+ mango:{ta:"மேங்கோ மில்க்‌ஷேக்",hi:"मैंगो मिल्कशेक",ml:"മാംഗോ മിൽക്ക്ഷേക്ക്",te:"మాంగో మిల్క్‌షేక్",kn:"ಮ್ಯಾಂಗೋ ಮಿಲ್ಕ್‌ಶೇಕ್"},
+ rosemilk:{ta:"ரோஸ் மில்க்",hi:"रोज़ मिल्क",ml:"റോസ് മിൽക്ക്",te:"రోజ్ మిల్క్",kn:"ರೋಸ್ ಮಿಲ್ಕ್"},
+ badam:{ta:"பாதாம் மில்க்",hi:"बादाम मिल्क",ml:"ബാദാം മിൽക്ക്",te:"బాదాం మిల్క్",kn:"ಬಾದಾಮ್ ಮಿಲ್ಕ್"},
+ tea:{ta:"டீ",hi:"टी",ml:"ടീ",te:"టీ",kn:"ಟೀ"},
+ gulab:{ta:"குலாப் ஜாமூன்",hi:"गुलाब जामुन",ml:"ഗുലാബ് ജാമൂൻ",te:"గులాబ్ జామూన్",kn:"ಗುಲಾಬ್ ಜಾಮೂನ್"},
+ kesari:{ta:"ரவா கேசரி",hi:"रवा केसरी",ml:"റവ കേസരി",te:"రవ్వ కేసరి",kn:"ರವಾ ಕೇಸರಿ"}};
+function dn(id){return lang==="en"?MENU[id].n:((NAMES[id]&&NAMES[id][lang])||MENU[id].n);}
+const TXT={
+ exploreFull:{en:"🍽️ Explore full menu",ta:"🍽️ முழு மெனு",hi:"🍽️ पूरा मेन्यू",ml:"🍽️ മുഴുവൻ മെനു",te:"🍽️ పూర్తి మెను",kn:"🍽️ ಪೂರ್ಣ ಮೆನು"},
+ exploreMore:{en:"🍽️ Explore more",ta:"🍽️ மேலும் பார்க்க",hi:"🍽️ और देखें",ml:"🍽️ കൂടുതൽ കാണുക",te:"🍽️ మరిన్ని చూడండి",kn:"🍽️ ಇನ್ನಷ್ಟು ನೋಡಿ"},
+ specialsLong:{en:"⭐ Today's specials",ta:"⭐ இன்றைய ஸ்பெஷல்",hi:"⭐ आज के स्पेशल",ml:"⭐ ഇന്നത്തെ സ്പെഷ്യൽ",te:"⭐ నేటి స్పెషల్స్",kn:"⭐ ಇಂದಿನ ಸ್ಪೆಷಲ್"},
+ specials:{en:"⭐ Specials",ta:"⭐ ஸ்பெஷல்",hi:"⭐ स्पेशल",ml:"⭐ സ്പെഷ്യൽ",te:"⭐ స్పెషల్స్",kn:"⭐ ಸ್ಪೆಷಲ್"},
+ info:{en:"ℹ️ Restaurant info",ta:"ℹ️ உணவகத் தகவல்",hi:"ℹ️ रेस्टोरेंट जानकारी",ml:"ℹ️ റെസ്റ്റോറന്റ് വിവരം",te:"ℹ️ రెస్టారెంట్ సమాచారం",kn:"ℹ️ ರೆಸ್ಟೋರೆಂಟ್ ಮಾಹಿತಿ"},
+ banquet:{en:"🎉 Banquet hall",ta:"🎉 விருந்து மண்டபம்",hi:"🎉 बैंक्वेट हॉल",ml:"🎉 ബാങ്ക്വറ്റ് ഹാൾ",te:"🎉 బాంక్వెట్ హాల్",kn:"🎉 ಬ್ಯಾಂಕ್ವೆಟ್ ಹಾಲ್"},
+ viewCart:{en:"View cart",ta:"கார்ட்டைப் பார்க்க",hi:"कार्ट देखें",ml:"കാർട്ട് കാണുക",te:"కార్ట్ చూడండి",kn:"ಕಾರ್ಟ್ ನೋಡಿ"},
+ ask:{en:"Ask me anything…",ta:"எதையும் கேளுங்கள்…",hi:"कुछ भी पूछें…",ml:"എന്തും ചോദിക്കൂ…",te:"ఏదైనా అడగండి…",kn:"ಏನಾದರೂ ಕೇಳಿ…"},
+ home:{en:"⌂ Home",ta:"⌂ முகப்பு",hi:"⌂ होम",ml:"⌂ ഹോം",te:"⌂ హోమ్",kn:"⌂ ಮುಖಪುಟ"},
+ back:{en:"← Explore more",ta:"← மேலும்",hi:"← और देखें",ml:"← കൂടുതൽ",te:"← మరిన్ని",kn:"← ಇನ್ನಷ್ಟು"},
+ whatExplore:{en:"What would you like to explore?",ta:"எதைப் பார்க்க விரும்புகிறீர்கள்?",hi:"आप क्या देखना चाहेंगे?",ml:"നിങ്ങൾ എന്ത് കാണാൻ ആഗ്രഹിക്കുന്നു?",te:"మీరు ఏం చూడాలనుకుంటున్నారు?",kn:"ನೀವು ಏನು ನೋಡಲು ಬಯಸುತ್ತೀರಿ?"},
+ timeNote:{en:"(menu changes by time of day)",ta:"(நேரத்துக்கேற்ப மெனு மாறும்)",hi:"(समय अनुसार मेन्यू बदलता है)",ml:"(സമയത്തിനനുസരിച്ച് മെനു മാറും)",te:"(సమయాన్ని బట్టి మెను మారుతుంది)",kn:"(ಸಮಯಕ್ಕೆ ತಕ್ಕಂತೆ ಮೆನು ಬದಲಾಗುತ್ತದೆ)"},
+ pickType:{en:"pick a type",ta:"வகையைத் தேர்ந்தெடுக்கவும்",hi:"एक प्रकार चुनें",ml:"ഒരു തരം തിരഞ്ഞെടുക്കൂ",te:"ఒక రకాన్ని ఎంచుకోండి",kn:"ಒಂದು ಪ್ರಕಾರ ಆಯ್ಕೆಮಾಡಿ"},
+ tapAdd:{en:"tap to add",ta:"சேர்க்க தட்டவும்",hi:"जोड़ने के लिए टैप करें",ml:"ചേർക്കാൻ ടാപ്പ് ചെയ്യൂ",te:"జోడించడానికి ట్యాప్ చేయండి",kn:"ಸೇರಿಸಲು ಟ್ಯಾಪ್ ಮಾಡಿ"},
+ welcome:{en:"Welcome to <b>Sree Annapoorna</b> 🙏 Which outlet are you dining at today?",ta:"<b>ஸ்ரீ அன்னபூர்ணா</b>விற்கு வரவேற்கிறோம் 🙏 இன்று எந்தக் கிளையில் சாப்பிடுகிறீர்கள்?",hi:"<b>श्री अन्नपूर्णा</b> में आपका स्वागत है 🙏 आज आप किस आउटलेट पर हैं?",ml:"<b>ശ്രീ അന്നപൂർണ</b>യിലേക്ക് സ്വാഗതം 🙏 ഇന്ന് ഏത് ഔട്ട്‌ലെറ്റിലാണ്?",te:"<b>శ్రీ అన్నపూర్ణ</b>కు స్వాగతం 🙏 ఈ రోజు మీరు ఏ అవుట్‌లెట్‌లో ఉన్నారు?",kn:"<b>ಶ್ರೀ ಅನ್ನಪೂರ್ಣ</b>ಗೆ ಸ್ವಾಗತ 🙏 ಇಂದು ನೀವು ಯಾವ ಔಟ್‌ಲೆಟ್‌ನಲ್ಲಿ ಇದ್ದೀರಿ?"},
+ pureVeg:{en:"Pure Vegetarian Restaurant",ta:"தூய சைவ உணவகம்",hi:"शुद्ध शाकाहारी रेस्टोरेंट",ml:"ശുദ്ധ സസ്യാഹാര റെസ്റ്റോറന്റ്",te:"స్వచ్ఛమైన శాకాహార రెస్టారెంట్",kn:"ಶುದ್ಧ ಸಸ್ಯಾಹಾರಿ ರೆಸ್ಟೋರೆಂಟ್"},
+ chooseSub:{en:"Choose your outlet — AI Waiter by Odysra",ta:"உங்கள் கிளையைத் தேர்வுசெய்க — Odysra",hi:"अपना आउटलेट चुनें — Odysra",ml:"നിങ്ങളുടെ ഔട്ട്‌ലെറ്റ് തിരഞ്ഞെടുക്കൂ — Odysra",te:"మీ అవుట్‌లెట్‌ను ఎంచుకోండి — Odysra",kn:"ನಿಮ್ಮ ಔಟ್‌ಲೆಟ್ ಆಯ್ಕೆಮಾಡಿ — Odysra"},
+ alsoLike:{en:"You might also like",ta:"இவையும் பிடிக்கும்",hi:"ये भी पसंद आ सकते हैं",ml:"ഇതും ഇഷ്ടപ്പെടാം",te:"ఇవి కూడా నచ్చవచ్చు",kn:"ಇವೂ ಇಷ್ಟವಾಗಬಹುದು"},
+ add:{en:"Add",ta:"சேர்",hi:"जोड़ें",ml:"ചേർക്കൂ",te:"జోడించు",kn:"ಸೇರಿಸಿ"}};
+function T(k){return (TXT[k]&&TXT[k][lang])||TXT[k].en;}
+const DESC={
+ idli:{en:"Soft steamed rice cakes, with chutney & sambar.",ta:"மென்மையான இட்லி, சட்னி மற்றும் சாம்பாருடன்.",hi:"नरम भाप में पकी इडली, चटनी और सांभर के साथ।",ml:"മൃദുവായ ഇഡ്ഡലി, ചട്നിയും സാമ്പാറും.",te:"మృదువైన ఇడ్లీ, చట్నీ మరియు సాంబార్‌తో.",kn:"ಮೃದುವಾದ ಇಡ್ಲಿ, ಚಟ್ನಿ ಮತ್ತು ಸಾಂಬಾರ್‌ನೊಂದಿಗೆ."},
+ vada:{en:"Crispy fried lentil donuts, crunchy and savoury.",ta:"மொறுமொறுப்பான வடை, சுவையானது.",hi:"कुरकुरे तले हुए वड़े, स्वादिष्ट।",ml:"ക്രിസ്പി വട, രുചികരം.",te:"క్రిస్పీ వడ, రుచికరం.",kn:"ಗರಿಗರಿಯಾದ ವಡೆ, ರುಚಿಕರ."},
+ pongal:{en:"Rice & dal with ghee, pepper and cashews.",ta:"நெய், மிளகு, முந்திரியுடன் வெண் பொங்கல்.",hi:"घी, काली मिर्च और काजू के साथ पोंगल।",ml:"നെയ്യ്, കുരുമുളക്, കശുവണ്ടി ചേർത്ത പൊങ്കൽ.",te:"నెయ్యి, మిరియాలు, జీడిపప్పుతో పొంగల్.",kn:"ತುಪ್ಪ, ಕಾಳುಮೆಣಸು, ಗೋಡಂಬಿಯೊಂದಿಗೆ ಪೊಂಗಲ್."},
+ masaladosa:{en:"Crispy dosa with a spiced potato filling.",ta:"உருளைக்கிழங்கு மசாலா நிரப்பிய மொறுமொறு தோசை.",hi:"मसालेदार आलू भरी कुरकुरी डोसा।",ml:"മസാല ഉരുളക്കിഴങ്ങ് നിറച്ച ക്രിസ്പി ദോശ.",te:"మసాలా ఆలూ నింపిన క్రిస్పీ దోస.",kn:"ಮಸಾಲಾ ಆಲೂಗಡ್ಡೆ ತುಂಬಿದ ಗರಿಗರಿ ದೋಸೆ."},
+ plaindosa:{en:"Thin crispy rice crêpe with chutney & sambar.",ta:"மெல்லிய மொறுமொறு தோசை, சட்னி சாம்பாருடன்.",hi:"पतली कुरकुरी डोसा, चटनी और सांभर के साथ।",ml:"നേർത്ത ക്രിസ്പി ദോശ, ചട്നിയും സാമ്പാറും.",te:"పల్చని క్రిస్పీ దోస, చట్నీ సాంబార్‌తో.",kn:"ತೆಳ್ಳಗಿನ ಗರಿಗರಿ ದೋಸೆ, ಚಟ್ನಿ ಸಾಂಬಾರ್‌ನೊಂದಿಗೆ."},
+ ravadosa:{en:"Lacy, extra-crispy semolina dosa.",ta:"வலைபோன்ற, அதிக மொறுமொறுப்பான ரவா தோசை.",hi:"जालीदार, अतिरिक्त कुरकुरी रवा डोसा।",ml:"വലപോലെ, അധികം ക്രിസ്പിയായ റവ ദോശ.",te:"వలలాంటి, మరింత క్రిస్పీ రవ్వ దోస.",kn:"ಬಲೆಯಂತಹ, ಹೆಚ್ಚು ಗರಿಗರಿ ರವಾ ದೋಸೆ."},
+ meals:{en:"Unlimited thali — rice, sambar, rasam, sides, curd.",ta:"வரம்பற்ற உணவு — சாதம், சாம்பார், ரசம், கறிகள், தயிர்.",hi:"अनलिमिटेड थाली — चावल, सांभर, रसम, सब्ज़ियाँ, दही।",ml:"അൺലിമിറ്റഡ് ഭക്ഷണം — ചോറ്, സാമ്പാർ, രസം, കറികൾ, തൈര്.",te:"అపరిమిత భోజనం — అన్నం, సాంబార్, రసం, కూరలు, పెరుగు.",kn:"ಅನಿಯಮಿತ ಊಟ — ಅನ್ನ, ಸಾಂಬಾರ್, ರಸಂ, ಪಲ್ಯ, ಮೊಸರು."},
+ minimeals:{en:"A lighter thali with the essentials.",ta:"அத்தியாவசியங்களுடன் சிறிய உணவு.",hi:"ज़रूरी चीज़ों के साथ छोटी थाली।",ml:"അവശ്യവിഭവങ്ങളുള്ള ചെറിയ ഭക്ഷണം.",te:"అవసరమైనవాటితో చిన్న భోజనం.",kn:"ಅಗತ್ಯವಾದವುಗಳೊಂದಿಗೆ ಚಿಕ್ಕ ಊಟ."},
+ curdrice:{en:"Cool, creamy curd rice; soothing and light.",ta:"குளிர்ந்த, மென்மையான தயிர் சாதம்.",hi:"ठंडा, मलाईदार दही चावल; हल्का।",ml:"തണുത്ത, ക്രീമി തൈര് ചോറ്; ലഘു.",te:"చల్లని, క్రీమీ పెరుగు అన్నం; తేలికైనది.",kn:"ತಂಪಾದ, ಕ್ರೀಮಿ ಮೊಸರನ್ನ; ಹಗುರ."},
+ chilliparotta:{en:"Shredded parotta tossed in spicy chilli masala.",ta:"காரமான சில்லி மசாலாவில் கிழித்த பரோட்டா.",hi:"मसालेदार चिल्ली मसाले में परोट्टा।",ml:"എരിവുള്ള ചില്ലി മസാലയിൽ ചേർത്ത പൊറോട്ട.",te:"కారమైన చిల్లీ మసాలాలో కలిపిన పరోటా.",kn:"ಖಾರದ ಚಿಲ್ಲಿ ಮಸಾಲಾದಲ್ಲಿ ಬೆರೆಸಿದ ಪರೋಟಾ."},
+ parotta:{en:"Flaky layered flatbread, soft inside.",ta:"அடுக்கான, மென்மையான பரோட்டா.",hi:"परतदार, अंदर से नरम परोट्टा।",ml:"പാളികളുള്ള, അകത്ത് മൃദുവായ പൊറോട്ട.",te:"పొరలుగా, లోపల మృదువైన పరోటా.",kn:"ಪದರಗಳ, ಒಳಗೆ ಮೃದುವಾದ ಪರೋಟಾ."},
+ chapati:{en:"Soft wholewheat flatbread with kurma.",ta:"மென்மையான கோதுமை சப்பாத்தி, குருமாவுடன்.",hi:"नरम गेहूं की चपाती, कुर्मा के साथ।",ml:"മൃദുവായ ഗോതമ്പ് ചപ്പാത്തി, കുറുമയോടെ.",te:"మృదువైన గోధుమ చపాతీ, కుర్మాతో.",kn:"ಮೃದುವಾದ ಗೋಧಿ ಚಪಾತಿ, ಕುರ್ಮಾದೊಂದಿಗೆ."},
+ samosa:{en:"Crispy pastry with spiced potato filling.",ta:"மசாலா உருளைக்கிழங்கு நிரப்பிய சமோசா.",hi:"मसालेदार आलू भरा कुरकुरा समोसा।",ml:"മസാല ഉരുളക്കിഴങ്ങ് നിറച്ച സമോസ.",te:"మసాలా ఆలూ నింపిన క్రిస్పీ సమోసా.",kn:"ಮಸಾಲಾ ಆಲೂಗಡ್ಡೆ ತುಂಬಿದ ಸಮೋಸಾ."},
+ panipuri:{en:"Crispy puris with tangy spiced water.",ta:"புளிப்பான மசாலா நீருடன் பானி பூரி.",hi:"चटपटे मसालेदार पानी के साथ पानी पूरी।",ml:"പുളിയുള്ള മസാല വെള്ളത്തോടെ പാനി പൂരി.",te:"పుల్లని మసాలా నీటితో పానీ పూరీ.",kn:"ಹುಳಿ ಮಸಾಲಾ ನೀರಿನೊಂದಿಗೆ ಪಾನಿ ಪೂರಿ."},
+ coffee:{en:"Authentic South Indian filter coffee.",ta:"அசல் தென்னிந்திய பில்டர் காபி.",hi:"असली दक्षिण भारतीय फ़िल्टर कॉफ़ी।",ml:"അസ്സൽ ദക്ഷിണേന്ത്യൻ ഫിൽറ്റർ കോഫി.",te:"అసలైన దక్షిణ భారత ఫిల్టర్ కాఫీ.",kn:"ಅಸಲಿ ದಕ್ಷಿಣ ಭಾರತದ ಫಿಲ್ಟರ್ ಕಾಫಿ."},
+ mango:{en:"Thick, creamy mango milkshake.",ta:"கெட்டியான, கிரீமி மேங்கோ மில்க்‌ஷேக்.",hi:"गाढ़ा, मलाईदार मैंगो मिल्कशेक।",ml:"കട്ടിയുള്ള, ക്രീമി മാംഗോ മിൽക്ക്ഷേക്ക്.",te:"చిక్కని, క్రీమీ మాంగో మిల్క్‌షేక్.",kn:"ದಪ್ಪ, ಕ್ರೀಮಿ ಮ್ಯಾಂಗೋ ಮಿಲ್ಕ್‌ಶೇಕ್."},
+ rosemilk:{en:"Chilled milk with rose syrup; light and floral.",ta:"ரோஜா சிரப்புடன் குளிர்ந்த ரோஸ் மில்க்.",hi:"गुलाब सिरप के साथ ठंडा रोज़ मिल्क।",ml:"റോസ് സിറപ്പോടെ തണുത്ത റോസ് മിൽക്ക്.",te:"గులాబీ సిరప్‌తో చల్లని రోజ్ మిల్క్.",kn:"ಗುಲಾಬಿ ಸಿರಪ್‌ನೊಂದಿಗೆ ತಂಪಾದ ರೋಸ್ ಮಿಲ್ಕ್."},
+ badam:{en:"Almond milk with saffron and cardamom.",ta:"குங்குமப்பூ, ஏலக்காயுடன் பாதாம் மில்க்.",hi:"केसर और इलायची के साथ बादाम मिल्क।",ml:"കുങ്കുമപ്പൂവും ഏലക്കായും ചേർത്ത ബാദാം മിൽക്ക്.",te:"కుంకుమపువ్వు, యాలకులతో బాదాం మిల్క్.",kn:"ಕೇಸರಿ, ಏಲಕ್ಕಿಯೊಂದಿಗೆ ಬಾದಾಮ್ ಮಿಲ್ಕ್."},
+ tea:{en:"Hot, freshly brewed tea.",ta:"சூடான, புதிதாக தயாரித்த டீ.",hi:"गरम, ताज़ी बनी टी।",ml:"ചൂടുള്ള, പുതുതായി ഉണ്ടാക്കിയ ടീ.",te:"వేడి, తాజాగా తయారు చేసిన టీ.",kn:"ಬಿಸಿ, ತಾಜಾ ತಯಾರಿಸಿದ ಟೀ."},
+ gulab:{en:"Warm syrup-soaked milk dumplings; soft and sweet.",ta:"சிரப்பில் ஊறிய சூடான குலாப் ஜாமூன்.",hi:"चाशनी में डूबे गरम गुलाब जामुन।",ml:"സിറപ്പിൽ കുതിർന്ന ചൂടുള്ള ഗുലാബ് ജാമൂൻ.",te:"సిరప్‌లో నానిన వెచ్చని గులాబ్ జామూన్.",kn:"ಸಿರಪ್‌ನಲ್ಲಿ ನೆನೆದ ಬೆಚ್ಚಗಿನ ಗುಲಾಬ್ ಜಾಮೂನ್."},
+ kesari:{en:"Sweet semolina pudding with ghee and cashews.",ta:"நெய், முந்திரியுடன் இனிப்பான ரவா கேசரி.",hi:"घी और काजू के साथ मीठा रवा केसरी।",ml:"നെയ്യും കശുവണ്ടിയും ചേർത്ത മധുര റവ കേസരി.",te:"నెయ్యి, జీడిపప్పుతో తీపి రవ్వ కేసరి.",kn:"ತುಪ್ಪ, ಗೋಡಂಬಿಯೊಂದಿಗೆ ಸಿಹಿ ರವಾ ಕೇಸರಿ."}};
+function desc(id){return (DESC[id]&&DESC[id][lang])||(DESC[id]&&DESC[id].en)||MENU[id].d||"a house favourite, freshly prepared.";}
+let lang="en",outlet=null,cart={},notes={},upsold=false;
+const HOUR=new Date().getHours();
+const part=()=>HOUR<11?"morning":HOUR<16?"afternoon":"evening";
+const TIME_FILTER=true;
+const inWin=id=>MENU[id].h.some(w=>HOUR>=w[0]&&HOUR<w[1]);
+const OPEN=Object.keys(MENU).some(inWin);
+const avail=id=>!TIME_FILTER||!OPEN||inWin(id);
+const chat=document.getElementById("chat");
+function bot(html){const d=document.createElement("div");d.className="msg bot";d.innerHTML=html;chat.appendChild(d);scroll_();return d;}
+function me(t){const d=document.createElement("div");d.className="msg me";d.textContent=t;chat.appendChild(d);scroll_();}
+function block(cls,html){const d=document.createElement("div");d.className=cls;d.innerHTML=html;chat.appendChild(d);scroll_();return d;}
+function scroll_(){setTimeout(()=>chat.scrollTop=chat.scrollHeight,30);}
+
+/* ---------- outlet picker ---------- */
+function renderOutlets(){chat.innerHTML="";document.getElementById("bar").style.display="none";document.getElementById("wm").style.display="none";document.getElementById("back").style.display="none";document.getElementById("hname").textContent="Sree Annapoorna";document.getElementById("hsub").textContent=T("chooseSub");bot(T("welcome"));
+ block("outlet",OUTLETS.map(o=>`<button onclick="chooseOutlet('${o}')">📍 ${o}</button>`).join(""));
+ block("wmark",`<img src="${LOGO}"><div class="cap">${T("pureVeg")}</div>`);}
+function chooseOutlet(o){document.getElementById("bar").style.display="";document.getElementById("wm").style.display="";document.getElementById("back").style.display="";document.getElementById("inp").placeholder=T("ask");outlet=o;document.getElementById("hname").textContent="Annapoorna · "+o;document.getElementById("hsub").textContent="AI Waiter — powered by Odysra";showGreeting();}
+function goOutlets(){cart={};notes={};upsold=false;outlet=null;refreshCart();closeModal();renderOutlets();}
+
+/* ---------- dishes ---------- */
+function dishFooter(id){
+ if(cart[id])return `<div class="qtys"><button onclick="dec2('${id}')">−</button><span>${cart[id]}</span><button onclick="inc2('${id}')">+</button></div><button class="infob" onclick="explainDish('${id}')" title="Tell me about this">ℹ️</button>`;
+ return `<button class="add" onclick="addDish('${id}')">+ Add</button><button class="infob" onclick="explainDish('${id}')" title="Tell me about this">ℹ️</button>`;}
+function dishCard(id){const m=MENU[id];
+ return `<div class="dish" data-id="${id}"><div class="pic">${m.e}</div><div class="bd">${m.best?'<div class="tag">★ BESTSELLER</div>':''}<div class="nm">${dn(id)}</div><div class="pr">₹${m.p}</div><div class="frow">${dishFooter(id)}</div></div></div>`;}
+function sync(){refreshCart();document.querySelectorAll('.dish[data-id]').forEach(el=>{const f=el.querySelector('.frow');if(f)f.innerHTML=dishFooter(el.dataset.id);});}
+function addDish(id){cart[id]=(cart[id]||0)+1;sync();upsell();}
+function inc2(id){cart[id]++;sync();}
+function dec2(id){cart[id]--;if(cart[id]<=0){delete cart[id];delete notes[id];}sync();}
+function explainDish(id){const m=MENU[id];bot(`💬 <b>${dn(id)}</b> — ${desc(id)} <span style="color:#2645A8;font-weight:700">₹${m.p}</span>`);block("grid",[dishCard(id)]);exploreBar();}
+function grid(ids){ids=ids.filter(avail);if(!ids.length){bot("Those aren't being served right now — here's what's hot at this hour.");return showSpecials();}block("grid",ids.map(dishCard).join(""));exploreBar();}
+function refreshCart(){let n=0,t=0;for(const k in cart){n+=cart[k];t+=cart[k]*MENU[k].p;}const b=document.getElementById("cartbar");if(n){b.style.display="block";b.textContent=`🛒 ${T("viewCart")} (${n}) · ₹${t}`;}else b.style.display="none";}
+
+/* ---------- per-dish note ---------- */
+function openNote(id){openSheet(`<h2>Note for ${dn(id)}</h2><div class="fld"><label>Any instructions for the kitchen?</label><textarea id="nt" rows="3" placeholder="e.g. less spicy, no coriander, extra crispy">${notes[id]||""}</textarea></div><button class="btn" onclick="saveNote('${id}')">Save note</button>`);}
+function saveNote(id){const v=document.getElementById("nt").value.trim();if(v){notes[id]=v;if(!cart[id])cart[id]=1;}else{delete notes[id];}
+ sync();closeModal();openCart();}
+
+/* ---------- upsell ---------- */
+function upsell(){if(upsold)return;const ids=Object.keys(cart);if(!ids.length||ids.some(i=>MENU[i].bev))return;
+ let sug=[];ids.forEach(i=>(MENU[i].pairs||[]).forEach(p=>{if(MENU[p]&&MENU[p].bev&&avail(p)&&!cart[p]&&!sug.includes(p))sug.push(p);}));
+ if(!sug.length)sug=["coffee","mango"].filter(avail);sug=sug.slice(0,2);if(!sug.length)return;upsold=true;
+ const names=sug.map(s=>dn(s)).join(" & ");
+ setTimeout(()=>{block("pair",`<p>🍹 Add a drink? Our <b>${names}</b> go beautifully with your order.</p><div class="row">${sug.map(s=>`<div class="pi"><div class="e">${MENU[s].e}</div><div class="n">${dn(s)}</div><button class="add" onclick="addDish('${s}')">+ ₹${MENU[s].p}</button></div>`).join("")}</div>`);exploreBar();},420);}
+
+/* ---------- conversation ---------- */
+function exploreBar(){block("chips",`<button class="chip go" onclick="explore()">${T("exploreMore")}</button><button class="chip alt" onclick="showSpecials()">${T("specials")}</button>${Object.keys(cart).length?`<button class="chip alt" onclick="openCart()">🛒 ${T("viewCart")}</button>`:''}`);}
+function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
+function typingBubble(){const d=document.createElement("div");d.className="msg bot typing";d.innerHTML='<span class="dot"></span><span class="dot"></span><span class="dot"></span>';chat.appendChild(d);scroll_();return d;}
+function topDishes(){let b=Object.keys(MENU).filter(i=>MENU[i].best&&avail(i));
+ if(b.length<4)b=b.concat(Object.keys(MENU).filter(i=>avail(i)&&!b.includes(i)));
+ if(!b.length)b=Object.keys(MENU).filter(i=>MENU[i].best);
+ return b.slice(0,4);}
+async function showGreeting(instant){chat.innerHTML="";upsold=false;
+ if(!instant){let t=typingBubble();await sleep(500);t.remove();}
+ bot(GREET[lang].replace("%t",part()).replace("%o",outlet||""));
+ if(!instant){await sleep(450);let t=typingBubble();await sleep(600);t.remove();}
+ bot(FRESH[lang]);
+ if(!instant)await sleep(300);
+ const best=topDishes();const g=block("grid","");
+ for(const id of best){g.insertAdjacentHTML("beforeend",dishCard(id));scroll_();if(!instant)await sleep(260);}
+ if(!instant)await sleep(200);mainChips();}
+function showSpecials(quiet){const best=topDishes();if(!quiet)me("Today's specials");
+ bot(`Here's what's <b>hot &amp; fresh</b> this ${part()} 👇`);block("grid",best.map(dishCard).join(""));mainChips();}
+function mainChips(){block("chips",`<button class="chip go" onclick="explore()">${T("exploreFull")}</button><button class="chip" onclick="showSpecials()">${T("specialsLong")}</button><button class="chip alt" onclick="info()">${T("info")}</button><button class="chip alt" onclick="banquet()">${T("banquet")}</button>`);}
+function explore(){me(T("exploreMore"));const cs=CATS.filter(c=>(c.ids||(c.subs||[]).flatMap(s=>s.ids)).some(avail));
+ bot(`${T("whatExplore")} <span style='color:#7b8190'>${T("timeNote")}</span>`);
+ block("chips",cs.map((c)=>`<button class="chip" onclick="openCat(${CATS.indexOf(c)})">${c.name}</button>`).join("")+`<button class="chip alt" onclick="mainChips()">${T("home")}</button>`);}
+function openCat(i){const c=CATS[i];me(c.name);if(c.subs){const ss=c.subs.filter(s=>s.ids.some(avail));bot(`<b>${c.name}</b> — ${T("pickType")}:`);
+  block("chips",ss.map((s)=>`<button class="chip" onclick="openSub(${i},${c.subs.indexOf(s)})">${s.name}</button>`).join("")+`<button class="chip alt" onclick="explore()">${T("back")}</button>`);
+ }else{bot(`<b>${c.name}</b> — ${T("tapAdd")}:`);grid(c.ids);}}
+function openSub(i,j){const s=CATS[i].subs[j];me(s.name);bot(`<b>${s.name}</b> — ${T("tapAdd")}:`);grid(s.ids);}
+function info(){me("Restaurant info");bot(`📍 <b>Annapoorna, ${outlet}</b><br>🕖 Open 6:30 AM – 11:00 PM, all days<br>🅿️ Valet parking available<br>❄️ AC &amp; Non-AC dining halls<br>📞 0422-xxxxxxx`);exploreBar();}
+function banquet(){me("Banquet hall enquiry");bot(`We'd be glad to host your event at <b>${outlet}</b>! 🎉 Our hall seats up to 250 with pure-veg catering. Leave your details and our banquet manager will call you.`);
+ openSheet(`<h2>Banquet enquiry</h2><div class="fld"><label>Name</label><input id="bn"></div><div class="fld"><label>Phone</label><input id="bp" inputmode="tel"></div><div class="fld"><label>Event date</label><input id="bd" placeholder="e.g. 15 Aug"></div><div class="fld"><label>Approx. guests</label><input id="bg" inputmode="numeric"></div><button class="btn" onclick="closeModal();bot('✅ Thanks! Our banquet manager will call you shortly. (Lead captured for staff.)')">Submit enquiry</button>`);}
+
+/* ---------- voice ---------- */
+function setMic(on){const m=document.getElementById("mic");m.classList.toggle("on",on);m.textContent=on?"⏺":"🎙️";}
+function heard(t){document.getElementById("inp").value=t;bot(`🎙️ I heard: “${t}” — tap ➤ to send, or edit it first.`);}
+function simHeard(){const s=["something light and not too spicy","what's good for breakfast","show me the dosa varieties","I'd like a sweet dish","recommend a good cold drink"];
+ bot("🎙️ <i>(Voice needs Chrome with mic permission — simulating a query for this demo)</i>");setTimeout(()=>heard(s[Math.floor(Math.random()*s.length)]),500);}
+let recog=null,listening=false,finalText="";
+function recordVoice(){const SR=window.SpeechRecognition||window.webkitSpeechRecognition;const lm={en:'en-IN',ta:'ta-IN',hi:'hi-IN',ml:'ml-IN',te:'te-IN',kn:'kn-IN'};
+ if(!SR){simHeard();return;}
+ if(listening){stopVoice();return;}
+ recog=new SR();recog.lang=lm[lang]||'en-IN';recog.continuous=true;recog.interimResults=true;
+ const inp=document.getElementById("inp");finalText=inp.value?inp.value.trim()+" ":"";
+ recog.onresult=e=>{let interim="";for(let i=e.resultIndex;i<e.results.length;i++){const t=e.results[i][0].transcript;if(e.results[i].isFinal)finalText+=t+" ";else interim+=t;}inp.value=(finalText+interim).trim();};
+ recog.onerror=ev=>{if(ev.error==="not-allowed"||ev.error==="service-not-allowed"){listening=false;setMic(false);bot("🎙️ Please allow microphone access to use voice.");}else if(listening){try{recog.start();}catch(e){}}};
+ recog.onend=()=>{if(listening){try{recog.start();}catch(e){}}else setMic(false);};
+ listening=true;setMic(true);try{recog.start();}catch(e){}}
+function stopVoice(){listening=false;setMic(false);if(recog){try{recog.stop();}catch(e){}}}
+
+/* ---------- free text "AI" ---------- */
+async function sendText(){const inp=document.getElementById("inp");const v=inp.value.trim();if(!v)return;if(listening)stopVoice();inp.value="";me(v);await askOdy(v);}
+async function askOdy(q){const typing=typingBubble();
+ try{const res=await fetch('/api/ody',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:q,lang,cart:Object.keys(cart)})});
+  if(!res.ok)throw 0;const data=await res.json();typing.remove();
+  if(data.reply)bot(data.reply);runActions(data.actions);exploreBar();
+ }catch(e){typing.remove();ai(q.toLowerCase());}}
+function runActions(acts){(acts||[]).forEach(a=>{
+  if(a.type==="add"&&MENU[a.id]){const q=Math.max(1,a.qty||1);for(let i=0;i<q;i++)addDish(a.id);bot(`✅ Added ${q} × ${dn(a.id)}.`);}
+  else if(a.type==="show"&&a.ids){const ids=a.ids.filter(i=>MENU[i]&&avail(i));if(ids.length)block("grid",ids.map(dishCard).join(""));}
+  else if(a.type==="category"&&a.name){const i=CATS.findIndex(c=>c.name.toLowerCase()===String(a.name).toLowerCase());if(i>=0)openCat(i);}
+});}
+function ai(q){const sug=(id,txt)=>{bot(txt);block("grid",[dishCard(id)]);exploreBar();};
+ if(/banquet|hall|function|wedding|event/.test(q))return banquet();
+ if(/time|open|close|parking|address|location|where/.test(q))return info();
+ if(/jain|onion|garlic/.test(q)){bot("We're a fully <b>pure-vegetarian</b> restaurant 🟢. We don't do special Jain (no onion-garlic) preparations, but you can add a 📝 note on any dish and the kitchen will keep it simple where possible.");return exploreBar();}
+ if(/spicy|spice|hot/.test(q))return avail("chilliparotta")?sug("chilliparotta","If you want a kick 🌶️, our Chilli Parotta is a favourite right now:"):bot("For a bit of spice, our chaat and chutneys hit the spot. Tap Explore more for the chaat menu!");
+ if(/light|not heavy|simple/.test(q))return avail("idli")?sug("idli","Something light? Our soft Idli is gentle and comforting:"):sug("curdrice","Something light? Curd Rice is light and soothing:");
+ if(/sweet|dessert|jamun/.test(q)){const sw=["hotjamun","rasagulla","gulab"].find(i=>MENU[i]);return sug(sw,"For something sweet 🍮, here's a classic finish:");}
+ if(/coffee|drink|beverage|thirsty|cold/.test(q))return sug(avail("mango")?"mango":"coffee","Here's a refreshing pick for you:");
+ if(/breakfast|morning|tiffin/.test(q))return openCat(0);
+ if(/recommend|best|special|good|popular|suggest/.test(q))return showSpecials();
+ bot("I can help you explore Annapoorna's menu, recommend dishes, answer about ingredients or take your order. Tap <b>Explore more</b> or tell me what you feel like! 🙂");exploreBar();}
+
+/* ---------- cart & checkout ---------- */
+const modal=document.getElementById("modal"),sheet=document.getElementById("sheet");
+function openSheet(html){sheet.innerHTML=html;modal.style.display="flex";sheet.scrollTop=0;}
+function closeModal(){modal.style.display="none";}
+function cartTotal(){let t=0;for(const k in cart)t+=cart[k]*MENU[k].p;return t;}
+function recos(){const inCart=Object.keys(cart);let r=[];
+ inCart.forEach(id=>(MENU[id].pairs||[]).forEach(p=>{if(MENU[p]&&avail(p)&&!cart[p]&&!r.includes(p))r.push(p);}));
+ if(!inCart.some(i=>MENU[i].bev)){const b=Object.keys(MENU).filter(i=>MENU[i].bev&&avail(i)&&!cart[i]&&!r.includes(i));if(b[0])r.push(b[0]);}
+ const dz=["hotjamun","rasagulla","rasamalai","gulab","kesari"];if(!inCart.some(i=>dz.includes(i))){const dd=dz.filter(i=>MENU[i]&&avail(i)&&!cart[i]&&!r.includes(i));if(dd[0])r.push(dd[0]);}
+ if(r.length<3)Object.keys(MENU).filter(i=>MENU[i].best&&avail(i)&&!cart[i]&&!r.includes(i)).forEach(i=>{if(r.length<3)r.push(i);});
+ return r.slice(0,3);}
+function recoHTML(){const r=recos();if(!r.length)return"";
+ return `<div class="recohd">✨ ${T("alsoLike")}</div>`+r.map(id=>`<div class="rc"><div class="e">${MENU[id].e}</div><div class="rg"><div class="rn">${dn(id)}</div><div class="rp">₹${MENU[id].p}</div></div><button class="radd" onclick="addReco('${id}')">+ ${T("add")}</button></div>`).join("");}
+function addReco(id){cart[id]=(cart[id]||0)+1;sync();openCart();}
+function openCart(){const ks=Object.keys(cart);if(!ks.length)return;
+ openSheet(`<h2>Your cart</h2><div class="note" style="margin:0 0 8px">Bill shown in English for clarity 🧾</div>${ks.map(k=>`<div class="ci"><div class="e">${MENU[k].e}</div><div class="g"><div class="n">${MENU[k].n}</div><div class="p">₹${MENU[k].p}</div>${notes[k]?`<div class="cnote">📝 ${notes[k]}</div>`:''}<button class="noteb ${notes[k]?'has':''}" style="margin-top:5px;font-size:11px" onclick="openNote('${k}')">📝 ${notes[k]?'Edit note':'Add note'}</button></div><div class="qty"><button onclick="dec('${k}')">−</button><span>${cart[k]}</span><button onclick="inc('${k}')">+</button></div></div>`).join("")}<div class="tot big"><span>Subtotal</span><span>₹${cartTotal()}</span></div>${recoHTML()}<button class="btn" style="background:#fff;color:#2645A8;border:1.5px solid #2645A8" onclick="closeModal()">🍽️ Explore more</button><button class="btn g" onclick="checkout()">Checkout →</button>`);}
+function inc(k){cart[k]++;sync();openCart();}
+function dec(k){cart[k]--;if(cart[k]<=0){delete cart[k];delete notes[k];}sync();Object.keys(cart).length?openCart():closeModal();}
+let order={mode:null,table:null,room:null};
+function checkout(){order={mode:null,table:null,room:null};openSheet(`<h2>How are you dining?</h2><div class="opt"><button id="din" onclick="setMode('dine')">🍽️ Dine-in</button><button id="tak" onclick="setMode('take')">🥡 Takeaway</button></div><div id="ckbody"></div>`);}
+function setMode(m){order.mode=m;document.getElementById("din").classList.toggle("on",m==="dine");document.getElementById("tak").classList.toggle("on",m==="take");
+ const b=document.getElementById("ckbody");
+ if(m==="dine")b.innerHTML=`<div class="fld"><label>Table number (1–24)</label><input id="tbl" inputmode="numeric" oninput="roomFromTable()"></div><div id="roomline"></div><div id="contbtn"></div>`;
+ else{b.innerHTML=`<div class="note">🥡 Takeaway — packed fresh for pickup.</div><div id="contbtn"></div>`;document.getElementById("contbtn").innerHTML=`<button class="btn" onclick="contact()">Continue →</button>`;}}
+function roomFromTable(){const v=parseInt(document.getElementById("tbl").value);const rl=document.getElementById("roomline"),cb=document.getElementById("contbtn");
+ if(!v||v<1||v>24){rl.innerHTML="";cb.innerHTML="";return;}order.table=v;order.room=v<=12?"Non-AC":"AC";
+ rl.innerHTML=`<div class="note">Table ${v} → <b>${order.room} hall</b> ${order.room==="AC"?"❄️":""}</div>`;cb.innerHTML=`<button class="btn" onclick="contact()">Continue →</button>`;}
+function taxRate(){return order.mode==="dine"&&order.room==="AC"?0.075:0.05;}
+function contact(){const sub=cartTotal(),tax=Math.round(sub*taxRate()),gt=sub+tax;
+ openSheet(`<h2>Confirm &amp; pay</h2><div class="tot"><span>Outlet</span><span>${outlet}</span></div><div class="tot"><span>Order type</span><span>${order.mode==="dine"?`Dine-in · ${order.room} · T${order.table}`:"Takeaway"}</span></div><div class="tot"><span>Subtotal</span><span>₹${sub}</span></div><div class="tot"><span>GST &amp; charges (${(taxRate()*100)}%)</span><span>₹${tax}</span></div><div class="tot big"><span>Grand total</span><span>₹${gt}</span></div><div class="fld" style="margin-top:14px"><label>Your name</label><input id="cn"></div><div class="fld"><label>Number of persons</label><input id="cpers" inputmode="numeric" placeholder="e.g. 4 (helps us serve you better)"></div><div class="fld"><label>WhatsApp number</label><input id="cp" inputmode="tel" placeholder="+91"></div><div class="note">Bill is sent to WhatsApp <b>only after full payment</b>.</div><button class="btn g" onclick="pay(${gt})">Pay ₹${gt} →</button>`);}
+function pay(gt){const nm=(document.getElementById("cn").value||"Guest"),ph=(document.getElementById("cp").value||"your number"),pers=(document.getElementById("cpers")&&document.getElementById("cpers").value)||"";
+ openSheet(`<div class="ok"><div class="big">⏳</div><h2>Sending to Annapoorna's system…</h2><p>Processing payment securely in their app</p></div>`);
+ setTimeout(()=>{openSheet(`<div class="ok"><div class="big">✅</div><h2>Payment successful!</h2><p>Thanks ${nm}! Your order is confirmed and sent to the ${outlet} kitchen.</p><p>🧾 Bill sent on WhatsApp to <b>${ph}</b>.</p><p style="margin-top:10px;font-size:12px">${order.mode==="dine"?`Table ${order.table} · ${order.room}`:"Takeaway"}${pers?` · ${pers} persons`:""} · Paid ₹${gt}</p><button class="btn" onclick="reset_()">Done</button></div>`);cart={};notes={};sync();},1400);}
+function reset_(){closeModal();upsold=false;showGreeting();}
+
+/* init */
+document.getElementById("langbar").innerHTML=LANGS.map(l=>`<button class="lang ${l[0]==='en'?'on':''}" onclick="setLang('${l[0]}',this)">${l[1]}</button>`).join("");
+function setLang(l,b){lang=l;document.querySelectorAll(".lang").forEach(x=>x.classList.remove("on"));b.classList.add("on");
+ document.getElementById("inp").placeholder=T("ask");outlet?showGreeting(true):renderOutlets();}
+document.getElementById("wm").innerHTML='<img src="'+LOGO+'">';
+renderOutlets();
+</script>
+</body>
+</html>
