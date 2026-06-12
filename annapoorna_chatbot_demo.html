@@ -202,7 +202,11 @@ const TXT={
  pureVeg:{en:"Pure Vegetarian Restaurant",ta:"தூய சைவ உணவகம்",hi:"शुद्ध शाकाहारी रेस्टोरेंट",ml:"ശുദ്ധ സസ്യാഹാര റെസ്റ്റോറന്റ്",te:"స్వచ్ఛమైన శాకాహార రెస్టారెంట్",kn:"ಶುದ್ಧ ಸಸ್ಯಾಹಾರಿ ರೆಸ್ಟೋರೆಂಟ್"},
  chooseSub:{en:"Choose your outlet — AI Waiter by Odysra",ta:"உங்கள் கிளையைத் தேர்வுசெய்க — Odysra",hi:"अपना आउटलेट चुनें — Odysra",ml:"നിങ്ങളുടെ ഔട്ട്‌ലെറ്റ് തിരഞ്ഞെടുക്കൂ — Odysra",te:"మీ అవుట్‌లెట్‌ను ఎంచుకోండి — Odysra",kn:"ನಿಮ್ಮ ಔಟ್‌ಲೆಟ್ ಆಯ್ಕೆಮಾಡಿ — Odysra"},
  alsoLike:{en:"You might also like",ta:"இவையும் பிடிக்கும்",hi:"ये भी पसंद आ सकते हैं",ml:"ഇതും ഇഷ്ടപ്പെടാം",te:"ఇవి కూడా నచ్చవచ్చు",kn:"ಇವೂ ಇಷ್ಟವಾಗಬಹುದು"},
- add:{en:"Add",ta:"சேர்",hi:"जोड़ें",ml:"ചേർക്കൂ",te:"జోడించు",kn:"ಸೇರಿಸಿ"}};
+ add:{en:"Add",ta:"சேர்",hi:"जोड़ें",ml:"ചേർക്കൂ",te:"జోడించు",kn:"ಸೇರಿಸಿ"},
+ confirmQ:{en:"Shall I confirm your order?",ta:"உங்கள் ஆர்டரை உறுதிசெய்யவா?",hi:"क्या मैं आपका ऑर्डर कन्फर्म करूँ?",ml:"നിങ്ങളുടെ ഓർഡർ ഉറപ്പിക്കട്ടെ?",te:"మీ ఆర్డర్‌ను నిర్ధారించమంటారా?",kn:"ನಿಮ್ಮ ಆರ್ಡರ್ ದೃಢೀಕರಿಸಲೇ?"},
+ yes:{en:"✅ Yes, view cart",ta:"✅ ஆம், கார்ட்",hi:"✅ हाँ, कार्ट देखें",ml:"✅ അതെ, കാർട്ട്",te:"✅ అవును, కార్ట్",kn:"✅ ಹೌದು, ಕಾರ್ಟ್"},
+ no:{en:"✗ No, add more",ta:"✗ இல்லை, மேலும்",hi:"✗ नहीं, और जोड़ें",ml:"✗ വേണ്ട, കൂടുതൽ",te:"✗ వద్దు, మరిన్ని",kn:"✗ ಬೇಡ, ಇನ್ನಷ್ಟು"},
+ noMore:{en:"No problem! What else would you like?",ta:"பரவாயில்லை! வேறு என்ன வேண்டும்?",hi:"कोई बात नहीं! और क्या चाहिए?",ml:"കുഴപ്പമില്ല! വേറെ എന്ത് വേണം?",te:"ఫర్వాలేదు! ఇంకా ఏం కావాలి?",kn:"ಪರವಾಗಿಲ್ಲ! ಇನ್ನೇನು ಬೇಕು?"}};
 function T(k){return (TXT[k]&&TXT[k][lang])||TXT[k].en;}
 const DESC={
  idli:{en:"Soft steamed rice cakes, with chutney & sambar.",ta:"மென்மையான இட்லி, சட்னி மற்றும் சாம்பாருடன்.",hi:"नरम भाप में पकी इडली, चटनी और सांभर के साथ।",ml:"മൃദുവായ ഇഡ്ഡലി, ചട്നിയും സാമ്പാറും.",te:"మృదువైన ఇడ్లీ, చట్నీ మరియు సాంబార్‌తో.",kn:"ಮೃದುವಾದ ಇಡ್ಲಿ, ಚಟ್ನಿ ಮತ್ತು ಸಾಂಬಾರ್‌ನೊಂದಿಗೆ."},
@@ -325,13 +329,16 @@ async function sendText(){const inp=document.getElementById("inp");const v=inp.v
 async function askOdy(q){const typing=typingBubble();
  try{const res=await fetch('/api/ody',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:q,lang,cart:Object.keys(cart)})});
   if(!res.ok)throw 0;const data=await res.json();typing.remove();
-  if(data.reply)bot(data.reply);runActions(data.actions);exploreBar();
+  if(data.reply)bot(data.reply);const added=runActions(data.actions);
+  if(added)confirmOrder();else exploreBar();
  }catch(e){typing.remove();ai(q.toLowerCase());}}
-function runActions(acts){(acts||[]).forEach(a=>{
-  if(a.type==="add"&&MENU[a.id]){const q=Math.max(1,a.qty||1);for(let i=0;i<q;i++)addDish(a.id);bot(`✅ Added ${q} × ${dn(a.id)}.`);}
+function runActions(acts){let added=0;(acts||[]).forEach(a=>{
+  if(a.type==="add"&&MENU[a.id]){const q=Math.max(1,a.qty||1);for(let i=0;i<q;i++)addDish(a.id);added+=q;}
   else if(a.type==="show"&&a.ids){const ids=a.ids.filter(i=>MENU[i]&&avail(i));if(ids.length)block("grid",ids.map(dishCard).join(""));}
   else if(a.type==="category"&&a.name){const i=CATS.findIndex(c=>c.name.toLowerCase()===String(a.name).toLowerCase());if(i>=0)openCat(i);}
-});}
+});return added>0;}
+function confirmOrder(){bot(T("confirmQ"));block("chips",`<button class="chip go" onclick="openCart()">${T("yes")}</button><button class="chip alt" onclick="orderNo()">${T("no")}</button>`);}
+function orderNo(){bot(T("noMore"));mainChips();}
 function ai(q){const sug=(id,txt)=>{bot(txt);block("grid",[dishCard(id)]);exploreBar();};
  if(/banquet|hall|function|wedding|event/.test(q))return banquet();
  if(/time|open|close|parking|address|location|where/.test(q))return info();
