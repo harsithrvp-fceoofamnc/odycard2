@@ -16,12 +16,14 @@ export async function POST(req: NextRequest) {
   }
 
   const res = NextResponse.json({ ok: true });
+  // Session cookie (no maxAge) — exists only so the iframe's /ody + /api/ody requests
+  // pass middleware after unlocking. The homepage gate itself always starts locked in
+  // memory and re-asks on every load/refresh, so this cookie never "remembers" a login.
   res.cookies.set("ody_gate", "ok", {
     httpOnly: true,
     secure: true,
     sameSite: "lax",
     path: "/",
-    maxAge: 60 * 60 * 12, // 12 hours
   });
   return res;
 }

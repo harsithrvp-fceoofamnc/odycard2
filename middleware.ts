@@ -1,39 +1,37 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-// Gate the whole site behind a code. Only the chatbot is shown after unlocking;
-// the previous project is never served publicly.
+// The homepage (/) is ALWAYS the access-code screen — it re-asks on every load/refresh.
+// The chatbot (/ody) and its AI (/api/ody) only load once the code has been entered
+// (a session cookie is set after a correct code). The old project is never served.
 export function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
+  const authed = req.cookies.get("ody_gate")?.value === "ok";
 
-  // Always-open: Next internals, the gate page + its API, and static assets (not .html)
+  // Always open: Next internals, static files (not .html), the gate screen (root) and the gate API.
   const isStatic = /\.[a-zA-Z0-9]+$/.test(pathname) && !pathname.endsWith(".html");
   if (
     pathname.startsWith("/_next") ||
     pathname === "/favicon.ico" ||
-    pathname.startsWith("/api/gate") ||
-    pathname === "/gate" ||
-    isStatic
+    isStatic ||
+    pathname === "/" ||
+    pathname.startsWith("/api/gate")
   ) {
     return NextResponse.next();
   }
 
-  const authed = req.cookies.get("ody_gate")?.value === "ok";
-
-  // Not unlocked → show the code screen
-  if (!authed) {
-    const url = req.nextUrl.clone();
-    url.pathname = "/gate";
-    return NextResponse.rewrite(url);
-  }
-
-  // Unlocked → serve ONLY the chatbot (and its AI API). Everything else maps to the chatbot.
+  // Chatbot + its AI: only after the code was entered this session.
   if (pathname.startsWith("/ody") || pathname.startsWith("/api/ody")) {
-    return NextResponse.next();
+    if (authed) return NextResponse.next();
+    const url = req.nextUrl.clone();
+    url.pathname = "/";
+    return NextResponse.redirect(url);
   }
+
+  // Anything else (the old project) → back to the gate.
   const url = req.nextUrl.clone();
-  url.pathname = "/ody/index.html";
-  return NextResponse.rewrite(url);
+  url.pathname = "/";
+  return NextResponse.redirect(url);
 }
 
 export const config = {
