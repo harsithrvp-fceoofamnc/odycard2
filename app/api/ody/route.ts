@@ -205,7 +205,13 @@ function systemPrompt(lang: string) {
     '{"type":"category","name":"<category>"}          // open a category',
     '{"type":"none"}',
     "Use EXACT ids from the menu (first column). Categories: " + CATEGORIES + ".",
-    "If the guest wants to order, ALWAYS include an add action. If they want to see options, include a show action with 3-6 relevant ids.",
+    "UNDERSTAND CASUAL & SPOKEN NAMES (speech-to-text is often imperfect, so match loosely and forgive small errors):",
+    "- Our crispy DOSAS are printed as 'Roast': Ghee Roast (gheeroast) = ghee/plain dosa, Paper Roast (paperroast) = paper dosa, Masal Roast (masalroast) = masala dosa, Onion Roast (onionroast) = onion dosa, Podi Roast (podiroast) = podi dosa. Rava Roast (ravaroast) = rava dosa.",
+    "- If a guest just says 'dosa' without a type, add Ghee Roast (gheeroast) as a sensible default and tell them they can swap it.",
+    "- Map common words: idli/idly -> Idly (idli), vada/vadai -> Vadai (vada), coffee -> Filter Coffee (coffee), tea -> Tea (tea), meals/thali -> South Indian Meals (meals), parotta/porotta -> a parotta item, juice -> a fresh juice.",
+    "- Idli and Vadai come in (1) or (2) pieces; for 'two idlis' use the Idly (2) plate, id 'idli'.",
+    "ORDERING: When the guest wants to order, ALWAYS act. Add EVERY item you can identify using add actions, handling several dishes and quantities in ONE reply (e.g. 'two idli and one dosa' -> add idli qty 1 AND add gheeroast qty 1). For anything truly unclear, add what you can and ask ONE short follow-up. NEVER say you cannot help — always move the order forward warmly.",
+    "To show options the guest asks to see, use a show action with 3-6 relevant ids.",
     "MENU (id | name | price | category):",
     MENU
   ].join("\n");
@@ -219,14 +225,21 @@ export async function POST(req: NextRequest) {
     const body = {
       systemInstruction: { parts: [{ text: systemPrompt(lang) }] },
       contents: [{ role: "user", parts: [{ text: "Current cart (ids): " + (cart.join(", ") || "empty") + "\nGuest says: " + message }] }],
-      generationConfig: { responseMimeType: "application/json", temperature: 0.4, maxOutputTokens: 500 }
+      generationConfig: { responseMimeType: "application/json", temperature: 0.3, maxOutputTokens: 600,
+        responseSchema: { type: "object", properties: { reply: { type: "string" }, actions: { type: "array", items: { type: "object", properties: { type: { type: "string" }, id: { type: "string" }, qty: { type: "number" }, ids: { type: "array", items: { type: "string" } }, name: { type: "string" } }, required: ["type"] } } }, required: ["reply"] } }
     };
     const r = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=" + key, {
       method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body)
     });
     const j = await r.json();
-    let out: any = { reply: "Sorry, I didn't catch that — could you say it again?", actions: [] };
-    try { out = JSON.parse(j.candidates[0].content.parts[0].text); } catch (e) {}
+    let out: any = { reply: "Let me help with that — could you tell me again what you'd like?", actions: [] };
+    try {
+      let txt = (j.candidates?.[0]?.content?.parts?.[0]?.text) || "";
+      const s = txt.indexOf("{"), e = txt.lastIndexOf("}");
+      if (s >= 0 && e > s) txt = txt.slice(s, e + 1);
+      out = JSON.parse(txt);
+      if (!Array.isArray(out.actions)) out.actions = [];
+    } catch (err) {}
     return NextResponse.json(out);
   } catch (e) {
     return NextResponse.json({ reply: "Something went wrong, please try again.", actions: [] });
