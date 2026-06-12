@@ -19,7 +19,7 @@ will hand the order to Annapoorna's billing system. Right now it runs as a **gat
 
 ## 2. Live site & access
 - **URL:** https://odysra.com  → shows a **6-digit access code screen** → enter the code → the chatbot.
-- **Access code:** `499853` (changeable — see §6).
+- **Access code:** `654321` (changeable — see §6).
 - The old odycard project is **hidden** behind this gate; only the chatbot is shown after unlocking.
 - Direct chatbot file (also gated): `/ody/index.html`.
 
@@ -131,6 +131,7 @@ will hand the order to Annapoorna's billing system. Right now it runs as a **gat
 ## 10. Changelog (newest first — add an entry for every change)
 
 ### 12 Jun 2026
+- **Access code changed** from `499853` to `654321` (`app/api/gate/route.ts`).
 - **Order confirmation step added**: when the AI adds items from a voice/text order, it now asks "Shall I confirm your order?" with **Yes / No** buttons; **Yes** opens the cart. (`askOdy`/`runActions`/`confirmOrder` in the bot template.)
 - **AI ordering fixes** (`app/api/ody/route.ts` via `scripts/build_menu.js`): taught the AI that "dosa" = the menu's "Roast" items and other spoken/casual names; made it always act on an order (add what it understands, never refuse); added a strict JSON response schema + safer parsing; lowered temperature. *Why: voice order "two idli and one dosa" was being refused because "dosa" isn't a literal menu name.*
 - **Access-code gate added** (`middleware.ts`, `app/gate/page.tsx`, `app/api/gate/route.ts`): whole site now locked behind code `499853`; old project hidden. *Why: security + hide the old odycard app.*

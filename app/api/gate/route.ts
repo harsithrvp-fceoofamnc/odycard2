@@ -10,7 +10,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: false }, { status: 400 });
   }
 
-  const expected = process.env.GATE_CODE || "499853";
+  const expected = process.env.GATE_CODE || "654321";
   if (code !== expected) {
     return NextResponse.json({ ok: false }, { status: 401 });
   }
