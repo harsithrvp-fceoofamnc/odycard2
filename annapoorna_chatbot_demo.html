@@ -317,21 +317,40 @@ function simHeard(){const s=["something light and not too spicy","what's good fo
  bot("🎙️ <i>(Voice needs Chrome with mic permission — simulating a query for this demo)</i>");setTimeout(()=>heard(s[Math.floor(Math.random()*s.length)]),500);}
 const SLANG={en:'en-IN',ta:'ta-IN',hi:'hi-IN',ml:'ml-IN',te:'te-IN',kn:'kn-IN'};
 let listening=false,mediaRec=null,chunks=[],micStream=null,sttBroken=false,recog=null;
+let prevRecog=null,previewOn=false,voiceBase="",oldPH="";
 function recordVoice(){
  if(listening){stopVoice();return;}
  // Use the browser engine if Sarvam has failed before, or audio recording isn't available.
  if(sttBroken||!(navigator.mediaDevices&&navigator.mediaDevices.getUserMedia&&window.MediaRecorder)){startBrowserSR();return;}
  navigator.mediaDevices.getUserMedia({audio:true}).then(stream=>{
   micStream=stream;chunks=[];
+  const inp=document.getElementById("inp");
+  voiceBase=inp.value?inp.value.trim()+" ":"";
+  oldPH=inp.placeholder;inp.placeholder="● Listening… tap the mic to stop";
   try{mediaRec=new MediaRecorder(stream);}catch(e){mediaRec=new MediaRecorder(stream,{});}
   mediaRec.ondataavailable=e=>{if(e.data&&e.data.size>0)chunks.push(e.data);};
-  mediaRec.onstop=()=>{if(micStream)micStream.getTracks().forEach(t=>t.stop());transcribe(new Blob(chunks,{type:(mediaRec&&mediaRec.mimeType)||'audio/webm'}));};
+  mediaRec.onstop=()=>{stopPreview();if(micStream)micStream.getTracks().forEach(t=>t.stop());inp.placeholder=oldPH;transcribe(new Blob(chunks,{type:(mediaRec&&mediaRec.mimeType)||'audio/webm'}));};
   listening=true;setMic(true);mediaRec.start();
+  startPreview(); // rough live words so the guest sees it's listening (replaced by accurate text on stop)
  }).catch(()=>{listening=false;setMic(false);bot("🎙️ Please allow microphone access to use voice.");});
 }
+// Live "preview" using the browser engine — only to show words as the guest speaks.
+// The accurate text comes from Sarvam when they stop and overwrites this.
+function startPreview(){
+ const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+ if(!SR)return;
+ try{prevRecog=new SR();}catch(e){return;}
+ prevRecog.lang=SLANG[lang]||'en-IN';prevRecog.continuous=true;prevRecog.interimResults=true;
+ const inp=document.getElementById("inp");
+ prevRecog.onresult=e=>{let txt="";for(let i=0;i<e.results.length;i++)txt+=e.results[i][0].transcript;inp.value=voiceBase+txt;};
+ prevRecog.onerror=()=>{};
+ prevRecog.onend=()=>{if(listening&&previewOn){try{prevRecog.start();}catch(e){}}};
+ previewOn=true;try{prevRecog.start();}catch(e){}
+}
+function stopPreview(){previewOn=false;if(prevRecog){try{prevRecog.stop();}catch(e){}}}
 function stopVoice(){
  if(mediaRec&&mediaRec.state&&mediaRec.state!=="inactive"){listening=false;setMic(false);try{mediaRec.stop();}catch(e){}return;}
- listening=false;setMic(false);if(recog){try{recog.stop();}catch(e){}}
+ listening=false;setMic(false);stopPreview();if(recog){try{recog.stop();}catch(e){}}
 }
 // Sarvam only accepts WAV/MP3, but browsers record webm/opus — so convert to 16 kHz mono WAV here.
 async function blobToWav(blob){
@@ -369,8 +388,8 @@ async function transcribe(blob){
    bot("🎙️ Voice error ("+(data.error)+(data.status?" "+data.status:"")+"): "+((data.detail||"").slice(0,180)||"no detail")+". Tap the mic and try again.");return;
   }
   const t=(data.text||"").trim();
-  if(t){inp.value=(inp.value?inp.value.trim()+" ":"")+t;inp.focus();}
-  else bot("🎙️ I couldn't catch that — please speak a bit longer and try again.");
+  if(t){inp.value=(voiceBase+t).trim();inp.focus();bot(`🎙️ I heard: “${t}” — tap ➤ to send, or edit it first.`);}
+  else {inp.value=voiceBase.trim();bot("🎙️ I couldn't catch that — please speak a bit longer and try again.");}
  }catch(e){
   typing.remove();
   bot("🎙️ Couldn't reach the voice service — please try again. ("+(e&&e.message?e.message:"network")+")");
