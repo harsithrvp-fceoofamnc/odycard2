@@ -133,6 +133,7 @@ will hand the order to Annapoorna's billing system. Right now it runs as a **gat
 ## 10. Changelog (newest first — add an entry for every change)
 
 ### 13 Jun 2026
+- **Info icon truly centered + bigger dish image** (template CSS). Made `.infob` `align-self:stretch` (matches the +Add button height) with `line-height:0` and the icon `display:block`, so the (i) sits dead-centre. Enlarged the dish image area (`.pic` 74px → 108px, logo `max-height` 56 → 82px). *Why: info icon still looked off-centre and user wanted a larger image section.*
 - **Centered the dish info icon** (template CSS). The info `.ic` carried the chip's `margin-right`/baseline offset, so it sat off-centre in the square `.infob` button — added flex-centering and reset the icon's margin/size (18px) so it's perfectly centered. *Why: info icon looked misplaced.*
 - **Hidden scrollbars** (template CSS). Hid the scrollbar on `#chat` and `.sheet` (`scrollbar-width:none`, `-ms-overflow-style:none`, `::-webkit-scrollbar{display:none}`) — scrolling still works, the black bar is gone. *Why: the scrollbar looked out of place.*
 - **Gold glow shadows** (template CSS). Recoloured the soft drop-shadows on chat bubbles (`.bot`/`.me`), dish cards (`.dish` + hover), and toggles/buttons (`.chip`/`.add`/`.infob` hover, `.btn`, `.chip.go`, `.send`) from brown to a warm gold `rgba(199,146,51,…)`, so everything has a subtle gold glow. *Why: user wanted a gold-shadow effect on bubbles, dish blocks and toggles.*

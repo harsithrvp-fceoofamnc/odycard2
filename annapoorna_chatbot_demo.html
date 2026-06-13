@@ -44,7 +44,7 @@
   .outlet button{background:#fff;border:1.4px solid var(--blue);color:var(--blue);font-weight:700;padding:15px 8px;border-radius:13px;font-size:13.5px;cursor:pointer}
   .grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;align-self:stretch;padding:2px}
   .dish{background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden;display:flex;flex-direction:column}
-  .dish .pic{height:74px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='30' height='30' viewBox='0 0 30 30'%3E%3Cg fill='none' stroke='%23a8752a' stroke-width='1' stroke-opacity='0.14'%3E%3Ccircle cx='0' cy='0' r='15'/%3E%3Ccircle cx='30' cy='0' r='15'/%3E%3Ccircle cx='0' cy='30' r='15'/%3E%3Ccircle cx='30' cy='30' r='15'/%3E%3Ccircle cx='15' cy='15' r='15'/%3E%3C/g%3E%3C/svg%3E"),linear-gradient(135deg,#f3e9d2,#e9dcbf);background-size:30px 30px,cover;display:flex;align-items:center;justify-content:center;font-size:34px}
+  .dish .pic{height:108px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='30' height='30' viewBox='0 0 30 30'%3E%3Cg fill='none' stroke='%23a8752a' stroke-width='1' stroke-opacity='0.14'%3E%3Ccircle cx='0' cy='0' r='15'/%3E%3Ccircle cx='30' cy='0' r='15'/%3E%3Ccircle cx='0' cy='30' r='15'/%3E%3Ccircle cx='30' cy='30' r='15'/%3E%3Ccircle cx='15' cy='15' r='15'/%3E%3C/g%3E%3C/svg%3E"),linear-gradient(135deg,#f3e9d2,#e9dcbf);background-size:30px 30px,cover;display:flex;align-items:center;justify-content:center;font-size:34px}
   .dish .bd{padding:8px 9px;display:flex;flex-direction:column;gap:3px;flex:1}
   .dish .nm{font-size:12.5px;font-weight:700;color:var(--ink);line-height:1.25;min-height:2.1em;overflow-wrap:anywhere}
   .dish .pr{font-size:12px;color:var(--blue);font-weight:700}
@@ -110,15 +110,15 @@
     background-image:linear-gradient(rgba(246,238,221,.18),rgba(238,228,206,.24)),url('chat-bg.jpg');
     background-size:cover,cover;background-position:center top;background-repeat:no-repeat;
   }
-  .dish .pic img{width:80%;max-height:56px;object-fit:contain;opacity:.62}
+  .dish .pic img{width:82%;max-height:82px;object-fit:contain;opacity:.62}
   /* hide scrollbars everywhere (keep scrolling) */
   #chat,.sheet{scrollbar-width:none;-ms-overflow-style:none}
   #chat::-webkit-scrollbar,.sheet::-webkit-scrollbar{display:none;width:0;height:0}
   .ic{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;vertical-align:-2.5px;margin-right:5px;flex:0 0 auto}
   .icbtn{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
   .mic,.send{display:flex;align-items:center;justify-content:center}
-  .infob{display:flex;align-items:center;justify-content:center;padding:7px}
-  .infob .ic{margin:0;width:18px;height:18px;vertical-align:0}
+  .infob{display:flex;align-items:center;justify-content:center;line-height:0;padding:0 12px;align-self:stretch}
+  .infob .ic{margin:0;width:19px;height:19px;vertical-align:0;display:block}
   .chip{display:inline-flex;align-items:center}
   #chat{background:transparent;padding-bottom:78px}
   #phone.hascart #chat{padding-bottom:128px}
