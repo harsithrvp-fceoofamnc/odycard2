@@ -111,6 +111,10 @@
     background-size:cover,cover;background-position:center top;background-repeat:no-repeat;
   }
   .dish .pic img{width:80%;max-height:56px;object-fit:contain;opacity:.62}
+  .ic{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;vertical-align:-2.5px;margin-right:5px;flex:0 0 auto}
+  .icbtn{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+  .mic,.send{display:flex;align-items:center;justify-content:center}
+  .chip{display:inline-flex;align-items:center}
   #chat{background:transparent;padding-bottom:78px}
   #phone.hascart #chat{padding-bottom:128px}
   .bot{box-shadow:0 1px 3px rgba(90,58,28,.06)}
@@ -175,9 +179,9 @@
   <div class="barwrap" id="bar">
     <button id="cartbar" onclick="openCart()"></button>
     <div class="inputrow">
-      <button class="mic" id="mic" onclick="recordVoice()" title="Tap to speak">🎙️</button>
+      <button class="mic" id="mic" onclick="recordVoice()" title="Tap to speak"><svg class='icbtn' viewBox='0 0 24 24'><rect x='9' y='3' width='6' height='11' rx='3'/><path d='M6 11a6 6 0 0 0 12 0'/><path d='M12 17v4'/><path d='M8.5 21h7'/></svg></button>
       <input id="inp" placeholder="Ask me anything…" onkeydown="if(event.key==='Enter')sendText()"/>
-      <button class="send" onclick="sendText()">➤</button>
+      <button class="send" onclick="sendText()"><svg class='icbtn' viewBox='0 0 24 24'><path d='M4 12l16-8-6 16-3-7z'/><path d='M11 13l9-9'/></svg></button>
     </div>
     <div class="foot">Demo prototype · simulated AI &amp; payment · © Odysra</div>
   </div>
@@ -475,6 +479,9 @@ const DESC={
  kesari:{en:"Sweet semolina pudding with ghee and cashews.",ta:"நெய், முந்திரியுடன் இனிப்பான ரவா கேசரி.",hi:"घी और काजू के साथ मीठा रवा केसरी।",ml:"നെയ്യും കശുവണ്ടിയും ചേർത്ത മധുര റവ കേസരി.",te:"నెయ్యి, జీడిపప్పుతో తీపి రవ్వ కేసరి.",kn:"ತುಪ್ಪ, ಗೋಡಂಬಿಯೊಂದಿಗೆ ಸಿಹಿ ರವಾ ಕೇಸರಿ."}};
 function desc(id){return (DESC[id]&&DESC[id][lang])||(DESC[id]&&DESC[id].en)||MENU[id].d||"a house favourite, freshly prepared.";}
 let lang="en",outlet=null,cart={},notes={},upsold=false;
+const IC={menu:"<svg class='ic' viewBox='0 0 24 24'><path d='M4 14a8 8 0 0 1 16 0'/><path d='M3 14h18'/><path d='M12 6V4'/></svg>",star:"<svg class='ic' viewBox='0 0 24 24'><path d='M12 4l2.3 5.3 5.7.5-4.3 3.7 1.3 5.5-5-3-5 3 1.3-5.5L4.3 9.8l5.7-.5z'/></svg>",info:"<svg class='ic' viewBox='0 0 24 24'><circle cx='12' cy='12' r='9'/><path d='M12 11v6'/><circle cx='12' cy='7.6' r='.7' fill='currentColor' stroke='none'/></svg>",hall:"<svg class='ic' viewBox='0 0 24 24'><path d='M4 21V10l8-5 8 5v11'/><path d='M9 21v-6a3 3 0 0 1 6 0v6'/><path d='M2 21h20'/></svg>",pin:"<svg class='ic' viewBox='0 0 24 24'><path d='M12 22c5-6 7-9 7-13a7 7 0 0 0-14 0c0 4 2 7 7 13z'/><circle cx='12' cy='9' r='2.4'/></svg>",cart:"<svg class='ic' viewBox='0 0 24 24'><path d='M3 4h2l2.4 11.5h10l2-8H7'/><circle cx='9.5' cy='20' r='1.4' fill='currentColor' stroke='none'/><circle cx='17.5' cy='20' r='1.4' fill='currentColor' stroke='none'/></svg>",home:"<svg class='ic' viewBox='0 0 24 24'><path d='M4 11l8-7 8 7'/><path d='M6 10v10h12V10'/></svg>",back:"<svg class='ic' viewBox='0 0 24 24'><path d='M15 5l-7 7 7 7'/></svg>"};
+const lbl=k=>{const s=T(k);return s.replace(/^[^\p{L}\p{N}]+/u,"").trim();};
+
 const HOUR=new Date().getHours();
 const part=()=>HOUR<11?"morning":HOUR<16?"afternoon":"evening";
 const TIME_FILTER=false;
@@ -506,7 +513,7 @@ function inc2(id){cart[id]++;sync();}
 function dec2(id){cart[id]--;if(cart[id]<=0){delete cart[id];delete notes[id];}sync();}
 function explainDish(id){const m=MENU[id];bot(`💬 <b>${dn(id)}</b> — ${desc(id)} <span style="color:#7a4a24;font-weight:700">₹${m.p}</span>`);block("grid",[dishCard(id)]);exploreBar();}
 function grid(ids){ids=ids.filter(avail);if(!ids.length){bot("Those aren't being served right now — here's what's hot at this hour.");return showSpecials();}block("grid",ids.map(dishCard).join(""));exploreBar();}
-function refreshCart(){let n=0,t=0;for(const k in cart){n+=cart[k];t+=cart[k]*MENU[k].p;}const b=document.getElementById("cartbar");if(n){b.style.display="block";b.textContent=`🛒 ${T("viewCart")} (${n}) · ₹${t}`;}else b.style.display="none";document.getElementById("phone").classList.toggle("hascart",n>0);}
+function refreshCart(){let n=0,t=0;for(const k in cart){n+=cart[k];t+=cart[k]*MENU[k].p;}const b=document.getElementById("cartbar");if(n){b.style.display="block";b.innerHTML=`${IC.cart}${lbl("viewCart")} (${n}) · ₹${t}`;}else b.style.display="none";document.getElementById("phone").classList.toggle("hascart",n>0);}
 
 /* ---------- per-dish note ---------- */
 function openNote(id){openSheet(`<h2>Note for ${dn(id)}</h2><div class="fld"><label>Any instructions for the kitchen?</label><textarea id="nt" rows="3" placeholder="e.g. less spicy, no coriander, extra crispy">${notes[id]||""}</textarea></div><button class="btn" onclick="saveNote('${id}')">Save note</button>`);}
@@ -521,7 +528,7 @@ function upsell(){if(upsold)return;const ids=Object.keys(cart);if(!ids.length||i
  setTimeout(()=>{block("pair",`<p>🍹 Add a drink? Our <b>${names}</b> go beautifully with your order.</p><div class="row">${sug.map(s=>`<div class="pi"><div class="e">${MENU[s].e}</div><div class="n">${dn(s)}</div><button class="add" onclick="addDish('${s}')">+ ₹${MENU[s].p}</button></div>`).join("")}</div>`);exploreBar();},420);}
 
 /* ---------- conversation ---------- */
-function exploreBar(){block("chips",`<button class="chip go" onclick="explore()">${T("exploreMore")}</button><button class="chip alt" onclick="showSpecials()">${T("specials")}</button>${Object.keys(cart).length?`<button class="chip alt" onclick="openCart()">🛒 ${T("viewCart")}</button>`:''}`);}
+function exploreBar(){block("chips",`<button class="chip go" onclick="explore()">${IC.menu}${lbl("exploreMore")}</button><button class="chip alt" onclick="showSpecials()">${IC.star}${lbl("specials")}</button>${Object.keys(cart).length?`<button class="chip alt" onclick="openCart()">${IC.cart}${lbl("viewCart")}</button>`:''}`);}
 function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
 function typingBubble(){const d=document.createElement("div");d.className="msg bot typing";d.innerHTML='<span class="dot"></span><span class="dot"></span><span class="dot"></span>';chat.appendChild(d);scroll_();return d;}
 function topDishes(){let b=Object.keys(MENU).filter(i=>MENU[i].best&&avail(i));
@@ -539,12 +546,12 @@ async function showGreeting(instant){chat.innerHTML="";upsold=false;
  if(!instant)await sleep(200);mainChips();}
 function showSpecials(quiet){const best=topDishes();if(!quiet)me("Today's specials");
  bot(`Here's what's <b>hot &amp; fresh</b> this ${part()} 👇`);block("grid",best.map(dishCard).join(""));mainChips();}
-function mainChips(){block("chips",`<button class="chip go" onclick="explore()">${T("exploreFull")}</button><button class="chip" onclick="showSpecials()">${T("specialsLong")}</button><button class="chip alt" onclick="info()">${T("info")}</button><button class="chip alt" onclick="banquet()">${T("banquet")}</button><button class="chip alt" onclick="goOutlets()">${T("changeOutlet")}</button>`);}
+function mainChips(){block("chips",`<button class="chip go" onclick="explore()">${IC.menu}${lbl("exploreFull")}</button><button class="chip" onclick="showSpecials()">${IC.star}${lbl("specialsLong")}</button><button class="chip alt" onclick="info()">${IC.info}${lbl("info")}</button><button class="chip alt" onclick="banquet()">${IC.hall}${lbl("banquet")}</button><button class="chip alt" onclick="goOutlets()">${IC.pin}${lbl("changeOutlet")}</button>`);}
 function explore(){me(T("exploreMore"));const cs=CATS.filter(c=>(c.ids||(c.subs||[]).flatMap(s=>s.ids)).some(avail));
  bot(`${T("whatExplore")} <span style='color:#7b8190'>${T("timeNote")}</span>`);
- block("chips",cs.map((c)=>`<button class="chip" onclick="openCat(${CATS.indexOf(c)})">${c.name}</button>`).join("")+`<button class="chip alt" onclick="mainChips()">${T("home")}</button>`);}
+ block("chips",cs.map((c)=>`<button class="chip" onclick="openCat(${CATS.indexOf(c)})">${c.name}</button>`).join("")+`<button class="chip alt" onclick="mainChips()">${IC.home}${lbl("home")}</button>`);}
 function openCat(i){const c=CATS[i];me(c.name);if(c.subs){const ss=c.subs.filter(s=>s.ids.some(avail));bot(`<b>${c.name}</b> — ${T("pickType")}:`);
-  block("chips",ss.map((s)=>`<button class="chip" onclick="openSub(${i},${c.subs.indexOf(s)})">${s.name}</button>`).join("")+`<button class="chip alt" onclick="explore()">${T("back")}</button>`);
+  block("chips",ss.map((s)=>`<button class="chip" onclick="openSub(${i},${c.subs.indexOf(s)})">${s.name}</button>`).join("")+`<button class="chip alt" onclick="explore()">${IC.back}${lbl("back")}</button>`);
  }else{bot(`<b>${c.name}</b> — ${T("tapAdd")}:`);grid(c.ids);}}
 function openSub(i,j){const s=CATS[i].subs[j];me(s.name);bot(`<b>${s.name}</b> — ${T("tapAdd")}:`);grid(s.ids);}
 function info(){me("Restaurant info");bot(`📍 <b>Annapoorna, ${outlet}</b><br>🕖 Open 6:30 AM – 11:00 PM, all days<br>🅿️ Valet parking available<br>❄️ AC &amp; Non-AC dining halls<br>📞 0422-xxxxxxx`);exploreBar();}
@@ -555,7 +562,7 @@ function banquet(){me("Banquet hall enquiry");bot(`We'd be glad to host your eve
    Primary: record audio and send to /api/stt (Sarvam) for accurate Indian-language transcription.
    Fallback: the browser's built-in SpeechRecognition (used if recording isn't supported or
    Sarvam isn't configured). */
-function setMic(on){const m=document.getElementById("mic");m.classList.toggle("on",on);m.textContent=on?"⏺":"🎙️";}
+function setMic(on){document.getElementById("mic").classList.toggle("on",on);}
 function heard(t){const inp=document.getElementById("inp");inp.value=(inp.value?inp.value.trim()+" ":"")+t;}
 function simHeard(){const s=["something light and not too spicy","what's good for breakfast","show me the dosa varieties","I'd like a sweet dish","recommend a good cold drink"];
  bot("🎙️ <i>(Voice needs Chrome with mic permission — simulating a query for this demo)</i>");setTimeout(()=>heard(s[Math.floor(Math.random()*s.length)]),500);}
@@ -642,7 +649,7 @@ function finishVoice(){
  if(wsMode&&wsGotData){
   const t=wsText.trim();inp.placeholder=oldPH||"Ask me anything…";
   inp.value=(voiceBase+t).trim();inp.focus();
-  if(t)bot(`🎙️ I heard: “${t}” — tap ➤ to send, or edit it first.`);
+  if(t)bot(`🎙️ I heard: “${t}” — tap Send, or edit it first.`);
   return;
  }
  inp.placeholder="Transcribing…";
@@ -726,7 +733,7 @@ async function transcribe(blob){
    bot("🎙️ Voice error ("+(data.error)+(data.status?" "+data.status:"")+"): "+((data.detail||"").slice(0,180)||"no detail")+". Tap the mic and try again.");return;
   }
   const t=(data.text||"").trim();
-  if(t){inp.value=(voiceBase+t).trim();inp.focus();bot(`🎙️ I heard: “${t}” — tap ➤ to send, or edit it first.`);}
+  if(t){inp.value=(voiceBase+t).trim();inp.focus();bot(`🎙️ I heard: “${t}” — tap Send, or edit it first.`);}
   else {inp.value=voiceBase.trim();bot("🎙️ I couldn't catch that — please speak a bit longer and try again.");}
  }catch(e){
   typing.remove();inp.placeholder=oldPH||"Ask me anything…";
