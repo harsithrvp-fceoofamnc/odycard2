@@ -498,27 +498,94 @@ const SLANG={en:'en-IN',ta:'ta-IN',hi:'hi-IN',ml:'ml-IN',te:'te-IN',kn:'kn-IN'};
 let listening=false,mediaRec=null,chunks=[],micStream=null,sttBroken=false,recog=null;
 let voiceBase="",oldPH="",meterRAF=null,meterCtx=null,meterTimer=null,recStart=0;
 let liveTimer=null,liveBusy=false,liveSeq=0;
+// real-time streaming state
+let sttWs=null,pcmCtx=null,pcmNode=null,pcmSrc=null,wsMode=false,wsGotData=false,wsText="";
 function recordVoice(){
  if(listening){stopVoice();return;}
  // Use the browser engine if Sarvam has failed before, or audio recording isn't available.
  if(sttBroken||!(navigator.mediaDevices&&navigator.mediaDevices.getUserMedia&&window.MediaRecorder)){startBrowserSR();return;}
  navigator.mediaDevices.getUserMedia({audio:true}).then(stream=>{
-  micStream=stream;chunks=[];liveSeq=0;
+  micStream=stream;chunks=[];liveSeq=0;wsMode=false;wsGotData=false;wsText="";
   const inp=document.getElementById("inp");
   voiceBase=inp.value?inp.value.trim()+" ":"";
   oldPH=inp.placeholder;
   try{mediaRec=new MediaRecorder(stream);}catch(e){mediaRec=new MediaRecorder(stream,{});}
   mediaRec.ondataavailable=e=>{if(e.data&&e.data.size>0)chunks.push(e.data);};
-  mediaRec.onstop=()=>{stopMeter();stopLive();if(micStream)micStream.getTracks().forEach(t=>t.stop());inp.placeholder="Transcribing…";transcribe(new Blob(chunks,{type:(mediaRec&&mediaRec.mimeType)||'audio/webm'}));};
-  listening=true;setMic(true);mediaRec.start(1000); // emit a chunk every second so we can transcribe live
+  mediaRec.onstop=()=>{
+   stopMeter();stopLive();
+   if(micStream)micStream.getTracks().forEach(t=>t.stop());
+   if(pcmNode){try{pcmNode.disconnect();pcmNode.onaudioprocess=null;}catch(e){}} // stop sending audio
+   const inp=document.getElementById("inp");inp.placeholder="Transcribing…";
+   setTimeout(()=>{stopStream();finishVoice();},wsMode?600:0); // let final streamed words arrive first
+  };
+  listening=true;setMic(true);mediaRec.start(1000); // recorder runs as a safety net for the final result
   startMeter(stream); // mic pulses with the guest's voice
-  liveTimer=setInterval(liveTick,1600); // accurate live words from Sarvam, refreshed ~every 1.6s
+  startStream(stream); // try real-time word-by-word streaming to Sarvam
+  liveTimer=setInterval(liveTick,1600); // chunked fallback (skips itself once streaming is live)
  }).catch(()=>{listening=false;setMic(false);bot("🎙️ Please allow microphone access to use voice.");});
 }
-// LIVE tracking: every ~1.6s send the audio-so-far to Sarvam and show the growing accurate transcript.
-// (Re-sends from the start each time — the blob stays decodable and short for a food order.)
+// REAL-TIME: open a live WebSocket to Sarvam and stream raw PCM so words appear as they're spoken.
+// The key is fetched from a gated endpoint (only reachable after the password) and passed in the URL,
+// because browsers can't set WebSocket auth headers.
+async function startStream(stream){
+ let key="";
+ try{const r=await fetch('/api/stt-key');if(!r.ok)return;const j=await r.json();key=j.key||"";}catch(e){return;}
+ if(!key||!listening)return;
+ const qs=new URLSearchParams({'language-code':SLANG[lang]||'en-IN',model:'saarika:v2.5',mode:'transcribe',sample_rate:'16000',input_audio_codec:'pcm_s16le','api-subscription-key':key});
+ let ws;try{ws=new WebSocket('wss://api.sarvam.ai/speech-to-text/ws?'+qs.toString());}catch(e){return;}
+ sttWs=ws;
+ ws.onopen=()=>{
+  if(!listening){try{ws.close();}catch(e){}return;}
+  wsMode=true; // streaming active -> chunked fallback turns itself off
+  try{
+   const AC=window.AudioContext||window.webkitAudioContext;pcmCtx=new AC({sampleRate:16000});
+   const ratio=pcmCtx.sampleRate/16000;
+   pcmSrc=pcmCtx.createMediaStreamSource(stream);
+   pcmNode=pcmCtx.createScriptProcessor(4096,1,1);
+   pcmNode.onaudioprocess=ev=>{
+    if(!sttWs||sttWs.readyState!==1)return;
+    const inb=ev.inputBuffer.getChannelData(0);
+    const outLen=Math.max(1,Math.floor(inb.length/ratio));
+    const i16=new Int16Array(outLen);
+    for(let i=0;i<outLen;i++){let s=inb[Math.floor(i*ratio)]||0;s=Math.max(-1,Math.min(1,s));i16[i]=s<0?s*0x8000:s*0x7FFF;}
+    const bytes=new Uint8Array(i16.buffer);let bin="";for(let i=0;i<bytes.length;i++)bin+=String.fromCharCode(bytes[i]);
+    try{sttWs.send(JSON.stringify({audio:{data:btoa(bin),sample_rate:"16000",encoding:"audio/wav"}}));}catch(e){}
+   };
+   const sink=pcmCtx.createGain();sink.gain.value=0; // mute so there's no echo
+   pcmSrc.connect(pcmNode);pcmNode.connect(sink);sink.connect(pcmCtx.destination);
+  }catch(e){}
+ };
+ ws.onmessage=ev=>{
+  try{const m=JSON.parse(ev.data);
+   if(m.type==='data'&&m.data&&m.data.transcript){
+    wsGotData=true;wsText=(wsText?wsText+" ":"")+String(m.data.transcript).trim();
+    if(listening)document.getElementById("inp").value=(voiceBase+wsText).trim();
+   }}catch(e){}
+ };
+ ws.onerror=()=>{};
+ ws.onclose=()=>{};
+}
+function stopStream(){
+ if(pcmNode){try{pcmNode.disconnect();pcmNode.onaudioprocess=null;}catch(e){}pcmNode=null;}
+ if(pcmSrc){try{pcmSrc.disconnect();}catch(e){}pcmSrc=null;}
+ if(pcmCtx){try{pcmCtx.close();}catch(e){}pcmCtx=null;}
+ if(sttWs){try{sttWs.close();}catch(e){}sttWs=null;}
+}
+// Called once when recording stops: use the live streaming text if we got it, else do a final REST pass.
+function finishVoice(){
+ const inp=document.getElementById("inp");
+ if(wsMode&&wsGotData){
+  const t=wsText.trim();inp.placeholder=oldPH||"Ask me anything…";
+  inp.value=(voiceBase+t).trim();inp.focus();
+  if(t)bot(`🎙️ I heard: “${t}” — tap ➤ to send, or edit it first.`);
+  return;
+ }
+ inp.placeholder="Transcribing…";
+ transcribe(new Blob(chunks,{type:(mediaRec&&mediaRec.mimeType)||'audio/webm'}));
+}
+// CHUNKED fallback: only runs if real-time streaming didn't start. Sends audio-so-far every ~1.6s.
 async function liveTick(){
- if(!listening||liveBusy||chunks.length===0)return;
+ if(wsMode||!listening||liveBusy||chunks.length===0)return;
  liveBusy=true;const seq=++liveSeq;
  try{
   const blob=new Blob(chunks.slice(),{type:(mediaRec&&mediaRec.mimeType)||'audio/webm'});
@@ -526,8 +593,7 @@ async function liveTick(){
   const fd=new FormData();fd.append('file',wav,'audio.wav');fd.append('lang',lang);
   const res=await fetch('/api/stt',{method:'POST',body:fd});
   let data={};try{data=await res.json();}catch(e){}
-  // Only apply if still recording and this is the latest request (avoid out-of-order overwrites).
-  if(listening&&seq===liveSeq&&data&&data.text){document.getElementById("inp").value=(voiceBase+data.text).trim();}
+  if(!wsMode&&listening&&seq===liveSeq&&data&&data.text){document.getElementById("inp").value=(voiceBase+data.text).trim();}
  }catch(e){}
  liveBusy=false;
 }
