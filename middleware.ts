@@ -20,8 +20,12 @@ export function middleware(req: NextRequest) {
     return NextResponse.next();
   }
 
-  // Chatbot + its AI: only after the code was entered this session.
-  if (pathname.startsWith("/ody") || pathname.startsWith("/api/ody")) {
+  // Chatbot + its AI + speech-to-text: only after the code was entered this session.
+  if (
+    pathname.startsWith("/ody") ||
+    pathname.startsWith("/api/ody") ||
+    pathname.startsWith("/api/stt")
+  ) {
     if (authed) return NextResponse.next();
     const url = req.nextUrl.clone();
     url.pathname = "/";

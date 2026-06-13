@@ -486,22 +486,56 @@ function info(){me("Restaurant info");bot(`📍 <b>Annapoorna, ${outlet}</b><br>
 function banquet(){me("Banquet hall enquiry");bot(`We'd be glad to host your event at <b>${outlet}</b>! 🎉 Our hall seats up to 250 with pure-veg catering. Leave your details and our banquet manager will call you.`);
  openSheet(`<h2>Banquet enquiry</h2><div class="fld"><label>Name</label><input id="bn"></div><div class="fld"><label>Phone</label><input id="bp" inputmode="tel"></div><div class="fld"><label>Event date</label><input id="bd" placeholder="e.g. 15 Aug"></div><div class="fld"><label>Approx. guests</label><input id="bg" inputmode="numeric"></div><button class="btn" onclick="closeModal();bot('✅ Thanks! Our banquet manager will call you shortly. (Lead captured for staff.)')">Submit enquiry</button>`);}
 
-/* ---------- voice ---------- */
+/* ---------- voice ----------
+   Primary: record audio and send to /api/stt (Sarvam) for accurate Indian-language transcription.
+   Fallback: the browser's built-in SpeechRecognition (used if recording isn't supported or
+   Sarvam isn't configured). */
 function setMic(on){const m=document.getElementById("mic");m.classList.toggle("on",on);m.textContent=on?"⏺":"🎙️";}
-function heard(t){document.getElementById("inp").value=t;bot(`🎙️ I heard: “${t}” — tap ➤ to send, or edit it first.`);}
+function heard(t){const inp=document.getElementById("inp");inp.value=(inp.value?inp.value.trim()+" ":"")+t;}
 function simHeard(){const s=["something light and not too spicy","what's good for breakfast","show me the dosa varieties","I'd like a sweet dish","recommend a good cold drink"];
  bot("🎙️ <i>(Voice needs Chrome with mic permission — simulating a query for this demo)</i>");setTimeout(()=>heard(s[Math.floor(Math.random()*s.length)]),500);}
-let recog=null,listening=false,finalText="";
-function recordVoice(){const SR=window.SpeechRecognition||window.webkitSpeechRecognition;const lm={en:'en-IN',ta:'ta-IN',hi:'hi-IN',ml:'ml-IN',te:'te-IN',kn:'kn-IN'};
- if(!SR){simHeard();return;}
+const SLANG={en:'en-IN',ta:'ta-IN',hi:'hi-IN',ml:'ml-IN',te:'te-IN',kn:'kn-IN'};
+let listening=false,mediaRec=null,chunks=[],micStream=null,sttBroken=false,recog=null;
+function recordVoice(){
  if(listening){stopVoice();return;}
- recog=new SR();recog.lang=lm[lang]||'en-IN';recog.continuous=true;recog.interimResults=true;
- const inp=document.getElementById("inp");finalText=inp.value?inp.value.trim()+" ":"";
+ // Use the browser engine if Sarvam has failed before, or audio recording isn't available.
+ if(sttBroken||!(navigator.mediaDevices&&navigator.mediaDevices.getUserMedia&&window.MediaRecorder)){startBrowserSR();return;}
+ navigator.mediaDevices.getUserMedia({audio:true}).then(stream=>{
+  micStream=stream;chunks=[];
+  try{mediaRec=new MediaRecorder(stream);}catch(e){mediaRec=new MediaRecorder(stream,{});}
+  mediaRec.ondataavailable=e=>{if(e.data&&e.data.size>0)chunks.push(e.data);};
+  mediaRec.onstop=()=>{if(micStream)micStream.getTracks().forEach(t=>t.stop());transcribe(new Blob(chunks,{type:(mediaRec&&mediaRec.mimeType)||'audio/webm'}));};
+  listening=true;setMic(true);mediaRec.start();
+ }).catch(()=>{listening=false;setMic(false);bot("🎙️ Please allow microphone access to use voice.");});
+}
+function stopVoice(){
+ if(mediaRec&&mediaRec.state&&mediaRec.state!=="inactive"){listening=false;setMic(false);try{mediaRec.stop();}catch(e){}return;}
+ listening=false;setMic(false);if(recog){try{recog.stop();}catch(e){}}
+}
+async function transcribe(blob){
+ const inp=document.getElementById("inp");const typing=typingBubble();
+ try{
+  const fd=new FormData();fd.append('file',blob,'audio.webm');fd.append('lang',lang);
+  const res=await fetch('/api/stt',{method:'POST',body:fd});
+  if(!res.ok)throw 0;const data=await res.json();typing.remove();
+  const t=(data.text||"").trim();
+  if(t){inp.value=(inp.value?inp.value.trim()+" ":"")+t;inp.focus();}
+  else bot("🎙️ I couldn't catch that — please try once more.");
+ }catch(e){
+  typing.remove();sttBroken=true;
+  bot("🎙️ High-accuracy voice isn't switched on yet — using the basic engine. Tap the mic and speak again.");
+ }
+}
+function startBrowserSR(){
+ const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+ if(!SR){simHeard();return;}
+ recog=new SR();recog.lang=SLANG[lang]||'en-IN';recog.continuous=true;recog.interimResults=true;
+ const inp=document.getElementById("inp");let finalText=inp.value?inp.value.trim()+" ":"";
  recog.onresult=e=>{let interim="";for(let i=e.resultIndex;i<e.results.length;i++){const t=e.results[i][0].transcript;if(e.results[i].isFinal)finalText+=t+" ";else interim+=t;}inp.value=(finalText+interim).trim();};
  recog.onerror=ev=>{if(ev.error==="not-allowed"||ev.error==="service-not-allowed"){listening=false;setMic(false);bot("🎙️ Please allow microphone access to use voice.");}else if(listening){try{recog.start();}catch(e){}}};
  recog.onend=()=>{if(listening){try{recog.start();}catch(e){}}else setMic(false);};
- listening=true;setMic(true);try{recog.start();}catch(e){}}
-function stopVoice(){listening=false;setMic(false);if(recog){try{recog.stop();}catch(e){}}}
+ listening=true;setMic(true);try{recog.start();}catch(e){}
+}
 
 /* ---------- free text "AI" ---------- */
 async function sendText(){const inp=document.getElementById("inp");const v=inp.value.trim();if(!v)return;if(listening)stopVoice();inp.value="";me(v);await askOdy(v);}

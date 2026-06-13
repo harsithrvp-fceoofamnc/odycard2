@@ -32,15 +32,16 @@ will hand the order to Annapoorna's billing system. Right now it runs as a **gat
 | Source code | **GitHub** | Repo: `github.com/harsithrvp-fceoofamnc/odycard2`, branch `main`. |
 | Framework | **Next.js 16.1.1 + React 19 + TypeScript** | App Router (`app/` folder). |
 | AI model | **Google Gemini 2.5 Flash** | Called via REST API from the server. Key from **Google AI Studio** (aistudio.google.com). Free tier = 1,500 requests/day. |
-| Voice (speech-to-text) | **Browser Web Speech API** | Free, runs on the phone. Best on **Android Chrome**; weak on iPhone/Safari. |
-| (Future) iPhone voice fallback | Sarvam / Bhashini | Not added yet. |
+| Voice (speech-to-text) | **Sarvam AI — Saarika v2.5** (primary) | Accurate Indian-language transcription incl. Tamil. Called server-side via `/api/stt` with `SARVAM_API_KEY`. Free ₹1,000 credits (~660 min), no card. |
+| Voice fallback | **Browser Web Speech API** | Used automatically if Sarvam key missing or recording unsupported. Weak on Tamil / iPhone. |
 | (Future) Ordering / payment | Annapoorna's own self-order/POS | Not integrated yet — cart + payment are currently mocked. |
 
 ### Environment variables (set in Vercel → odycard2 → Settings → Environment Variables)
 | Name | Purpose | Required |
 |------|---------|----------|
 | `GEMINI_API_KEY` | The Gemini API key. Server-side only — never reaches the browser. | **Yes** (AI won't work without it) |
-| `GATE_CODE` | The access code. If not set, defaults to `499853`. | Optional |
+| `SARVAM_API_KEY` | Sarvam speech-to-text key (server-side only). If unset, voice falls back to the weak browser engine. | For good voice |
+| `GATE_CODE` | The access code. If not set, defaults to `654321`. | Optional |
 
 > After changing any env var in Vercel, **redeploy** so it takes effect.
 
@@ -129,6 +130,9 @@ will hand the order to Annapoorna's billing system. Right now it runs as a **gat
 ---
 
 ## 10. Changelog (newest first — add an entry for every change)
+
+### 13 Jun 2026
+- **High-accuracy Indian-language voice added (Sarvam AI)** (`app/api/stt/route.ts`, `middleware.ts`, voice section of `annapoorna_chatbot_demo.html` → regenerated bots). The mic now **records audio** and sends it to a new server route `/api/stt`, which forwards it to **Sarvam's Saarika v2.5** speech-to-text (excellent Tamil/Telugu/Malayalam/Kannada/Hindi) using server-side `SARVAM_API_KEY`; the accurate transcript drops into the input bar. The **browser engine is kept as an automatic fallback** if recording is unsupported or the key isn't set (route returns 503 → bot uses the old `SpeechRecognition`). `middleware.ts` now lets `/api/stt` through once unlocked. *Why: the browser's built-in Tamil transcription was too poor to demo.* **Needs `SARVAM_API_KEY` env var in Vercel** (free ₹1,000 credits from dashboard.sarvam.ai, no card). Behaviour change: speak full sentence → tap stop → text appears after ~1s (not word-by-word), in exchange for much better accuracy.
 
 ### 12 Jun 2026
 - **Password now re-asked on every refresh** (`app/page.tsx`, `middleware.ts`, `app/api/gate/route.ts`): the homepage (`/`) is now itself the access-code screen and starts **locked in memory on every load**, so opening/refreshing odysra.com always shows the code screen. After a correct code the chatbot loads **inline in a full-screen iframe** (`/ody/index.html`, with `allow="microphone"` so voice still works) — no redirect, no remembered login. The gate cookie is now a **session cookie** (no 12-hour life); it only exists so the iframe's `/ody` + `/api/ody` calls pass middleware. The old `app/gate/page.tsx` is no longer used (middleware sends `/gate` back to `/`). *Why: user wanted the password required every single time the page is refreshed.*
