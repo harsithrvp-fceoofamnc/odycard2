@@ -317,7 +317,7 @@ function simHeard(){const s=["something light and not too spicy","what's good fo
  bot("🎙️ <i>(Voice needs Chrome with mic permission — simulating a query for this demo)</i>");setTimeout(()=>heard(s[Math.floor(Math.random()*s.length)]),500);}
 const SLANG={en:'en-IN',ta:'ta-IN',hi:'hi-IN',ml:'ml-IN',te:'te-IN',kn:'kn-IN'};
 let listening=false,mediaRec=null,chunks=[],micStream=null,sttBroken=false,recog=null;
-let prevRecog=null,previewOn=false,voiceBase="",oldPH="";
+let voiceBase="",oldPH="",meterRAF=null,meterCtx=null,meterTimer=null,recStart=0;
 function recordVoice(){
  if(listening){stopVoice();return;}
  // Use the browser engine if Sarvam has failed before, or audio recording isn't available.
@@ -326,31 +326,41 @@ function recordVoice(){
   micStream=stream;chunks=[];
   const inp=document.getElementById("inp");
   voiceBase=inp.value?inp.value.trim()+" ":"";
-  oldPH=inp.placeholder;inp.placeholder="● Listening… tap the mic to stop";
+  oldPH=inp.placeholder;
   try{mediaRec=new MediaRecorder(stream);}catch(e){mediaRec=new MediaRecorder(stream,{});}
   mediaRec.ondataavailable=e=>{if(e.data&&e.data.size>0)chunks.push(e.data);};
-  mediaRec.onstop=()=>{stopPreview();if(micStream)micStream.getTracks().forEach(t=>t.stop());inp.placeholder=oldPH;transcribe(new Blob(chunks,{type:(mediaRec&&mediaRec.mimeType)||'audio/webm'}));};
+  mediaRec.onstop=()=>{stopMeter();if(micStream)micStream.getTracks().forEach(t=>t.stop());inp.placeholder="Transcribing…";transcribe(new Blob(chunks,{type:(mediaRec&&mediaRec.mimeType)||'audio/webm'}));};
   listening=true;setMic(true);mediaRec.start();
-  startPreview(); // rough live words so the guest sees it's listening (replaced by accurate text on stop)
+  startMeter(stream); // clean "listening" animation that reacts to the guest's voice (no garbled words)
  }).catch(()=>{listening=false;setMic(false);bot("🎙️ Please allow microphone access to use voice.");});
 }
-// Live "preview" using the browser engine — only to show words as the guest speaks.
-// The accurate text comes from Sarvam when they stop and overwrites this.
-function startPreview(){
- const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
- if(!SR)return;
- try{prevRecog=new SR();}catch(e){return;}
- prevRecog.lang=SLANG[lang]||'en-IN';prevRecog.continuous=true;prevRecog.interimResults=true;
- const inp=document.getElementById("inp");
- prevRecog.onresult=e=>{let txt="";for(let i=0;i<e.results.length;i++)txt+=e.results[i][0].transcript;inp.value=voiceBase+txt;};
- prevRecog.onerror=()=>{};
- prevRecog.onend=()=>{if(listening&&previewOn){try{prevRecog.start();}catch(e){}}};
- previewOn=true;try{prevRecog.start();}catch(e){}
+// Live listening indicator: a timer in the bar + the mic pulsing with the guest's actual volume,
+// so they can SEE it's hearing them. Accurate words arrive from Sarvam when they stop.
+function startMeter(stream){
+ const inp=document.getElementById("inp"),mic=document.getElementById("mic");
+ recStart=Date.now();
+ inp.placeholder="● Listening… 0s — tap the mic to stop";
+ meterTimer=setInterval(()=>{const s=Math.round((Date.now()-recStart)/1000);inp.placeholder="● Listening… "+s+"s — tap the mic to stop";},1000);
+ try{
+  const AC=window.AudioContext||window.webkitAudioContext;meterCtx=new AC();
+  const src=meterCtx.createMediaStreamSource(stream),an=meterCtx.createAnalyser();an.fftSize=256;src.connect(an);
+  const buf=new Uint8Array(an.frequencyBinCount);
+  const loop=()=>{if(!listening){if(mic){mic.style.transform="";mic.style.boxShadow="";}return;}
+   an.getByteFrequencyData(buf);let sum=0;for(let i=0;i<buf.length;i++)sum+=buf[i];const lvl=Math.min(1,sum/buf.length/110);
+   if(mic){mic.style.transform="scale("+(1+lvl*0.35)+")";mic.style.boxShadow="0 0 "+(6+lvl*26).toFixed(0)+"px rgba(38,69,168,.75)";}
+   meterRAF=requestAnimationFrame(loop);};
+  loop();
+ }catch(e){}
 }
-function stopPreview(){previewOn=false;if(prevRecog){try{prevRecog.stop();}catch(e){}}}
+function stopMeter(){
+ if(meterTimer){clearInterval(meterTimer);meterTimer=null;}
+ if(meterRAF){cancelAnimationFrame(meterRAF);meterRAF=null;}
+ const mic=document.getElementById("mic");if(mic){mic.style.transform="";mic.style.boxShadow="";}
+ if(meterCtx){try{meterCtx.close();}catch(e){}meterCtx=null;}
+}
 function stopVoice(){
  if(mediaRec&&mediaRec.state&&mediaRec.state!=="inactive"){listening=false;setMic(false);try{mediaRec.stop();}catch(e){}return;}
- listening=false;setMic(false);stopPreview();if(recog){try{recog.stop();}catch(e){}}
+ listening=false;setMic(false);stopMeter();if(recog){try{recog.stop();}catch(e){}}
 }
 // Sarvam only accepts WAV/MP3, but browsers record webm/opus — so convert to 16 kHz mono WAV here.
 async function blobToWav(blob){
@@ -380,7 +390,7 @@ async function transcribe(blob){
   const fd=new FormData();fd.append('file',sendBlob,fname);fd.append('lang',lang);
   const res=await fetch('/api/stt',{method:'POST',body:fd});
   let data={};try{data=await res.json();}catch(e){}
-  typing.remove();
+  typing.remove();inp.placeholder=oldPH||"Ask me anything…";
   if(res.status===503){ // key not configured at all -> fall back to browser engine
    sttBroken=true;bot("🎙️ High-accuracy voice isn't switched on yet — using the basic engine. Tap the mic and speak again.");return;
   }
@@ -391,7 +401,7 @@ async function transcribe(blob){
   if(t){inp.value=(voiceBase+t).trim();inp.focus();bot(`🎙️ I heard: “${t}” — tap ➤ to send, or edit it first.`);}
   else {inp.value=voiceBase.trim();bot("🎙️ I couldn't catch that — please speak a bit longer and try again.");}
  }catch(e){
-  typing.remove();
+  typing.remove();inp.placeholder=oldPH||"Ask me anything…";
   bot("🎙️ Couldn't reach the voice service — please try again. ("+(e&&e.message?e.message:"network")+")");
  }
 }
