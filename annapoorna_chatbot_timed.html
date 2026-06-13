@@ -512,10 +512,32 @@ function stopVoice(){
  if(mediaRec&&mediaRec.state&&mediaRec.state!=="inactive"){listening=false;setMic(false);try{mediaRec.stop();}catch(e){}return;}
  listening=false;setMic(false);if(recog){try{recog.stop();}catch(e){}}
 }
+// Sarvam only accepts WAV/MP3, but browsers record webm/opus — so convert to 16 kHz mono WAV here.
+async function blobToWav(blob){
+ const AC=window.AudioContext||window.webkitAudioContext;
+ const ac=new AC();
+ const buf=await ac.decodeAudioData(await blob.arrayBuffer());
+ const len=buf.length,ch=buf.numberOfChannels;
+ const mono=new Float32Array(len);
+ for(let c=0;c<ch;c++){const d=buf.getChannelData(c);for(let i=0;i<len;i++)mono[i]+=d[i]/ch;}
+ const rate=16000,ratio=buf.sampleRate/rate,nl=Math.max(1,Math.round(len/ratio)),res=new Float32Array(nl);
+ for(let i=0;i<nl;i++){const x=i*ratio,i0=Math.floor(x),i1=Math.min(i0+1,len-1),f=x-i0;res[i]=mono[i0]*(1-f)+mono[i1]*f;}
+ if(ac.close)try{ac.close();}catch(e){}
+ const ab=new ArrayBuffer(44+res.length*2),v=new DataView(ab);
+ const ws=(o,s)=>{for(let i=0;i<s.length;i++)v.setUint8(o+i,s.charCodeAt(i));};
+ ws(0,"RIFF");v.setUint32(4,36+res.length*2,true);ws(8,"WAVE");ws(12,"fmt ");
+ v.setUint32(16,16,true);v.setUint16(20,1,true);v.setUint16(22,1,true);
+ v.setUint32(24,rate,true);v.setUint32(28,rate*2,true);v.setUint16(32,2,true);v.setUint16(34,16,true);
+ ws(36,"data");v.setUint32(40,res.length*2,true);
+ let off=44;for(let i=0;i<res.length;i++){let s=Math.max(-1,Math.min(1,res[i]));v.setInt16(off,s<0?s*0x8000:s*0x7FFF,true);off+=2;}
+ return new Blob([v],{type:"audio/wav"});
+}
 async function transcribe(blob){
  const inp=document.getElementById("inp");const typing=typingBubble();
  try{
-  const fd=new FormData();fd.append('file',blob,'audio.webm');fd.append('lang',lang);
+  let sendBlob=blob,fname='audio.webm';
+  try{sendBlob=await blobToWav(blob);fname='audio.wav';}catch(e){}
+  const fd=new FormData();fd.append('file',sendBlob,fname);fd.append('lang',lang);
   const res=await fetch('/api/stt',{method:'POST',body:fd});
   let data={};try{data=await res.json();}catch(e){}
   typing.remove();
