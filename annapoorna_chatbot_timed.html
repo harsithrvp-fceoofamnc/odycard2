@@ -13,7 +13,7 @@
     body{padding:16px;box-sizing:border-box}
     #phone{height:calc(100dvh - 32px);max-height:820px;border-radius:24px;box-shadow:0 18px 50px rgba(0,0,0,.45)}
   }
-  header{background:linear-gradient(135deg,var(--brandtop),var(--brandbot));color:#fff;padding:12px 16px 10px;display:flex;align-items:center;gap:10px;box-shadow:0 2px 14px rgba(62,39,19,.35);border-bottom:2px solid var(--gold);position:relative;z-index:2}
+  header{background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'%3E%3Cg fill='none' stroke='%23ffffff' stroke-width='1' stroke-opacity='0.07'%3E%3Ccircle cx='0' cy='0' r='20'/%3E%3Ccircle cx='40' cy='0' r='20'/%3E%3Ccircle cx='0' cy='40' r='20'/%3E%3Ccircle cx='40' cy='40' r='20'/%3E%3Ccircle cx='20' cy='20' r='20'/%3E%3C/g%3E%3C/svg%3E"),linear-gradient(135deg,var(--brandtop),var(--brandbot));background-size:40px 40px,cover;color:#fff;padding:12px 16px 10px;display:flex;align-items:center;gap:10px;box-shadow:0 2px 14px rgba(62,39,19,.35);border-bottom:2px solid var(--gold);position:relative;z-index:2;overflow:hidden}
   header .logo{width:34px;height:34px;border-radius:9px;background:#fff8ec;color:var(--brandbot);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:17px;box-shadow:0 0 0 1.5px var(--gold),0 2px 6px rgba(0,0,0,.18)}
   header h1{font-size:16px;margin:0;font-weight:700;letter-spacing:.2px}
   header .sub{font-size:11px;opacity:.9;margin-top:1px;color:#f3e2c4}
@@ -44,7 +44,7 @@
   .outlet button{background:#fff;border:1.4px solid var(--blue);color:var(--blue);font-weight:700;padding:15px 8px;border-radius:13px;font-size:13.5px;cursor:pointer}
   .grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;align-self:stretch;padding:2px}
   .dish{background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden;display:flex;flex-direction:column}
-  .dish .pic{height:74px;background:linear-gradient(135deg,#f3e9d2,#e9dcbf);display:flex;align-items:center;justify-content:center;font-size:34px}
+  .dish .pic{height:74px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='30' height='30' viewBox='0 0 30 30'%3E%3Cg fill='none' stroke='%23a8752a' stroke-width='1' stroke-opacity='0.14'%3E%3Ccircle cx='0' cy='0' r='15'/%3E%3Ccircle cx='30' cy='0' r='15'/%3E%3Ccircle cx='0' cy='30' r='15'/%3E%3Ccircle cx='30' cy='30' r='15'/%3E%3Ccircle cx='15' cy='15' r='15'/%3E%3C/g%3E%3C/svg%3E"),linear-gradient(135deg,#f3e9d2,#e9dcbf);background-size:30px 30px,cover;display:flex;align-items:center;justify-content:center;font-size:34px}
   .dish .bd{padding:8px 9px;display:flex;flex-direction:column;gap:3px;flex:1}
   .dish .nm{font-size:12.5px;font-weight:700;color:var(--ink);line-height:1.25;min-height:2.1em;overflow-wrap:anywhere}
   .dish .pr{font-size:12px;color:var(--blue);font-weight:700}
@@ -80,7 +80,7 @@
   .send{background:var(--blue);color:#fff;border:0;width:38px;height:38px;border-radius:50%;font-size:16px;cursor:pointer}
   .foot{text-align:center;font-size:9.5px;color:var(--mut);padding:5px}
   #modal{position:absolute;inset:0;background:rgba(20,16,10,.45);display:none;align-items:flex-end;z-index:9}
-  .sheet{background:#fff;width:100%;max-height:92%;overflow-y:auto;border-radius:18px 18px 0 0;padding:16px 16px 20px}
+  .sheet{background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'%3E%3Cg fill='none' stroke='%23b9842b' stroke-width='1' stroke-opacity='0.06'%3E%3Ccircle cx='0' cy='0' r='20'/%3E%3Ccircle cx='40' cy='0' r='20'/%3E%3Ccircle cx='0' cy='40' r='20'/%3E%3Ccircle cx='40' cy='40' r='20'/%3E%3Ccircle cx='20' cy='20' r='20'/%3E%3C/g%3E%3C/svg%3E"),#fffdf7;background-size:40px 40px,cover;width:100%;max-height:92%;overflow-y:auto;border-radius:18px 18px 0 0;padding:16px 16px 20px}
   .sheet h2{margin:2px 0 12px;font-size:17px;color:var(--ink)}
   .ci{display:flex;align-items:flex-start;gap:10px;padding:9px 0;border-bottom:1px solid var(--line)}
   .ci .e{font-size:24px}.ci .g{flex:1}.ci .g .n{font-size:13.5px;font-weight:700}.ci .g .p{font-size:12px;color:var(--mut)}
@@ -106,7 +106,13 @@
   .ok{text-align:center;padding:14px 4px}
   .ok .big{font-size:46px}.ok h2{margin:8px 0 4px}.ok p{color:var(--mut);font-size:13px;margin:4px 0}
   /* ---------- elegant polish & animations ---------- */
-  #phone{background:linear-gradient(180deg,#f6efe0,#efe5d0)}
+  /* subtle Indian jali (interlocking-circle lattice), echoing the sweets-counter screen */
+  #phone{
+    background:
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='44' height='44' viewBox='0 0 44 44'%3E%3Cg fill='none' stroke='%23b9842b' stroke-width='1' stroke-opacity='0.1'%3E%3Ccircle cx='0' cy='0' r='22'/%3E%3Ccircle cx='44' cy='0' r='22'/%3E%3Ccircle cx='0' cy='44' r='22'/%3E%3Ccircle cx='44' cy='44' r='22'/%3E%3Ccircle cx='22' cy='22' r='22'/%3E%3C/g%3E%3C/svg%3E"),
+      linear-gradient(180deg,#f6efe0,#efe5d0);
+    background-size:44px 44px, cover;
+  }
   .bot{box-shadow:0 1px 3px rgba(90,58,28,.06)}
   .me{box-shadow:0 2px 8px rgba(122,74,36,.22)}
   .dish{box-shadow:0 2px 8px rgba(90,58,28,.07);transition:transform .2s ease,box-shadow .25s ease,border-color .2s ease}
