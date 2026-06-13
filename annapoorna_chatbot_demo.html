@@ -424,8 +424,7 @@ function stopLive(){if(liveTimer){clearInterval(liveTimer);liveTimer=null;}liveS
 function startMeter(stream){
  const inp=document.getElementById("inp"),mic=document.getElementById("mic");
  recStart=Date.now();
- inp.placeholder="● Listening… 0s — tap the mic to stop";
- meterTimer=setInterval(()=>{const s=Math.round((Date.now()-recStart)/1000);inp.placeholder="● Listening… "+s+"s — tap the mic to stop";},1000);
+ inp.placeholder="Listening…";
  try{
   const AC=window.AudioContext||window.webkitAudioContext;meterCtx=new AC();
   const src=meterCtx.createMediaStreamSource(stream),an=meterCtx.createAnalyser();an.fftSize=256;src.connect(an);
