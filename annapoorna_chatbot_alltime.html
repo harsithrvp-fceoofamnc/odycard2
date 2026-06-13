@@ -517,13 +517,20 @@ async function transcribe(blob){
  try{
   const fd=new FormData();fd.append('file',blob,'audio.webm');fd.append('lang',lang);
   const res=await fetch('/api/stt',{method:'POST',body:fd});
-  if(!res.ok)throw 0;const data=await res.json();typing.remove();
+  let data={};try{data=await res.json();}catch(e){}
+  typing.remove();
+  if(res.status===503){ // key not configured at all -> fall back to browser engine
+   sttBroken=true;bot("🎙️ High-accuracy voice isn't switched on yet — using the basic engine. Tap the mic and speak again.");return;
+  }
+  if(data.error){ // Sarvam returned an error — show the reason so we can see what's wrong
+   bot("🎙️ Voice error ("+(data.error)+(data.status?" "+data.status:"")+"): "+((data.detail||"").slice(0,180)||"no detail")+". Tap the mic and try again.");return;
+  }
   const t=(data.text||"").trim();
   if(t){inp.value=(inp.value?inp.value.trim()+" ":"")+t;inp.focus();}
-  else bot("🎙️ I couldn't catch that — please try once more.");
+  else bot("🎙️ I couldn't catch that — please speak a bit longer and try again.");
  }catch(e){
-  typing.remove();sttBroken=true;
-  bot("🎙️ High-accuracy voice isn't switched on yet — using the basic engine. Tap the mic and speak again.");
+  typing.remove();
+  bot("🎙️ Couldn't reach the voice service — please try again. ("+(e&&e.message?e.message:"network")+")");
  }
 }
 function startBrowserSR(){

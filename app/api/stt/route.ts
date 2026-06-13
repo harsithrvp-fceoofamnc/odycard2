@@ -31,8 +31,16 @@ export async function POST(req: NextRequest) {
   const lang = String(inForm.get("lang") ?? "en");
   const languageCode = LANG[lang] || "unknown"; // "unknown" lets Sarvam auto-detect
 
+  // Name the file with an extension that matches what the browser actually recorded,
+  // so Sarvam accepts it (Chrome = webm, Safari = mp4/m4a).
+  const type = (file.type || "").toLowerCase();
+  const ext = type.includes("mp4") || type.includes("m4a") || type.includes("aac") ? "m4a"
+    : type.includes("ogg") || type.includes("opus") ? "ogg"
+    : type.includes("wav") ? "wav"
+    : "webm";
+
   const out = new FormData();
-  out.append("file", file, "audio.webm");
+  out.append("file", file, "audio." + ext);
   out.append("model", MODEL);
   out.append("language_code", languageCode);
 
@@ -42,16 +50,18 @@ export async function POST(req: NextRequest) {
       headers: { "api-subscription-key": key },
       body: out,
     });
+    const detail = await r.text().catch(() => "");
     if (!r.ok) {
-      const detail = await r.text().catch(() => "");
-      return NextResponse.json({ error: "stt_failed", detail }, { status: 502 });
+      // Return 200 with the reason so the chat can show it (helps debugging).
+      return NextResponse.json({ error: "stt_failed", status: r.status, detail: detail.slice(0, 300) });
     }
-    const j: any = await r.json();
+    let j: any = {};
+    try { j = JSON.parse(detail); } catch {}
     return NextResponse.json({
       text: j.transcript ?? "",
       lang: j.language_code ?? languageCode,
     });
-  } catch {
-    return NextResponse.json({ error: "stt_error" }, { status: 502 });
+  } catch (e: any) {
+    return NextResponse.json({ error: "stt_error", detail: String(e?.message || e).slice(0, 300) });
   }
 }
