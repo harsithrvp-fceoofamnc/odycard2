@@ -497,22 +497,41 @@ function simHeard(){const s=["something light and not too spicy","what's good fo
 const SLANG={en:'en-IN',ta:'ta-IN',hi:'hi-IN',ml:'ml-IN',te:'te-IN',kn:'kn-IN'};
 let listening=false,mediaRec=null,chunks=[],micStream=null,sttBroken=false,recog=null;
 let voiceBase="",oldPH="",meterRAF=null,meterCtx=null,meterTimer=null,recStart=0;
+let liveTimer=null,liveBusy=false,liveSeq=0;
 function recordVoice(){
  if(listening){stopVoice();return;}
  // Use the browser engine if Sarvam has failed before, or audio recording isn't available.
  if(sttBroken||!(navigator.mediaDevices&&navigator.mediaDevices.getUserMedia&&window.MediaRecorder)){startBrowserSR();return;}
  navigator.mediaDevices.getUserMedia({audio:true}).then(stream=>{
-  micStream=stream;chunks=[];
+  micStream=stream;chunks=[];liveSeq=0;
   const inp=document.getElementById("inp");
   voiceBase=inp.value?inp.value.trim()+" ":"";
   oldPH=inp.placeholder;
   try{mediaRec=new MediaRecorder(stream);}catch(e){mediaRec=new MediaRecorder(stream,{});}
   mediaRec.ondataavailable=e=>{if(e.data&&e.data.size>0)chunks.push(e.data);};
-  mediaRec.onstop=()=>{stopMeter();if(micStream)micStream.getTracks().forEach(t=>t.stop());inp.placeholder="Transcribing…";transcribe(new Blob(chunks,{type:(mediaRec&&mediaRec.mimeType)||'audio/webm'}));};
-  listening=true;setMic(true);mediaRec.start();
-  startMeter(stream); // clean "listening" animation that reacts to the guest's voice (no garbled words)
+  mediaRec.onstop=()=>{stopMeter();stopLive();if(micStream)micStream.getTracks().forEach(t=>t.stop());inp.placeholder="Transcribing…";transcribe(new Blob(chunks,{type:(mediaRec&&mediaRec.mimeType)||'audio/webm'}));};
+  listening=true;setMic(true);mediaRec.start(1000); // emit a chunk every second so we can transcribe live
+  startMeter(stream); // mic pulses with the guest's voice
+  liveTimer=setInterval(liveTick,1600); // accurate live words from Sarvam, refreshed ~every 1.6s
  }).catch(()=>{listening=false;setMic(false);bot("🎙️ Please allow microphone access to use voice.");});
 }
+// LIVE tracking: every ~1.6s send the audio-so-far to Sarvam and show the growing accurate transcript.
+// (Re-sends from the start each time — the blob stays decodable and short for a food order.)
+async function liveTick(){
+ if(!listening||liveBusy||chunks.length===0)return;
+ liveBusy=true;const seq=++liveSeq;
+ try{
+  const blob=new Blob(chunks.slice(),{type:(mediaRec&&mediaRec.mimeType)||'audio/webm'});
+  let wav;try{wav=await blobToWav(blob);}catch(e){liveBusy=false;return;}
+  const fd=new FormData();fd.append('file',wav,'audio.wav');fd.append('lang',lang);
+  const res=await fetch('/api/stt',{method:'POST',body:fd});
+  let data={};try{data=await res.json();}catch(e){}
+  // Only apply if still recording and this is the latest request (avoid out-of-order overwrites).
+  if(listening&&seq===liveSeq&&data&&data.text){document.getElementById("inp").value=(voiceBase+data.text).trim();}
+ }catch(e){}
+ liveBusy=false;
+}
+function stopLive(){if(liveTimer){clearInterval(liveTimer);liveTimer=null;}liveSeq++;}
 // Live listening indicator: a timer in the bar + the mic pulsing with the guest's actual volume,
 // so they can SEE it's hearing them. Accurate words arrive from Sarvam when they stop.
 function startMeter(stream){
