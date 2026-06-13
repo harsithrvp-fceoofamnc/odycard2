@@ -67,7 +67,7 @@
   .pair .row{display:flex;gap:8px}
   .pair .pi{flex:1;background:#fff;border:1px solid var(--line);border-radius:11px;padding:7px;text-align:center}
   .pair .pi .e{font-size:24px}.pair .pi .n{font-size:11px;font-weight:700;margin:2px 0}
-  .barwrap{border-top:1px solid var(--line);background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='34' height='34' viewBox='0 0 34 34'%3E%3Cg fill='none' stroke='%23b9842b' stroke-width='1' stroke-opacity='0.08'%3E%3Ccircle cx='0' cy='0' r='17'/%3E%3Ccircle cx='34' cy='0' r='17'/%3E%3Ccircle cx='0' cy='34' r='17'/%3E%3Ccircle cx='34' cy='34' r='17'/%3E%3Ccircle cx='17' cy='17' r='17'/%3E%3C/g%3E%3C/svg%3E"),var(--cream);background-size:34px 34px,cover;padding:8px 10px 10px}
+  .barwrap{border-top:1px solid rgba(122,74,36,.18);background:rgba(246,238,221,.55);-webkit-backdrop-filter:blur(12px) saturate(1.1);backdrop-filter:blur(12px) saturate(1.1);padding:8px 10px 10px}
   #cartbar{display:none;width:100%;background:linear-gradient(135deg,#e3b956,#c79233);color:#3a2a05;border:0;font-weight:800;font-size:13.5px;padding:11px;border-radius:12px;cursor:pointer;margin-bottom:8px;box-shadow:0 4px 14px rgba(199,146,51,.4)}
   .inputrow{display:flex;gap:7px;align-items:center}
   .inputrow input{flex:1;border:1px solid var(--line);border-radius:20px;padding:9px 13px;font-size:13.5px;outline:none}
@@ -105,12 +105,12 @@
   .ok{text-align:center;padding:14px 4px}
   .ok .big{font-size:46px}.ok h2{margin:8px 0 4px}.ok p{color:var(--mut);font-size:13px;margin:4px 0}
   /* ---------- elegant polish & animations ---------- */
-  #phone{background:linear-gradient(180deg,#f6efe0,#efe5d0)}
-  /* Annapoorna doodle wallpaper (final) behind the conversation */
-  #chat{
+  /* Doodle wallpaper sits behind the WHOLE screen, so the translucent input bar reveals it too */
+  #phone{
     background-image:linear-gradient(rgba(246,238,221,.18),rgba(238,228,206,.24)),url('chat-bg.jpg');
     background-size:cover,cover;background-position:center top;background-repeat:no-repeat;
   }
+  #chat{background:transparent}
   .bot{box-shadow:0 1px 3px rgba(90,58,28,.06)}
   .me{box-shadow:0 2px 8px rgba(122,74,36,.22)}
   .dish{box-shadow:0 2px 8px rgba(90,58,28,.07);transition:transform .2s ease,box-shadow .25s ease,border-color .2s ease}
