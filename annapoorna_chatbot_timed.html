@@ -430,6 +430,7 @@ const TXT={
  specials:{en:"⭐ Specials",ta:"⭐ ஸ்பெஷல்",hi:"⭐ स्पेशल",ml:"⭐ സ്പെഷ്യൽ",te:"⭐ స్పెషల్స్",kn:"⭐ ಸ್ಪೆಷಲ್"},
  info:{en:"ℹ️ Restaurant info",ta:"ℹ️ உணவகத் தகவல்",hi:"ℹ️ रेस्टोरेंट जानकारी",ml:"ℹ️ റെസ്റ്റോറന്റ് വിവരം",te:"ℹ️ రెస్టారెంట్ సమాచారం",kn:"ℹ️ ರೆಸ್ಟೋರೆಂಟ್ ಮಾಹಿತಿ"},
  banquet:{en:"🎉 Banquet hall",ta:"🎉 விருந்து மண்டபம்",hi:"🎉 बैंक्वेट हॉल",ml:"🎉 ബാങ്ക്വറ്റ് ഹാൾ",te:"🎉 బాంక్వెట్ హాల్",kn:"🎉 ಬ್ಯಾಂಕ್ವೆಟ್ ಹಾಲ್"},
+ changeOutlet:{en:"📍 Change outlet",ta:"📍 கிளையை மாற்று",hi:"📍 आउटलेट बदलें",ml:"📍 ഔട്ട്‌ലെറ്റ് മാറ്റുക",te:"📍 అవుట్‌లెట్ మార్చండి",kn:"📍 ಔಟ್‌ಲೆಟ್ ಬದಲಿಸಿ"},
  viewCart:{en:"View cart",ta:"கார்ட்டைப் பார்க்க",hi:"कार्ट देखें",ml:"കാർട്ട് കാണുക",te:"కార్ట్ చూడండి",kn:"ಕಾರ್ಟ್ ನೋಡಿ"},
  ask:{en:"Ask me anything…",ta:"எதையும் கேளுங்கள்…",hi:"कुछ भी पूछें…",ml:"എന്തും ചോദിക്കൂ…",te:"ఏదైనా అడగండి…",kn:"ಏನಾದರೂ ಕೇಳಿ…"},
  home:{en:"⌂ Home",ta:"⌂ முகப்பு",hi:"⌂ होम",ml:"⌂ ഹോം",te:"⌂ హోమ్",kn:"⌂ ಮುಖಪುಟ"},
@@ -536,7 +537,7 @@ async function showGreeting(instant){chat.innerHTML="";upsold=false;
  if(!instant)await sleep(200);mainChips();}
 function showSpecials(quiet){const best=topDishes();if(!quiet)me("Today's specials");
  bot(`Here's what's <b>hot &amp; fresh</b> this ${part()} 👇`);block("grid",best.map(dishCard).join(""));mainChips();}
-function mainChips(){block("chips",`<button class="chip go" onclick="explore()">${T("exploreFull")}</button><button class="chip" onclick="showSpecials()">${T("specialsLong")}</button><button class="chip alt" onclick="info()">${T("info")}</button><button class="chip alt" onclick="banquet()">${T("banquet")}</button>`);}
+function mainChips(){block("chips",`<button class="chip go" onclick="explore()">${T("exploreFull")}</button><button class="chip" onclick="showSpecials()">${T("specialsLong")}</button><button class="chip alt" onclick="info()">${T("info")}</button><button class="chip alt" onclick="banquet()">${T("banquet")}</button><button class="chip alt" onclick="goOutlets()">${T("changeOutlet")}</button>`);}
 function explore(){me(T("exploreMore"));const cs=CATS.filter(c=>(c.ids||(c.subs||[]).flatMap(s=>s.ids)).some(avail));
  bot(`${T("whatExplore")} <span style='color:#7b8190'>${T("timeNote")}</span>`);
  block("chips",cs.map((c)=>`<button class="chip" onclick="openCat(${CATS.indexOf(c)})">${c.name}</button>`).join("")+`<button class="chip alt" onclick="mainChips()">${T("home")}</button>`);}
