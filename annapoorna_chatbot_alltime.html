@@ -793,8 +793,8 @@ function runActions(acts){let added=0;(acts||[]).forEach(a=>{
   else if(a.type==="category"&&a.name){const i=CATS.findIndex(c=>c.name.toLowerCase()===String(a.name).toLowerCase());if(i>=0){const c=CATS[i];const ids=(c.ids||(c.subs||[]).flatMap(s=>s.ids)).filter(id=>MENU[id]&&avail(id)).slice(0,6);if(ids.length)block("grid",ids.map(dishCard).join(""));}}
 });return added>0;}
 function confirmOrder(){bot(T("confirmQ"));return block("chips",`<button class="chip go" onclick="openCart()">${IC.ok}${lbl("yes")}</button><button class="chip alt" onclick="orderNo()">${IC.x}${lbl("no")}</button>`);}
-function orderNo(){bot(T("noMore"));mainChips();}
-function ai(q){const sug=(id,txt)=>{bot(txt);block("grid",[dishCard(id)]);exploreBar();};
+function orderNo(){const rb=bot(T("noMore"));mainChips();anchorReply(rb);}
+function ai(q){const sug=(id,txt)=>{const rb=bot(txt);block("grid",[dishCard(id)]);exploreBar();anchorReply(rb);};
  if(/banquet|hall|function|wedding|event/.test(q))return banquet();
  if(/time|open|close|parking|address|location|where/.test(q))return info();
  if(/jain|onion|garlic/.test(q)){bot("We're a fully <b>pure-vegetarian</b> restaurant 🟢. We don't do special Jain (no onion-garlic) preparations, but you can add a 📝 note on any dish and the kitchen will keep it simple where possible.");return exploreBar();}
