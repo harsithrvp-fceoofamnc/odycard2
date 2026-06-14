@@ -42,15 +42,15 @@
   @keyframes bob{0%,80%,100%{transform:translateY(0) scale(1);opacity:.35}40%{transform:translateY(-5px) scale(1.15);opacity:1}}
   .outlet{display:grid;grid-template-columns:1fr 1fr;gap:9px;align-self:stretch;padding:2px}
   .outlet button{background:#fff;border:1.4px solid var(--blue);color:var(--blue);font-weight:700;padding:15px 8px;border-radius:13px;font-size:15.5px;cursor:pointer}
-  .grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;align-self:stretch;padding:2px}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:11px;align-self:stretch;padding:2px}
   .dish{background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden;display:flex;flex-direction:column}
-  .dish .pic{height:108px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='30' height='30' viewBox='0 0 30 30'%3E%3Cg fill='none' stroke='%23a8752a' stroke-width='1' stroke-opacity='0.14'%3E%3Ccircle cx='0' cy='0' r='15'/%3E%3Ccircle cx='30' cy='0' r='15'/%3E%3Ccircle cx='0' cy='30' r='15'/%3E%3Ccircle cx='30' cy='30' r='15'/%3E%3Ccircle cx='15' cy='15' r='15'/%3E%3C/g%3E%3C/svg%3E"),linear-gradient(135deg,#f3e9d2,#e9dcbf);background-size:30px 30px,cover;display:flex;align-items:center;justify-content:center;font-size:34px}
-  .dish .bd{padding:8px 9px;display:flex;flex-direction:column;gap:3px;flex:1}
-  .dish .nm{font-size:14px;font-weight:700;color:var(--ink);line-height:1.25;min-height:2.1em;overflow-wrap:anywhere}
-  .dish .pr{font-size:13.5px;color:var(--blue);font-weight:700}
-  .dish .tag{font-size:11px;color:var(--gold);font-weight:700}
+  .dish .pic{height:138px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='30' height='30' viewBox='0 0 30 30'%3E%3Cg fill='none' stroke='%23a8752a' stroke-width='1' stroke-opacity='0.14'%3E%3Ccircle cx='0' cy='0' r='15'/%3E%3Ccircle cx='30' cy='0' r='15'/%3E%3Ccircle cx='0' cy='30' r='15'/%3E%3Ccircle cx='30' cy='30' r='15'/%3E%3Ccircle cx='15' cy='15' r='15'/%3E%3C/g%3E%3C/svg%3E"),linear-gradient(135deg,#f3e9d2,#e9dcbf);background-size:30px 30px,cover;display:flex;align-items:center;justify-content:center;font-size:34px}
+  .dish .bd{padding:11px 12px;display:flex;flex-direction:column;gap:5px;flex:1}
+  .dish .nm{font-size:15.5px;font-weight:700;color:var(--ink);line-height:1.25;min-height:2.1em;overflow-wrap:anywhere}
+  .dish .pr{font-size:15px;color:var(--blue);font-weight:700}
+  .dish .tag{font-size:12.5px;color:var(--gold);font-weight:700}
   .frow{display:flex;gap:5px;margin-top:auto;align-items:center}
-  .add{flex:1;border:1.4px solid var(--blue);background:#fff;color:var(--blue);font-weight:700;font-size:13.5px;padding:6px;border-radius:9px;cursor:pointer}
+  .add{flex:1;border:1.4px solid var(--blue);background:#fff;color:var(--blue);font-weight:700;font-size:15px;padding:9px;border-radius:10px;cursor:pointer}
   .add.in{background:var(--blue);color:#fff}
   .qtys{flex:1;display:flex;align-items:center;justify-content:space-between;border:1.4px solid var(--blue);border-radius:9px;padding:1px 4px}
   .qtys button{width:30px;height:28px;border:0;background:transparent;color:var(--blue);font-size:19px;font-weight:800;cursor:pointer;line-height:1}
@@ -110,7 +110,7 @@
     background-image:linear-gradient(rgba(246,238,221,.18),rgba(238,228,206,.24)),url('chat-bg.jpg');
     background-size:cover,cover;background-position:center top;background-repeat:no-repeat;
   }
-  .dish .pic img{width:82%;max-height:82px;object-fit:contain;opacity:.62}
+  .dish .pic img{width:84%;max-height:104px;object-fit:contain;opacity:.62}
   /* hide scrollbars everywhere (keep scrolling) */
   #chat,.sheet{scrollbar-width:none;-ms-overflow-style:none}
   #chat::-webkit-scrollbar,.sheet::-webkit-scrollbar{display:none;width:0;height:0}
