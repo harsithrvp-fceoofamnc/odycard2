@@ -334,11 +334,12 @@ const TIME_FILTER=false; // DEMO: false = show ALL dishes/categories. Set to tru
 const OPEN=Object.keys(MENU).some(id=>HOUR>=MENU[id].h[0]&&HOUR<MENU[id].h[1]);
 const avail=id=>!TIME_FILTER||!OPEN||(HOUR>=MENU[id].h[0]&&HOUR<MENU[id].h[1]);
 const chat=document.getElementById("chat");
-function bot(html){const d=document.createElement("div");d.className="msg bot";d.innerHTML=html;chat.appendChild(d);return d;}
-function me(t){const d=document.createElement("div");d.className="msg me";d.textContent=t;chat.appendChild(d);anchorTop(d);}
-function block(cls,html){const d=document.createElement("div");d.className=cls;d.innerHTML=html;chat.appendChild(d);return d;}
-function anchorTop(el){setTimeout(()=>{if(el)chat.scrollTop=Math.max(0,el.offsetTop-10);},30);}
-function anchorReply(el){setTimeout(()=>{if(el)chat.scrollTop=Math.max(0,el.offsetTop+el.offsetHeight-chat.clientHeight+98);},60);}
+function bot(html){const d=document.createElement("div");d.className="msg bot";d.innerHTML=html;chat.appendChild(d);toBottom();return d;}
+function me(t){const d=document.createElement("div");d.className="msg me";d.textContent=t;chat.appendChild(d);toBottom();}
+function block(cls,html){const d=document.createElement("div");d.className=cls;d.innerHTML=html;chat.appendChild(d);toBottom();return d;}
+let _bt=null;function toBottom(){clearTimeout(_bt);_bt=setTimeout(()=>{chat.scrollTop=chat.scrollHeight;},60);}
+function anchorTop(){}
+function anchorReply(){}
 
 /* ---------- outlet picker ---------- */
 function renderOutlets(){chat.innerHTML="";document.getElementById("phone").classList.add("outletview");document.getElementById("bar").style.display="none";document.getElementById("wm").style.display="none";document.getElementById("back").style.display="none";document.getElementById("hname").textContent="Sree Annapoorna";document.getElementById("hsub").textContent=T("chooseSub");bot(T("welcome"));
@@ -378,7 +379,7 @@ function upsell(){if(upsold)return;const ids=Object.keys(cart);if(!ids.length||i
 /* ---------- conversation ---------- */
 function exploreBar(){block("chips",`<button class="chip go" onclick="explore()">${IC.menu}${lbl("exploreMore")}</button><button class="chip alt" onclick="showSpecials()">${IC.star}${lbl("specials")}</button>${Object.keys(cart).length?`<button class="chip alt" onclick="openCart()">${IC.cart}${lbl("viewCart")}</button>`:''}`);}
 function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
-function typingBubble(){const d=document.createElement("div");d.className="msg bot typing";d.innerHTML='<span class="dot"></span><span class="dot"></span><span class="dot"></span>';chat.appendChild(d);return d;}
+function typingBubble(){const d=document.createElement("div");d.className="msg bot typing";d.innerHTML='<span class="dot"></span><span class="dot"></span><span class="dot"></span>';chat.appendChild(d);toBottom();return d;}
 function topDishes(){let b=Object.keys(MENU).filter(i=>MENU[i].best&&avail(i));
  if(b.length<4)b=b.concat(Object.keys(MENU).filter(i=>avail(i)&&!b.includes(i)));
  if(!b.length)b=Object.keys(MENU).filter(i=>MENU[i].best);
@@ -390,7 +391,7 @@ async function showGreeting(instant){chat.innerHTML="";upsold=false;
  bot(FRESH[lang]);
  if(!instant)await sleep(300);
  const best=topDishes();const g=block("grid","");
- for(const id of best){g.insertAdjacentHTML("beforeend",dishCard(id));if(!instant)await sleep(260);}
+ for(const id of best){g.insertAdjacentHTML("beforeend",dishCard(id));toBottom();if(!instant)await sleep(260);}
  if(!instant)await sleep(200);mainChips();}
 function showSpecials(quiet){const best=topDishes();if(!quiet)me("Today's specials");
  bot(`Here's what's <b>hot &amp; fresh</b> this ${part()} 👇`);block("grid",best.map(dishCard).join(""));mainChips();}
