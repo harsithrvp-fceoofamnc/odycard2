@@ -412,10 +412,17 @@ async function showGreeting(instant){chat.innerHTML="";upsold=false;
 function showSpecials(quiet){const best=topDishes();if(!quiet)me("Today's specials");
  bot(`Here's what's <b>hot &amp; fresh</b> this ${part()} 👇`);renderGrid(best);mainChips();}
 function mainChips(){block("chips",`<button class="chip go" onclick="explore()">${IC.menu}${lbl("exploreFull")}</button><button class="chip" onclick="showSpecials()">${IC.star}${lbl("specialsLong")}</button><button class="chip alt" onclick="info()">${IC.info}${lbl("info")}</button><button class="chip alt" onclick="banquet()">${IC.hall}${lbl("banquet")}</button><button class="chip alt" onclick="goOutlets()">${IC.pin}${lbl("changeOutlet")}</button><button class="chip alt" onclick="openFeedback()">${IC.fb}${lbl("feedback")}</button>`);}
-let fbRating=0;
-function openFeedback(){fbRating=0;openSheet(`<h2>Your feedback</h2><div class="note" style="margin:0 0 10px">How was your experience at <b>${outlet}</b>?</div><div class="stars" id="fbstars">${[1,2,3,4,5].map(n=>`<span onclick="setStars(${n})">★</span>`).join("")}</div><div class="fld"><label>Comments (optional)</label><textarea id="fbtext" rows="3" placeholder="Tell us what you loved or how we can improve…"></textarea></div><button class="btn g" onclick="submitFeedback()">Submit feedback</button>`);}
+let fbRating=0,fbCur="";
+const FBTOPICS=["Food & Taste","Service","Cleanliness","Ambience","Staff","Value for Money","App Experience"];
+function openFeedback(){const rb=bot("What would you like to share feedback about? 😊");block("chips",FBTOPICS.map(a=>`<button class="chip" onclick="fbTopic('${a}')">${a}</button>`).join("")+`<button class="chip alt" onclick="fbCustom()">${IC.note}Something else</button><button class="chip alt" onclick="mainChips()">${IC.back}Done</button>`);}
+function fbTopic(a){fbRating=0;fbCur=a;openSheet(`<h2>Feedback · ${a}</h2><div class="note" style="margin:0 0 10px">How would you rate our <b>${a.toLowerCase()}</b>?</div><div class="stars" id="fbstars">${[1,2,3,4,5].map(n=>`<span onclick="setStars(${n})">★</span>`).join("")}</div><div class="fld"><label>Comments (optional)</label><textarea id="fbtext" rows="3" placeholder="Tell us more…"></textarea></div><button class="btn g" onclick="submitFeedback(false)">Submit</button>`);}
+function fbCustom(){fbRating=0;fbCur="General";openSheet(`<h2>Your feedback</h2><div class="fld"><label>Your message</label><textarea id="fbtext" rows="4" placeholder="Share anything you'd like us to know…"></textarea></div><div id="fberr" style="color:#c0392b;font-size:12px;margin-top:2px;display:none">Please type a message first.</div><button class="btn g" onclick="submitFeedback(true)">Send feedback</button>`);}
 function setStars(n){fbRating=n;document.querySelectorAll("#fbstars span").forEach((s,i)=>s.classList.toggle("on",i<n));}
-function submitFeedback(){closeModal();bot(T("fbThanks"));}
+function submitFeedback(custom){const ta=document.getElementById("fbtext");const txt=((ta&&ta.value)||"").trim();
+ if(custom&&!txt){const e=document.getElementById("fberr");if(e)e.style.display="block";if(ta)ta.focus();return;}
+ if(!custom&&!fbRating&&!txt){const e=document.getElementById("fbstars");if(e)e.style.outline="2px solid #c0392b";return;}
+ closeModal();bot(T("fbThanks"));
+ const rb=bot("Would you like to share feedback on anything else?");block("chips",FBTOPICS.map(a=>`<button class="chip" onclick="fbTopic('${a}')">${a}</button>`).join("")+`<button class="chip alt" onclick="fbCustom()">${IC.note}Something else</button><button class="chip alt" onclick="mainChips()">${IC.back}Done</button>`);}
 function explore(){me(T("exploreMore"));const cs=CATS.filter(c=>(c.ids||(c.subs||[]).flatMap(s=>s.ids)).some(avail));
  bot(`${T("whatExplore")} <span style='color:#7b8190'>${T("timeNote")}</span>`);
  block("chips",cs.map((c)=>`<button class="chip" onclick="openCat(${CATS.indexOf(c)})">${c.name}</button>`).join("")+`<button class="chip alt" onclick="mainChips()">${IC.home}${lbl("home")}</button>`);}
