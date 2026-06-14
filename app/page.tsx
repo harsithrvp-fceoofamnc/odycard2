@@ -8,7 +8,6 @@ export default function Home() {
   const [code, setCode] = useState("");
   const [err, setErr] = useState(false);
   const [busy, setBusy] = useState(false);
-  const [unlocked, setUnlocked] = useState(false);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -22,7 +21,10 @@ export default function Home() {
         body: JSON.stringify({ code }),
       });
       if (r.ok) {
-        setUnlocked(true);
+        // After the password, go to the Annapoorna page (or back to the branch link they came from).
+        const nx = new URLSearchParams(window.location.search).get("next");
+        window.location.href = nx && nx.startsWith("/annapoorna") ? nx : "/annapoorna";
+        return;
       } else {
         setErr(true);
         setCode("");
@@ -31,16 +33,6 @@ export default function Home() {
       setErr(true);
     }
     setBusy(false);
-  }
-
-  if (unlocked) {
-    return (
-      <iframe
-        src="/ody/index.html"
-        allow="microphone"
-        style={{ position: "fixed", inset: 0, width: "100%", height: "100%", border: "none" }}
-      />
-    );
   }
 
   return (

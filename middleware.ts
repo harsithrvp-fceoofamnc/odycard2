@@ -20,8 +20,9 @@ export function middleware(req: NextRequest) {
     return NextResponse.next();
   }
 
-  // Chatbot + its AI + speech-to-text: only after the code was entered this session.
+  // Annapoorna pages + chatbot + its AI + speech-to-text: only after the code was entered.
   if (
+    pathname.startsWith("/annapoorna") ||
     pathname.startsWith("/ody") ||
     pathname.startsWith("/api/ody") ||
     pathname.startsWith("/api/stt")
@@ -29,6 +30,8 @@ export function middleware(req: NextRequest) {
     if (authed) return NextResponse.next();
     const url = req.nextUrl.clone();
     url.pathname = "/";
+    // Remember the branch link they came from, so the password screen returns them there.
+    if (pathname.startsWith("/annapoorna")) url.searchParams.set("next", pathname);
     return NextResponse.redirect(url);
   }
 

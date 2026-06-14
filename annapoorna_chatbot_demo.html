@@ -695,7 +695,8 @@ document.getElementById("langbar").innerHTML=LANGS.map(l=>`<button class="lang $
 function setLang(l,b){lang=l;document.querySelectorAll(".lang").forEach(x=>x.classList.remove("on"));b.classList.add("on");
  document.getElementById("inp").placeholder=T("ask");outlet?showGreeting(true):renderOutlets();}
 document.getElementById("wm").innerHTML='<img src="'+LOGO+'">';
-renderOutlets();
+function slugify(s){return s.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");}
+(function(){var pa=new URLSearchParams(location.search).get("outlet");var o=pa&&OUTLETS.find(function(x){return slugify(x)===pa;});if(o)chooseOutlet(o);else renderOutlets();})();
 </script>
 </body>
 </html>
