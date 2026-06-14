@@ -520,7 +520,7 @@ function me(t){const d=document.createElement("div");d.className="msg me";d.text
 function block(cls,html){const d=document.createElement("div");d.className=cls;d.innerHTML=html;chat.appendChild(d);toBottom();return d;}
 let _bt=null,_bigTarget=null;
 function toBottom(){clearTimeout(_bt);_bt=setTimeout(()=>{if(_bigTarget){chat.scrollTop=Math.max(0,_bigTarget.offsetTop-82);_bigTarget=null;}else{chat.scrollTop=chat.scrollHeight;}},70);}
-function renderGrid(ids){const el=renderGrid(ids);if(ids.length>2)_bigTarget=el;return el;}
+function renderGrid(ids){const el=block("grid",ids.map(dishCard).join(""));if(ids.length>2)_bigTarget=el;return el;}
 function anchorTop(){}
 function anchorReply(){}
 
