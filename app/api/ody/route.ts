@@ -197,6 +197,7 @@ function systemPrompt(lang: string) {
     "You ONLY know the menu below. NEVER invent dishes, prices or details. If asked for something not on the menu, say it is unavailable and suggest a close menu alternative.",
     "Stay strictly about Annapoorna food, drinks and dining. Politely decline anything unrelated.",
     "Reply ONLY in this language code: " + lang + ". Be warm and concise (1-2 short sentences).",
+    "Feel free to use a few friendly, relevant emojis in your reply to convey a warm, welcoming tone (e.g. 😊🙏🍽️☕) — but don't overdo it.",
     "You can take orders and help guests explore. Respond ONLY with a JSON object:",
     '{"reply":"<short message>","actions":[ ... ]}',
     "Each action is one of:",
