@@ -517,6 +517,7 @@ function bot(html){const d=document.createElement("div");d.className="msg bot";d
 function me(t){const d=document.createElement("div");d.className="msg me";d.textContent=t;chat.appendChild(d);anchorTop(d);}
 function block(cls,html){const d=document.createElement("div");d.className=cls;d.innerHTML=html;chat.appendChild(d);return d;}
 function anchorTop(el){setTimeout(()=>{if(el)chat.scrollTop=Math.max(0,el.offsetTop-10);},30);}
+function anchorReply(el){setTimeout(()=>{if(el)chat.scrollTop=Math.max(0,el.offsetTop+el.offsetHeight-chat.clientHeight+98);},60);}
 
 /* ---------- outlet picker ---------- */
 function renderOutlets(){chat.innerHTML="";document.getElementById("phone").classList.add("outletview");document.getElementById("bar").style.display="none";document.getElementById("wm").style.display="none";document.getElementById("back").style.display="none";document.getElementById("hname").textContent="Sree Annapoorna";document.getElementById("hsub").textContent=T("chooseSub");bot(T("welcome"));
@@ -675,7 +676,6 @@ function finishVoice(){
  if(wsMode&&wsGotData){
   const t=wsText.trim();inp.placeholder=oldPH||"Ask me anything…";
   showListening(false);inp.value=(voiceBase+t).trim();autoGrow();inp.focus();
-  if(t)bot(`🎙️ I heard: “${t}” — tap Send, or edit it first.`);
   return;
  }
  inp.placeholder="Transcribing…";
@@ -761,7 +761,7 @@ async function transcribe(blob){
    bot("🎙️ Voice error ("+(data.error)+(data.status?" "+data.status:"")+"): "+((data.detail||"").slice(0,180)||"no detail")+". Tap the mic and try again.");return;
   }
   const t=(data.text||"").trim();
-  if(t){showListening(false);inp.value=(voiceBase+t).trim();autoGrow();inp.focus();bot(`🎙️ I heard: “${t}” — tap Send, or edit it first.`);}
+  if(t){showListening(false);inp.value=(voiceBase+t).trim();autoGrow();inp.focus();}
   else {inp.value=voiceBase.trim();bot("🎙️ I couldn't catch that — please speak a bit longer and try again.");}
  }catch(e){
   typing.remove();inp.placeholder=oldPH||"Ask me anything…";
@@ -784,15 +784,15 @@ async function sendText(){const inp=document.getElementById("inp");const v=inp.v
 async function askOdy(q){const typing=typingBubble();
  try{const res=await fetch('/api/ody',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:q,lang,cart:Object.keys(cart)})});
   if(!res.ok)throw 0;const data=await res.json();typing.remove();
-  if(data.reply)bot(data.reply);const added=runActions(data.actions);
-  if(added)confirmOrder();else exploreBar();
+  let rb=null;if(data.reply)rb=bot(data.reply);const added=runActions(data.actions);
+  if(added){const cc=confirmOrder();anchorReply(cc||rb);}else{exploreBar();anchorReply(rb);}
  }catch(e){typing.remove();ai(q.toLowerCase());}}
 function runActions(acts){let added=0;(acts||[]).forEach(a=>{
   if(a.type==="add"&&MENU[a.id]){const q=Math.max(1,a.qty||1);for(let i=0;i<q;i++)addDish(a.id);added+=q;}
   else if(a.type==="show"&&a.ids){const ids=a.ids.filter(i=>MENU[i]&&avail(i));if(ids.length)block("grid",ids.map(dishCard).join(""));}
   else if(a.type==="category"&&a.name){const i=CATS.findIndex(c=>c.name.toLowerCase()===String(a.name).toLowerCase());if(i>=0){const c=CATS[i];const ids=(c.ids||(c.subs||[]).flatMap(s=>s.ids)).filter(id=>MENU[id]&&avail(id)).slice(0,6);if(ids.length)block("grid",ids.map(dishCard).join(""));}}
 });return added>0;}
-function confirmOrder(){bot(T("confirmQ"));block("chips",`<button class="chip go" onclick="openCart()">${IC.ok}${lbl("yes")}</button><button class="chip alt" onclick="orderNo()">${IC.x}${lbl("no")}</button>`);}
+function confirmOrder(){bot(T("confirmQ"));return block("chips",`<button class="chip go" onclick="openCart()">${IC.ok}${lbl("yes")}</button><button class="chip alt" onclick="orderNo()">${IC.x}${lbl("no")}</button>`);}
 function orderNo(){bot(T("noMore"));mainChips();}
 function ai(q){const sug=(id,txt)=>{bot(txt);block("grid",[dishCard(id)]);exploreBar();};
  if(/banquet|hall|function|wedding|event/.test(q))return banquet();
