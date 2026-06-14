@@ -618,7 +618,7 @@ function recordVoice(){
   listening=true;setMic(true);mediaRec.start(1000); // recorder runs as a safety net for the final result
   startMeter(stream); // mic pulses with the guest's voice
   startStream(stream); // try real-time word-by-word streaming to Sarvam
-  liveTimer=setInterval(liveTick,1600); // chunked fallback (skips itself once streaming is live)
+  liveTimer=setInterval(liveTick,1100); // chunked fallback (skips itself once streaming is live)
  }).catch(()=>{listening=false;setMic(false);bot("🎙️ Please allow microphone access to use voice.");});
 }
 // REAL-TIME: open a live WebSocket to Sarvam and stream raw PCM so words appear as they're spoken.
@@ -718,7 +718,7 @@ function stopMeter(){
  const mic=document.getElementById("mic");if(mic){mic.style.transform="";mic.style.boxShadow="";}
  if(meterCtx){try{meterCtx.close();}catch(e){}meterCtx=null;}
 }
-function showListening(on){const e=document.getElementById("lwave");if(e)e.style.display=on?"flex":"none";}
+function showListening(on){const e=document.getElementById("lwave"),inp=document.getElementById("inp");if(!e)return;if(on){if(e.style.display==="flex")return;if(inp){e.dataset.ph=inp.placeholder;inp.placeholder="";}e.style.display="flex";}else{e.style.display="none";if(inp&&e.dataset.ph!=null)inp.placeholder=e.dataset.ph;}}
 function stopVoice(){showListening(false);
  if(mediaRec&&mediaRec.state&&mediaRec.state!=="inactive"){listening=false;setMic(false);try{mediaRec.stop();}catch(e){}return;}
  listening=false;setMic(false);stopMeter();if(recog){try{recog.stop();}catch(e){}}
