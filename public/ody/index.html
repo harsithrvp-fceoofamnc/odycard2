@@ -69,7 +69,7 @@
   .pair .pi .e{font-size:27px}.pair .pi .n{font-size:12.5px;font-weight:700;margin:2px 0}
   .barwrap{position:absolute;left:0;right:0;bottom:0;z-index:5;border-top:1px solid rgba(122,74,36,.12);background:rgba(246,238,221,.12);-webkit-backdrop-filter:blur(6px) saturate(1.1);backdrop-filter:blur(6px) saturate(1.1);padding:8px 10px 10px}
   #cartbar{display:none;width:100%;background:linear-gradient(135deg,#e3b956,#c79233);color:#3a2a05;border:0;font-weight:800;font-size:15.5px;padding:11px;border-radius:12px;cursor:pointer;margin-bottom:8px;box-shadow:0 4px 14px rgba(199,146,51,.4)}
-  .inputrow{display:flex;gap:7px;align-items:center;position:relative}
+  .inputrow{display:flex;gap:7px;align-items:flex-end;position:relative}
   #lwave{position:absolute;left:58px;top:0;bottom:0;display:none;align-items:center;font-size:15.5px;color:var(--mut);pointer-events:none}
   #lwave i{width:5px;height:5px;border-radius:50%;background:var(--mut);display:inline-block;margin-left:4px;opacity:1}
   #lwave i:nth-child(1){margin-left:6px}
@@ -77,7 +77,8 @@
   #lwave i:nth-child(3){animation:lc3 1.5s steps(1,end) infinite}
   @keyframes lc2{0%,32%{opacity:0}33%,100%{opacity:1}}
   @keyframes lc3{0%,65%{opacity:0}66%,100%{opacity:1}}
-  .inputrow input{flex:1;border:1px solid var(--line);border-radius:22px;padding:12px 15px;font-size:15.5px;outline:none}
+  .inputrow textarea{flex:1;border:1px solid var(--line);border-radius:22px;padding:12px 15px;font-size:15.5px;outline:none;font-family:inherit;line-height:1.4;resize:none;min-height:46px;max-height:140px;overflow-y:auto;display:block;scrollbar-width:none;-ms-overflow-style:none}
+  .inputrow textarea::-webkit-scrollbar{display:none}
   .mic{position:relative;background:#fffdf7;border:1px solid var(--line);color:var(--blue);width:46px;height:46px;border-radius:50%;font-size:18px;cursor:pointer}
   .mic.on{background:linear-gradient(135deg,#e3b956,#c79233);color:#3a2a05;border-color:#c79233}
   .mic.on::before,.mic.on::after{content:"";position:absolute;inset:-1px;border-radius:50%;border:2px solid rgba(199,146,51,.5);animation:ripple 1.9s cubic-bezier(.22,1,.36,1) infinite;pointer-events:none}
@@ -152,8 +153,8 @@
   .btn.g{background:linear-gradient(135deg,#e3b956,#c79233);box-shadow:0 4px 14px rgba(199,146,51,.4)}
   .chip.go{background:linear-gradient(135deg,var(--brandtop),var(--brandbot));box-shadow:0 3px 13px rgba(199,146,51,.5)}
   .send{background:linear-gradient(135deg,var(--brandtop),var(--brandbot));box-shadow:0 3px 11px rgba(199,146,51,.55)}
-  .inputrow input{transition:border-color .2s ease,box-shadow .2s ease;background:#fffdf7}
-  .inputrow input:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(199,146,51,.18)}
+  .inputrow textarea{transition:border-color .2s ease,box-shadow .2s ease;background:#fffdf7}
+  .inputrow textarea:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(199,146,51,.18)}
   .tag{animation:tagglow 2.6s ease-in-out infinite}
   @keyframes tagglow{0%,100%{opacity:.85}50%{opacity:1}}
   #cartbar{transition:transform .16s ease,box-shadow .2s ease}
@@ -202,7 +203,7 @@
     <button id="cartbar" onclick="openCart()"></button>
     <div class="inputrow">
       <button class="mic" id="mic" onclick="recordVoice()" title="Tap to speak"><svg class='icbtn' viewBox='0 0 24 24'><rect x='9' y='3' width='6' height='11' rx='3'/><path d='M6 11a6 6 0 0 0 12 0'/><path d='M12 17v4'/><path d='M8.5 21h7'/></svg></button>
-      <input id="inp" placeholder="Ask me anything…" onkeydown="if(event.key==='Enter')sendText()"/><div id="lwave">Listening<i></i><i></i><i></i></div>
+      <textarea id="inp" rows="1" placeholder="Ask me anything…" oninput="autoGrow()" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendText();}"></textarea><div id="lwave">Listening<i></i><i></i><i></i></div>
       <button class="send" onclick="sendText()"><svg class='icbtn' viewBox='0 0 24 24'><path d='M4 12l16-8-6 16-3-7z'/><path d='M11 13l9-9'/></svg></button>
     </div>
     <div class="foot">Demo prototype · simulated AI &amp; payment · © Odysra</div>
@@ -656,7 +657,7 @@ async function startStream(stream){
   try{const m=JSON.parse(ev.data);
    if(m.type==='data'&&m.data&&m.data.transcript){
     wsGotData=true;wsText=(wsText?wsText+" ":"")+String(m.data.transcript).trim();
-    if(listening){showListening(false);document.getElementById("inp").value=(voiceBase+wsText).trim();}
+    if(listening){showListening(false);document.getElementById("inp").value=(voiceBase+wsText).trim();autoGrow();}
    }}catch(e){}
  };
  ws.onerror=()=>{};
@@ -673,7 +674,7 @@ function finishVoice(){
  const inp=document.getElementById("inp");
  if(wsMode&&wsGotData){
   const t=wsText.trim();inp.placeholder=oldPH||"Ask me anything…";
-  showListening(false);inp.value=(voiceBase+t).trim();inp.focus();
+  showListening(false);inp.value=(voiceBase+t).trim();autoGrow();inp.focus();
   if(t)bot(`🎙️ I heard: “${t}” — tap Send, or edit it first.`);
   return;
  }
@@ -690,7 +691,7 @@ async function liveTick(){
   const fd=new FormData();fd.append('file',wav,'audio.wav');fd.append('lang',lang);
   const res=await fetch('/api/stt',{method:'POST',body:fd});
   let data={};try{data=await res.json();}catch(e){}
-  if(!wsMode&&listening&&seq===liveSeq&&data&&data.text){showListening(false);document.getElementById("inp").value=(voiceBase+data.text).trim();}
+  if(!wsMode&&listening&&seq===liveSeq&&data&&data.text){showListening(false);document.getElementById("inp").value=(voiceBase+data.text).trim();autoGrow();}
  }catch(e){}
  liveBusy=false;
 }
@@ -718,6 +719,7 @@ function stopMeter(){
  const mic=document.getElementById("mic");if(mic){mic.style.transform="";mic.style.boxShadow="";}
  if(meterCtx){try{meterCtx.close();}catch(e){}meterCtx=null;}
 }
+function autoGrow(){const el=document.getElementById("inp");if(!el)return;el.style.height="auto";el.style.height=Math.min(el.scrollHeight,140)+"px";}
 function showListening(on){const e=document.getElementById("lwave"),inp=document.getElementById("inp");if(!e)return;if(on){if(e.style.display==="flex")return;if(inp){e.dataset.ph=inp.placeholder;inp.placeholder="";}e.style.display="flex";}else{e.style.display="none";if(inp&&e.dataset.ph!=null)inp.placeholder=e.dataset.ph;}}
 function stopVoice(){showListening(false);
  if(mediaRec&&mediaRec.state&&mediaRec.state!=="inactive"){listening=false;setMic(false);try{mediaRec.stop();}catch(e){}return;}
@@ -759,7 +761,7 @@ async function transcribe(blob){
    bot("🎙️ Voice error ("+(data.error)+(data.status?" "+data.status:"")+"): "+((data.detail||"").slice(0,180)||"no detail")+". Tap the mic and try again.");return;
   }
   const t=(data.text||"").trim();
-  if(t){showListening(false);inp.value=(voiceBase+t).trim();inp.focus();bot(`🎙️ I heard: “${t}” — tap Send, or edit it first.`);}
+  if(t){showListening(false);inp.value=(voiceBase+t).trim();autoGrow();inp.focus();bot(`🎙️ I heard: “${t}” — tap Send, or edit it first.`);}
   else {inp.value=voiceBase.trim();bot("🎙️ I couldn't catch that — please speak a bit longer and try again.");}
  }catch(e){
   typing.remove();inp.placeholder=oldPH||"Ask me anything…";
@@ -778,7 +780,7 @@ function startBrowserSR(){
 }
 
 /* ---------- free text "AI" ---------- */
-async function sendText(){const inp=document.getElementById("inp");const v=inp.value.trim();if(!v)return;if(listening)stopVoice();inp.value="";me(v);await askOdy(v);}
+async function sendText(){const inp=document.getElementById("inp");const v=inp.value.trim();if(!v)return;if(listening)stopVoice();inp.value="";autoGrow();me(v);await askOdy(v);}
 async function askOdy(q){const typing=typingBubble();
  try{const res=await fetch('/api/ody',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:q,lang,cart:Object.keys(cart)})});
   if(!res.ok)throw 0;const data=await res.json();typing.remove();
