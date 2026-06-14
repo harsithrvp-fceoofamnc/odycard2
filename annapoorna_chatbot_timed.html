@@ -124,6 +124,15 @@
     background-size:cover,cover;background-position:center top;background-repeat:no-repeat;
   }
   .dish .pic img{width:86%;max-height:124px;object-fit:contain;opacity:.62}
+  .dish .pic{position:relative}
+  .vegbadge{position:absolute;top:8px;left:8px;width:16px;height:16px;border:2px solid #2e7d32;border-radius:3px;background:#fff;z-index:2}
+  .vegbadge::after{content:"";position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:8px;height:8px;border-radius:50%;background:#2e7d32}
+  .vegbadge.nv{border-color:#c0392b}
+  .vegbadge.nv::after{background:#c0392b;border-radius:0;clip-path:polygon(50% 0,100% 100%,0 100%)}
+  .stars{display:flex;gap:8px;justify-content:center;margin:4px 0 14px}
+  .stars span{font-size:36px;line-height:1;color:#e3d8c2;cursor:pointer;transition:color .15s,transform .15s}
+  .stars span:hover{transform:scale(1.12)}
+  .stars span.on{color:var(--gold)}
   /* hide scrollbars everywhere (keep scrolling) */
   #chat,.sheet{scrollbar-width:none;-ms-overflow-style:none}
   #chat::-webkit-scrollbar,.sheet::-webkit-scrollbar{display:none;width:0;height:0}
@@ -463,6 +472,8 @@ const TXT={
  info:{en:"ℹ️ Restaurant info",ta:"ℹ️ உணவகத் தகவல்",hi:"ℹ️ रेस्टोरेंट जानकारी",ml:"ℹ️ റെസ്റ്റോറന്റ് വിവരം",te:"ℹ️ రెస్టారెంట్ సమాచారం",kn:"ℹ️ ರೆಸ್ಟೋರೆಂಟ್ ಮಾಹಿತಿ"},
  banquet:{en:"🎉 Banquet hall",ta:"🎉 விருந்து மண்டபம்",hi:"🎉 बैंक्वेट हॉल",ml:"🎉 ബാങ്ക്വറ്റ് ഹാൾ",te:"🎉 బాంక్వెట్ హాల్",kn:"🎉 ಬ್ಯಾಂಕ್ವೆಟ್ ಹಾಲ್"},
  changeOutlet:{en:"📍 Change outlet",ta:"📍 கிளையை மாற்று",hi:"📍 आउटलेट बदलें",ml:"📍 ഔട്ട്‌ലെറ്റ് മാറ്റുക",te:"📍 అవుట్‌లెట్ మార్చండి",kn:"📍 ಔಟ್‌ಲೆಟ್ ಬದಲಿಸಿ"},
+ feedback:{en:"Give feedback",ta:"கருத்து தெரிவிக்க",hi:"प्रतिक्रिया दें",ml:"അഭിപ്രായം നൽകുക",te:"అభిప్రాయం ఇవ్వండి",kn:"ಪ್ರತಿಕ್ರಿಯೆ ನೀಡಿ"},
+ fbThanks:{en:"Thank you for your feedback! 🙏 We truly value it.",ta:"உங்கள் கருத்துக்கு நன்றி! 🙏 நாங்கள் அதை மதிக்கிறோம்.",hi:"आपकी प्रतिक्रिया के लिए धन्यवाद! 🙏",ml:"നിങ്ങളുടെ അഭിപ്രായത്തിന് നന്ദി! 🙏",te:"మీ అభిప్రాయానికి ధన్యవాదాలు! 🙏",kn:"ನಿಮ್ಮ ಪ್ರತಿಕ್ರಿಯೆಗೆ ಧನ್ಯವಾದಗಳು! 🙏"},
  viewCart:{en:"View cart",ta:"கார்ட்டைப் பார்க்க",hi:"कार्ट देखें",ml:"കാർട്ട് കാണുക",te:"కార్ట్ చూడండి",kn:"ಕಾರ್ಟ್ ನೋಡಿ"},
  ask:{en:"Ask me anything…",ta:"எதையும் கேளுங்கள்…",hi:"कुछ भी पूछें…",ml:"എന്തും ചോദിക്കൂ…",te:"ఏదైనా అడగండి…",kn:"ಏನಾದರೂ ಕೇಳಿ…"},
  home:{en:"⌂ Home",ta:"⌂ முகப்பு",hi:"⌂ होम",ml:"⌂ ഹോം",te:"⌂ హోమ్",kn:"⌂ ಮುಖಪುಟ"},
@@ -505,7 +516,7 @@ const DESC={
  kesari:{en:"Sweet semolina pudding with ghee and cashews.",ta:"நெய், முந்திரியுடன் இனிப்பான ரவா கேசரி.",hi:"घी और काजू के साथ मीठा रवा केसरी।",ml:"നെയ്യും കശുവണ്ടിയും ചേർത്ത മധുര റവ കേസരി.",te:"నెయ్యి, జీడిపప్పుతో తీపి రవ్వ కేసరి.",kn:"ತುಪ್ಪ, ಗೋಡಂಬಿಯೊಂದಿಗೆ ಸಿಹಿ ರವಾ ಕೇಸರಿ."}};
 function desc(id){return (DESC[id]&&DESC[id][lang])||(DESC[id]&&DESC[id].en)||MENU[id].d||"a house favourite, freshly prepared.";}
 let lang="en",outlet=null,cart={},notes={},upsold=false;
-const IC={menu:"<svg class='ic' viewBox='0 0 24 24'><path d='M4 14a8 8 0 0 1 16 0'/><path d='M3 14h18'/><path d='M12 6V4'/></svg>",star:"<svg class='ic' viewBox='0 0 24 24'><path d='M12 4l2.3 5.3 5.7.5-4.3 3.7 1.3 5.5-5-3-5 3 1.3-5.5L4.3 9.8l5.7-.5z'/></svg>",info:"<svg class='ic' viewBox='0 0 24 24'><circle cx='12' cy='12' r='9'/><path d='M12 11v6'/><circle cx='12' cy='7.6' r='.7' fill='currentColor' stroke='none'/></svg>",hall:"<svg class='ic' viewBox='0 0 24 24'><path d='M4 21V10l8-5 8 5v11'/><path d='M9 21v-6a3 3 0 0 1 6 0v6'/><path d='M2 21h20'/></svg>",pin:"<svg class='ic' viewBox='0 0 24 24'><path d='M12 22c5-6 7-9 7-13a7 7 0 0 0-14 0c0 4 2 7 7 13z'/><circle cx='12' cy='9' r='2.4'/></svg>",cart:"<svg class='ic' viewBox='0 0 24 24'><path d='M3 4h2l2.4 11.5h10l2-8H7'/><circle cx='9.5' cy='20' r='1.4' fill='currentColor' stroke='none'/><circle cx='17.5' cy='20' r='1.4' fill='currentColor' stroke='none'/></svg>",home:"<svg class='ic' viewBox='0 0 24 24'><path d='M4 11l8-7 8 7'/><path d='M6 10v10h12V10'/></svg>",back:"<svg class='ic' viewBox='0 0 24 24'><path d='M15 5l-7 7 7 7'/></svg>",note:"<svg class='ic' viewBox='0 0 24 24'><path d='M4 20l4-1 11-11-3-3L5 16l-1 4z'/><path d='M14.5 5.5l3 3'/></svg>",bag:"<svg class='ic' viewBox='0 0 24 24'><path d='M6 8h12l-1.2 12H7.2z'/><path d='M9 8a3 3 0 0 1 6 0'/></svg>",check:"<svg class='okcheck' viewBox='0 0 24 24'><circle cx='12' cy='12' r='10'/><path d='M7.5 12.3l3 3 6-7'/></svg>",ok:"<svg class='ic' viewBox='0 0 24 24'><path d='M5 13l4 4 10-11'/></svg>",x:"<svg class='ic' viewBox='0 0 24 24'><path d='M6 6l12 12M18 6L6 18'/></svg>"};
+const IC={menu:"<svg class='ic' viewBox='0 0 24 24'><path d='M4 14a8 8 0 0 1 16 0'/><path d='M3 14h18'/><path d='M12 6V4'/></svg>",star:"<svg class='ic' viewBox='0 0 24 24'><path d='M12 4l2.3 5.3 5.7.5-4.3 3.7 1.3 5.5-5-3-5 3 1.3-5.5L4.3 9.8l5.7-.5z'/></svg>",info:"<svg class='ic' viewBox='0 0 24 24'><circle cx='12' cy='12' r='9'/><path d='M12 11v6'/><circle cx='12' cy='7.6' r='.7' fill='currentColor' stroke='none'/></svg>",hall:"<svg class='ic' viewBox='0 0 24 24'><path d='M4 21V10l8-5 8 5v11'/><path d='M9 21v-6a3 3 0 0 1 6 0v6'/><path d='M2 21h20'/></svg>",pin:"<svg class='ic' viewBox='0 0 24 24'><path d='M12 22c5-6 7-9 7-13a7 7 0 0 0-14 0c0 4 2 7 7 13z'/><circle cx='12' cy='9' r='2.4'/></svg>",cart:"<svg class='ic' viewBox='0 0 24 24'><path d='M3 4h2l2.4 11.5h10l2-8H7'/><circle cx='9.5' cy='20' r='1.4' fill='currentColor' stroke='none'/><circle cx='17.5' cy='20' r='1.4' fill='currentColor' stroke='none'/></svg>",home:"<svg class='ic' viewBox='0 0 24 24'><path d='M4 11l8-7 8 7'/><path d='M6 10v10h12V10'/></svg>",back:"<svg class='ic' viewBox='0 0 24 24'><path d='M15 5l-7 7 7 7'/></svg>",note:"<svg class='ic' viewBox='0 0 24 24'><path d='M4 20l4-1 11-11-3-3L5 16l-1 4z'/><path d='M14.5 5.5l3 3'/></svg>",bag:"<svg class='ic' viewBox='0 0 24 24'><path d='M6 8h12l-1.2 12H7.2z'/><path d='M9 8a3 3 0 0 1 6 0'/></svg>",check:"<svg class='okcheck' viewBox='0 0 24 24'><circle cx='12' cy='12' r='10'/><path d='M7.5 12.3l3 3 6-7'/></svg>",ok:"<svg class='ic' viewBox='0 0 24 24'><path d='M5 13l4 4 10-11'/></svg>",x:"<svg class='ic' viewBox='0 0 24 24'><path d='M6 6l12 12M18 6L6 18'/></svg>",fb:"<svg class='ic' viewBox='0 0 24 24'><path d='M4 5h16v11H8l-4 4z'/><path d='M8 9.5h8M8 12.5h5'/></svg>"};
 const lbl=k=>T(k).replace(/^[\p{Extended_Pictographic}\p{S}\p{M}\p{Z}\uFE0F\u20E3]+/u,"").trim();
 
 const HOUR=new Date().getHours();
@@ -519,7 +530,7 @@ function bot(html){const d=document.createElement("div");d.className="msg bot";d
 function me(t){const d=document.createElement("div");d.className="msg me";d.textContent=t;chat.appendChild(d);toBottom();}
 function block(cls,html){const d=document.createElement("div");d.className=cls;d.innerHTML=html;chat.appendChild(d);toBottom();return d;}
 let _bt=null,_bigTarget=null;
-function toBottom(){clearTimeout(_bt);_bt=setTimeout(()=>{if(_bigTarget){chat.scrollTop=Math.max(0,_bigTarget.offsetTop-82);_bigTarget=null;}else{chat.scrollTop=chat.scrollHeight;}},70);}
+function toBottom(){clearTimeout(_bt);_bt=setTimeout(()=>{const top=_bigTarget?Math.max(0,_bigTarget.offsetTop-82):chat.scrollHeight;_bigTarget=null;try{chat.scrollTo({top,behavior:"smooth"});}catch(e){chat.scrollTop=top;}},80);}
 function renderGrid(ids){const el=block("grid",ids.map(dishCard).join(""));if(ids.length>2)_bigTarget=el;return el;}
 function anchorTop(){}
 function anchorReply(){}
@@ -536,7 +547,7 @@ function dishFooter(id){
  if(cart[id])return `<div class="qtys"><button onclick="dec2('${id}')">−</button><span>${cart[id]}</span><button onclick="inc2('${id}')">+</button></div><button class="infob" onclick="explainDish('${id}')" title="Tell me about this">${IC.info}</button>`;
  return `<button class="add" onclick="addDish('${id}')">+ Add</button><button class="infob" onclick="explainDish('${id}')" title="Tell me about this">${IC.info}</button>`;}
 function dishCard(id){const m=MENU[id];
- return `<div class="dish" data-id="${id}"><div class="pic" style="cursor:pointer" onclick="zoomDish('${id}')"><img src="${LOGO}" alt=""></div><div class="bd">${m.best?'<div class="tag">★ BESTSELLER</div>':''}<div class="nm">${dn(id)}</div><div class="pr">₹${m.p}</div><div class="frow">${dishFooter(id)}</div></div></div>`;}
+ return `<div class="dish" data-id="${id}"><div class="pic" style="cursor:pointer" onclick="zoomDish('${id}')"><span class="vegbadge${MENU[id].nv?' nv':''}" title="${MENU[id].nv?'Non-veg':'Pure veg'}"></span><img src="${LOGO}" alt=""></div><div class="bd">${m.best?'<div class="tag">★ BESTSELLER</div>':''}<div class="nm">${dn(id)}</div><div class="pr">₹${m.p}</div><div class="frow">${dishFooter(id)}</div></div></div>`;}
 function sync(){refreshCart();document.querySelectorAll('.dish[data-id]').forEach(el=>{const f=el.querySelector('.frow');if(f)f.innerHTML=dishFooter(el.dataset.id);});document.querySelectorAll('.pi[data-id]').forEach(el=>{const f=el.querySelector('.pifoot');if(f)f.innerHTML=pairFoot(el.dataset.id);});}
 function buzz(){try{if(navigator.vibrate)navigator.vibrate(35);}catch(e){}}
 function dig(el,n){el.value=el.value.replace(/\D/g,"").slice(0,n);}
@@ -579,7 +590,11 @@ async function showGreeting(instant){chat.innerHTML="";upsold=false;
  if(!instant)await sleep(200);mainChips();}
 function showSpecials(quiet){const best=topDishes();if(!quiet)me("Today's specials");
  bot(`Here's what's <b>hot &amp; fresh</b> this ${part()} 👇`);renderGrid(best);mainChips();}
-function mainChips(){block("chips",`<button class="chip go" onclick="explore()">${IC.menu}${lbl("exploreFull")}</button><button class="chip" onclick="showSpecials()">${IC.star}${lbl("specialsLong")}</button><button class="chip alt" onclick="info()">${IC.info}${lbl("info")}</button><button class="chip alt" onclick="banquet()">${IC.hall}${lbl("banquet")}</button><button class="chip alt" onclick="goOutlets()">${IC.pin}${lbl("changeOutlet")}</button>`);}
+function mainChips(){block("chips",`<button class="chip go" onclick="explore()">${IC.menu}${lbl("exploreFull")}</button><button class="chip" onclick="showSpecials()">${IC.star}${lbl("specialsLong")}</button><button class="chip alt" onclick="info()">${IC.info}${lbl("info")}</button><button class="chip alt" onclick="banquet()">${IC.hall}${lbl("banquet")}</button><button class="chip alt" onclick="goOutlets()">${IC.pin}${lbl("changeOutlet")}</button><button class="chip alt" onclick="openFeedback()">${IC.fb}${lbl("feedback")}</button>`);}
+let fbRating=0;
+function openFeedback(){fbRating=0;openSheet(`<h2>Your feedback</h2><div class="note" style="margin:0 0 10px">How was your experience at <b>${outlet}</b>?</div><div class="stars" id="fbstars">${[1,2,3,4,5].map(n=>`<span onclick="setStars(${n})">★</span>`).join("")}</div><div class="fld"><label>Comments (optional)</label><textarea id="fbtext" rows="3" placeholder="Tell us what you loved or how we can improve…"></textarea></div><button class="btn g" onclick="submitFeedback()">Submit feedback</button>`);}
+function setStars(n){fbRating=n;document.querySelectorAll("#fbstars span").forEach((s,i)=>s.classList.toggle("on",i<n));}
+function submitFeedback(){closeModal();bot(T("fbThanks"));}
 function explore(){me(T("exploreMore"));const cs=CATS.filter(c=>(c.ids||(c.subs||[]).flatMap(s=>s.ids)).some(avail));
  bot(`${T("whatExplore")} <span style='color:#7b8190'>${T("timeNote")}</span>`);
  block("chips",cs.map((c)=>`<button class="chip" onclick="openCat(${CATS.indexOf(c)})">${c.name}</button>`).join("")+`<button class="chip alt" onclick="mainChips()">${IC.home}${lbl("home")}</button>`);}
