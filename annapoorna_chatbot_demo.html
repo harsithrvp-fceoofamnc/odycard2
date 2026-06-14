@@ -69,7 +69,14 @@
   .pair .pi .e{font-size:27px}.pair .pi .n{font-size:12.5px;font-weight:700;margin:2px 0}
   .barwrap{position:absolute;left:0;right:0;bottom:0;z-index:5;border-top:1px solid rgba(122,74,36,.12);background:rgba(246,238,221,.12);-webkit-backdrop-filter:blur(6px) saturate(1.1);backdrop-filter:blur(6px) saturate(1.1);padding:8px 10px 10px}
   #cartbar{display:none;width:100%;background:linear-gradient(135deg,#e3b956,#c79233);color:#3a2a05;border:0;font-weight:800;font-size:15.5px;padding:11px;border-radius:12px;cursor:pointer;margin-bottom:8px;box-shadow:0 4px 14px rgba(199,146,51,.4)}
-  .inputrow{display:flex;gap:7px;align-items:center}
+  .inputrow{display:flex;gap:7px;align-items:center;position:relative}
+  #lwave{position:absolute;left:58px;display:none;align-items:flex-end;gap:5px;font-size:15.5px;color:var(--mut);pointer-events:none;height:100%}
+  #lwave{padding-bottom:14px}
+  #lwave i{width:6px;height:6px;border-radius:50%;background:var(--gold);display:inline-block;animation:lw 1.1s ease-in-out infinite}
+  #lwave i:nth-child(1){margin-left:4px}
+  #lwave i:nth-child(2){animation-delay:.18s}
+  #lwave i:nth-child(3){animation-delay:.36s}
+  @keyframes lw{0%,70%,100%{transform:translateY(0);opacity:.45}35%{transform:translateY(-7px);opacity:1}}
   .inputrow input{flex:1;border:1px solid var(--line);border-radius:22px;padding:12px 15px;font-size:15.5px;outline:none}
   .mic{position:relative;background:#fffdf7;border:1px solid var(--line);color:var(--blue);width:46px;height:46px;border-radius:50%;font-size:18px;cursor:pointer}
   .mic.on{background:linear-gradient(135deg,#e3b956,#c79233);color:#3a2a05;border-color:#c79233}
@@ -195,7 +202,7 @@
     <button id="cartbar" onclick="openCart()"></button>
     <div class="inputrow">
       <button class="mic" id="mic" onclick="recordVoice()" title="Tap to speak"><svg class='icbtn' viewBox='0 0 24 24'><rect x='9' y='3' width='6' height='11' rx='3'/><path d='M6 11a6 6 0 0 0 12 0'/><path d='M12 17v4'/><path d='M8.5 21h7'/></svg></button>
-      <input id="inp" placeholder="Ask me anything…" onkeydown="if(event.key==='Enter')sendText()"/>
+      <input id="inp" placeholder="Ask me anything…" onkeydown="if(event.key==='Enter')sendText()"/><div id="lwave">Listening<i></i><i></i><i></i></div>
       <button class="send" onclick="sendText()"><svg class='icbtn' viewBox='0 0 24 24'><path d='M4 12l16-8-6 16-3-7z'/><path d='M11 13l9-9'/></svg></button>
     </div>
     <div class="foot">Demo prototype · simulated AI &amp; payment · © Odysra</div>
@@ -470,7 +477,7 @@ async function startStream(stream){
   try{const m=JSON.parse(ev.data);
    if(m.type==='data'&&m.data&&m.data.transcript){
     wsGotData=true;wsText=(wsText?wsText+" ":"")+String(m.data.transcript).trim();
-    if(listening)document.getElementById("inp").value=(voiceBase+wsText).trim();
+    if(listening){showListening(false);document.getElementById("inp").value=(voiceBase+wsText).trim();}
    }}catch(e){}
  };
  ws.onerror=()=>{};
@@ -487,7 +494,7 @@ function finishVoice(){
  const inp=document.getElementById("inp");
  if(wsMode&&wsGotData){
   const t=wsText.trim();inp.placeholder=oldPH||"Ask me anything…";
-  inp.value=(voiceBase+t).trim();inp.focus();
+  showListening(false);inp.value=(voiceBase+t).trim();inp.focus();
   if(t)bot(`🎙️ I heard: “${t}” — tap Send, or edit it first.`);
   return;
  }
@@ -504,7 +511,7 @@ async function liveTick(){
   const fd=new FormData();fd.append('file',wav,'audio.wav');fd.append('lang',lang);
   const res=await fetch('/api/stt',{method:'POST',body:fd});
   let data={};try{data=await res.json();}catch(e){}
-  if(!wsMode&&listening&&seq===liveSeq&&data&&data.text){document.getElementById("inp").value=(voiceBase+data.text).trim();}
+  if(!wsMode&&listening&&seq===liveSeq&&data&&data.text){showListening(false);document.getElementById("inp").value=(voiceBase+data.text).trim();}
  }catch(e){}
  liveBusy=false;
 }
@@ -514,7 +521,7 @@ function stopLive(){if(liveTimer){clearInterval(liveTimer);liveTimer=null;}liveS
 function startMeter(stream){
  const inp=document.getElementById("inp"),mic=document.getElementById("mic");
  recStart=Date.now();
- inp.placeholder="Listening…";
+ if(!inp.value)showListening(true);
  try{
   const AC=window.AudioContext||window.webkitAudioContext;meterCtx=new AC();
   const src=meterCtx.createMediaStreamSource(stream),an=meterCtx.createAnalyser();an.fftSize=256;src.connect(an);
@@ -532,7 +539,8 @@ function stopMeter(){
  const mic=document.getElementById("mic");if(mic){mic.style.transform="";mic.style.boxShadow="";}
  if(meterCtx){try{meterCtx.close();}catch(e){}meterCtx=null;}
 }
-function stopVoice(){
+function showListening(on){const e=document.getElementById("lwave");if(e)e.style.display=on?"flex":"none";}
+function stopVoice(){showListening(false);
  if(mediaRec&&mediaRec.state&&mediaRec.state!=="inactive"){listening=false;setMic(false);try{mediaRec.stop();}catch(e){}return;}
  listening=false;setMic(false);stopMeter();if(recog){try{recog.stop();}catch(e){}}
 }
@@ -572,7 +580,7 @@ async function transcribe(blob){
    bot("🎙️ Voice error ("+(data.error)+(data.status?" "+data.status:"")+"): "+((data.detail||"").slice(0,180)||"no detail")+". Tap the mic and try again.");return;
   }
   const t=(data.text||"").trim();
-  if(t){inp.value=(voiceBase+t).trim();inp.focus();bot(`🎙️ I heard: “${t}” — tap Send, or edit it first.`);}
+  if(t){showListening(false);inp.value=(voiceBase+t).trim();inp.focus();bot(`🎙️ I heard: “${t}” — tap Send, or edit it first.`);}
   else {inp.value=voiceBase.trim();bot("🎙️ I couldn't catch that — please speak a bit longer and try again.");}
  }catch(e){
   typing.remove();inp.placeholder=oldPH||"Ask me anything…";
