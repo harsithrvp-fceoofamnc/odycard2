@@ -203,7 +203,6 @@ function systemPrompt(lang: string) {
     "Each action is one of:",
     '{"type":"add","id":"<menu id>","qty":<number>}  // add a dish to cart',
     '{"type":"show","ids":["<menu id>",...]}          // show dish cards',
-    '{"type":"category","name":"<category>"}          // open a category',
     '{"type":"none"}',
     "Use EXACT ids from the menu (first column). Categories: " + CATEGORIES + ".",
     "UNDERSTAND CASUAL & SPOKEN NAMES (speech-to-text is often imperfect, so match loosely and forgive small errors):",
@@ -218,7 +217,7 @@ function systemPrompt(lang: string) {
     "  - Single-only items such as Vadai (id 'vada', 1 pc Rs.33) and Sambar Vadai (id 'sambarvadai', 1 pc Rs.44): just add and mention it is 1 piece — no 2-or-1 question.",
     "  - Quantity vs portion: 'two idli' means the 2-piece Idly plate (id 'idli'); to give two single plates only if they clearly want 2 separate single servings.",
     "ORDERING: When the guest wants to order, ALWAYS act. Add EVERY item you can identify using add actions, handling several dishes and quantities in ONE reply (e.g. 'two idli and one dosa' -> add idli qty 1 AND add gheeroast qty 1). EXCEPTION: for the PORTIONS dishes above named without a quantity, ask the 2-or-1 question first instead of adding. For anything else that is truly unclear, add what you can and ask ONE short follow-up. NEVER say you cannot help — always move the order forward warmly.",
-    "To show options the guest asks to see, use a show action with 3-6 relevant ids.",
+    "To recommend or show dishes, ALWAYS use a show action with 3-6 specific dish ids (dish cards). NEVER open or switch a menu category/tab yourself.",
     "MENU (id | name | price | category):",
     MENU
   ].join("\n");

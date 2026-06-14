@@ -70,13 +70,13 @@
   .barwrap{position:absolute;left:0;right:0;bottom:0;z-index:5;border-top:1px solid rgba(122,74,36,.12);background:rgba(246,238,221,.12);-webkit-backdrop-filter:blur(6px) saturate(1.1);backdrop-filter:blur(6px) saturate(1.1);padding:8px 10px 10px}
   #cartbar{display:none;width:100%;background:linear-gradient(135deg,#e3b956,#c79233);color:#3a2a05;border:0;font-weight:800;font-size:15.5px;padding:11px;border-radius:12px;cursor:pointer;margin-bottom:8px;box-shadow:0 4px 14px rgba(199,146,51,.4)}
   .inputrow{display:flex;gap:7px;align-items:center;position:relative}
-  #lwave{position:absolute;left:58px;display:none;align-items:flex-end;gap:5px;font-size:15.5px;color:var(--mut);pointer-events:none;height:100%}
-  #lwave{padding-bottom:14px}
-  #lwave i{width:6px;height:6px;border-radius:50%;background:var(--gold);display:inline-block;animation:lw 1.1s ease-in-out infinite}
-  #lwave i:nth-child(1){margin-left:4px}
-  #lwave i:nth-child(2){animation-delay:.18s}
-  #lwave i:nth-child(3){animation-delay:.36s}
-  @keyframes lw{0%,70%,100%{transform:translateY(0);opacity:.45}35%{transform:translateY(-7px);opacity:1}}
+  #lwave{position:absolute;left:58px;top:0;bottom:0;display:none;align-items:center;font-size:15.5px;color:var(--mut);pointer-events:none}
+  #lwave i{width:5px;height:5px;border-radius:50%;background:var(--mut);display:inline-block;margin-left:4px;opacity:1}
+  #lwave i:nth-child(1){margin-left:6px}
+  #lwave i:nth-child(2){animation:lc2 1.5s steps(1,end) infinite}
+  #lwave i:nth-child(3){animation:lc3 1.5s steps(1,end) infinite}
+  @keyframes lc2{0%,32%{opacity:0}33%,100%{opacity:1}}
+  @keyframes lc3{0%,65%{opacity:0}66%,100%{opacity:1}}
   .inputrow input{flex:1;border:1px solid var(--line);border-radius:22px;padding:12px 15px;font-size:15.5px;outline:none}
   .mic{position:relative;background:#fffdf7;border:1px solid var(--line);color:var(--blue);width:46px;height:46px;border-radius:50%;font-size:18px;cursor:pointer}
   .mic.on{background:linear-gradient(135deg,#e3b956,#c79233);color:#3a2a05;border-color:#c79233}
@@ -609,7 +609,7 @@ async function askOdy(q){const typing=typingBubble();
 function runActions(acts){let added=0;(acts||[]).forEach(a=>{
   if(a.type==="add"&&MENU[a.id]){const q=Math.max(1,a.qty||1);for(let i=0;i<q;i++)addDish(a.id);added+=q;}
   else if(a.type==="show"&&a.ids){const ids=a.ids.filter(i=>MENU[i]&&avail(i));if(ids.length)block("grid",ids.map(dishCard).join(""));}
-  else if(a.type==="category"&&a.name){const i=CATS.findIndex(c=>c.name.toLowerCase()===String(a.name).toLowerCase());if(i>=0)openCat(i);}
+  else if(a.type==="category"&&a.name){const i=CATS.findIndex(c=>c.name.toLowerCase()===String(a.name).toLowerCase());if(i>=0){const c=CATS[i];const ids=(c.ids||(c.subs||[]).flatMap(s=>s.ids)).filter(id=>MENU[id]&&avail(id)).slice(0,6);if(ids.length)block("grid",ids.map(dishCard).join(""));}}
 });return added>0;}
 function confirmOrder(){bot(T("confirmQ"));block("chips",`<button class="chip go" onclick="openCart()">${IC.ok}${lbl("yes")}</button><button class="chip alt" onclick="orderNo()">${IC.x}${lbl("no")}</button>`);}
 function orderNo(){bot(T("noMore"));mainChips();}
