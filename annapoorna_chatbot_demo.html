@@ -134,6 +134,8 @@
   .infob .ic{margin:0;width:22px;height:22px;vertical-align:0;display:block}
   .ci .e img,.rc .e img{width:42px;height:30px;object-fit:contain;opacity:.6;display:block}
   .pair .pi .e img{width:46px;height:32px;object-fit:contain;opacity:.6;display:block;margin:2px auto}
+  .pi .pifoot{display:flex;justify-content:center;margin-top:4px}
+  .pi .qtys{flex:0 0 auto;min-width:104px}
   .opt button{display:inline-flex;align-items:center;justify-content:center}
   .okcheck{width:58px;height:58px;fill:none;stroke:#c79233;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
   .chip{display:inline-flex;align-items:center}
@@ -337,7 +339,9 @@ const chat=document.getElementById("chat");
 function bot(html){const d=document.createElement("div");d.className="msg bot";d.innerHTML=html;chat.appendChild(d);toBottom();return d;}
 function me(t){const d=document.createElement("div");d.className="msg me";d.textContent=t;chat.appendChild(d);toBottom();}
 function block(cls,html){const d=document.createElement("div");d.className=cls;d.innerHTML=html;chat.appendChild(d);toBottom();return d;}
-let _bt=null;function toBottom(){clearTimeout(_bt);_bt=setTimeout(()=>{chat.scrollTop=chat.scrollHeight;},60);}
+let _bt=null,_bigTarget=null;
+function toBottom(){clearTimeout(_bt);_bt=setTimeout(()=>{if(_bigTarget){chat.scrollTop=Math.max(0,_bigTarget.offsetTop-82);_bigTarget=null;}else{chat.scrollTop=chat.scrollHeight;}},70);}
+function renderGrid(ids){const el=renderGrid(ids);if(ids.length>2)_bigTarget=el;return el;}
 function anchorTop(){}
 function anchorReply(){}
 
@@ -354,14 +358,14 @@ function dishFooter(id){
  return `<button class="add" onclick="addDish('${id}')">+ Add</button><button class="infob" onclick="explainDish('${id}')" title="Tell me about this">${IC.info}</button>`;}
 function dishCard(id){const m=MENU[id];
  return `<div class="dish" data-id="${id}"><div class="pic" style="cursor:pointer" onclick="zoomDish('${id}')"><img src="${LOGO}" alt=""></div><div class="bd">${m.best?'<div class="tag">★ BESTSELLER</div>':''}<div class="nm">${dn(id)}</div><div class="pr">₹${m.p}</div><div class="frow">${dishFooter(id)}</div></div></div>`;}
-function sync(){refreshCart();document.querySelectorAll('.dish[data-id]').forEach(el=>{const f=el.querySelector('.frow');if(f)f.innerHTML=dishFooter(el.dataset.id);});}
+function sync(){refreshCart();document.querySelectorAll('.dish[data-id]').forEach(el=>{const f=el.querySelector('.frow');if(f)f.innerHTML=dishFooter(el.dataset.id);});document.querySelectorAll('.pi[data-id]').forEach(el=>{const f=el.querySelector('.pifoot');if(f)f.innerHTML=pairFoot(el.dataset.id);});}
 function buzz(){try{if(navigator.vibrate)navigator.vibrate(35);}catch(e){}}
 function dig(el,n){el.value=el.value.replace(/\D/g,"").slice(0,n);}
 function addDish(id){cart[id]=(cart[id]||0)+1;buzz();sync();upsell();}
 function inc2(id){cart[id]++;buzz();sync();}
 function dec2(id){cart[id]--;if(cart[id]<=0){delete cart[id];delete notes[id];}sync();}
 function explainDish(id){const m=MENU[id];bot(`💬 <b>${dn(id)}</b> — ${desc(id)} <span style="color:#7a4a24;font-weight:700">₹${m.p}</span>`);block("grid",[dishCard(id)]);exploreBar();}
-function grid(ids){ids=ids.filter(avail);if(!ids.length){bot("Those aren't being served right now — here's what's hot at this hour.");return showSpecials();}block("grid",ids.map(dishCard).join(""));exploreBar();}
+function grid(ids){ids=ids.filter(avail);if(!ids.length){bot("Those aren't being served right now — here's what's hot at this hour.");return showSpecials();}renderGrid(ids);exploreBar();}
 function refreshCart(){let n=0,t=0;for(const k in cart){n+=cart[k];t+=cart[k]*MENU[k].p;}const b=document.getElementById("cartbar");if(n){b.style.display="block";b.innerHTML=`${IC.cart}${lbl("viewCart")} (${n}) · ₹${t}`;}else b.style.display="none";document.getElementById("phone").classList.toggle("hascart",n>0);}
 
 /* ---------- per-dish note ---------- */
@@ -370,11 +374,12 @@ function saveNote(id){const v=document.getElementById("nt").value.trim();if(v){n
  sync();closeModal();openCart();}
 
 /* ---------- upsell ---------- */
+function pairFoot(id){return cart[id]?`<div class="qtys"><button onclick="dec2('${id}')">−</button><span>${cart[id]}</span><button onclick="inc2('${id}')">+</button></div>`:`<button class="add" onclick="addDish('${id}')">+ ₹${MENU[id].p}</button>`;}
 function upsell(){if(upsold)return;const ids=Object.keys(cart);if(!ids.length||ids.some(i=>MENU[i].bev))return;
  let sug=[];ids.forEach(i=>(MENU[i].pairs||[]).forEach(p=>{if(MENU[p]&&MENU[p].bev&&avail(p)&&!cart[p]&&!sug.includes(p))sug.push(p);}));
  if(!sug.length)sug=["coffee","mango"].filter(avail);sug=sug.slice(0,2);if(!sug.length)return;upsold=true;
  const names=sug.map(s=>dn(s)).join(" & ");
- setTimeout(()=>{block("pair",`<p>Add a drink? Our <b>${names}</b> go beautifully with your order.</p><div class="row">${sug.map(s=>`<div class="pi"><div class="e"><img src="${LOGO}"></div><div class="n">${dn(s)}</div><button class="add" onclick="addDish('${s}')">+ ₹${MENU[s].p}</button></div>`).join("")}</div>`);exploreBar();},420);}
+ setTimeout(()=>{block("pair",`<p>Add a drink? Our <b>${names}</b> go beautifully with your order.</p><div class="row">${sug.map(s=>`<div class="pi" data-id="${s}"><div class="e"><img src="${LOGO}"></div><div class="n">${dn(s)}</div><div class="pifoot">${pairFoot(s)}</div></div>`).join("")}</div>`);exploreBar();},420);}
 
 /* ---------- conversation ---------- */
 function exploreBar(){block("chips",`<button class="chip go" onclick="explore()">${IC.menu}${lbl("exploreMore")}</button><button class="chip alt" onclick="showSpecials()">${IC.star}${lbl("specials")}</button>${Object.keys(cart).length?`<button class="chip alt" onclick="openCart()">${IC.cart}${lbl("viewCart")}</button>`:''}`);}
@@ -394,7 +399,7 @@ async function showGreeting(instant){chat.innerHTML="";upsold=false;
  for(const id of best){g.insertAdjacentHTML("beforeend",dishCard(id));toBottom();if(!instant)await sleep(260);}
  if(!instant)await sleep(200);mainChips();}
 function showSpecials(quiet){const best=topDishes();if(!quiet)me("Today's specials");
- bot(`Here's what's <b>hot &amp; fresh</b> this ${part()} 👇`);block("grid",best.map(dishCard).join(""));mainChips();}
+ bot(`Here's what's <b>hot &amp; fresh</b> this ${part()} 👇`);renderGrid(best);mainChips();}
 function mainChips(){block("chips",`<button class="chip go" onclick="explore()">${IC.menu}${lbl("exploreFull")}</button><button class="chip" onclick="showSpecials()">${IC.star}${lbl("specialsLong")}</button><button class="chip alt" onclick="info()">${IC.info}${lbl("info")}</button><button class="chip alt" onclick="banquet()">${IC.hall}${lbl("banquet")}</button><button class="chip alt" onclick="goOutlets()">${IC.pin}${lbl("changeOutlet")}</button>`);}
 function explore(){me(T("exploreMore"));const cs=CATS.filter(c=>(c.ids||(c.subs||[]).flatMap(s=>s.ids)).some(avail));
  bot(`${T("whatExplore")} <span style='color:#7b8190'>${T("timeNote")}</span>`);
@@ -611,8 +616,8 @@ async function askOdy(q){const typing=typingBubble();
  }catch(e){typing.remove();ai(q.toLowerCase());}}
 function runActions(acts){let added=0;(acts||[]).forEach(a=>{
   if(a.type==="add"&&MENU[a.id]){const q=Math.max(1,a.qty||1);for(let i=0;i<q;i++)addDish(a.id);added+=q;}
-  else if(a.type==="show"&&a.ids){const ids=a.ids.filter(i=>MENU[i]&&avail(i));if(ids.length)block("grid",ids.map(dishCard).join(""));}
-  else if(a.type==="category"&&a.name){const i=CATS.findIndex(c=>c.name.toLowerCase()===String(a.name).toLowerCase());if(i>=0){const c=CATS[i];const ids=(c.ids||(c.subs||[]).flatMap(s=>s.ids)).filter(id=>MENU[id]&&avail(id)).slice(0,6);if(ids.length)block("grid",ids.map(dishCard).join(""));}}
+  else if(a.type==="show"&&a.ids){const ids=a.ids.filter(i=>MENU[i]&&avail(i));if(ids.length)renderGrid(ids);}
+  else if(a.type==="category"&&a.name){const i=CATS.findIndex(c=>c.name.toLowerCase()===String(a.name).toLowerCase());if(i>=0){const c=CATS[i];const ids=(c.ids||(c.subs||[]).flatMap(s=>s.ids)).filter(id=>MENU[id]&&avail(id)).slice(0,6);if(ids.length)renderGrid(ids);}}
 });return added>0;}
 function confirmOrder(){bot(T("confirmQ"));return block("chips",`<button class="chip go" onclick="openCart()">${IC.ok}${lbl("yes")}</button><button class="chip alt" onclick="orderNo()">${IC.x}${lbl("no")}</button>`);}
 function orderNo(){const rb=bot(T("noMore"));mainChips();anchorReply(rb);}
