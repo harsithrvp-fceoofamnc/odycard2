@@ -70,6 +70,15 @@
   .barwrap{position:absolute;left:0;right:0;bottom:0;z-index:5;border-top:1px solid rgba(122,74,36,.12);background:rgba(246,238,221,.12);-webkit-backdrop-filter:blur(6px) saturate(1.1);backdrop-filter:blur(6px) saturate(1.1);padding:8px 10px 10px}
   #cartbar{display:none;width:100%;background:linear-gradient(135deg,#e3b956,#c79233);color:#3a2a05;border:0;font-weight:800;font-size:15.5px;padding:11px;border-radius:12px;cursor:pointer;margin-bottom:8px;box-shadow:0 4px 14px rgba(199,146,51,.4)}
   .inputrow{display:flex;gap:7px;align-items:flex-end;position:relative}
+  .microw{display:flex;justify-content:flex-end;margin-bottom:9px}
+  .micpill{display:inline-flex;align-items:center;height:46px;border-radius:27px;background:linear-gradient(135deg,var(--brandtop),var(--brandbot));border:0;cursor:pointer;overflow:hidden;box-shadow:0 3px 11px rgba(199,146,51,.55);-webkit-tap-highlight-color:transparent;transition:background .25s,box-shadow .25s}
+  .micpill .microt{max-width:0;opacity:0;white-space:nowrap;overflow:hidden;color:var(--cream);font-size:13.5px;font-weight:600;letter-spacing:.35px;padding:0;transition:max-width .45s cubic-bezier(.4,0,.2,1),opacity .32s ease,padding .45s cubic-bezier(.4,0,.2,1)}
+  .micpill.show .microt{max-width:230px;opacity:1;padding:0 4px 0 19px}
+  .micpill .miccirc{width:46px;height:46px;flex:0 0 auto;display:flex;align-items:center;justify-content:center}
+  .micpill .micicon{width:23px;height:23px;fill:none;stroke:#fff;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;transition:stroke .25s}
+  .micpill.on{background:linear-gradient(135deg,#e3b956,#c79233);box-shadow:0 4px 16px rgba(199,146,51,.6)}
+  .micpill.on .microt{color:#3a2a05}
+  .micpill.on .micicon{stroke:#3a2a05}
   #lwave{position:absolute;left:58px;top:0;bottom:0;display:none;align-items:center;font-size:15.5px;color:var(--mut);pointer-events:none}
   #lwave i{width:5px;height:5px;border-radius:50%;background:var(--mut);display:inline-block;margin-left:4px;opacity:1}
   #lwave i:nth-child(1){margin-left:6px}
@@ -148,8 +157,8 @@
   .opt button{display:inline-flex;align-items:center;justify-content:center}
   .okcheck{width:58px;height:58px;fill:none;stroke:#c79233;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
   .chip{display:inline-flex;align-items:center}
-  #chat{background:transparent;padding-bottom:92px}
-  #phone.hascart #chat{padding-bottom:146px}
+  #chat{background:transparent;padding-bottom:150px}
+  #phone.hascart #chat{padding-bottom:208px}
   #phone.outletview #chat{padding-bottom:40px}
   .bot{box-shadow:0 1px 6px rgba(199,146,51,.28)}
   .me{box-shadow:0 3px 12px rgba(199,146,51,.4)}
@@ -212,9 +221,14 @@
   <div id="chat"></div>
   <div class="barwrap" id="bar">
     <button id="cartbar" onclick="openCart()"></button>
+    <div class="microw">
+      <div class="micpill" id="mic" onclick="recordVoice()" title="Tap to speak — order or explore by voice">
+        <span class="microt" id="microt"></span>
+        <span class="miccirc"><svg class='micicon' viewBox='0 0 24 24'><rect x='9' y='3' width='6' height='11' rx='3'/><path d='M6 11a6 6 0 0 0 12 0'/><path d='M12 17v4'/><path d='M8.5 21h7'/></svg></span>
+      </div>
+    </div>
     <div class="inputrow">
-      <button class="mic" id="mic" onclick="recordVoice()" title="Tap to speak"><svg class='icbtn' viewBox='0 0 24 24'><rect x='9' y='3' width='6' height='11' rx='3'/><path d='M6 11a6 6 0 0 0 12 0'/><path d='M12 17v4'/><path d='M8.5 21h7'/></svg></button>
-      <textarea id="inp" rows="1" placeholder="Ask me anything…" oninput="autoGrow()" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendText();}"></textarea><div id="lwave">Listening<i></i><i></i><i></i></div>
+      <textarea id="inp" rows="1" placeholder="Ask me anything…" oninput="autoGrow()" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendText();}"></textarea>
       <button class="send" onclick="sendText()"><svg class='icbtn' viewBox='0 0 24 24'><path d='M4 12l16-8-6 16-3-7z'/><path d='M11 13l9-9'/></svg></button>
     </div>
     <div class="foot">Demo prototype · simulated AI &amp; payment · © Odysra</div>
@@ -556,9 +570,10 @@ function startMeter(stream){
   const AC=window.AudioContext||window.webkitAudioContext;meterCtx=new AC();
   const src=meterCtx.createMediaStreamSource(stream),an=meterCtx.createAnalyser();an.fftSize=256;src.connect(an);
   const buf=new Uint8Array(an.frequencyBinCount);
-  const loop=()=>{if(!listening){if(mic){mic.style.transform="";mic.style.boxShadow="";}return;}
+  const ic=mic?mic.querySelector('.micicon'):null;
+  const loop=()=>{if(!listening){if(ic){ic.style.transform="";}return;}
    an.getByteFrequencyData(buf);let sum=0;for(let i=0;i<buf.length;i++)sum+=buf[i];const lvl=Math.min(1,sum/buf.length/110);
-   if(mic){mic.style.boxShadow="0 0 "+(8+lvl*22).toFixed(0)+"px rgba(199,146,51,"+(0.35+lvl*0.5).toFixed(2)+")";}
+   if(ic){ic.style.transformOrigin="center";ic.style.transform="scale("+(1+lvl*0.35).toFixed(2)+")";}
    meterRAF=requestAnimationFrame(loop);};
   loop();
  }catch(e){}
@@ -566,11 +581,15 @@ function startMeter(stream){
 function stopMeter(){
  if(meterTimer){clearInterval(meterTimer);meterTimer=null;}
  if(meterRAF){cancelAnimationFrame(meterRAF);meterRAF=null;}
- const mic=document.getElementById("mic");if(mic){mic.style.transform="";mic.style.boxShadow="";}
+ const mic=document.getElementById("mic");if(mic){mic.style.transform="";mic.style.boxShadow="";var _ic=mic.querySelector('.micicon');if(_ic)_ic.style.transform="";}
  if(meterCtx){try{meterCtx.close();}catch(e){}meterCtx=null;}
 }
 function autoGrow(){const el=document.getElementById("inp");if(!el)return;el.style.height="auto";el.style.height=Math.min(el.scrollHeight,140)+"px";}
-function showListening(on){const e=document.getElementById("lwave"),inp=document.getElementById("inp");if(!e)return;if(on){if(e.style.display==="flex")return;if(inp){e.dataset.ph=inp.placeholder;inp.placeholder="";}e.style.display="flex";}else{e.style.display="none";if(inp&&e.dataset.ph!=null)inp.placeholder=e.dataset.ph;}}
+const MICWORDS=["Explore by voice","Discover dishes","Order through voice"];
+const MIC_SHOW=2600,MIC_GAP=550,MIC_REST=60000;
+function micRunSet(){var i=0;(function step(){if(typeof listening!=="undefined"&&listening){setTimeout(step,2500);return;}var p=document.getElementById("mic"),r=document.getElementById("microt");if(!p||!r){setTimeout(micRunSet,MIC_REST);return;}r.textContent=MICWORDS[i];p.classList.add("show");setTimeout(function(){if(!(typeof listening!=="undefined"&&listening))p.classList.remove("show");i++;if(i<MICWORDS.length){setTimeout(step,MIC_GAP);}else{setTimeout(micRunSet,MIC_REST);}},MIC_SHOW);})();}
+setTimeout(micRunSet,1400);
+function showListening(on){var p=document.getElementById("mic"),r=document.getElementById("microt");if(!r)return;if(on){r.textContent="Listening…";if(p)p.classList.add("show");}else{if(p)p.classList.remove("show");}}
 function stopVoice(){showListening(false);
  if(mediaRec&&mediaRec.state&&mediaRec.state!=="inactive"){listening=false;setMic(false);try{mediaRec.stop();}catch(e){}return;}
  listening=false;setMic(false);stopMeter();if(recog){try{recog.stop();}catch(e){}}
