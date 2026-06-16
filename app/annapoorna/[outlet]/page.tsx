@@ -5,10 +5,14 @@
 // auto-selects it. ?v= is a cache-buster so the latest chatbot always loads.
 export default function Outlet() {
   return (
-    <iframe
-      src="/ody/index.html?v=13"
-      allow="microphone"
-      style={{ position: "fixed", inset: 0, width: "100%", height: "100%", border: "none" }}
-    />
+    <>
+      {/* Lock the page so only the chatbot scrolls internally — no parent bounce / black gap */}
+      <style>{`html,body{height:100%;overflow:hidden;overscroll-behavior:none;background:#0e1116}`}</style>
+      <iframe
+        src="/ody/index.html?v=14"
+        allow="microphone"
+        style={{ position: "fixed", inset: 0, width: "100%", height: "100%", border: "none" }}
+      />
+    </>
   );
 }
