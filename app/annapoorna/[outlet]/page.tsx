@@ -6,7 +6,7 @@
 export default function Outlet() {
   return (
     <iframe
-      src="/ody/index.html?v=10"
+      src="/ody/index.html?v=11"
       allow="microphone"
       style={{ position: "fixed", inset: 0, width: "100%", height: "100%", border: "none" }}
     />
