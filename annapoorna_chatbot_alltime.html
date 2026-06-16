@@ -704,6 +704,7 @@ const TXT={
  pickType:{en:"pick a type",ta:"வகையைத் தேர்ந்தெடுக்கவும்",hi:"एक प्रकार चुनें",ml:"ഒരു തരം തിരഞ്ഞെടുക്കൂ",te:"ఒక రకాన్ని ఎంచుకోండి",kn:"ಒಂದು ಪ್ರಕಾರ ಆಯ್ಕೆಮಾಡಿ"},
  tapAdd:{en:"tap to add",ta:"சேர்க்க தட்டவும்",hi:"जोड़ने के लिए टैप करें",ml:"ചേർക്കാൻ ടാപ്പ് ചെയ്യൂ",te:"జోడించడానికి ట్యాప్ చేయండి",kn:"ಸೇರಿಸಲು ಟ್ಯಾಪ್ ಮಾಡಿ"},
  bestseller:{en:"BESTSELLER",ta:"பெஸ்ட்செல்லர்",hi:"बेस्टसेलर",ml:"ബെസ്റ്റ്സെല്ലർ",te:"బెస్ట్‌సెల్లర్",kn:"ಬೆಸ್ಟ್‌ಸೆಲ್ಲರ್"},
+ transcribing:{en:"Transcribing…",ta:"எழுத்தாக்குகிறது…",hi:"लिख रहा हूँ…",ml:"പകർത്തുന്നു…",te:"రాస్తోంది…",kn:"ಬರೆಯುತ್ತಿದೆ…"},
  welcome:{en:"Welcome to <b>Sree Annapoorna</b> Which outlet are you dining at today?",ta:"<b>ஸ்ரீ அன்னபூர்ணா</b>விற்கு வரவேற்கிறோம் இன்று எந்தக் கிளையில் சாப்பிடுகிறீர்கள்?",hi:"<b>श्री अन्नपूर्णा</b> में आपका स्वागत है आज आप किस आउटलेट पर हैं?",ml:"<b>ശ്രീ അന്നപൂർണ</b>യിലേക്ക് സ്വാഗതം ഇന്ന് ഏത് ഔട്ട്‌ലെറ്റിലാണ്?",te:"<b>శ్రీ అన్నపూర్ణ</b>కు స్వాగతం ఈ రోజు మీరు ఏ అవుట్‌లెట్‌లో ఉన్నారు?",kn:"<b>ಶ್ರೀ ಅನ್ನಪೂರ್ಣ</b>ಗೆ ಸ್ವಾಗತ ಇಂದು ನೀವು ಯಾವ ಔಟ್‌ಲೆಟ್‌ನಲ್ಲಿ ಇದ್ದೀರಿ?"},
  pureVeg:{en:"Pure Vegetarian Restaurant",ta:"தூய சைவ உணவகம்",hi:"शुद्ध शाकाहारी रेस्टोरेंट",ml:"ശുദ്ധ സസ്യാഹാര റെസ്റ്റോറന്റ്",te:"స్వచ్ఛమైన శాకాహార రెస్టారెంట్",kn:"ಶುದ್ಧ ಸಸ್ಯಾಹಾರಿ ರೆಸ್ಟೋರೆಂಟ್"},
  chooseSub:{en:"Choose your outlet — AI Waiter by Odysra",ta:"உங்கள் கிளையைத் தேர்வுசெய்க — Odysra",hi:"अपना आउटलेट चुनें — Odysra",ml:"നിങ്ങളുടെ ഔട്ട്‌ലെറ്റ് തിരഞ്ഞെടുക്കൂ — Odysra",te:"మీ అవుట్‌లెట్‌ను ఎంచుకోండి — Odysra",kn:"ನಿಮ್ಮ ಔಟ್‌ಲೆಟ್ ಆಯ್ಕೆಮಾಡಿ — Odysra"},
@@ -865,7 +866,7 @@ function recordVoice(){
    stopMeter();stopLive();
    if(micStream)micStream.getTracks().forEach(t=>t.stop());
    if(pcmNode){try{pcmNode.disconnect();pcmNode.onaudioprocess=null;}catch(e){}} // stop sending audio
-   const inp=document.getElementById("inp");inp.placeholder="Transcribing…";
+   const inp=document.getElementById("inp");inp.placeholder=T("transcribing");
    setTimeout(()=>{stopStream();finishVoice();},wsMode?600:0); // let final streamed words arrive first
   };
   listening=true;setMic(true);mediaRec.start(1000); // recorder runs as a safety net for the final result
@@ -925,11 +926,11 @@ function stopStream(){
 function finishVoice(){
  const inp=document.getElementById("inp");
  if(wsMode&&wsGotData){
-  const t=wsText.trim();inp.placeholder=oldPH||"Ask me anything…";
+  const t=wsText.trim();inp.placeholder=T("ask");
   showListening(false);inp.value=(voiceBase+t).trim();autoGrow();inp.focus();
   return;
  }
- inp.placeholder="Transcribing…";
+ inp.placeholder=T("transcribing");
  transcribe(new Blob(chunks,{type:(mediaRec&&mediaRec.mimeType)||'audio/webm'}));
 }
 // CHUNKED fallback: only runs if real-time streaming didn't start. Sends audio-so-far every ~1.6s.
@@ -1009,7 +1010,7 @@ async function transcribe(blob){
   const fd=new FormData();fd.append('file',sendBlob,fname);fd.append('lang',lang);
   const res=await fetch('/api/stt',{method:'POST',body:fd});
   let data={};try{data=await res.json();}catch(e){}
-  typing.remove();inp.placeholder=oldPH||"Ask me anything…";
+  typing.remove();inp.placeholder=T("ask");
   if(res.status===503){ // key not configured at all -> fall back to browser engine
    sttBroken=true;bot("🎙️ High-accuracy voice isn't switched on yet — using the basic engine. Tap the mic and speak again.");return;
   }
@@ -1020,7 +1021,7 @@ async function transcribe(blob){
   if(t){showListening(false);inp.value=(voiceBase+t).trim();autoGrow();inp.focus();}
   else {inp.value=voiceBase.trim();bot("🎙️ I couldn't catch that — please speak a bit longer and try again.");}
  }catch(e){
-  typing.remove();inp.placeholder=oldPH||"Ask me anything…";
+  typing.remove();inp.placeholder=T("ask");
   bot("🎙️ Couldn't reach the voice service — please try again. ("+(e&&e.message?e.message:"network")+")");
  }
 }

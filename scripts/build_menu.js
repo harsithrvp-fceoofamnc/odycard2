@@ -263,20 +263,31 @@ export async function POST(req: NextRequest) {
     const body = {
       systemInstruction: { parts: [{ text: systemPrompt(lang) }] },
       contents: [{ role: "user", parts: [{ text: "Current cart (ids): " + (cart.join(", ") || "empty") + "\\nGuest says: " + message }] }],
-      generationConfig: { responseMimeType: "application/json", temperature: 0.3, maxOutputTokens: 600,
+      generationConfig: { responseMimeType: "application/json", temperature: 0.3, maxOutputTokens: 1200, thinkingConfig: { thinkingBudget: 0 },
         responseSchema: { type: "object", properties: { reply: { type: "string" }, actions: { type: "array", items: { type: "object", properties: { type: { type: "string" }, id: { type: "string" }, qty: { type: "number" }, ids: { type: "array", items: { type: "string" } }, name: { type: "string" } }, required: ["type"] } } }, required: ["reply"] } }
     };
     const r = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=" + key, {
       method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body)
     });
     const j = await r.json();
-    let out: any = { reply: "Let me help with that — could you tell me again what you'd like?", actions: [] };
+    const FB: any = {
+      en: "Sorry, I didn't quite catch that — could you say it once more?",
+      ta: "மன்னிக்கவும், சரியாகப் புரியவில்லை — மீண்டும் ஒருமுறை சொல்ல முடியுமா?",
+      hi: "माफ़ कीजिए, मैं ठीक से समझ नहीं पाया — कृपया एक बार फिर बताइए?",
+      ml: "ക്ഷമിക്കണം, എനിക്ക് ശരിക്ക് മനസ്സിലായില്ല — ഒന്നുകൂടി പറയാമോ?",
+      te: "క్షమించండి, సరిగ్గా అర్థం కాలేదు — మరోసారి చెప్పగలరా?",
+      kn: "ಕ್ಷಮಿಸಿ, ಸರಿಯಾಗಿ ಅರ್ಥವಾಗಲಿಲ್ಲ — ಇನ್ನೊಮ್ಮೆ ಹೇಳಬಹುದೇ?"
+    };
+    let out: any = { reply: FB[lang] || FB.en, actions: [] };
     try {
       let txt = (j.candidates?.[0]?.content?.parts?.[0]?.text) || "";
       const s = txt.indexOf("{"), e = txt.lastIndexOf("}");
       if (s >= 0 && e > s) txt = txt.slice(s, e + 1);
-      out = JSON.parse(txt);
-      if (!Array.isArray(out.actions)) out.actions = [];
+      const parsed = JSON.parse(txt);
+      if (parsed && typeof parsed.reply === "string" && parsed.reply.trim()) {
+        out = parsed;
+        if (!Array.isArray(out.actions)) out.actions = [];
+      }
     } catch (err) {}
     return NextResponse.json(out);
   } catch (e) {
