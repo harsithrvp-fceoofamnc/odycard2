@@ -199,7 +199,7 @@ export default function Admin() {
             <thead>
               <tr>
                 <th>Branch</th><th>Orders</th><th>Revenue</th><th>AOV</th>
-                <th>Rating</th><th>Top dish</th><th>Busiest</th><th>Top language</th>
+                <th>Rating</th><th>Top dish</th><th>Busiest</th><th>Top language</th><th>Menu</th>
               </tr>
             </thead>
             <tbody>
@@ -213,6 +213,7 @@ export default function Admin() {
                   <td>{b.topDish}</td>
                   <td>{b.busy}</td>
                   <td>{b.lang}</td>
+                  <td><a className="branchlink" href={"/annapoorna/admin/" + b.slug}>Manage →</a></td>
                 </tr>
               ))}
             </tbody>
