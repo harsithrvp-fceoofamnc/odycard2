@@ -281,6 +281,29 @@ export async function POST(req: NextRequest) {
       method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body)
     });
     const j = await r.json();
+    // Upstream API error (quota / rate limit / auth / outage) — tell the guest clearly instead of "didn't understand".
+    if (!r.ok || (j && j.error)) {
+      const st = r.status, ec = String((j && j.error && (j.error.status || j.error.code)) || "");
+      const rate = st === 429 || ec.includes("429") || ec.includes("RESOURCE_EXHAUSTED") || st === 503;
+      const BUSY: any = {
+        en: "We're getting a lot of requests right now — please try again in a few seconds. 🙏",
+        ta: "இப்போது அதிக கோரிக்கைகள் வருகின்றன — சில நொடிகளில் மீண்டும் முயற்சிக்கவும். 🙏",
+        hi: "अभी बहुत सारे अनुरोध आ रहे हैं — कृपया कुछ सेकंड बाद फिर कोशिश करें। 🙏",
+        ml: "ഇപ്പോള് ധാരാളം അഭ്യർത്ഥനകള് വരുന്നു — കുറച്ച് സെക്കൻഡിനു ശേഷം വീണ്ടും ശ്രമിക്കൂ. 🙏",
+        te: "ప్రస్తుతం చాలా అభ్యర్థనలు వస్తున్నాయి — కొన్ని సెకన్లలో మళ్లీ ప్రయత్నించండి. 🙏",
+        kn: "ಈಗ ಸಾಕಷ್ಟು ವಿನಂತಿಗಳು ಬರುತ್ತಿವೆ — ಕೆಲವು ಸೆಕೆಂಡುಗಳಲ್ಲಿ ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ. 🙏"
+      };
+      const DOWN: any = {
+        en: "The assistant is briefly unavailable — please try again in a moment.",
+        ta: "உதவியாளர் சற்று நேரம் கிடைக்கவில்லை — சிறிது நேரத்தில் மீண்டும் முயற்சிக்கவும்.",
+        hi: "सहायक थोड़ी देर के लिए अनुपलब्ध है — कृपया थोड़ी देर में फिर कोशिश करें।",
+        ml: "സഹായി കുറച്ച് നേരത്തേക്ക് ലഭ്യമല്ല — അൽപസമയത്തിനു ശേഷം വീണ്ടും ശ്രമിക്കൂ.",
+        te: "సహాయకుడు కొద్దిసేపు అందుబాటులో లేడు — కొద్దిసేపటి తర్వాత మళ్లీ ప్రయత్నించండి.",
+        kn: "ಸಹಾಯಕ ಸ್ವಲ್ಪ ಸಮಯ ಲಭ್ಯವಿಲ್ಲ — ಸ್ವಲ್ಪ ಸಮಯದ ನಂತರ ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ."
+      };
+      const m = rate ? BUSY : DOWN;
+      return NextResponse.json({ reply: m[lang] || m.en, actions: [] });
+    }
     const FB: any = {
       en: "Sorry, I didn't quite catch that — could you say it once more?",
       ta: "மன்னிக்கவும், சரியாகப் புரியவில்லை — மீண்டும் ஒருமுறை சொல்ல முடியுமா?",
