@@ -258,7 +258,8 @@ export default function Admin() {
             </tbody>
           </table>
           <div className="muted" style={{ marginTop: 10 }}>
-            Saved on this device for now. Once Auth0 is added, each supervisor gets a login that opens only their outlet.
+            Saved on this device for now. Once Auth0 is added, each supervisor gets a login that opens only their outlet.{" "}
+            <a className="branchlink" href="/annapoorna/supervisor">Open the supervisor view →</a>
           </div>
         </div>
 
