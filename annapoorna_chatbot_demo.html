@@ -800,7 +800,7 @@ function stopMeter(){
 }
 function autoGrow(){const el=document.getElementById("inp");if(!el)return;el.style.height="auto";el.style.height=Math.min(el.scrollHeight,140)+"px";}
 const MICWORDS=["Explore by voice","Discover dishes","Order through voice"];
-const MIC_SHOW=2600,MIC_GAP=550,MIC_REST=60000;
+const MIC_SHOW=2600,MIC_GAP=550,MIC_REST=30000;
 function micRunSet(){var i=0;(function step(){if(typeof listening!=="undefined"&&listening){setTimeout(step,2500);return;}var p=document.getElementById("mic"),r=document.getElementById("microt");if(!p||!r){setTimeout(micRunSet,MIC_REST);return;}r.textContent=MICWORDS[i];p.classList.add("show");setTimeout(function(){if(!(typeof listening!=="undefined"&&listening))p.classList.remove("show");i++;if(i<MICWORDS.length){setTimeout(step,MIC_GAP);}else{setTimeout(micRunSet,MIC_REST);}},MIC_SHOW);})();}
 setTimeout(micRunSet,1400);
 function showListening(on){var p=document.getElementById("mic"),r=document.getElementById("microt");if(!r)return;if(on){r.textContent="Listening…";if(p)p.classList.add("show");}else{if(p)p.classList.remove("show");}}
