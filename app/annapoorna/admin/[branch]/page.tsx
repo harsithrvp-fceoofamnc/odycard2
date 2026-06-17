@@ -109,7 +109,9 @@ export default function BranchMenu() {
         .head h1{margin:6px 0 0;font-size:21px;font-weight:700}
         .head .sub{font-size:12.5px;color:#d9c7a6;margin-top:2px}
         .container{max-width:920px;margin:0 auto;padding:0 16px}
-        .card{background:#fffdf7;border:1px solid #e7dcc5;border-radius:16px;padding:14px 16px;box-shadow:0 2px 10px rgba(122,74,36,.07);margin-top:16px}
+        .card{background:#fffdf7;border:1px solid #e7dcc5;border-radius:16px;padding:14px 16px;box-shadow:0 2px 10px rgba(122,74,36,.07);margin-top:16px;overflow-x:auto;-webkit-overflow-scrolling:touch}
+        .dish .dn{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+        @media(max-width:600px){.container{padding:0 11px}.head{padding:15px 14px}.head h1{font-size:19px}.card{padding:13px 13px}h2{font-size:14px}.btn{padding:5px 8px;font-size:11.5px}.dish{gap:7px}.acts{gap:4px}}
         h2{font-size:15px;font-weight:700;color:#5c3a1c;margin:22px 2px 4px}
         input,select{font-family:inherit;font-size:13.5px;color:#33281a;background:#fffdf7;border:1px solid #d9c9a6;border-radius:10px;padding:8px 11px;outline:none}
         input:focus,select:focus{border-color:#c79233}

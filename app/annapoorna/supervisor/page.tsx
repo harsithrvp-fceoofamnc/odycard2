@@ -103,7 +103,8 @@ export default function Supervisor() {
         .kpi{background:#fffdf7;border:1px solid #e7dcc5;border-radius:14px;padding:12px 13px;box-shadow:0 2px 8px rgba(122,74,36,.07)}
         .kpi .v{font-size:22px;font-weight:800;color:#3e2713}
         .kpi .l{font-size:11.5px;color:#9c8e76;margin-top:2px}
-        .card{background:#fffdf7;border:1px solid #e7dcc5;border-radius:16px;padding:15px 17px;box-shadow:0 2px 10px rgba(122,74,36,.07)}
+        .card{background:#fffdf7;border:1px solid #e7dcc5;border-radius:16px;padding:15px 17px;box-shadow:0 2px 10px rgba(122,74,36,.07);overflow-x:auto;-webkit-overflow-scrolling:touch}
+        @media(max-width:600px){.container{padding:0 11px}.head{padding:15px 14px}.head h1{font-size:19px}.card{padding:13px 13px}h2{font-size:14px}.kpi .v{font-size:18px}table{font-size:12.5px}th,td{white-space:nowrap}.who{margin-left:0}}
         .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
         @media(max-width:820px){.grid2{grid-template-columns:1fr}}
         table{width:100%;border-collapse:collapse;font-size:13.5px}

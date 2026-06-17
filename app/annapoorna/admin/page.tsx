@@ -133,7 +133,8 @@ export default function Admin() {
         .kpi{background:#fffdf7;border:1px solid #e7dcc5;border-radius:14px;padding:13px 14px;box-shadow:0 2px 8px rgba(122,74,36,.07)}
         .kpi .v{font-size:23px;font-weight:800;color:#3e2713}
         .kpi .l{font-size:12px;color:#9c8e76;margin-top:2px}
-        .card{background:#fffdf7;border:1px solid #e7dcc5;border-radius:16px;padding:16px 18px;box-shadow:0 2px 10px rgba(122,74,36,.07)}
+        .card{background:#fffdf7;border:1px solid #e7dcc5;border-radius:16px;padding:16px 18px;box-shadow:0 2px 10px rgba(122,74,36,.07);overflow-x:auto;-webkit-overflow-scrolling:touch}
+        @media(max-width:600px){.container{padding:0 11px}.head{padding:15px 14px}.head h1{font-size:19px}.card{padding:13px 13px}h2{font-size:14px}.kpi .v{font-size:19px}table{font-size:12.5px}th,td{white-space:nowrap;padding:8px 7px}}
         .grid2{display:grid;grid-template-columns:1.3fr 1fr;gap:16px}
         @media(max-width:860px){.grid2{grid-template-columns:1fr}}
         table{width:100%;border-collapse:collapse;font-size:13.5px}
