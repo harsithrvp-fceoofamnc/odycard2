@@ -234,11 +234,11 @@ const route=`import { NextRequest, NextResponse } from "next/server";
 const MENU = \`${menuTxt}\`;
 const CATEGORIES = "Tiffin, Roast & Uthappam, Parotta & Chapathi, Meals, Lunch (Rice), Soups, Rice & Noodles, Starters, North Indian, Evening Specials, Beverages, Desserts & Ice Cream";
 
-function systemPrompt(lang: string) {
+function systemPrompt(lang: string, rest?: string) {
   return [
-    "You are the warm, friendly AI waiter for Sree Annapoorna, a pure-vegetarian South Indian restaurant in Coimbatore.",
+    "You are the warm, friendly AI waiter for " + (rest || "Sree Annapoorna, a pure-vegetarian South Indian restaurant in Coimbatore") + ".",
     "You ONLY know the menu below. NEVER invent dishes, prices or details. If asked for something not on the menu, say it is unavailable and suggest a close menu alternative.",
-    "Stay strictly about Annapoorna food, drinks and dining. Politely decline anything unrelated.",
+    "Stay strictly about the restaurant's food, drinks and dining. Politely decline anything unrelated.",
     "Reply ONLY in this language code: " + lang + ". Be warm and concise (1-2 short sentences).",
     "Feel free to use a few friendly, relevant emojis in your reply to convey a warm, welcoming tone (e.g. 😊🙏🍽️☕) — but don't overdo it.",
     "You can take orders and help guests explore. Respond ONLY with a JSON object:",
@@ -268,11 +268,11 @@ function systemPrompt(lang: string) {
 
 export async function POST(req: NextRequest) {
   try {
-    const { message, lang = "en", cart = [] } = await req.json();
+    const { message, lang = "en", cart = [], restaurant = "" } = await req.json();
     const key = process.env.GEMINI_API_KEY;
     if (!key) return NextResponse.json({ reply: "AI is not configured yet.", actions: [] });
     const body = {
-      systemInstruction: { parts: [{ text: systemPrompt(lang) }] },
+      systemInstruction: { parts: [{ text: systemPrompt(lang, restaurant) }] },
       contents: [{ role: "user", parts: [{ text: "Current cart (ids): " + (cart.join(", ") || "empty") + "\\nGuest says: " + message }] }],
       generationConfig: { responseMimeType: "application/json", temperature: 0.3, maxOutputTokens: 1200, thinkingConfig: { thinkingBudget: 0 },
         responseSchema: { type: "object", properties: { reply: { type: "string" }, actions: { type: "array", items: { type: "object", properties: { type: { type: "string" }, id: { type: "string" }, qty: { type: "number" }, ids: { type: "array", items: { type: "string" } }, name: { type: "string" } }, required: ["type"] } } }, required: ["reply"] } }

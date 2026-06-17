@@ -23,7 +23,7 @@ export default function Home() {
       if (r.ok) {
         // After the password, go to the Annapoorna page (or back to the branch link they came from).
         const nx = new URLSearchParams(window.location.search).get("next");
-        window.location.href = nx && nx.startsWith("/annapoorna") ? nx : "/annapoorna";
+        window.location.href = nx && (nx.startsWith("/annapoorna") || nx.startsWith("/restaurant")) ? nx : "/annapoorna";
         return;
       } else {
         setErr(true);
