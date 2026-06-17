@@ -34,6 +34,8 @@ h = h.replace(/<title>[^<]*<\/title>/, "<title>Odysra AI Waiter — Demo</title>
 ["அன்னபூர்ணா", "अन्नपूर्णा", "അന്നപൂർണ", "అన్నపూర్ణ", "ಅನ್ನಪೂರ್ಣ"].forEach(function (s) { h = h.split(s).join("Odysra"); });
 h = h.split("0422-xxxxxxx").join("+91 98765 43210");
 h = h.split("Annapoorna").join("Odysra"); // catch-all for any remaining ascii mentions
+// remove the "Pure Vegetarian Restaurant" line on the outlet picker (white-label)
+h = h.replace(/pureVeg:\{[^}]*\}/, 'pureVeg:{en:"",ta:"",hi:"",ml:"",te:"",kn:""}');
 
 // ---------- 3. Generic outlets ----------
 h = h.replace(/const OUTLETS=\[[^\]]*\]/,
