@@ -895,10 +895,10 @@ async function startStream(stream){
  sttWs=ws;
  ws.onopen=()=>{
   if(!listening){try{ws.close();}catch(e){}return;}
-  wsMode=true; // streaming active -> chunked fallback turns itself off
-  // If the socket connects but stays SILENT (no transcripts) for ~1.8s, it's not really working —
-  // close it and re-enable the chunked REST fallback so live-ish text still appears as you speak.
-  setTimeout(function(){if(listening&&!wsGotData){wsMode=false;try{ws.close();}catch(e){}}},1800);
+  // Do NOT disable the chunked REST fallback yet — it reliably fills the box from the first second.
+  // The socket only "takes over" once it actually delivers a transcript (see onmessage below).
+  // If it never speaks, drop the dead socket after a few seconds; the chunked fallback keeps running.
+  setTimeout(function(){if(listening&&!wsGotData){try{ws.close();}catch(e){}}},6000);
   try{
    const AC=window.AudioContext||window.webkitAudioContext;pcmCtx=new AC({sampleRate:16000});
    const ratio=pcmCtx.sampleRate/16000;
@@ -920,7 +920,8 @@ async function startStream(stream){
  ws.onmessage=ev=>{
   try{const m=JSON.parse(ev.data);
    if(m.type==='data'&&m.data&&m.data.transcript){
-    wsGotData=true;wsText=(wsText?wsText+" ":"")+String(m.data.transcript).trim();
+    wsGotData=true;wsMode=true; // socket is actually delivering -> it takes over from the chunked fallback
+    wsText=(wsText?wsText+" ":"")+String(m.data.transcript).trim();
     if(listening&&!voiceLocked){showListening(false);document.getElementById("inp").value=(voiceBase+wsText).trim();autoGrow();}
    }}catch(e){}
  };
