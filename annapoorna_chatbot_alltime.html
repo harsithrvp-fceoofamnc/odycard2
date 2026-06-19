@@ -74,6 +74,7 @@
   .cartbadge{position:absolute;top:-4px;right:-4px;min-width:19px;height:19px;padding:0 5px;border-radius:10px;background:var(--brandbot);color:var(--cream);font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;box-sizing:border-box;box-shadow:0 1px 4px rgba(0,0,0,.3);border:1.5px solid #e3b956}
   .inputrow{display:flex;gap:7px;align-items:flex-end;position:relative}
   .microw{display:flex;justify-content:flex-end;align-items:center;margin-bottom:9px}
+  #bar.busy .send,#bar.busy #mic{opacity:.45;pointer-events:none}
   .micpill{display:inline-flex;align-items:center;height:46px;border-radius:27px;background:linear-gradient(135deg,var(--brandtop),var(--brandbot));border:0;cursor:pointer;overflow:hidden;box-shadow:0 3px 11px rgba(199,146,51,.55);-webkit-tap-highlight-color:transparent;transition:background .25s,box-shadow .25s}
   .micpill .microt{max-width:0;opacity:0;white-space:nowrap;overflow:hidden;color:var(--cream);font-size:13.5px;font-weight:600;letter-spacing:.35px;padding:0;transition:max-width .45s cubic-bezier(.4,0,.2,1),opacity .32s ease,padding .45s cubic-bezier(.4,0,.2,1)}
   .micpill.show .microt{max-width:230px;opacity:1;padding:0 4px 0 19px}
@@ -852,12 +853,14 @@ function simHeard(){const s=["something light and not too spicy","what's good fo
  bot("🎙️ <i>(Voice needs Chrome with mic permission — simulating a query for this demo)</i>");setTimeout(()=>heard(s[Math.floor(Math.random()*s.length)]),500);}
 const SLANG={en:'en-IN',ta:'ta-IN',hi:'hi-IN',ml:'ml-IN',te:'te-IN',kn:'kn-IN'};
 let listening=false,mediaRec=null,chunks=[],micStream=null,sttBroken=false,recog=null;
-let voiceBase="",oldPH="",meterRAF=null,meterCtx=null,meterTimer=null,recStart=0;
+let voiceBase="",oldPH="",meterRAF=null,meterCtx=null,meterTimer=null,recStart=0,busy=false,voiceLocked=false;
 let liveTimer=null,liveBusy=false,liveSeq=0;
 // real-time streaming state
 let sttWs=null,pcmCtx=null,pcmNode=null,pcmSrc=null,wsMode=false,wsGotData=false,wsText="";
 function recordVoice(){
  if(listening){stopVoice();return;}
+ if(busy)return;
+ voiceLocked=false;
  // Use the browser engine if Sarvam has failed before, or audio recording isn't available.
  if(sttBroken||!(navigator.mediaDevices&&navigator.mediaDevices.getUserMedia&&window.MediaRecorder)){startBrowserSR();return;}
  navigator.mediaDevices.getUserMedia({audio:true}).then(stream=>{
@@ -915,7 +918,7 @@ async function startStream(stream){
   try{const m=JSON.parse(ev.data);
    if(m.type==='data'&&m.data&&m.data.transcript){
     wsGotData=true;wsText=(wsText?wsText+" ":"")+String(m.data.transcript).trim();
-    if(listening){showListening(false);document.getElementById("inp").value=(voiceBase+wsText).trim();autoGrow();}
+    if(listening&&!voiceLocked){showListening(false);document.getElementById("inp").value=(voiceBase+wsText).trim();autoGrow();}
    }}catch(e){}
  };
  ws.onerror=()=>{};
@@ -930,6 +933,7 @@ function stopStream(){
 // Called once when recording stops: use the live streaming text if we got it, else do a final REST pass.
 function finishVoice(){
  const inp=document.getElementById("inp");
+ if(voiceLocked){showListening(false);inp.placeholder=T("ask");return;}
  if(wsMode&&wsGotData){
   const t=wsText.trim();inp.placeholder=T("ask");
   showListening(false);inp.value=(voiceBase+t).trim();autoGrow();inp.focus();
@@ -948,7 +952,7 @@ async function liveTick(){
   const fd=new FormData();fd.append('file',wav,'audio.wav');fd.append('lang',lang);
   const res=await fetch('/api/stt',{method:'POST',body:fd});
   let data={};try{data=await res.json();}catch(e){}
-  if(!wsMode&&listening&&seq===liveSeq&&data&&data.text){showListening(false);document.getElementById("inp").value=(voiceBase+data.text).trim();autoGrow();}
+  if(!wsMode&&listening&&!voiceLocked&&seq===liveSeq&&data&&data.text){showListening(false);document.getElementById("inp").value=(voiceBase+data.text).trim();autoGrow();}
  }catch(e){}
  liveBusy=false;
 }
@@ -1008,14 +1012,15 @@ async function blobToWav(blob){
  return new Blob([v],{type:"audio/wav"});
 }
 async function transcribe(blob){
- const inp=document.getElementById("inp");const typing=typingBubble();
+ const inp=document.getElementById("inp");
  try{
   let sendBlob=blob,fname='audio.webm';
   try{sendBlob=await blobToWav(blob);fname='audio.wav';}catch(e){}
   const fd=new FormData();fd.append('file',sendBlob,fname);fd.append('lang',lang);
   const res=await fetch('/api/stt',{method:'POST',body:fd});
   let data={};try{data=await res.json();}catch(e){}
-  typing.remove();inp.placeholder=T("ask");
+  inp.placeholder=T("ask");
+  if(voiceLocked)return; // the message was already sent — don't refill the box or show errors
   if(res.status===503){ // key not configured at all -> fall back to browser engine
    sttBroken=true;bot("🎙️ High-accuracy voice isn't switched on yet — using the basic engine. Tap the mic and speak again.");return;
   }
@@ -1026,7 +1031,8 @@ async function transcribe(blob){
   if(t){showListening(false);inp.value=(voiceBase+t).trim();autoGrow();inp.focus();}
   else {inp.value=voiceBase.trim();bot("🎙️ I couldn't catch that — please speak a bit longer and try again.");}
  }catch(e){
-  typing.remove();inp.placeholder=T("ask");
+  inp.placeholder=T("ask");
+  if(voiceLocked)return;
   bot("🎙️ Couldn't reach the voice service — please try again. ("+(e&&e.message?e.message:"network")+")");
  }
 }
@@ -1042,13 +1048,15 @@ function startBrowserSR(){
 }
 
 /* ---------- free text "AI" ---------- */
-async function sendText(){const inp=document.getElementById("inp");const v=inp.value.trim();if(!v)return;if(listening)stopVoice();inp.value="";autoGrow();me(v);await askOdy(v);}
-async function askOdy(q){const typing=typingBubble();
+async function sendText(){if(busy)return;const inp=document.getElementById("inp");const v=inp.value.trim();if(!v)return;voiceLocked=true;if(listening)stopVoice();inp.value="";autoGrow();me(v);await askOdy(v);}
+function setBusy(on){var b=document.getElementById("bar");if(b)b.classList.toggle("busy",on);}
+async function askOdy(q){busy=true;setBusy(true);const typing=typingBubble();
  try{const res=await fetch('/api/ody',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:q,lang,cart:Object.keys(cart)})});
   if(!res.ok)throw 0;const data=await res.json();typing.remove();
   let rb=null;if(data.reply)rb=bot(data.reply);const added=runActions(data.actions);
   if(added){const cc=confirmOrder();anchorReply(cc||rb);}else{exploreBar();anchorReply(rb);}
- }catch(e){typing.remove();ai(q.toLowerCase());}}
+ }catch(e){typing.remove();ai(q.toLowerCase());}
+ finally{busy=false;setBusy(false);}}
 function runActions(acts){let added=0;(acts||[]).forEach(a=>{
   if(a.type==="add"&&MENU[a.id]){const q=Math.max(1,a.qty||1);for(let i=0;i<q;i++)addDish(a.id);added+=q;}
   else if(a.type==="show"&&a.ids){const ids=a.ids.filter(i=>MENU[i]&&avail(i));if(ids.length)renderGrid(ids);}
