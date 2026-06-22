@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Taste Onboarding — Demo</title>
+<style>
+  :root{--blue:#7a4a24;--ink:#33281a;--mut:#9c8e76;--line:#e7dcc5;--cream:#f4ecdb;--gold:#c79233;--card:#fffdf7}
+  *{box-sizing:border-box}
+  body{margin:0;background:#e9ebee;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;display:flex;flex-direction:column;align-items:center;min-height:100vh;padding:22px 12px;color:var(--ink)}
+  .hint{font-size:13px;color:#6b7280;margin:0 0 14px}
+  .phone{position:relative;width:390px;max-width:100%;height:800px;background:var(--card);border-radius:30px;overflow:hidden;box-shadow:0 18px 50px rgba(0,0,0,.22);border:1px solid #d8cdb6}
+  .hdr{display:flex;align-items:center;gap:10px;padding:14px 16px 10px;background:linear-gradient(180deg,#5c3a1c,#3e2713);color:#f4ecdb}
+  .hdr .mark{width:34px;height:34px;border-radius:9px;background:#c79233;color:#3a2a05;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:17px}
+  .hdr h1{font-size:15px;margin:0;font-weight:700}
+  .hdr .sub{font-size:11.5px;opacity:.8}
+  .langbar{display:flex;gap:6px;overflow-x:auto;padding:8px 12px;background:#4d3017;scrollbar-width:none;-ms-overflow-style:none}
+  .langbar::-webkit-scrollbar{display:none;width:0;height:0}
+  .langbar button{flex:0 0 auto;background:transparent;border:1px solid rgba(255,255,255,.25);color:#f4ecdb;font-size:12.5px;font-weight:600;padding:5px 11px;border-radius:16px;cursor:pointer;white-space:nowrap}
+  .langbar button.on{background:#c79233;color:#3a2a05;border-color:#c79233}
+  #screen{position:absolute;inset:0;top:96px;display:flex;flex-direction:column}
+  .tbar{display:flex;align-items:center;gap:10px;padding:18px 20px 2px}
+  .tdots{display:flex;gap:6px;flex:1}
+  .tdot{width:7px;height:7px;border-radius:50%;background:var(--line);transition:all .25s}
+  .tdot.act{background:var(--gold);width:20px;border-radius:4px}
+  .tskip{background:none;border:0;color:var(--mut);font-weight:700;font-size:14px;cursor:pointer;padding:6px 2px}
+  .tbody{flex:1;overflow-y:auto;padding:8px 22px 0;display:flex;flex-direction:column;animation:tslide .28s ease}
+  @keyframes tslide{from{opacity:0;transform:translateX(16px)}to{opacity:1;transform:none}}
+  .tsub{font-size:13px;color:var(--mut);margin:0 0 14px;font-weight:600}
+  .ticon{width:62px;height:62px;border-radius:50%;background:rgba(199,146,51,.12);display:flex;align-items:center;justify-content:center;margin:8px 0 16px}
+  .ticon svg{width:32px;height:32px;fill:none;stroke:var(--blue);stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+  .tqh{font-size:23px;font-weight:800;line-height:1.18;letter-spacing:-.3px;margin-bottom:8px}
+  .tqhint{font-size:13.5px;color:var(--mut);margin-bottom:2px}
+  .topts2{display:grid;gap:10px;padding-bottom:8px;margin-top:24px}
+  .topts2.c2{grid-template-columns:repeat(2,1fr)}
+  .topts2.c3{grid-template-columns:repeat(3,1fr)}
+  .to{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:9px;text-align:center;background:var(--card);border:1.6px solid var(--line);border-radius:15px;padding:15px 8px 12px;cursor:pointer;font-size:13px;font-weight:700;color:var(--ink);min-height:98px;transition:transform .07s,border-color .15s,background .15s,color .15s}
+  .to.on{border-color:var(--gold);background:rgba(199,146,51,.10)}
+  .to:active{transform:scale(.97)}
+  .tobadge{width:48px;height:48px;border-radius:14px;background:rgba(199,146,51,.14);display:flex;align-items:center;justify-content:center;transition:background .15s}
+  .tobadge svg{width:26px;height:26px;fill:none;stroke:var(--blue);stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+  .tobadge .lett{font-size:23px;font-weight:800;color:var(--blue);line-height:1}
+  .to.on .tobadge{background:var(--gold)}
+  .to.on .tobadge svg{stroke:#fff}
+  .to.on .tobadge .lett{color:#fff}
+  .tolb{line-height:1.2}
+  .toflames{display:flex;align-items:center;justify-content:center;gap:3px;height:48px}
+  .toflames svg{width:20px;height:20px;fill:#e8702f;stroke:none}
+  .topts2.txt .to{flex-direction:row;justify-content:center;min-height:56px;padding:16px 12px;font-size:15px;gap:0}
+  .topts2.txt .to.on{background:var(--gold);color:#3a2a05;border-color:var(--gold)}
+  .tfoot{padding:12px 22px 20px}
+  .tnext{display:block;width:100%;background:var(--gold);color:#3a2a05;border:0;font-weight:800;font-size:16.5px;padding:14px;border-radius:13px;cursor:pointer;box-shadow:0 4px 14px rgba(199,146,51,.4)}
+  .tnext:active{transform:scale(.98)}
+  .tback{background:none;border:0;color:var(--mut);font-weight:700;font-size:14px;cursor:pointer;padding:9px;margin-top:4px;width:100%}
+  .tproc{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:26px;text-align:center;padding:0 30px}
+  .pstage{position:relative;width:210px;height:210px;display:flex;align-items:center;justify-content:center}
+  .pstage .g1{position:absolute;width:200px;height:200px;border-radius:50%;background:conic-gradient(from 0deg,#c79233,#e6b95e,#7a4a24,#e3a23c,#f0d089,#c79233);filter:blur(22px);opacity:.72;animation:sp 3.4s linear infinite}
+  .pstage .g2{position:absolute;width:160px;height:160px;border-radius:50%;background:conic-gradient(from 180deg,#7a4a24,#c79233,#f0d089,#c79233,#7a4a24);filter:blur(16px);opacity:.52;animation:spr 2.6s linear infinite}
+  .pstage .core{position:absolute;width:88px;height:88px;border-radius:22px;background:var(--card);border:1px solid var(--line);z-index:1}
+  .pstage .logo{width:70px;height:70px;border-radius:17px;background:#7a4a24;color:#f4ecdb;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:26px;z-index:2;animation:br 2.6s ease-in-out infinite}
+  @keyframes sp{to{transform:rotate(360deg)}}
+  @keyframes spr{to{transform:rotate(-360deg)}}
+  @keyframes br{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+  .ptxt{font-size:16px;font-weight:700;min-height:24px;letter-spacing:.2px;transition:opacity .35s ease}
+  .reco{flex:1;overflow-y:auto;padding:18px 18px 22px}
+  .rmsg{background:#efe7d6;border-radius:14px 14px 14px 4px;padding:11px 14px;font-size:14.5px;line-height:1.45;margin-bottom:14px}
+  .rgrid{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+  .dish{background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+  .dish .pic{height:70px;background:linear-gradient(135deg,#f3e9d2,#e9dcbf)}
+  .dish .bd{padding:9px 11px 11px}
+  .dish .tag{display:inline-block;font-size:10px;font-weight:800;color:#8a5a1c;background:rgba(199,146,51,.16);padding:2px 7px;border-radius:20px;margin-bottom:5px}
+  .dish .nm{font-size:13.5px;font-weight:700;line-height:1.2}
+  .dish .cat{font-size:11px;color:var(--mut);margin-top:1px}
+  .dish .pr{font-size:13px;font-weight:800;color:#7a4a24;margin-top:5px}
+  .restart{display:block;margin:16px auto 0;background:none;border:1.4px solid var(--line);color:var(--mut);font-weight:700;font-size:13px;padding:9px 16px;border-radius:20px;cursor:pointer}
+</style>
+</head>
+<body>
+<p class="hint">Pick a language on the first screen — the bar above updates, and every question switches to that language.</p>
+<div class="phone">
+  <div class="hdr"><div class="mark">A</div><div><h1>Annapoorna · RS Puram</h1><div class="sub">AI Waiter — powered by Odysra</div></div></div>
+  <div class="langbar" id="langbar"></div>
+  <div id="screen"></div>
+</div>
+<script>
+var LANGS=[["ta","தமிழ்"],["en","English"],["hi","हिन्दी"],["ml","മലയാളം"],["te","తెలుగు"],["kn","ಕನ್ನಡ"]];
+var GLY={
+ flame:"<path d='M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.07-2.14-.22-4.05 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.15.43-2.29 1-3a2.5 2.5 0 0 0 2.5 2.5z'/>"
+};
+function ic(n){return "<svg viewBox='0 0 24 24'>"+(GLY[n]||"")+"</svg>";}
+var LANGLETTER={ta:"அ",en:"A",hi:"अ",ml:"അ",te:"అ",kn:"ಅ"};
+function optIcon(k,v,i){
+  if(k==="spice"){var f="";for(var j=0;j<=i;j++)f+=ic("flame");return '<span class="toflames">'+f+'</span>';}
+  if(k==="lang")return '<span class="tobadge"><span class="lett">'+(LANGLETTER[v]||"A")+'</span></span>';
+  return '<span class="tobadge">'+ic("flame")+'</span>';
+}
+var TIC={
+  lang:"<svg viewBox='0 0 24 24'><circle cx='12' cy='12' r='10'/><path d='M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20'/><path d='M2 12h20'/></svg>",
+  spice:"<svg viewBox='0 0 24 24'><path d='M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.07-2.14-.22-4.05 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.15.43-2.29 1-3a2.5 2.5 0 0 0 2.5 2.5z'/></svg>",
+  loves:"<svg viewBox='0 0 24 24'><path d='m16 2-2.3 2.3a3 3 0 0 0 0 4.2l1.8 1.8a3 3 0 0 0 4.2 0L22 8'/><path d='M15 15 3.3 3.3a4.2 4.2 0 0 0 0 6l7.3 7.3c.7.7 2 .7 2.8 0L15 15Zm0 0 7 7'/><path d='m2.1 21.8 6.4-6.3'/><path d='m19 5-7 7'/></svg>"
+};
+var TQ={
+ lang:{en:"Which language would you like to chat in?",ta:"எந்த மொழியில் உரையாட விரும்புகிறீர்கள்?",hi:"आप किस भाषा में बात करना चाहेंगे?",ml:"ഏത് ഭാഷയിൽ സംസാരിക്കാൻ ആഗ്രഹിക്കുന്നു?",te:"మీరు ఏ భాషలో మాట్లాడాలనుకుంటున్నారు?",kn:"ನೀವು ಯಾವ ಭಾಷೆಯಲ್ಲಿ ಮಾತನಾಡಲು ಬಯಸುತ್ತೀರಿ?"},
+ spice:{en:"How spicy do you like it?",ta:"எவ்வளவு காரம் பிடிக்கும்?",hi:"कितना तीखा पसंद है?",ml:"എത്ര എരിവ് ഇഷ്ടം?",te:"ఎంత కారం ఇష్టం?",kn:"ಎಷ್ಟು ಖಾರ ಇಷ್ಟ?"},
+ loves:{en:"What do you enjoy most?",ta:"உங்களுக்கு எது அதிகம் பிடிக்கும்?",hi:"आपको सबसे ज़्यादा क्या पसंद है?",ml:"നിങ്ങൾക്ക് ഏറ്റവും ഇഷ്ടം എന്താണ്?",te:"మీకు ఎక్కువగా ఏది ఇష్టం?",kn:"ನಿಮಗೆ ಹೆಚ್ಚು ಏನು ಇಷ್ಟ?"}
+};
+var UI={
+ skip:{en:"Skip",ta:"தவிர்",hi:"छोड़ें",ml:"ഒഴിവാക്കൂ",te:"దాటవేయి",kn:"ಬಿಟ್ಟುಬಿಡಿ"},
+ next:{en:"Next",ta:"அடுத்து",hi:"आगे",ml:"അടുത്തത്",te:"తదుపరి",kn:"ಮುಂದೆ"},
+ see:{en:"See my picks",ta:"எனக்கான பரிந்துரைகள்",hi:"मेरे सुझाव देखें",ml:"എനിക്കുള്ളവ കാണൂ",te:"నా ఎంపికలు చూడండి",kn:"ನನ್ನ ಆಯ್ಕೆಗಳು ನೋಡಿ"},
+ back:{en:"Back",ta:"பின்",hi:"पीछे",ml:"പിന്നോട്ട്",te:"వెనుకకు",kn:"ಹಿಂದೆ"},
+ multi:{en:"Pick any that apply",ta:"பொருந்துவதைத் தேர்ந்தெடுக்கவும்",hi:"जो भी लागू हो चुनें",ml:"ബാധകമായവ തിരഞ്ഞെടുക്കൂ",te:"వర్తించేవి ఎంచుకోండి",kn:"ಅನ್ವಯಿಸುವವನ್ನು ಆಯ್ಕೆಮಾಡಿ"},
+ sub:{en:"Optional — for picks made just for you",ta:"விருப்பம் — உங்களுக்கான பரிந்துரைகளுக்கு",hi:"वैकल्पिक — आपके लिए ख़ास सुझाव",ml:"ഓപ്ഷണൽ — നിങ്ങൾക്കായുള്ള തിരഞ്ഞെടുപ്പുകൾ",te:"ఐచ్ఛికం — మీ కోసం ప్రత్యేక ఎంపికలు",kn:"ಐಚ್ಛಿಕ — ನಿಮಗಾಗಿ ವಿಶೇಷ ಆಯ್ಕೆಗಳು"},
+ p1:{en:"Reading your taste…",ta:"உங்கள் ரசனையைப் படிக்கிறேன்…",hi:"आपका स्वाद समझ रहा हूँ…",ml:"നിങ്ങളുടെ രുചി വായിക്കുന്നു…",te:"మీ అభిరుచిని చదువుతున్నా…",kn:"ನಿಮ್ಮ ಅಭಿರುಚಿ ಓದುತ್ತಿದ್ದೇನೆ…"},
+ p2:{en:"Matching the menu…",ta:"மெனுவுடன் பொருத்துகிறேன்…",hi:"मेन्यू से मिला रहा हूँ…",ml:"മെനുവുമായി ചേർക്കുന്നു…",te:"మెనూతో సరిపోలుస్తున్నా…",kn:"ಮೆನುವಿನೊಂದಿಗೆ ಹೊಂದಿಸುತ್ತಿದ್ದೇನೆ…"},
+ p3:{en:"Picking the best dishes for you…",ta:"உங்களுக்கான சிறந்த உணவுகளைத் தேர்கிறேன்…",hi:"आपके लिए बेहतरीन व्यंजन चुन रहा हूँ…",ml:"നിങ്ങൾക്കായി മികച്ച വിഭവങ്ങൾ തിരഞ്ഞെടുക്കുന്നു…",te:"మీ కోసం ఉత్తమ వంటకాలు ఎంచుకుంటున్నా…",kn:"ನಿಮಗಾಗಿ ಅತ್ಯುತ್ತಮ ಖಾದ್ಯಗಳನ್ನು ಆರಿಸುತ್ತಿದ್ದೇನೆ…"},
+ reco:{en:"Based on your taste, here are picks you’ll love — a nice mix across the menu",ta:"உங்கள் ரசனைக்கேற்ப, இவை உங்களுக்குப் பிடிக்கும் — மெனு முழுவதும் ஒரு கலவை",hi:"आपके स्वाद के अनुसार, ये पसंद आएंगे — मेन्यू भर से एक बढ़िया मिश्रण",ml:"നിങ്ങളുടെ രുചിക്കനുസരിച്ച്, ഇവ ഇഷ്ടമാകും — മെനുവിലുടനീളം ഒരു മിശ്രിതം",te:"మీ అభిరుచికి తగ్గట్టు, ఇవి నచ్చుతాయి — మెనూ అంతటా ఒక మిశ్రమం",kn:"ನಿಮ್ಮ ಅಭಿರುಚಿಗೆ ತಕ್ಕಂತೆ, ಇವು ಇಷ್ಟವಾಗುತ್ತವೆ — ಮೆನು ಪೂರ್ತಿ ಒಂದು ಮಿಶ್ರಣ"},
+ restart:{en:"↻ Run the demo again",ta:"↻ மீண்டும் இயக்கு",hi:"↻ फिर से चलाएँ",ml:"↻ വീണ്ടും പ്രവർത്തിപ്പിക്കൂ",te:"↻ మళ్లీ అమలు చేయి",kn:"↻ ಮತ್ತೆ ರನ್ ಮಾಡಿ"}
+};
+var OPT={
+ "Mild":{en:"Mild",ta:"லேசானது",hi:"हल्का",ml:"മൃദു",te:"తక్కువ",kn:"ಸೌಮ್ಯ"},
+ "Medium":{en:"Medium",ta:"நடுத்தரம்",hi:"मध्यम",ml:"ഇടത്തരം",te:"మధ్యమం",kn:"ಮಧ್ಯಮ"},
+ "Spicy":{en:"Spicy",ta:"காரம்",hi:"तीखा",ml:"എരിവ്",te:"కారం",kn:"ಖಾರ"},
+ "Extra spicy":{en:"Extra spicy",ta:"மிகக் காரம்",hi:"बहुत तीखा",ml:"വളരെ എരിവ്",te:"చాలా కారం",kn:"ತುಂಬಾ ಖಾರ"},
+ "South Indian":{en:"South Indian",ta:"தென்னிந்தியன்",hi:"दक्षिण भारतीय",ml:"ദക്ഷിണേന്ത്യൻ",te:"దక్షిణ భారత",kn:"ದಕ್ಷಿಣ ಭಾರತೀಯ"},
+ "North Indian":{en:"North Indian",ta:"வடஇந்தியன்",hi:"उत्तर भारतीय",ml:"ഉത്തരേന്ത്യൻ",te:"ఉత్తర భారత",kn:"ಉತ್ತರ ಭಾರತೀಯ"},
+ "Chinese":{en:"Chinese",ta:"சீனம்",hi:"चाइनीज़",ml:"ചൈനീസ്",te:"చైనీస్",kn:"ಚೈನೀಸ್"},
+ "Chaat / Street food":{en:"Chaat / Street food",ta:"சாட் / தெரு உணவு",hi:"चाट / स्ट्रीट फ़ूड",ml:"ചാട്ട് / സ്ട്രീറ്റ് ഫുഡ്",te:"చాట్ / స్ట్రీట్ ఫుడ్",kn:"ಚಾಟ್ / ಸ್ಟ್ರೀಟ್ ಫುಡ್"}
+};
+function L(m){return (m[lang]||m.en);}
+function optL(v){return (OPT[v]&&(OPT[v][lang]||OPT[v].en))||v;}
+var QS=[
+  {k:"lang",multi:false,opts:[["ta","தமிழ்"],["en","English"],["hi","हिन्दी"],["ml","മലയാളം"],["te","తెలుగు"],["kn","ಕನ್ನಡ"]]},
+  {k:"spice",multi:false,opts:["Mild","Medium","Spicy","Extra spicy"]},
+  {k:"loves",multi:true,opts:["South Indian","North Indian","Chinese","Chaat / Street food"]}
+];
+var taste={},idx=0,lang="en",screen=document.getElementById("screen");
+function val(o){return Array.isArray(o)?o[0]:o;}
+function ison(k,v,m){var c=taste[k];return m?(Array.isArray(c)&&c.indexOf(v)>=0):(c===v);}
+function applyLang(code){lang=code;document.querySelectorAll("#langbar button").forEach(function(b){b.classList.toggle("on",b.getAttribute("data-l")===code);});}
+function pick(k,v,m){if(m){var a=Array.isArray(taste[k])?taste[k].slice():[];var i=a.indexOf(v);if(i>=0)a.splice(i,1);else a.push(v);taste[k]=a;}else{taste[k]=v;if(k==="lang")applyLang(v);}render();}
+function esc(s){return String(s).replace(/'/g,"\\'");}
+function cols(n){return 2;}
+function render(){
+  if(idx>=QS.length)return processing();
+  var q=QS[idx],m=q.multi,last=(idx===QS.length-1),hasic=(q.k!=="loves");
+  var dots=QS.map(function(_,i){return '<span class="tdot'+(i===idx?' act':'')+'"></span>';}).join("");
+  var opts=q.opts.map(function(o,i){var v=val(o),lb=(Array.isArray(o)?o[1]:optL(v));return '<button class="to'+(ison(q.k,v,m)?' on':'')+'" onclick="pick(\''+q.k+'\',\''+esc(v)+'\','+m+')">'+(hasic?optIcon(q.k,v,i)+'<span class="tolb">'+lb+'</span>':lb)+'</button>';}).join("");
+  screen.innerHTML='<div class="tbar"><div class="tdots">'+dots+'</div><button class="tskip" onclick="skip()">'+L(UI.skip)+'</button></div>'
+   +'<div class="tbody">'+(idx===0?'<div class="tsub">'+L(UI.sub)+'</div>':'')+'<div class="ticon">'+TIC[q.k]+'</div><div class="tqh">'+L(TQ[q.k])+'</div>'+(m?'<div class="tqhint">'+L(UI.multi)+'</div>':'')+'<div class="topts2'+(hasic?'':' txt')+' c'+cols(q.opts.length)+'">'+opts+'</div></div>'
+   +'<div class="tfoot"><button class="tnext" onclick="next()">'+(last?L(UI.see):L(UI.next))+'</button>'+(idx>0?'<button class="tback" onclick="back()">'+L(UI.back)+'</button>':'')+'</div>';
+}
+function next(){if(idx>=QS.length-1)processing();else{idx++;render();}}
+function back(){if(idx>0){idx--;render();}}
+function skip(){idx=0;taste={};render();}
+function processing(){
+  var msgs=[L(UI.p1),L(UI.p2),L(UI.p3)],mi=0;
+  screen.innerHTML='<div class="tproc"><div class="pstage"><span class="g1"></span><span class="g2"></span><span class="core"></span><div class="logo">A</div></div><div class="ptxt" id="ptxt">'+msgs[0]+'</div></div>';
+  var t=setInterval(function(){var e=document.getElementById("ptxt");if(!e)return;e.style.opacity="0";setTimeout(function(){mi=(mi+1)%msgs.length;e.textContent=msgs[mi];e.style.opacity="1";},340);},1600);
+  setTimeout(function(){clearInterval(t);recos();},3600);
+}
+function card(nm,cat,pr,tag){return '<div class="dish"><div class="pic"></div><div class="bd">'+(tag?'<div class="tag">★ '+tag+'</div>':'')+'<div class="nm">'+nm+'</div><div class="cat">'+cat+'</div><div class="pr">'+pr+'</div></div></div>';}
+function recos(){
+  var c=[card("South Indian Meals","Meals","₹180","BESTSELLER"),card("Veg Biriyani","Lunch (Rice)","₹110",""),card("Veg Fried Rice","Rice & Noodles","₹175",""),card("Paneer Butter Masala","North Indian","₹235","MUST TRY")].join("");
+  screen.innerHTML='<div class="reco"><div class="rmsg">'+L(UI.reco)+' 😋</div><div class="rgrid">'+c+'</div><button class="restart" onclick="taste={};idx=0;render();">'+L(UI.restart)+'</button></div>';
+}
+document.getElementById("langbar").innerHTML=LANGS.map(function(l){return '<button data-l="'+l[0]+'"'+(l[0]==="en"?' class="on"':'')+' onclick="applyLang(\''+l[0]+'\');render();">'+l[1]+'</button>';}).join("");
+render();
+</script>
+</body>
+</html>

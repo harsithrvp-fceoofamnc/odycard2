@@ -261,6 +261,8 @@ function systemPrompt(lang: string, rest?: string) {
     "  - Quantity vs portion: 'two idli' means the 2-piece Idly plate (id 'idli'); to give two single plates only if they clearly want 2 separate single servings.",
     "ORDERING: When the guest wants to order, ALWAYS act. Add EVERY item you can identify using add actions, handling several dishes and quantities in ONE reply (e.g. 'two idli and one dosa' -> add idli qty 1 AND add gheeroast qty 1). EXCEPTION: for the PORTIONS dishes above named without a quantity, ask the 2-or-1 question first instead of adding. For anything else that is truly unclear, add what you can and ask ONE short follow-up. NEVER say you cannot help — always move the order forward warmly.",
     "To recommend or show dishes, ALWAYS use a show action with 3-6 specific dish ids (dish cards). NEVER open or switch a menu category/tab yourself.",
+    "CROSS-CATEGORY VARIETY: When recommending, MIX dishes across DIFFERENT categories and cuisines that fit the guest's intent — never list several items from a single category. E.g. for 'something full / filling' suggest South Indian Meals AND Veg Biriyani AND Veg Fried Rice (Chinese) AND a North Indian gravy with bread, not four tiffin items. Aim for genuine variety.",
+    "If a 'Guest taste profile' is provided, tailor every recommendation to it (spice level, liked cuisines/flavours, sweet tooth) and NEVER recommend anything they listed under avoid. Do not mention the profile explicitly unless the guest asks — just make better, personalised picks.",
     "MENU (id | name | price | category):",
     MENU
   ].join("\\n");
@@ -268,12 +270,12 @@ function systemPrompt(lang: string, rest?: string) {
 
 export async function POST(req: NextRequest) {
   try {
-    const { message, lang = "en", cart = [], restaurant = "" } = await req.json();
+    const { message, lang = "en", cart = [], restaurant = "", taste = "" } = await req.json();
     const key = process.env.GEMINI_API_KEY;
     if (!key) return NextResponse.json({ reply: "AI is not configured yet.", actions: [] });
     const body = {
       systemInstruction: { parts: [{ text: systemPrompt(lang, restaurant) }] },
-      contents: [{ role: "user", parts: [{ text: "Current cart (ids): " + (cart.join(", ") || "empty") + "\\nGuest says: " + message }] }],
+      contents: [{ role: "user", parts: [{ text: (taste ? "Guest taste profile: " + taste + "\\n" : "") + "Current cart (ids): " + (cart.join(", ") || "empty") + "\\nGuest says: " + message }] }],
       generationConfig: { responseMimeType: "application/json", temperature: 0.3, maxOutputTokens: 1200, thinkingConfig: { thinkingBudget: 0 },
         responseSchema: { type: "object", properties: { reply: { type: "string" }, actions: { type: "array", items: { type: "object", properties: { type: { type: "string" }, id: { type: "string" }, qty: { type: "number" }, ids: { type: "array", items: { type: "string" } }, name: { type: "string" } }, required: ["type"] } } }, required: ["reply"] } }
     };

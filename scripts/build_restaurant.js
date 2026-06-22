@@ -10,8 +10,8 @@ let h = fs.readFileSync(ROOT + "/public/ody/index.html", "utf8");
 h = h.replace(/:root\{[^}]*\}/,
   ":root{--blue:#222831;--ink:#1f2430;--mut:#8a909c;--line:#e7e9ee;--cream:#f6f7f8;--gold:#c79233;--card:#ffffff;--brandtop:#2b313a;--brandbot:#161a20;}");
 // dark language bar
-h = h.replace(".langbar{display:flex;gap:6px;overflow-x:auto;padding:8px 12px;background:#4d3017}",
-  ".langbar{display:flex;gap:6px;overflow-x:auto;padding:8px 12px;background:#222831}");
+h = h.replace(".langbar{display:flex;gap:6px;overflow-x:auto;padding:8px 12px;background:#4d3017;scrollbar-width:none;-ms-overflow-style:none}",
+  ".langbar{display:flex;gap:6px;overflow-x:auto;padding:8px 12px;background:#222831;scrollbar-width:none;-ms-overflow-style:none}");
 // light page frame (behind the iframe)
 h = h.replace("background:#0e1116;", "background:#e9ebee;");
 // drop the doodle wallpaper -> clean solid surface
@@ -47,8 +47,18 @@ h = h.split('"/annapoorna"').join('"/restaurant"');
 h = h.split('==="annapoorna"').join('==="restaurant"');
 
 // ---------- 5. Generic AI prompt (white-label) ----------
-h = h.replace("body:JSON.stringify({message:q,lang,cart:Object.keys(cart)})",
-  'body:JSON.stringify({message:q,lang,cart:Object.keys(cart),restaurant:"our restaurant (a vegetarian multi-cuisine restaurant)"})');
+h = h.replace("body:JSON.stringify({message:q,lang,cart:Object.keys(cart),taste:tasteStr()})",
+  'body:JSON.stringify({message:q,lang,cart:Object.keys(cart),taste:tasteStr(),restaurant:"our restaurant (a multi-cuisine restaurant)"})');
+if (h.indexOf('restaurant:"our restaurant') === -1) console.log("WARN: askOdy body not rewritten");
+
+// ---------- 6. Generic taste onboarding (add diet question, generic cuisines) ----------
+h = h.replace(/const TASTE_CFG=\{[\s\S]*?\]\};/,
+  'const TASTE_CFG={brand:"restaurant",diet:true,qs:[' +
+  '{k:"lang",multi:false,opts:[["ta","தமிழ்"],["en","English"],["hi","हिन्दी"],["ml","മലയാളം"],["te","తెలుగు"],["kn","ಕನ್ನಡ"]]},' +
+  '{k:"spice",multi:false,opts:["Mild","Medium","Spicy","Extra spicy"]},' +
+  '{k:"loves",multi:true,opts:["South Indian","North Indian","Chinese","Continental"]}' +
+  ']};');
+if (!/brand:"restaurant",diet:true/.test(h)) console.log("WARN: TASTE_CFG not swapped");
 
 fs.mkdirSync(ROOT + "/public/restaurant", { recursive: true });
 fs.writeFileSync(ROOT + "/public/restaurant/index.html", h);
