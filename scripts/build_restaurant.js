@@ -51,15 +51,6 @@ h = h.replace("body:JSON.stringify({message:q,lang,cart:Object.keys(cart),taste:
   'body:JSON.stringify({message:q,lang,cart:Object.keys(cart),taste:tasteStr(),restaurant:"our restaurant (a multi-cuisine restaurant)"})');
 if (h.indexOf('restaurant:"our restaurant') === -1) console.log("WARN: askOdy body not rewritten");
 
-// ---------- 6. Generic taste onboarding (add diet question, generic cuisines) ----------
-h = h.replace(/const TASTE_CFG=\{[\s\S]*?\]\};/,
-  'const TASTE_CFG={brand:"restaurant",diet:true,qs:[' +
-  '{k:"lang",multi:false,opts:[["ta","தமிழ்"],["en","English"],["hi","हिन्दी"],["ml","മലയാളം"],["te","తెలుగు"],["kn","ಕನ್ನಡ"]]},' +
-  '{k:"spice",multi:false,opts:["Mild","Medium","Spicy","Extra spicy"]},' +
-  '{k:"loves",multi:true,opts:["South Indian","North Indian","Chinese","Continental"]}' +
-  ']};');
-if (!/brand:"restaurant",diet:true/.test(h)) console.log("WARN: TASTE_CFG not swapped");
-
 fs.mkdirSync(ROOT + "/public/restaurant", { recursive: true });
 fs.writeFileSync(ROOT + "/public/restaurant/index.html", h);
 

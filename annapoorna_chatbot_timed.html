@@ -744,6 +744,7 @@ const TXT={
  exploreFull:{en:"🍽️ Explore full menu",ta:"🍽️ முழு மெனு",hi:"🍽️ पूरा मेन्यू",ml:"🍽️ മുഴുവൻ മെനു",te:"🍽️ పూర్తి మెను",kn:"🍽️ ಪೂರ್ಣ ಮೆನು"},
  exploreMore:{en:"🍽️ Explore more",ta:"🍽️ மேலும் பார்க்க",hi:"🍽️ और देखें",ml:"🍽️ കൂടുതൽ കാണുക",te:"🍽️ మరిన్ని చూడండి",kn:"🍽️ ಇನ್ನಷ್ಟು ನೋಡಿ"},
  specialsLong:{en:"⭐ Today's specials",ta:"⭐ இன்றைய ஸ்பெஷல்",hi:"⭐ आज के स्पेशल",ml:"⭐ ഇന്നത്തെ സ്പെഷ്യൽ",te:"⭐ నేటి స్పెషల్స్",kn:"⭐ ಇಂದಿನ ಸ್ಪೆಷಲ್"},
+ findForMe:{en:"✨ Find what's for me",ta:"✨ எனக்கு ஏற்றதைக் கண்டுபிடி",hi:"✨ मेरे लिए ढूँढें",ml:"✨ എനിക്കുള്ളത് കണ്ടെത്തൂ",te:"✨ నాకోసం వెతకండి",kn:"✨ ನನಗಾಗಿ ಹುಡುಕಿ"},
  specials:{en:"⭐ Specials",ta:"⭐ ஸ்பெஷல்",hi:"⭐ स्पेशल",ml:"⭐ സ്പെഷ്യൽ",te:"⭐ స్పెషల్స్",kn:"⭐ ಸ್ಪೆಷಲ್"},
  info:{en:"ℹ️ Restaurant info",ta:"ℹ️ உணவகத் தகவல்",hi:"ℹ️ रेस्टोरेंट जानकारी",ml:"ℹ️ റെസ്റ്റോറന്റ് വിവരം",te:"ℹ️ రెస్టారెంట్ సమాచారం",kn:"ℹ️ ರೆಸ್ಟೋರೆಂಟ್ ಮಾಹಿತಿ"},
  banquet:{en:"🎉 Banquet hall",ta:"🎉 விருந்து மண்டபம்",hi:"🎉 बैंक्वेट हॉल",ml:"🎉 ബാങ്ക്വറ്റ് ഹാൾ",te:"🎉 బాంక్వెట్ హాల్",kn:"🎉 ಬ್ಯಾಂಕ್ವೆಟ್ ಹಾಲ್"},
@@ -870,7 +871,7 @@ function upsell(){if(upsold)return;const ids=Object.keys(cart);if(!ids.length||i
  setTimeout(()=>{block("pair",`<p>Add a drink? Our <b>${names}</b> go beautifully with your order.</p><div class="row">${sug.map(s=>`<div class="pi" data-id="${s}"><div class="e"><img src="${LOGO}"></div><div class="n">${dn(s)}</div><div class="pifoot">${pairFoot(s)}</div></div>`).join("")}</div>`);exploreBar();},420);}
 
 /* ---------- conversation ---------- */
-function exploreBar(){block("chips",`<button class="chip go" onclick="explore()">${IC.menu}${lbl("exploreMore")}</button><button class="chip alt" onclick="showSpecials()">${IC.star}${lbl("specials")}</button>${Object.keys(cart).length?`<button class="chip alt" onclick="openCart()">${IC.cart}${lbl("viewCart")}</button>`:''}`);}
+function exploreBar(){block("chips",`<button class="chip go" onclick="explore()">${IC.menu}${lbl("exploreMore")}</button><button class="chip" onclick="findForMe()">${IC.star}${lbl("findForMe")}</button><button class="chip alt" onclick="showSpecials()">${IC.star}${lbl("specials")}</button>${Object.keys(cart).length?`<button class="chip alt" onclick="openCart()">${IC.cart}${lbl("viewCart")}</button>`:''}`);}
 function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
 function typingBubble(){const d=document.createElement("div");d.className="msg bot typing";d.innerHTML='<span class="dot"></span><span class="dot"></span><span class="dot"></span>';chat.appendChild(d);toBottom();return d;}
 function topDishes(){let b=Object.keys(MENU).filter(i=>MENU[i].best&&avail(i));
@@ -885,10 +886,10 @@ async function showGreeting(instant){chat.innerHTML="";upsold=false;
  if(!instant)await sleep(300);
  const best=topDishes();const g=block("grid","");
  for(const id of best){g.insertAdjacentHTML("beforeend",dishCard(id));toBottom();if(!instant)await sleep(260);}
- if(!instant)await sleep(200);mainChips();maybeTaste();}
+ if(!instant)await sleep(200);mainChips();}
 function showSpecials(quiet){const best=topDishes();if(!quiet)me("Today's specials");
  bot(`Here's what's <b>hot &amp; fresh</b> this ${part()} 👇`);renderGrid(best);mainChips();}
-function mainChips(){block("chips",`<button class="chip go" onclick="explore()">${IC.menu}${lbl("exploreFull")}</button><button class="chip" onclick="showSpecials()">${IC.star}${lbl("specialsLong")}</button><button class="chip alt" onclick="openTaste()">${IC.star}${lbl("tasteMine")}</button><button class="chip alt" onclick="info()">${IC.info}${lbl("info")}</button><button class="chip alt" onclick="banquet()">${IC.hall}${lbl("banquet")}</button><button class="chip alt" onclick="goOutlets()">${IC.pin}${lbl("changeOutlet")}</button><button class="chip alt" onclick="openFeedback()">${IC.fb}${lbl("feedback")}</button>`);}
+function mainChips(){block("chips",`<button class="chip go" onclick="explore()">${IC.menu}${lbl("exploreFull")}</button><button class="chip" onclick="findForMe()">${IC.star}${lbl("findForMe")}</button><button class="chip alt" onclick="showSpecials()">${IC.star}${lbl("specialsLong")}</button><button class="chip alt" onclick="info()">${IC.info}${lbl("info")}</button><button class="chip alt" onclick="banquet()">${IC.hall}${lbl("banquet")}</button><button class="chip alt" onclick="goOutlets()">${IC.pin}${lbl("changeOutlet")}</button><button class="chip alt" onclick="openFeedback()">${IC.fb}${lbl("feedback")}</button>`);}
 let fbRating=0,fbCur="";
 const FBTOPICS=["Food & Taste","Service","Cleanliness","Ambience","Staff","Value for Money","App Experience"];
 function openFeedback(){const rb=bot("What would you like to share feedback about? 😊");block("chips",FBTOPICS.map(a=>`<button class="chip" onclick="fbTopic('${a}')">${a}</button>`).join("")+`<button class="chip alt" onclick="fbCustom()">${IC.note}Something else</button><button class="chip alt" onclick="mainChips()">${IC.back}Done</button>`);}
@@ -1183,118 +1184,40 @@ function contact(){const sub=cartTotal(),tax=Math.round(sub*taxRate()),gt=sub+ta
 function pay(gt){const cp=document.getElementById("cp");const digits=((cp&&cp.value)||"").replace(/\D/g,"");if(digits.length!==10){const e=document.getElementById("cperr");if(e)e.style.display="block";if(cp){cp.style.borderColor="#c0392b";cp.focus();}return;}const nm=(document.getElementById("cn").value||"Guest"),ph=digits,pers=(document.getElementById("cpers")&&document.getElementById("cpers").value)||"";openSheet(`<div class="ok"><div class="big">${IC.check}</div><h2>Payment successful!</h2><p>Thanks ${nm}! Your order is confirmed and sent to the ${outlet} kitchen.</p><p>Bill sent on WhatsApp to <b>${ph}</b>.</p><p style="margin-top:10px;font-size:13.5px">${order.mode==="dine"?`Table ${order.table} · ${order.room}`:"Takeaway"}${pers?` · ${pers} persons`:""} · Paid ₹${gt}</p><button class="btn" onclick="reset_()">Done</button></div>`);cart={};notes={};sync();}
 function reset_(){closeModal();upsold=false;showGreeting();}
 
-/* ---------- taste onboarding (optional, AI-powered, one question per page) ---------- */
-const TASTE_CFG={brand:"annapoorna",diet:false,qs:[
-  {k:"lang",multi:false,opts:[["ta","தமிழ்"],["en","English"],["hi","हिन्दी"],["ml","മലയാളം"],["te","తెలుగు"],["kn","ಕನ್ನಡ"]]},
-  {k:"spice",multi:false,opts:["Mild","Medium","Spicy","Extra spicy"]},
-  {k:"loves",multi:true,opts:["South Indian","North Indian","Chinese","Chaat / Street food"]}
-]};
-const TIC={
-  lang:"<svg viewBox='0 0 24 24'><circle cx='12' cy='12' r='10'/><path d='M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20'/><path d='M2 12h20'/></svg>",
-  diet:"<svg viewBox='0 0 24 24'><path d='M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z'/><path d='M2 21c0-3 1.85-5.36 5.08-6'/></svg>",
-  spice:"<svg viewBox='0 0 24 24'><path d='M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z'/></svg>",
-  loves:"<svg viewBox='0 0 24 24'><path d='m16 2-2.3 2.3a3 3 0 0 0 0 4.2l1.8 1.8a3 3 0 0 0 4.2 0L22 8'/><path d='M15 15 3.3 3.3a4.2 4.2 0 0 0 0 6l7.3 7.3c.7.7 2 .7 2.8 0L15 15Zm0 0 7 7'/><path d='m2.1 21.8 6.4-6.3'/><path d='m19 5-7 7'/></svg>",
-  sweet:"<svg viewBox='0 0 24 24'><path d='m7 11 4.08 10.35a1 1 0 0 0 1.84 0L17 11'/><path d='M17 7A5 5 0 0 0 7 7'/><path d='M17 7a2 2 0 0 1 0 4H7a2 2 0 0 1 0-4'/></svg>",
-  avoid:"<svg viewBox='0 0 24 24'><circle cx='12' cy='12' r='10'/><path d='m4.9 4.9 14.2 14.2'/></svg>"
+/* ---------- "Find what's for me" — per-visit AI helper ---------- */
+function tasteStr(){return "";}
+const FINDTX={
+ q:{en:"What are you in the mood for today? Tell me, or tap one 😋",ta:"இன்று எதைச் சாப்பிட விரும்புகிறீர்கள்? சொல்லுங்கள் அல்லது தேர்வுசெய்யுங்கள் 😋",hi:"आज आपका क्या खाने का मन है? बताइए या एक चुनिए 😋",ml:"ഇന്ന് എന്ത് കഴിക്കാൻ തോന്നുന്നു? പറയൂ അല്ലെങ്കിൽ ഒന്ന് തിരഞ്ഞെടുക്കൂ 😋",te:"ఈరోజు ఏం తినాలని ఉంది? చెప్పండి లేదా ఒకటి ఎంచుకోండి 😋",kn:"ಇಂದು ಏನು ತಿನ್ನಬೇಕೆನಿಸುತ್ತದೆ? ಹೇಳಿ ಅಥವಾ ಒಂದನ್ನು ಆಯ್ಕೆಮಾಡಿ 😋"},
+ intro:{en:"Here's what I'd go for today 😋",ta:"இன்று நான் பரிந்துரைப்பது 😋",hi:"आज के लिए मेरी पसंद 😋",ml:"ഇന്ന് ഞാൻ നിർദേശിക്കുന്നത് 😋",te:"ఈరోజుకి నా సూచనలు 😋",kn:"ಇಂದಿಗೆ ನನ್ನ ಸಲಹೆ 😋"},
+ back:{en:"Back",ta:"பின்",hi:"पीछे",ml:"പിന്നോട്ട്",te:"వెనుకకు",kn:"ಹಿಂದೆ"}
 };
-function tasteKey(){return "taste_"+TASTE_CFG.brand;}
-let taste=(function(){try{return JSON.parse(localStorage.getItem(tasteKey()))||{};}catch(e){return {};}})();
-let tIdx=0;
-function visitorId(){try{let v=localStorage.getItem("ody_visitor");if(!v){v=Date.now().toString(36)+Math.random().toString(36).slice(2,8);localStorage.setItem("ody_visitor",v);}return v;}catch(e){return "anon";}}
-function tasteQuestions(){var qs=TASTE_CFG.qs.slice();if(TASTE_CFG.diet)qs=[qs[0],{k:"diet",multi:false,opts:["Veg","Egg","Non-veg"]}].concat(qs.slice(1));return qs;}
-function tEsc(s){return String(s).replace(/\\/g,"\\\\").replace(/'/g,"\\'");}
-function optVal(o){return Array.isArray(o)?o[0]:o;}
-function optLabel(o){return Array.isArray(o)?o[1]:o;}
-function tIsOn(k,val,multi){var c=taste[k];return multi?(Array.isArray(c)&&c.indexOf(val)>=0):(c===val);}
-const GLY={
- flame:"<path d='M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.07-2.14-.22-4.05 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.15.43-2.29 1-3a2.5 2.5 0 0 0 2.5 2.5z'/>",
- cone:"<path d='m7 11 4.08 10.35a1 1 0 0 0 1.84 0L17 11'/><path d='M17 7A5 5 0 0 0 7 7'/><path d='M17 7a2 2 0 0 1 0 4H7a2 2 0 0 1 0-4'/>",
- soup:"<path d='M3.5 11h17'/><path d='M5 11a7 7 0 0 0 14 0'/><path d='M10 5c-.7.8-.7 1.7 0 2.5'/><path d='M14 5c-.7.8-.7 1.7 0 2.5'/>",
- pot:"<path d='M2 12h20'/><path d='M6 12v8a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2v-8'/><path d='m4 8 16-4'/><path d='m8.86 6.78-.45-1.81a2 2 0 0 1 1.45-2.43l1.94-.48a2 2 0 0 1 2.43 1.46l.45 1.8'/>",
- noodle:"<path d='M5.5 9h13l-1.1 9.3a2 2 0 0 1-2 1.7H8.6a2 2 0 0 1-2-1.7z'/><path d='M4.5 9 7 5.5h10L19.5 9'/><path d='M9.5 5.5h5'/>",
- salad:"<path d='M12 4.8l7.2 12.4a1.6 1.6 0 0 1-1.4 2.4H6.2a1.6 1.6 0 0 1-1.4-2.4z'/><path d='M12 4.8v14'/>",
- utensils:"<path d='M6 2v6a2 2 0 0 0 4 0V2'/><path d='M8 8v13'/><path d='M18 2c-1.5 1-2.5 3-2.5 5.5V12a1.5 1.5 0 0 0 3 0V2'/><path d='M16.5 12 17 21'/>",
- bean:"<path d='M10.2 6.6C10 7.5 9.6 8.4 9 9c-.6.6-1.5 1-2.4 1.2A6 6 0 0 0 8 22c7.7 0 14-6.3 14-14a6 6 0 0 0-11.8-1.4Z'/><path d='M5.3 10.6a4 4 0 1 0 5.3-5.3'/>",
- milk:"<path d='M8 2h8'/><path d='M9 2v2.8a4 4 0 0 1-.7 2.2l-.6 1A4 4 0 0 0 7 10.2V20a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2v-9.8a4 4 0 0 0-.7-2.2l-.6-1A4 4 0 0 1 15 4.8V2'/><path d='M7 15a6.5 6.5 0 0 1 5 0 6.5 6.5 0 0 0 5 0'/>",
- wheat:"<path d='M12 22V8'/><path d='M12 8c-2 0-3.3-1.4-3-3.4 2-.3 3.3 1 3 3.4'/><path d='M12 8c2 0 3.3-1.4 3-3.4-2-.3-3.3 1-3 3.4'/><path d='M12 14c-2 0-3.3-1.4-3-3.4 2-.3 3.3 1 3 3.4'/><path d='M12 14c2 0 3.3-1.4 3-3.4-2-.3-3.3 1-3 3.4'/>",
- bulb:"<path d='M12 3c-1.2 1.9-4 3.2-4 7.1a4 4 0 0 0 8 0C16 6.2 13.2 4.9 12 3z'/><path d='M12 10v7'/><path d='M9.8 11v5'/><path d='M14.2 11v5'/>",
- leaf:"<path d='M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z'/><path d='M2 21c0-3 1.85-5.36 5.08-6'/>",
- egg:"<path d='M12 22a7 7 0 0 0 7-7c0-5-3-12-7-12S5 10 5 15a7 7 0 0 0 7 7Z'/>",
- drum:"<path d='M15.5 14.5a5 5 0 1 0-6-6'/><path d='M15.4 14.6l3.1 3.1a2 2 0 0 1-2.8 2.8'/><path d='M9.6 8.6 6.5 5.5a2 2 0 0 0-2.8 2.8'/>"
-};
-function ic(n){return "<svg viewBox='0 0 24 24'>"+(GLY[n]||GLY.utensils)+"</svg>";}
-function repIc(n,k){var s="";for(var i=0;i<k;i++)s+=ic(n);return s;}
-const LOVEMAP={"South Indian":"soup","North Indian":"pot","Chinese":"noodle","Tandoori":"flame","Chaat / Street food":"salad","Sweets":"cone","Continental":"utensils","Desserts":"cone"};
-const AVOIDMAP={"Nuts":"bean","Dairy":"milk","Gluten":"wheat","Onion / Garlic":"bulb"};
-const DIETMAP={"Veg":"leaf","Egg":"egg","Non-veg":"drum"};
-const LANGLETTER={ta:"அ",en:"A",hi:"अ",ml:"അ",te:"అ",kn:"ಅ"};
-const OPTL={
- "Mild":{en:"Mild",ta:"லேசானது",hi:"हल्का",ml:"മൃദു",te:"తక్కువ",kn:"ಸೌಮ್ಯ"},
- "Medium":{en:"Medium",ta:"நடுத்தரம்",hi:"मध्यम",ml:"ഇടത്തരം",te:"మధ్యమం",kn:"ಮಧ್ಯಮ"},
- "Spicy":{en:"Spicy",ta:"காரம்",hi:"तीखा",ml:"എരിവ്",te:"కారం",kn:"ಖಾರ"},
- "Extra spicy":{en:"Extra spicy",ta:"மிகக் காரம்",hi:"बहुत तीखा",ml:"വളരെ എരിവ്",te:"చాలా కారం",kn:"ತುಂಬಾ ಖಾರ"},
- "South Indian":{en:"South Indian",ta:"தென்னிந்தியன்",hi:"दक्षिण भारतीय",ml:"ദക്ഷിണേന്ത്യൻ",te:"దక్షిణ భారత",kn:"ದಕ್ಷಿಣ ಭಾರತೀಯ"},
- "North Indian":{en:"North Indian",ta:"வடஇந்தியன்",hi:"उत्तर भारतीय",ml:"ഉത്തരേന്ത്യൻ",te:"ఉత్తర భారత",kn:"ಉತ್ತರ ಭಾರತೀಯ"},
- "Chinese":{en:"Chinese",ta:"சீனம்",hi:"चाइनीज़",ml:"ചൈനീസ്",te:"చైనీస్",kn:"ಚೈನೀಸ್"},
- "Chaat / Street food":{en:"Chaat / Street food",ta:"சாட் / தெரு உணவு",hi:"चाट / स्ट्रीट फ़ूड",ml:"ചാട്ട് / സ്ട്രീറ്റ് ഫുഡ്",te:"చాట్ / స్ట్రీట్ ఫుడ్",kn:"ಚಾಟ್ / ಸ್ಟ್ರೀಟ್ ಫುಡ್"},
- "Continental":{en:"Continental",ta:"கான்டினென்டல்",hi:"कॉन्टिनेंटल",ml:"കോണ്ടിനെന്റൽ",te:"కాంటినెంటల్",kn:"ಕಾಂಟಿನೆಂಟಲ್"},
- "Veg":{en:"Veg",ta:"சைவம்",hi:"शाकाहारी",ml:"വെജ്",te:"వెజ్",kn:"ಸಸ್ಯಾಹಾರಿ"},
- "Egg":{en:"Egg",ta:"முட்டை",hi:"अंडा",ml:"മുട്ട",te:"గుడ్డు",kn:"ಮೊಟ್ಟೆ"},
- "Non-veg":{en:"Non-veg",ta:"அசைவம்",hi:"मांसाहारी",ml:"നോൺ-വെജ്",te:"నాన్-వెజ్",kn:"ಮಾಂಸಾಹಾರಿ"}
-};
-function optLabelL(v){return (OPTL[v]&&(OPTL[v][lang]||OPTL[v].en))||v;}
-function optIcon(k,v,i){
-  if(k==="spice"){var f="";for(var j=0;j<=i;j++)f+=ic("flame");return '<span class="toflames">'+f+'</span>';}
-  var inner;
-  if(k==="lang")inner='<span class="lett">'+(LANGLETTER[v]||"A")+'</span>';
-  else if(k==="loves")inner=ic(LOVEMAP[v]||"utensils");
-  else if(k==="diet")inner=ic(DIETMAP[v]||"leaf");
-  else inner=ic("utensils");
-  return '<span class="tobadge">'+inner+'</span>';
-}
-function optCols(n){return 2;}
-function applyTasteLang(code){lang=code;try{document.querySelectorAll(".lang").forEach(function(x){x.classList.toggle("on",x.getAttribute("data-l")===code);});}catch(e){}var inp=document.getElementById("inp");if(inp)inp.placeholder=T("ask");}
-function tPick(k,val,multi){if(multi){var a=Array.isArray(taste[k])?taste[k].slice():[];var i=a.indexOf(val);if(i>=0)a.splice(i,1);else a.push(val);taste[k]=a;}else{taste[k]=val;if(k==="lang")applyTasteLang(val);}renderTastePage();}
-function renderTastePage(){var qs=tasteQuestions();if(tIdx<0)tIdx=0;if(tIdx>=qs.length)return tasteFinish();
-  var q=qs[tIdx],multi=q.multi,last=(tIdx===qs.length-1);
-  var dots=qs.map(function(_,i){return '<span class="tdot'+(i===tIdx?' act':'')+'"></span>';}).join("");
-  var hasic=(q.k!=="loves");
-  var opts=q.opts.map(function(o,i){var v=optVal(o),lb=(Array.isArray(o)?optLabel(o):optLabelL(v)),onx=tIsOn(q.k,v,multi);return '<button class="to'+(onx?' on':'')+'" onclick="tPick(\''+tEsc(q.k)+'\',\''+tEsc(v)+'\','+multi+')">'+(hasic?optIcon(q.k,v,i)+'<span class="tolb">'+lb+'</span>':lb)+'</button>';}).join("");
-  var cols=optCols(q.opts.length);
-  var html='<div class="tbar"><div class="tdots">'+dots+'</div><button class="tskip" onclick="tasteSkip()">'+T("tasteSkip")+'</button></div>'
-   +'<div class="tbody">'+(tIdx===0?'<div class="tsub">'+T("tasteSub")+'</div>':'')+'<div class="ticon">'+TIC[q.k]+'</div><div class="tqh">'+tq(q.k)+'</div>'+(multi?'<div class="tqhint">'+T("tasteMulti")+'</div>':'')+'<div class="topts2'+(hasic?'':' txt')+' c'+cols+'">'+opts+'</div></div>'
-   +'<div class="tfoot"><button class="tnext" onclick="tNext()">'+(last?T("tasteSee"):T("tasteNext"))+'</button>'+(tIdx>0?'<button class="tback" onclick="tBack()">'+T("tasteBack")+'</button>':'')+'</div>';
-  var el=document.getElementById("taste");el.innerHTML=html;el.classList.add("on");}
-function tNext(){var qs=tasteQuestions();if(tIdx>=qs.length-1)tasteFinish();else{tIdx++;renderTastePage();}}
-function tBack(){if(tIdx>0){tIdx--;renderTastePage();}}
-function openTaste(){tIdx=0;renderTastePage();}
-function closeTasteOverlay(){var el=document.getElementById("taste");if(el){el.classList.remove("on");el.innerHTML="";}}
-function tasteSeen(){try{localStorage.setItem(tasteKey()+"_seen","1");}catch(e){}}
-function tasteSkip(){tasteSeen();closeTasteOverlay();}
-function tasteStr(){var qs=tasteQuestions(),parts=[];qs.forEach(function(q){if(q.k==="lang")return;var v=taste[q.k];if(!v)return;if(Array.isArray(v)){if(v.length)parts.push(q.k+": "+v.join(", "));}else parts.push(q.k+": "+v);});return parts.join("; ");}
-function tasteFinish(){
-  try{localStorage.setItem(tasteKey(),JSON.stringify(taste));}catch(e){}tasteSeen();
-  try{fetch('/api/taste',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({restaurant:TASTE_CFG.brand,visitor:visitorId(),answers:taste})});}catch(e){}
-  tasteProcessing();}
+const MOODS=[
+ {k:"light",prompt:"something light and easy",lab:{en:"Something light",ta:"லேசானது",hi:"कुछ हल्का",ml:"ലഘുവായത്",te:"తేలికైనది",kn:"ಹಗುರವಾದದ್ದು"}},
+ {k:"full",prompt:"a full, filling meal",lab:{en:"A full meal",ta:"முழு உணவு",hi:"भरपूर भोजन",ml:"നിറഞ്ഞ ഭക്ഷണം",te:"పూర్తి భోజనం",kn:"ಪೂರ್ಣ ಊಟ"}},
+ {k:"spicy",prompt:"something spicy",lab:{en:"Something spicy",ta:"காரமானது",hi:"कुछ तीखा",ml:"എരിവുള്ളത്",te:"కారంగా ఉండేది",kn:"ಖಾರವಾದದ್ದು"}},
+ {k:"sweet",prompt:"something sweet or a dessert",lab:{en:"Something sweet",ta:"இனிப்பானது",hi:"कुछ मीठा",ml:"മധുരമുള്ളത്",te:"తీపి ఏదైనా",kn:"ಸಿಹಿಯಾದದ್ದು"}},
+ {k:"surprise",prompt:"surprise me with a varied, exciting mix across the menu",lab:{en:"Surprise me",ta:"ஆச்சரியப்படுத்து",hi:"सरप्राइज़ करें",ml:"അത്ഭുതപ്പെടുത്തൂ",te:"ఆశ్చర్యపరచండి",kn:"ಅಚ್ಚರಿ ಮಾಡಿ"}}
+];
+function findL(m){return (m[lang]||m.en);}
+function findForMe(){var rb=bot(findL(FINDTX.q));
+  block("chips",MOODS.map(function(m){return '<button class="chip" onclick="moodPick(\'' + m.k + '\')">'+findL(m.lab)+'</button>';}).join("")+'<button class="chip alt" onclick="mainChips()">'+IC.back+findL(FINDTX.back)+'</button>');
+  anchorReply(rb);}
+function moodPick(k){var m=null;for(var i=0;i<MOODS.length;i++){if(MOODS[i].k===k)m=MOODS[i];}if(!m)return;me(findL(m.lab));findAsk(m.prompt);}
 var _procTimer=null;
-function tasteProcessing(){var el=document.getElementById("taste");var msgs=[T("proc1"),T("proc2"),T("proc3")],mi=0;
+function closeFindOverlay(){var el=document.getElementById("taste");if(el){el.classList.remove("on");el.innerHTML="";}}
+function findProcessing(){var el=document.getElementById("taste");var msgs=[T("proc1"),T("proc2"),T("proc3")],mi=0;
   el.innerHTML='<div class="tproc"><div class="pstage"><span class="porbglow"></span><span class="porbglow2"></span><span class="pcore"></span><img class="plogo" src="'+LOGO+'" alt=""></div><div class="ptxt" id="ptxt">'+msgs[0]+'</div></div>';el.classList.add("on");
-  clearInterval(_procTimer);_procTimer=setInterval(function(){var t=document.getElementById("ptxt");if(!t)return;t.style.opacity="0";setTimeout(function(){mi=(mi+1)%msgs.length;t.textContent=msgs[mi];t.style.opacity="1";},340);},1600);
-  tasteRecommend();}
-async function tasteRecommend(){var picks=[],reply=null;
-  try{var msg="The guest just finished taste onboarding. Recommend 5-6 dishes they will love, MIXED across different categories and cuisines (not all from one category), matching their taste profile, and never include anything they want to avoid. Use show actions with the dish ids and give a short warm intro.";
-    var res=await fetch('/api/ody',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:msg,lang,cart:Object.keys(cart),taste:tasteStr()})});
+  clearInterval(_procTimer);_procTimer=setInterval(function(){var t=document.getElementById("ptxt");if(!t)return;t.style.opacity="0";setTimeout(function(){mi=(mi+1)%msgs.length;t.textContent=msgs[mi];t.style.opacity="1";},340);},1600);}
+async function findAsk(moodText){findProcessing();
+  var picks=[],reply=null;
+  try{var msg="The guest is deciding what to eat right now. Their mood/craving: "+moodText+". Recommend 5-6 dishes they'll enjoy, MIXED across different categories and cuisines so they get variety, with a short warm intro. Use show actions with the dish ids.";
+    var res=await fetch('/api/ody',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:msg,lang,cart:Object.keys(cart),taste:""})});
     if(res.ok){var data=await res.json();reply=data.reply;var ids=[];(data.actions||[]).forEach(function(a){if(a.type==="show"&&a.ids)ids=ids.concat(a.ids);else if(a.type==="add"&&a.id)ids.push(a.id);});picks=ids.filter(function(i){return MENU[i]&&avail(i);});}
   }catch(e){}
-  await sleep(950);clearInterval(_procTimer);closeTasteOverlay();
-  if(!picks.length){picks=topDishes();reply=null;}
+  await sleep(950);clearInterval(_procTimer);closeFindOverlay();
+  if(!picks.length)picks=topDishes();
   var seen={},uniq=[];picks.forEach(function(i){if(!seen[i]){seen[i]=1;uniq.push(i);}});
-  chat.innerHTML="";
-  bot(GREET[lang].replace("%t",part()).replace("%o",outlet||""));
-  var rb=bot(reply||T("recoIntro"));renderGrid(uniq.slice(0,6));exploreBar();anchorReply(rb);}
-var _tasteChecked=false;
-function maybeTaste(){if(_tasteChecked)return;_tasteChecked=true;var seen;try{seen=localStorage.getItem(tasteKey()+"_seen");}catch(e){}if(!seen)setTimeout(openTaste,500);}
-
+  var rb=bot(reply||findL(FINDTX.intro));renderGrid(uniq.slice(0,6));exploreBar();anchorReply(rb);}
 /* init */
 document.getElementById("langbar").innerHTML=LANGS.map(l=>`<button class="lang ${l[0]==='en'?'on':''}" data-l="${l[0]}" onclick="setLang('${l[0]}',this)">${l[1]}</button>`).join("");
 function setLang(l,b){lang=l;document.querySelectorAll(".lang").forEach(x=>x.classList.remove("on"));b.classList.add("on");
