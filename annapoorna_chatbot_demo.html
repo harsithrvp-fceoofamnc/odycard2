@@ -789,7 +789,7 @@ function heard(t){const inp=document.getElementById("inp");inp.value=(inp.value?
 function simHeard(){const s=["something light and not too spicy","what's good for breakfast","show me the dosa varieties","I'd like a sweet dish","recommend a good cold drink"];
  bot("🎙️ <i>(Voice needs Chrome with mic permission — simulating a query for this demo)</i>");setTimeout(()=>heard(s[Math.floor(Math.random()*s.length)]),500);}
 const SLANG={en:'en-IN',ta:'ta-IN',hi:'hi-IN',ml:'ml-IN',te:'te-IN',kn:'kn-IN'};
-let listening=false,mediaRec=null,chunks=[],micStream=null,sttBroken=false,recog=null;
+let listening=false,mediaRec=null,chunks=[],micStream=null,sttBroken=false,srBroken=false,recog=null;
 let voiceBase="",oldPH="",meterRAF=null,meterCtx=null,meterTimer=null,recStart=0,busy=false,voiceLocked=false;
 let liveTimer=null,liveBusy=false,liveSeq=0;
 // real-time streaming state
@@ -798,8 +798,21 @@ function recordVoice(){
  if(listening){stopVoice();return;}
  if(busy)return;
  voiceLocked=false;
- // Use the browser engine if Sarvam has failed before, or audio recording isn't available.
- if(sttBroken||!(navigator.mediaDevices&&navigator.mediaDevices.getUserMedia&&window.MediaRecorder)){startBrowserSR();return;}
+ // PRIMARY: the browser's own speech engine. It shows words live as they're spoken,
+ // needs no API key, no server round-trip and no credits, so it "just works" on Chrome,
+ // Edge and Android. Sarvam (recording -> server) is only the fallback when the browser
+ // engine isn't available (e.g. Firefox) or has been marked broken at runtime.
+ const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+ if(SR&&!srBroken){startBrowserSR();return;}
+ startSarvamRecording();
+}
+// FALLBACK: record audio and send it to Sarvam (good Indian-language accuracy) for transcription.
+function startSarvamRecording(){
+ if(!(navigator.mediaDevices&&navigator.mediaDevices.getUserMedia&&window.MediaRecorder)){
+  // no recording support either -> last-resort simulated demo line so the button still responds
+  if(window.SpeechRecognition||window.webkitSpeechRecognition){startBrowserSR();}else{simHeard();}
+  return;
+ }
  navigator.mediaDevices.getUserMedia({audio:true}).then(stream=>{
   micStream=stream;chunks=[];liveSeq=0;wsMode=false;wsGotData=false;wsText="";
   const inp=document.getElementById("inp");
@@ -979,13 +992,36 @@ async function transcribe(blob){
 }
 function startBrowserSR(){
  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
- if(!SR){simHeard();return;}
- recog=new SR();recog.lang=SLANG[lang]||'en-IN';recog.continuous=true;recog.interimResults=true;
- const inp=document.getElementById("inp");let finalText=inp.value?inp.value.trim()+" ":"";
- recog.onresult=e=>{let interim="";for(let i=e.resultIndex;i<e.results.length;i++){const t=e.results[i][0].transcript;if(e.results[i].isFinal)finalText+=t+" ";else interim+=t;}inp.value=(finalText+interim).trim();};
- recog.onerror=ev=>{if(ev.error==="not-allowed"||ev.error==="service-not-allowed"){listening=false;setMic(false);bot("🎙️ Please allow microphone access to use voice.");}else if(listening){try{recog.start();}catch(e){}}};
- recog.onend=()=>{if(listening){try{recog.start();}catch(e){}}else setMic(false);};
- listening=true;setMic(true);try{recog.start();}catch(e){}
+ if(!SR){srBroken=true;startSarvamRecording();return;}
+ const inp=document.getElementById("inp");
+ const base=inp.value?inp.value.trim()+" ":"";let finalText=base;let gotAny=false;
+ try{recog=new SR();}catch(e){srBroken=true;startSarvamRecording();return;}
+ recog.lang=SLANG[lang]||'en-IN';recog.continuous=true;recog.interimResults=true;recog.maxAlternatives=1;
+ recog.onstart=()=>{showListening(true);};
+ recog.onresult=e=>{
+  let interim="";
+  for(let i=e.resultIndex;i<e.results.length;i++){const t=e.results[i][0].transcript;if(e.results[i].isFinal)finalText+=t+" ";else interim+=t;}
+  if(voiceLocked)return; // message already sent
+  gotAny=true;showListening(false);
+  inp.value=(finalText+interim).trim();autoGrow();
+ };
+ recog.onerror=ev=>{
+  const er=ev&&ev.error;
+  if(er==="not-allowed"){listening=false;setMic(false);showListening(false);bot("🎙️ Please allow microphone access to use voice.");return;}
+  if(er==="service-not-allowed"||er==="language-not-supported"||er==="audio-capture"){
+   // browser engine can't run here -> switch to the Sarvam recording fallback
+   srBroken=true;try{recog.onend=null;recog.abort();}catch(e){}
+   if(listening){listening=false;setMic(false);startSarvamRecording();}return;
+  }
+  // no-speech / aborted / network blips: keep listening (onend will restart)
+ };
+ recog.onend=()=>{
+  if(listening){try{recog.start();}catch(e){}return;}
+  setMic(false);showListening(false);
+  const el=document.getElementById("inp");if(el){el.placeholder=T("ask");if(gotAny&&!voiceLocked){autoGrow();el.focus();}} // keep whatever is in the box (incl. last interim words)
+ };
+ listening=true;setMic(true);
+ try{recog.start();}catch(e){srBroken=true;listening=false;setMic(false);startSarvamRecording();}
 }
 
 /* ---------- free text "AI" ---------- */
