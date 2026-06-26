@@ -1,5 +1,6 @@
 import { initializeApp, getApps, cert } from "firebase-admin/app";
 import { getFirestore } from "firebase-admin/firestore";
+import { getAuth } from "firebase-admin/auth";
 
 function getFirebaseApp() {
   if (getApps().length > 0) return getApps()[0];
@@ -10,6 +11,12 @@ function getFirebaseApp() {
 export function getDb() {
   getFirebaseApp();
   return getFirestore();
+}
+
+/** Server-side Firebase Auth — used to verify the ID token from a real Google sign-in. */
+export function getAdminAuth() {
+  getFirebaseApp();
+  return getAuth();
 }
 
 /** Auto-increment counter — runs in a Firestore transaction */

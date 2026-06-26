@@ -21,8 +21,8 @@ export function middleware(req: NextRequest) {
     isStatic ||
     pathname === "/" ||
     pathname.startsWith("/api/gate") ||
-    pathname === "/login" ||
-    pathname === "/signup"
+    pathname.startsWith("/login") ||
+    pathname.startsWith("/signup")
   ) {
     return NextResponse.next();
   }

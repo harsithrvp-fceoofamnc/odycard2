@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Odysra — UI direction</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --blue:#4285F4; --red:#EA4335; --yellow:#FBBC04; --green:#34A853;
+    --ink:#1f2330; --mut:#5f6573; --line:#e7e9f0;
+    --bg:#f5f7fc;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{
+    font-family:'Outfit',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+    color:var(--ink); background:var(--bg); min-height:100vh; overflow-x:hidden;
+  }
+  /* floating colourful blobs */
+  .blobs{position:fixed; inset:0; z-index:0; overflow:hidden; filter:blur(60px); opacity:.55; pointer-events:none}
+  .blob{position:absolute; width:440px; height:440px; border-radius:50%}
+  .b1{background:#4285F4; top:-140px; left:-120px; animation:drift1 16s ease-in-out infinite}
+  .b2{background:#34A853; bottom:-180px; left:18%; animation:drift2 19s ease-in-out infinite}
+  .b3{background:#FBBC04; top:-120px; right:-100px; animation:drift3 21s ease-in-out infinite}
+  .b4{background:#EA4335; bottom:-160px; right:8%; animation:drift1 18s ease-in-out infinite reverse}
+  @keyframes drift1{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(40px,60px) scale(1.12)}}
+  @keyframes drift2{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(70px,-40px) scale(1.08)}}
+  @keyframes drift3{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(-50px,40px) scale(1.15)}}
+
+  .stage{position:relative; z-index:1; min-height:100vh}
+
+  /* top view switch */
+  .switch{position:fixed; top:16px; left:50%; transform:translateX(-50%); z-index:9;
+    display:flex; gap:4px; background:#fff; padding:5px; border-radius:999px;
+    box-shadow:0 8px 30px rgba(31,35,48,.12); border:1px solid #eef0f6}
+  .switch button{border:0; background:transparent; font:inherit; font-weight:600; font-size:14px;
+    color:var(--mut); padding:9px 20px; border-radius:999px; cursor:pointer; transition:.25s}
+  .switch button.on{color:#fff; background:linear-gradient(120deg,#4285F4,#34A853)}
+
+  /* gradient wordmark */
+  .word{font-weight:800; letter-spacing:.3px;
+    background:linear-gradient(100deg,#4285F4,#34A853,#FBBC04,#EA4335,#4285F4);
+    background-size:300% 100%; -webkit-background-clip:text; background-clip:text; color:transparent;
+    animation:hue 8s linear infinite}
+  @keyframes hue{to{background-position:300% 0}}
+
+  .view{display:none; animation:fade .5s ease both}
+  .view.show{display:block}
+  @keyframes fade{from{opacity:0}to{opacity:1}}
+
+  /* ---------- AUTH ---------- */
+  .auth{min-height:100vh; display:flex; align-items:center; justify-content:center; padding:90px 18px 40px}
+  .card{width:400px; max-width:100%; background:rgba(255,255,255,.86); backdrop-filter:blur(14px);
+    border:1px solid rgba(255,255,255,.7); border-radius:30px; padding:36px 32px;
+    box-shadow:0 30px 70px rgba(31,35,48,.16)}
+  .brandrow{display:flex; align-items:center; gap:11px; margin-bottom:22px}
+  .logo{width:46px; height:46px; border-radius:14px; display:flex; align-items:center; justify-content:center;
+    color:#fff; font-weight:800; font-size:22px;
+    background:conic-gradient(from 140deg,#4285F4,#34A853,#FBBC04,#EA4335,#4285F4);
+    box-shadow:0 10px 26px rgba(66,133,244,.4); animation:spin 14s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .logo span{animation:spin 14s linear infinite reverse} /* keep letter upright */
+  h1.title{font-size:26px; margin:0 0 4px}
+  .sub{color:var(--mut); font-size:14.5px; margin:0 0 20px}
+  .stagger>*{opacity:0; transform:translateY(10px); animation:up .55s ease forwards}
+  .stagger>*:nth-child(1){animation-delay:.05s}
+  .stagger>*:nth-child(2){animation-delay:.12s}
+  .stagger>*:nth-child(3){animation-delay:.19s}
+  .stagger>*:nth-child(4){animation-delay:.26s}
+  .stagger>*:nth-child(5){animation-delay:.33s}
+  @keyframes up{to{opacity:1; transform:none}}
+  label{display:block; font-size:12.5px; font-weight:600; color:#4b5160; margin:14px 0 6px}
+  .field{position:relative}
+  input{width:100%; box-sizing:border-box; padding:13px 14px; border-radius:14px;
+    border:2px solid #e7e9f0; background:#fff; font:inherit; font-size:15px; outline:none;
+    transition:border-color .2s, box-shadow .2s}
+  input:focus{border-color:var(--blue); box-shadow:0 0 0 4px rgba(66,133,244,.16)}
+  .btn{position:relative; overflow:hidden; width:100%; margin-top:22px; padding:14px; border:0; border-radius:15px;
+    color:#fff; font:inherit; font-weight:700; font-size:15.5px; cursor:pointer;
+    background:linear-gradient(120deg,#4285F4,#7c4dff); box-shadow:0 12px 28px rgba(99,82,255,.34);
+    transition:transform .15s, box-shadow .2s}
+  .btn:hover{transform:translateY(-2px); box-shadow:0 18px 36px rgba(99,82,255,.42)}
+  .btn:active{transform:translateY(0) scale(.99)}
+  .rip{position:absolute; border-radius:50%; background:rgba(255,255,255,.5); transform:scale(0); animation:rip .6s ease-out; pointer-events:none}
+  @keyframes rip{to{transform:scale(4); opacity:0}}
+  .alt{margin-top:16px; text-align:center; font-size:13.5px; color:var(--mut)}
+  .alt a{color:var(--blue); font-weight:600; text-decoration:none}
+
+  /* ---------- DASHBOARD ---------- */
+  .dash{padding:84px 20px 60px; max-width:1040px; margin:0 auto}
+  .dhead{display:flex; align-items:center; justify-content:space-between; margin-bottom:20px}
+  .dhead .who{font-size:13px; color:var(--mut)}
+  .dhead h2{margin:2px 0 0; font-size:24px}
+  .pill{padding:9px 16px; border-radius:999px; border:1.5px solid #e3e6ef; background:#fff; font:inherit;
+    font-weight:600; font-size:13.5px; color:#3a3f4b; cursor:pointer; transition:.2s}
+  .pill:hover{border-color:var(--blue); color:var(--blue)}
+  .kpis{display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:14px; margin-bottom:18px}
+  .kpi{position:relative; overflow:hidden; border-radius:22px; padding:18px 18px 20px; color:#fff;
+    box-shadow:0 16px 34px rgba(31,35,48,.14); transform:translateY(12px); opacity:0; animation:up .6s ease forwards}
+  .kpi:nth-child(1){background:linear-gradient(135deg,#4285F4,#1a73e8); animation-delay:.05s}
+  .kpi:nth-child(2){background:linear-gradient(135deg,#34A853,#0f9d58); animation-delay:.13s}
+  .kpi:nth-child(3){background:linear-gradient(135deg,#FBBC04,#f29900); animation-delay:.21s}
+  .kpi:nth-child(4){background:linear-gradient(135deg,#EA4335,#c5221f); animation-delay:.29s}
+  .kpi .n{font-size:30px; font-weight:800; line-height:1}
+  .kpi .l{font-size:12.5px; opacity:.92; margin-top:6px; font-weight:500}
+  .kpi .sheen{position:absolute; top:-40%; left:-30%; width:60%; height:180%; transform:rotate(20deg);
+    background:linear-gradient(90deg,transparent,rgba(255,255,255,.35),transparent); animation:sheen 4.5s linear infinite}
+  @keyframes sheen{0%{left:-40%}60%,100%{left:130%}}
+  .cols{display:grid; grid-template-columns:1fr 1fr; gap:16px}
+  @media(max-width:720px){.cols{grid-template-columns:1fr}}
+  .panel{background:#fff; border:1px solid #eef0f6; border-radius:24px; padding:20px; box-shadow:0 10px 30px rgba(31,35,48,.06)}
+  .panel h3{margin:0 0 4px; font-size:17px}
+  .panel .ps{margin:0 0 14px; font-size:13px; color:var(--mut)}
+  .item{display:flex; align-items:center; gap:12px; padding:12px; border-radius:16px; transition:.2s; cursor:default}
+  .item:hover{background:#f6f8fe; transform:translateX(3px)}
+  .av{width:40px; height:40px; border-radius:12px; display:flex; align-items:center; justify-content:center;
+    font-weight:700; color:#fff; flex:none}
+  .item b{font-size:14.5px} .item .meta{font-size:12px; color:var(--mut)}
+  .chip{margin-left:auto; font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:.4px;
+    padding:3px 9px; border-radius:999px}
+  .chip.sup{background:#e8f0fe; color:#1a73e8} .chip.wai{background:#e6f4ea; color:#0f9d58}
+  .fab{position:fixed; right:26px; bottom:26px; width:60px; height:60px; border-radius:20px; border:0; cursor:pointer;
+    color:#fff; font-size:30px; z-index:8; background:conic-gradient(from 120deg,#4285F4,#34A853,#FBBC04,#EA4335,#4285F4);
+    box-shadow:0 16px 34px rgba(66,133,244,.45); transition:transform .2s}
+  .fab:hover{transform:scale(1.08) rotate(90deg)}
+  .lock{display:inline-flex; align-items:center; gap:6px; font-size:12px; color:var(--mut); margin-top:10px}
+  .addrow{display:flex; gap:8px; margin-top:12px}
+  .addrow input{flex:1; padding:10px 12px; font-size:14px; border-radius:12px}
+  .miniadd{padding:10px 16px; border-radius:12px; border:0; color:#fff; font:inherit; font-weight:700; font-size:14px;
+    background:linear-gradient(120deg,#4285F4,#34A853); cursor:pointer}
+</style>
+</head>
+<body>
+<div class="blobs"><div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div><div class="blob b4"></div></div>
+
+<div class="switch">
+  <button id="tA" class="on" onclick="show('auth')">Login screen</button>
+  <button id="tB" onclick="show('dash')">Dashboard</button>
+</div>
+
+<div class="stage">
+  <!-- AUTH -->
+  <section id="auth" class="view show">
+    <div class="auth">
+      <div class="card">
+        <div class="brandrow">
+          <div class="logo"><span>O</span></div>
+          <div>
+            <div style="font-size:12px;letter-spacing:1.5px;font-weight:700;color:#9aa0b0">PLATFORM</div>
+            <div class="word" style="font-size:20px">Odysra</div>
+          </div>
+        </div>
+        <div class="stagger">
+          <h1 class="title">Create your account</h1>
+          <p class="sub">Set up branches, staff and your menu — all from one dashboard.</p>
+          <div>
+            <label>Restaurant / brand name</label>
+            <div class="field"><input placeholder="Sree Annapoorna"></div>
+          </div>
+          <div>
+            <label>Mobile number</label>
+            <div class="field"><input placeholder="10-digit mobile" inputmode="numeric"></div>
+          </div>
+          <div>
+            <label>Password</label>
+            <div class="field"><input type="password" placeholder="at least 8 characters"></div>
+          </div>
+        </div>
+        <button class="btn" onclick="ripple(event)">Create account</button>
+        <div class="alt">Already with us? <a href="#" onclick="show('dash');return false">Log in</a></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- DASHBOARD -->
+  <section id="dash" class="view">
+    <div class="dash">
+      <div class="dhead">
+        <div>
+          <div class="who">Welcome back</div>
+          <h2 class="word">Sree Annapoorna</h2>
+        </div>
+        <button class="pill">Log out</button>
+      </div>
+
+      <div class="kpis">
+        <div class="kpi"><div class="sheen"></div><div class="n">₹48.2k</div><div class="l">Today's sales</div></div>
+        <div class="kpi"><div class="sheen"></div><div class="n">312</div><div class="l">Orders</div></div>
+        <div class="kpi"><div class="sheen"></div><div class="n">₹154</div><div class="l">Avg order value</div></div>
+        <div class="kpi"><div class="sheen"></div><div class="n">6</div><div class="l">Branches</div></div>
+      </div>
+
+      <div class="cols">
+        <div class="panel">
+          <h3>Branches</h3>
+          <p class="ps">Each branch gets its own chatbot, kitchen display and waiter app.</p>
+          <div class="item"><div class="av" style="background:linear-gradient(135deg,#4285F4,#1a73e8)">RS</div><div><b>RS Puram</b><div class="meta">odysra.com/r/annapoorna-rs-puram</div></div></div>
+          <div class="item"><div class="av" style="background:linear-gradient(135deg,#34A853,#0f9d58)">GP</div><div><b>Gandhipuram</b><div class="meta">odysra.com/r/annapoorna-gandhipuram</div></div></div>
+          <div class="item"><div class="av" style="background:linear-gradient(135deg,#FBBC04,#f29900)">TH</div><div><b>Town Hall</b><div class="meta">odysra.com/r/annapoorna-town-hall</div></div></div>
+          <div class="addrow"><input placeholder="Add a branch…"><button class="miniadd">Add</button></div>
+        </div>
+
+        <div class="panel">
+          <h3>Staff &amp; logins</h3>
+          <p class="ps">Supervisors are high-security; they create their own waiters.</p>
+          <div class="item"><div class="av" style="background:linear-gradient(135deg,#7c4dff,#4285F4)">RA</div><div><b>Ravi</b><div class="meta">@ravi.rspuram · RS Puram</div></div><span class="chip sup">supervisor</span></div>
+          <div class="item"><div class="av" style="background:linear-gradient(135deg,#34A853,#0f9d58)">SU</div><div><b>Suresh</b><div class="meta">@suresh · RS Puram</div></div><span class="chip wai">waiter</span></div>
+          <div class="item"><div class="av" style="background:linear-gradient(135deg,#EA4335,#c5221f)">PR</div><div><b>Priya</b><div class="meta">@priya · Gandhipuram</div></div><span class="chip wai">waiter</span></div>
+          <div class="lock">🔒 Sales &amp; revenue stay admin-only</div>
+        </div>
+      </div>
+    </div>
+    <button class="fab" onclick="ripple(event)">+</button>
+  </section>
+</div>
+
+<script>
+  function show(v){
+    document.getElementById('auth').classList.toggle('show', v==='auth');
+    document.getElementById('dash').classList.toggle('show', v==='dash');
+    document.getElementById('tA').classList.toggle('on', v==='auth');
+    document.getElementById('tB').classList.toggle('on', v==='dash');
+    window.scrollTo(0,0);
+  }
+  function ripple(e){
+    var b=e.currentTarget, r=document.createElement('span'); r.className='rip';
+    var d=Math.max(b.clientWidth,b.clientHeight), x=e.offsetX-d/2, y=e.offsetY-d/2;
+    r.style.width=r.style.height=d+'px'; r.style.left=x+'px'; r.style.top=y+'px';
+    b.appendChild(r); setTimeout(function(){r.remove();},600);
+  }
+</script>
+</body>
+</html>
