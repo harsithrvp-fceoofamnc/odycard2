@@ -185,6 +185,7 @@
   .tproc .ptxt{font-size:16px;font-weight:700;color:var(--ink);min-height:24px;letter-spacing:.2px;transition:opacity .35s ease}
   .ok{text-align:center;padding:14px 4px}
   .ok .big{font-size:46px}.ok h2{margin:8px 0 4px}.ok p{color:var(--mut);font-size:14.5px;margin:4px 0}
+  .payspin{width:44px;height:44px;margin:6px auto 0;border-radius:50%;border:4px solid #efe6d6;border-top-color:#c79233;animation:tspin .8s linear infinite}
   /* ---------- elegant polish & animations ---------- */
   /* Doodle wallpaper sits behind the WHOLE screen, so the translucent input bar reveals it too */
   #phone{
@@ -596,6 +597,15 @@ const TXT={
  confirmNumSub:{en:"We'll link your order to this number. Is it correct?",ta:"உங்கள் ஆர்டரை இந்த எண்ணுடன் இணைப்போம். சரியா?",hi:"हम आपका ऑर्डर इस नंबर से जोड़ेंगे। क्या यह सही है?",ml:"നിങ്ങളുടെ ഓർഡർ ഈ നമ്പറുമായി ബന്ധിപ്പിക്കും. ശരിയാണോ?",te:"మీ ఆర్డర్‌ను ఈ నంబర్‌తో లింక్ చేస్తాం. ఇది సరియేనా?",kn:"ನಿಮ್ಮ ಆರ್ಡರ್ ಅನ್ನು ಈ ಸಂಖ್ಯೆಗೆ ಲಿಂಕ್ ಮಾಡುತ್ತೇವೆ. ಸರಿಯೇ?"},
  confirmYes:{en:"✓ Yes, continue",ta:"✓ ஆம், தொடரவும்",hi:"✓ हाँ, आगे बढ़ें",ml:"✓ അതെ, തുടരൂ",te:"✓ అవును, కొనసాగించండి",kn:"✓ ಹೌದು, ಮುಂದುವರಿಸಿ"},
  confirmEdit:{en:"Edit number",ta:"எண்ணை மாற்று",hi:"नंबर बदलें",ml:"നമ്പർ തിരുത്തുക",te:"నంబర్ మార్చండి",kn:"ಸಂಖ್ಯೆ ಬದಲಿಸಿ"},
+ payOpening:{en:"Opening %m…",ta:"%m திறக்கிறது…",hi:"%m खोल रहे हैं…",ml:"%m തുറക്കുന്നു…",te:"%m తెరుస్తోంది…",kn:"%m ತೆರೆಯಲಾಗುತ್ತಿದೆ…"},
+ payComplete:{en:"Finish the payment in the app, then tap below.",ta:"செயலியில் பணம் செலுத்தி, கீழே தட்டவும்.",hi:"ऐप में भुगतान पूरा करें, फिर नीचे टैप करें।",ml:"ആപ്പിൽ പേയ്മെന്റ് പൂർത്തിയാക്കി താഴെ ടാപ്പ് ചെയ്യൂ.",te:"యాప్‌లో చెల్లింపు పూర్తి చేసి, కింద నొక్కండి.",kn:"ಆ್ಯಪ್‌ನಲ್ಲಿ ಪಾವತಿ ಪೂರ್ಣಗೊಳಿಸಿ, ನಂತರ ಕೆಳಗೆ ಟ್ಯಾಪ್ ಮಾಡಿ."},
+ payIvePaid:{en:"✓ I've paid ₹%a",ta:"✓ ₹%a செலுத்திவிட்டேன்",hi:"✓ मैंने ₹%a भुगतान कर दिया",ml:"✓ ഞാൻ ₹%a അടച്ചു",te:"✓ నేను ₹%a చెల్లించాను",kn:"✓ ನಾನು ₹%a ಪಾವತಿಸಿದೆ"},
+ payCancelPay:{en:"Cancel payment",ta:"பணம் செலுத்துவதை ரத்துசெய்",hi:"भुगतान रद्द करें",ml:"പേയ്മെന്റ് റദ്ദാക്കൂ",te:"చెల్లింపును రద్దు చేయండి",kn:"ಪಾವತಿ ರದ್ದುಮಾಡಿ"},
+ payFailTitle:{en:"Payment failed",ta:"பணம் செலுத்துதல் தோல்வி",hi:"भुगतान विफल",ml:"പേയ്മെന്റ് പരാജയപ്പെട്ടു",te:"చెల్లింపు విఫలమైంది",kn:"ಪಾವತಿ ವಿಫಲವಾಗಿದೆ"},
+ payFailSub:{en:"Your payment didn't go through. Don't worry — nothing was charged.",ta:"உங்கள் பணம் செலுத்துதல் நிறைவடையவில்லை. கவலை வேண்டாம் — எந்தத் தொகையும் கழிக்கப்படவில்லை.",hi:"आपका भुगतान पूरा नहीं हुआ। चिंता न करें — कोई राशि नहीं कटी है।",ml:"നിങ്ങളുടെ പേയ്മെന്റ് പൂർത്തിയായില്ല. വിഷമിക്കേണ്ട — പണമൊന്നും ഈടാക്കിയിട്ടില്ല.",te:"మీ చెల్లింపు పూర్తి కాలేదు. చింతించకండి — ఎలాంటి మొత్తం వసూలు కాలేదు.",kn:"ನಿಮ್ಮ ಪಾವತಿ ಪೂರ್ಣಗೊಳ್ಳಲಿಲ್ಲ. ಚಿಂತಿಸಬೇಡಿ — ಯಾವುದೇ ಮೊತ್ತ ಕಡಿತವಾಗಿಲ್ಲ."},
+ payRetry:{en:"🔄 Try payment again",ta:"🔄 மீண்டும் முயற்சிக்கவும்",hi:"🔄 दोबारा भुगतान करें",ml:"🔄 വീണ്ടും ശ്രമിക്കൂ",te:"🔄 మళ్లీ ప్రయత్నించండి",kn:"🔄 ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ"},
+ payCancelOrder:{en:"Cancel order",ta:"ஆர்டரை ரத்துசெய்",hi:"ऑर्डर रद्द करें",ml:"ഓർഡർ റദ്ദാക്കൂ",te:"ఆర్డర్ రద్దు చేయండి",kn:"ಆರ್ಡರ್ ರದ್ದುಮಾಡಿ"},
+ payCancelledMsg:{en:"No problem — the payment was cancelled and nothing was charged. Your items are still in your cart whenever you'd like to try again. 🙂",ta:"பரவாயில்லை — பணம் செலுத்துதல் ரத்துசெய்யப்பட்டது, எந்தத் தொகையும் கழிக்கப்படவில்லை. நீங்கள் மீண்டும் முயற்சிக்க விரும்பினால் உங்கள் உணவுகள் கூடையில் உள்ளன. 🙂",hi:"कोई बात नहीं — भुगतान रद्द कर दिया गया और कोई राशि नहीं कटी। जब भी आप दोबारा कोशिश करना चाहें, आपके आइटम कार्ट में मौजूद हैं। 🙂",ml:"കുഴപ്പമില്ല — പേയ്മെന്റ് റദ്ദാക്കി, പണമൊന്നും ഈടാക്കിയിട്ടില്ല. വീണ്ടും ശ്രമിക്കാൻ ആഗ്രഹിക്കുമ്പോൾ നിങ്ങളുടെ വിഭവങ്ങൾ കാർട്ടിൽ ഉണ്ട്. 🙂",te:"ఫర్వాలేదు — చెల్లింపు రద్దు చేయబడింది, ఎలాంటి మొత్తం వసూలు కాలేదు. మీరు మళ్లీ ప్రయత్నించాలనుకున్నప్పుడు మీ వస్తువులు కార్ట్‌లో ఉన్నాయి. 🙂",kn:"ಪರವಾಗಿಲ್ಲ — ಪಾವತಿ ರದ್ದಾಗಿದೆ, ಯಾವುದೇ ಮೊತ್ತ ಕಡಿತವಾಗಿಲ್ಲ. ನೀವು ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಲು ಬಯಸಿದಾಗ ನಿಮ್ಮ ಐಟಂಗಳು ಕಾರ್ಟ್‌ನಲ್ಲಿವೆ. 🙂"},
  downloadBill:{en:"⬇ Download bill",ta:"⬇ பில் பதிவிறக்கு",hi:"⬇ बिल डाउनलोड करें",ml:"⬇ ബിൽ ഡൗൺലോഡ് ചെയ്യൂ",te:"⬇ బిల్లు డౌన్‌లోడ్",kn:"⬇ ಬಿಲ್ ಡೌನ್‌ಲೋಡ್"},
  specials:{en:"⭐ Specials",ta:"⭐ ஸ்பெஷல்",hi:"⭐ स्पेशल",ml:"⭐ സ്പെഷ്യൽ",te:"⭐ స్పెషల్స్",kn:"⭐ ಸ್ಪೆಷಲ್"},
  info:{en:"ℹ️ Restaurant info",ta:"ℹ️ உணவகத் தகவல்",hi:"ℹ️ रेस्टोरेंट जानकारी",ml:"ℹ️ റെസ്റ്റോറന്റ് വിവരം",te:"ℹ️ రెస్టారెంట్ సమాచారం",kn:"ℹ️ ರೆಸ್ಟೋರೆಂಟ್ ಮಾಹಿತಿ"},
@@ -1087,7 +1097,24 @@ function contact(){const sub=cartTotal(),tax=Math.round(sub*taxRate()),gt=sub+ta
  openSheet(`<h2>Confirm &amp; pay</h2><div class="tot"><span>Outlet</span><span>${outlet}</span></div><div class="tot"><span>Order type</span><span>${order.mode==="dine"?`Dine-in · ${order.room} · T${order.table}`:"Takeaway"}</span></div><div class="tot"><span>Subtotal</span><span>₹${sub}</span></div><div class="tot"><span>GST &amp; charges (${(taxRate()*100)}%)</span><span>₹${tax}</span></div><div class="tot big"><span>Grand total</span><span>₹${gt}</span></div><div class="fld" style="margin-top:14px"><label>Your name</label><input id="cn" oninput="alpha(this)" maxlength="30" placeholder="Enter your name" value="${order.name||''}"></div>${personsFld}<div class="fld"><label>Phone number</label><input id="cp" inputmode="numeric" maxlength="10" oninput="dig(this,10)" placeholder="10-digit number" value="${order.phone||''}"></div><div id="cperr" style="color:#c0392b;font-size:13.5px;margin-top:2px;display:none">Please enter a valid 10-digit number.</div><div class="note">Bill is sent to WhatsApp <b>only after full payment</b>.</div><button class="btn g" onclick="pay(${gt})">Pay ₹${gt} →</button>`);}
 function pay(gt){const cp=document.getElementById("cp");const digits=((cp&&cp.value)||"").replace(/\D/g,"");if(digits.length!==10){const e=document.getElementById("cperr");if(e)e.style.display="block";if(cp){cp.style.borderColor="#c0392b";cp.focus();}return;}order.name=(document.getElementById("cn").value||"Guest");order.phone=digits;order.persons=(document.getElementById("cpers")&&document.getElementById("cpers").value)||"";confirmNum(gt);}
 function confirmNum(gt){openSheet('<h2>'+T("confirmNumTitle")+'</h2><div class="note" style="margin:0 0 6px">'+T("confirmNumSub")+'</div><div style="text-align:center;font-size:25px;font-weight:800;color:#7a4a24;letter-spacing:1.5px;margin:12px 0 18px">+91 '+order.phone+'</div><button class="btn g" onclick="payMethods('+gt+')">'+T("confirmYes")+'</button><button class="btn" style="background:#fff;color:#7a4a24;border:1.5px solid #7a4a24" onclick="contact()">'+T("confirmEdit")+'</button>');}
-function payMethods(gt){var M=[{k:"Card",l:"Credit & Debit Card",c:"#f47216",g:"💳"},{k:"PhonePe",l:"PhonePe",c:"#5f259f",g:'<b style="color:#5f259f">Pe</b>'},{k:"Google Pay",l:"Google Pay",c:"#4285f4",g:'<b style="color:#4285f4">G</b>'},{k:"Paytm UPI",l:"Paytm",c:"#012a6e",g:'<b style="color:#012a6e">P</b>'},{k:"Other UPI",l:"Other UPI",c:"#7c828c",g:"🏦"}];var tiles=M.map(function(m){return '<button class="paym" style="background:'+m.c+'" onclick="payDone(\''+m.k+'\','+gt+')"><span class="pi">'+m.g+'</span><span>'+m.l+'</span></button>';}).join("");openSheet('<h2>'+T("payTitle").replace("%a",gt)+'</h2><div class="note" style="margin:0 0 12px">'+T("payUsing")+'</div><div class="paygrid">'+tiles+'</div>');}
+function payMethods(gt){var M=[{k:"Card",l:"Credit & Debit Card",c:"#f47216",g:"💳"},{k:"PhonePe",l:"PhonePe",c:"#5f259f",g:'<b style="color:#5f259f">Pe</b>'},{k:"Google Pay",l:"Google Pay",c:"#4285f4",g:'<b style="color:#4285f4">G</b>'},{k:"Paytm UPI",l:"Paytm",c:"#012a6e",g:'<b style="color:#012a6e">P</b>'},{k:"Other UPI",l:"Other UPI",c:"#7c828c",g:"🏦"}];var tiles=M.map(function(m){return '<button class="paym" style="background:'+m.c+'" onclick="payGo(\''+m.k+'\','+gt+')"><span class="pi">'+m.g+'</span><span>'+m.l+'</span></button>';}).join("");openSheet('<h2>'+T("payTitle").replace("%a",gt)+'</h2><div class="note" style="margin:0 0 12px">'+T("payUsing")+'</div><div class="paygrid">'+tiles+'</div>');}
+// Simulated payment-app handoff (like being sent to PhonePe/GPay). The guest either completes
+// the payment or backs out — backing out shows the Swiggy-style "payment failed" choice.
+function payGo(method,gt){
+  openSheet('<div class="ok"><div class="payspin"></div><h2 style="margin-top:14px">'+T("payOpening").replace("%m",method)+'</h2><p>'+T("payComplete")+'</p>'+
+    '<button class="btn g" onclick="payDone(\''+method+'\','+gt+')">'+T("payIvePaid").replace("%a",gt)+'</button>'+
+    '<button class="btn" style="background:#fff;color:#c0392b;border:1.5px solid #e0b4ad" onclick="payFailed(\''+method+'\','+gt+')">'+T("payCancelPay")+'</button></div>');
+}
+// Swiggy-style failure sheet: try the payment again, or cancel the order.
+function payFailed(method,gt){
+  openSheet('<div class="ok"><div class="big" style="color:#c0392b">'+
+    "<svg class='okcheck' style='color:#c0392b' viewBox='0 0 24 24'><circle cx='12' cy='12' r='10'/><path d='M8 8l8 8M16 8l-8 8'/></svg>"+
+    '</div><h2>'+T("payFailTitle")+'</h2><p>'+T("payFailSub")+'</p>'+
+    '<button class="btn g" onclick="payMethods('+gt+')">'+T("payRetry")+'</button>'+
+    '<button class="btn" style="background:#fff;color:#7a4a24;border:1.5px solid #7a4a24" onclick="payCancel()">'+T("payCancelOrder")+'</button></div>');
+}
+// Order cancelled at payment: nothing charged, cart kept so they can retry whenever.
+function payCancel(){closeModal();var rb=bot(T("payCancelledMsg"));block("chips",'<button class="chip go" onclick="openCart()">'+lbl("viewCart")+'</button>');mainChips();anchorReply(rb);}
 function payDone(method,gt){var nm=order.name||"Guest",ph=order.phone||"",pers=order.persons||"";
   var sub=cartTotal(),tax=Math.round(sub*taxRate());
   var items=Object.keys(cart).map(function(k){return {n:MENU[k].n,q:cart[k],p:MENU[k].p*cart[k]};});
