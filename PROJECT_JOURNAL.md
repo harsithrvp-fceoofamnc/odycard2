@@ -266,3 +266,29 @@ A full de-branded copy of the whole app at **/restaurant**, for pitching to any 
 - Cache busters: annapoorna `?v=21`, restaurant `?v=6`. tsc clean; both bot scripts node --check OK.
 - Cost note: recommendations are fully AI (onboarding reveal + chat). Free-tier Gemini = 20 req/day — enable billing before the trial or it will hit the cap. /api/taste is an open write endpoint (add validation/rate-limit before public launch).
 - TODO: reuse TASTE_CFG for Bon Bon (dessert flavour options) when that bot is built.
+
+## 2026-06-25 — Find-what's-for-me + kitchen/ordering system exploration
+### Shipped to the bot
+- Replaced the slide taste-onboarding with a per-visit **"Find what's for me"** AI chat: a chip next to Explore menu opens a mood prompt (Something light / A full meal / Something spicy / Something sweet / Surprise me) + free typing → glowing-orb processing → AI cross-category recommendations. Language-aware. (Committed; cache busters annapoorna ?v=39, restaurant ?v=24.)
+- Reasoning: encourage variety each visit instead of a locked taste profile.
+
+### Concept work + demos (today, mostly discussion — not yet wired to the live app)
+- **Kitchen Display System (KDS)** demos: `kitchen_display_demo.html` (fast-food token style) and `dinein_kitchen_demo.html` (Annapoorna dine-in: table-keyed tickets, rounds per table, ⚡ EXPEDITE re-orders at top, "Serve to Table" cue). Calm UI (no per-second re-render; timers update in place).
+- **Waiter app** demo: `waiter_app_demo.html` — the app that would ship as an APK. PIN login (supervisor-provisioned), zone-scoped serve list, custom Web-Audio chime + vibrate + optional spoken table number, ⚡ expedite cards, "Served" action.
+- **PDFs**: `Odysra_AI_Vision.pdf` (full product vision: body=product/soul=service, demand intelligence incl. festival+weather, SaaS/credits model) and `Odysra_Kitchen_System.pdf` (today's kitchen discussion, with Ram's ideas vs Odysra's suggestions kept visually separate).
+
+### Key decisions / design notes
+- **Re-order detection:** open "tab/session" per table keyed by **table + phone**; new order with an open session = re-order (Round 2+, same bill); expedite if previous round already cooking/served; session closes on payment.
+- **Staffing:** QR ordering removes order-taking, so floor staff become food-runners → cover more chairs. Zones map tables→waiters; peak mode splits zones. "Serve to table" routes to the assigned waiter.
+- **Waiter alerts:** push via FCM → phone (custom notification sound / spoken table number) is enough; ₹999 boAt/Noise/Fire-Boltt watch only mirrors phone notifications (one-way) as an optional upgrade.
+- **Access model:** APK for waiters (PIN login, supervisor-provisioned, no self-signup); web dashboards for admin/supervisor/kitchen. Use **Firebase Auth** (already on Firestore) over Auth0; scope permissions at the API, not just the UI.
+- **Real APK** needs the Android SDK/Gradle toolchain (not available in this build env) — the waiter web app is the content; wrap with Capacitor (already in package.json) later.
+
+### Still pending (to make the kitchen system real)
+- Save every order + status to the DB (table, phone, round, timestamp); open-tab session logic; live kitchen + bills screens; regular recognition; waiter app + FCM push.
+
+## 2026-06-26 — Beverage "serve now / at the end" toggle
+- In the cart, every beverage (MENU.bev) shows a **Serve: [Now] [At the end]** toggle; default = "At the end" (`isLater()` true unless set false). `serveLater{}` state; reset on pay/goOutlets.
+- Payment receipt lists drinks marked for the end ("☕ Served at the end: Filter Coffee").
+- Translated (serveLabel/serveNow/serveEnd/serveEndNote) in all 6 languages. Carries to white-label automatically.
+- Cache busters annapoorna ?v=40, restaurant ?v=25. Note: this captures the preference + shows it; actually *holding the KOT* until fired happens once the real order backend + kitchen screen exist.

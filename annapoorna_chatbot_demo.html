@@ -128,6 +128,13 @@
   .fld label{font-size:13.5px;color:var(--mut);font-weight:600;display:block;margin-bottom:4px}
   .fld input,.fld textarea{width:100%;border:1px solid var(--line);border-radius:10px;padding:11px;font-size:15.5px;outline:none;font-family:inherit}
   .note{font-size:13px;color:var(--mut);background:#f3eee3;border-radius:9px;padding:8px 10px;margin-top:8px}
+  .paygrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:4px}
+  .paym{border:0;border-radius:14px;padding:13px 6px 11px;color:#fff;font-weight:700;font-size:12px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:8px;min-height:90px;justify-content:center;text-align:center;line-height:1.2}
+  .paym:active{transform:scale(.96)}
+  .paym .pi{width:34px;height:34px;background:#fff;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:17px;color:#333}
+  .bill{margin:12px 0 4px;text-align:left;border:1px solid var(--line);border-radius:10px;padding:9px 13px;background:#fffaf0}
+  .brow{display:flex;justify-content:space-between;gap:10px;font-size:13px;padding:3px 0;color:var(--ink)}
+  .brow.tot{font-weight:800;border-top:1px solid var(--line);margin-top:4px;padding-top:6px;font-size:14.5px;color:#7a4a24}
   /* taste onboarding overlay */
   #taste{position:absolute;inset:0;z-index:30;background:var(--card);display:none;flex-direction:column;animation:tfade .25s ease}
   #taste.on{display:flex}
@@ -567,6 +574,29 @@ const TXT={
  exploreMore:{en:"🍽️ Explore more",ta:"🍽️ மேலும் பார்க்க",hi:"🍽️ और देखें",ml:"🍽️ കൂടുതൽ കാണുക",te:"🍽️ మరిన్ని చూడండి",kn:"🍽️ ಇನ್ನಷ್ಟು ನೋಡಿ"},
  specialsLong:{en:"⭐ Today's specials",ta:"⭐ இன்றைய ஸ்பெஷல்",hi:"⭐ आज के स्पेशल",ml:"⭐ ഇന്നത്തെ സ്പെഷ്യൽ",te:"⭐ నేటి స్పెషల్స్",kn:"⭐ ಇಂದಿನ ಸ್ಪೆಷಲ್"},
  findForMe:{en:"✨ Find what's for me",ta:"✨ எனக்கு ஏற்றதைக் கண்டுபிடி",hi:"✨ मेरे लिए ढूँढें",ml:"✨ എനിക്കുള്ളത് കണ്ടെത്തൂ",te:"✨ నాకోసం వెతకండి",kn:"✨ ನನಗಾಗಿ ಹುಡುಕಿ"},
+ payTitle:{en:"Pay ₹%a",ta:"₹%a செலுத்து",hi:"₹%a भुगतान करें",ml:"₹%a അടയ്ക്കുക",te:"₹%a చెల్లించండి",kn:"₹%a ಪಾವತಿಸಿ"},
+ payUsing:{en:"Pay using",ta:"இதன் மூலம் செலுத்துங்கள்",hi:"इससे भुगतान करें",ml:"ഇത് ഉപയോഗിച്ച് അടയ്ക്കൂ",te:"దీని ద్వారా చెల్లించండి",kn:"ಇದರ ಮೂಲಕ ಪಾವತಿಸಿ"},
+ paySuccess:{en:"Payment successful!",ta:"பணம் செலுத்தப்பட்டது!",hi:"भुगतान सफल!",ml:"പേയ്മെന്റ് വിജയകരം!",te:"చెల్లింపు విజయవంతం!",kn:"ಪಾವತಿ ಯಶಸ್ವಿ!"},
+ payThanks:{en:"Thanks %n! Your order is confirmed and sent to the %o kitchen.",ta:"நன்றி %n! உங்கள் ஆர்டர் உறுதிசெய்யப்பட்டு %o சமையலறைக்கு அனுப்பப்பட்டது.",hi:"धन्यवाद %n! आपका ऑर्डर कन्फर्म होकर %o किचन भेज दिया गया है।",ml:"നന്ദി %n! നിങ്ങളുടെ ഓർഡർ സ്ഥിരീകരിച്ച് %o അടുക്കളയിലേക്ക് അയച്ചു.",te:"ధన్యవాదాలు %n! మీ ఆర్డర్ నిర్ధారించబడి %o వంటగదికి పంపబడింది.",kn:"ಧನ್ಯವಾದ %n! ನಿಮ್ಮ ಆರ್ಡರ್ ದೃಢೀಕರಿಸಿ %o ಅಡುಗೆಮನೆಗೆ ಕಳುಹಿಸಲಾಗಿದೆ."},
+ payWhatsapp:{en:"Bill sent on WhatsApp to",ta:"வாட்ஸ்அப்பில் பில் அனுப்பப்பட்டது:",hi:"व्हाट्सएप पर बिल भेजा गया:",ml:"വാട്ട്സ്ആപ്പിൽ ബിൽ അയച്ചു:",te:"వాట్సాప్‌లో బిల్లు పంపబడింది:",kn:"ವಾಟ್ಸಾಪ್‌ನಲ್ಲಿ ಬಿಲ್ ಕಳುಹಿಸಲಾಗಿದೆ:"},
+ takeaway:{en:"Takeaway",ta:"டேக்அவே",hi:"टेकअवे",ml:"ടേക്ക്എവേ",te:"టేకావే",kn:"ಟೇಕ್‌ಅವೇ"},
+ persons:{en:"persons",ta:"நபர்கள்",hi:"लोग",ml:"പേർ",te:"మంది",kn:"ಜನ"},
+ paidVia:{en:"Paid via",ta:"செலுத்தியது:",hi:"भुगतान:",ml:"അടച്ചത്:",te:"చెల్లించినది:",kn:"ಪಾವತಿಸಿದ್ದು:"},
+ done:{en:"Done",ta:"முடிந்தது",hi:"हो गया",ml:"പൂർത്തിയായി",te:"పూర్తయింది",kn:"ಮುಗಿದಿದೆ"},
+ totalPaid:{en:"Total paid",ta:"மொத்தம் செலுத்தியது",hi:"कुल भुगतान",ml:"ആകെ അടച്ചത്",te:"మొత్తం చెల్లించినది",kn:"ಒಟ್ಟು ಪಾವತಿ"},
+ orderThanks:{en:"Enjoy your meal! 😊 Would you like to explore more?",ta:"உணவை ரசியுங்கள்! 😊 மேலும் பார்க்க விரும்புகிறீர்களா?",hi:"भोजन का आनंद लें! 😊 क्या आप और देखना चाहेंगे?",ml:"ഭക്ഷണം ആസ്വദിക്കൂ! 😊 കൂടുതൽ കാണാൻ ആഗ്രഹിക്കുന്നുണ്ടോ?",te:"భోజనం ఆస్వాదించండి! 😊 మరిన్ని చూడాలనుకుంటున్నారా?",kn:"ಊಟ ಆನಂದಿಸಿ! 😊 ಇನ್ನಷ್ಟು ನೋಡಲು ಬಯಸುತ್ತೀರಾ?"},
+ welcomeBack:{en:"Welcome back, %n! 😊 Same as last time, or something different today?",ta:"மீண்டும் வரவேற்கிறோம், %n! 😊 முந்தைய அதே, அல்லது இன்று வேறு ஏதாவது?",hi:"वापसी पर स्वागत है, %n! 😊 पिछली बार जैसा, या आज कुछ अलग?",ml:"വീണ്ടും സ്വാഗതം, %n! 😊 കഴിഞ്ഞ തവണത്തേത് തന്നെ, അതോ ഇന്ന് വ്യത്യസ്തമായി?",te:"మళ్లీ స్వాగతం, %n! 😊 గత సారిలాగే, లేదా ఈరోజు ఏదైనా కొత్తది?",kn:"ಮತ್ತೆ ಸ್ವಾಗತ, %n! 😊 ಕಳೆದ ಬಾರಿಯಂತೆಯೇ, ಅಥವಾ ಇಂದು ಏನಾದರೂ ಬೇರೆ?"},
+ myUsual:{en:"🔁 My usual",ta:"🔁 வழக்கமானது",hi:"🔁 मेरा हमेशा वाला",ml:"🔁 പതിവ് വിഭവം",te:"🔁 నా రెగ్యులర్",kn:"🔁 ನನ್ನ ಎಂದಿನದು"},
+ somethingNew:{en:"✨ Something new",ta:"✨ புதிதாக ஏதாவது",hi:"✨ कुछ नया",ml:"✨ പുതിയ എന്തെങ്കിലും",te:"✨ ఏదైనా కొత్తది",kn:"✨ ಏನಾದರೂ ಹೊಸದು"},
+ usualIntro:{en:"Here's what you had last time 👇",ta:"முந்தைய முறை நீங்கள் சாப்பிட்டது 👇",hi:"पिछली बार आपने यह लिया था 👇",ml:"കഴിഞ്ഞ തവണ കഴിച്ചത് ഇതാ 👇",te:"గత సారి మీరు తీసుకున్నది 👇",kn:"ಕಳೆದ ಬಾರಿ ನೀವು ತಿಂದದ್ದು 👇"},
+ newIntro:{en:"Let's try something different today! ✨",ta:"இன்று வேறு ஏதாவது முயற்சிப்போம்! ✨",hi:"आज कुछ अलग आज़माते हैं! ✨",ml:"ഇന്ന് വ്യത്യസ്തമായി എന്തെങ്കിലും നോക്കാം! ✨",te:"ఈరోజు ఏదైనా కొత్తది ప్రయత్నిద్దాం! ✨",kn:"ಇಂದು ಏನಾದರೂ ಬೇರೆ ಪ್ರಯತ್ನಿಸೋಣ! ✨"},
+ noUsual:{en:"Couldn't find your past dishes — here's something fresh!",ta:"உங்கள் முந்தைய உணவுகள் கிடைக்கவில்லை — இதோ புதிது!",hi:"आपके पिछले व्यंजन नहीं मिले — यह लीजिए कुछ नया!",ml:"പഴയ വിഭവങ്ങൾ കണ്ടെത്താനായില്ല — ഇതാ പുതിയത്!",te:"మీ గత వంటకాలు దొరకలేదు — ఇదిగో కొత్తది!",kn:"ನಿಮ್ಮ ಹಿಂದಿನ ಖಾದ್ಯಗಳು ಸಿಗಲಿಲ್ಲ — ಇಗೋ ಹೊಸದು!"},
+ notYou:{en:"Not you?",ta:"நீங்கள் இல்லையா?",hi:"आप नहीं?",ml:"നിങ്ങളല്ലേ?",te:"మీరు కాదా?",kn:"ನೀವಲ್ಲವೇ?"},
+ confirmNumTitle:{en:"Confirm your number",ta:"உங்கள் எண்ணை உறுதிசெய்யுங்கள்",hi:"अपना नंबर पुष्टि करें",ml:"നിങ്ങളുടെ നമ്പർ ഉറപ്പിക്കൂ",te:"మీ నంబర్‌ను నిర్ధారించండి",kn:"ನಿಮ್ಮ ಸಂಖ್ಯೆಯನ್ನು ದೃಢೀಕರಿಸಿ"},
+ confirmNumSub:{en:"We'll link your order to this number. Is it correct?",ta:"உங்கள் ஆர்டரை இந்த எண்ணுடன் இணைப்போம். சரியா?",hi:"हम आपका ऑर्डर इस नंबर से जोड़ेंगे। क्या यह सही है?",ml:"നിങ്ങളുടെ ഓർഡർ ഈ നമ്പറുമായി ബന്ധിപ്പിക്കും. ശരിയാണോ?",te:"మీ ఆర్డర్‌ను ఈ నంబర్‌తో లింక్ చేస్తాం. ఇది సరియేనా?",kn:"ನಿಮ್ಮ ಆರ್ಡರ್ ಅನ್ನು ಈ ಸಂಖ್ಯೆಗೆ ಲಿಂಕ್ ಮಾಡುತ್ತೇವೆ. ಸರಿಯೇ?"},
+ confirmYes:{en:"✓ Yes, continue",ta:"✓ ஆம், தொடரவும்",hi:"✓ हाँ, आगे बढ़ें",ml:"✓ അതെ, തുടരൂ",te:"✓ అవును, కొనసాగించండి",kn:"✓ ಹೌದು, ಮುಂದುವರಿಸಿ"},
+ confirmEdit:{en:"Edit number",ta:"எண்ணை மாற்று",hi:"नंबर बदलें",ml:"നമ്പർ തിരുത്തുക",te:"నంబర్ మార్చండి",kn:"ಸಂಖ್ಯೆ ಬದಲಿಸಿ"},
+ downloadBill:{en:"⬇ Download bill",ta:"⬇ பில் பதிவிறக்கு",hi:"⬇ बिल डाउनलोड करें",ml:"⬇ ബിൽ ഡൗൺലോഡ് ചെയ്യൂ",te:"⬇ బిల్లు డౌన్‌లోడ్",kn:"⬇ ಬಿಲ್ ಡೌನ್‌ಲೋಡ್"},
  specials:{en:"⭐ Specials",ta:"⭐ ஸ்பெஷல்",hi:"⭐ स्पेशल",ml:"⭐ സ്പെഷ്യൽ",te:"⭐ స్పెషల్స్",kn:"⭐ ಸ್ಪೆಷಲ್"},
  info:{en:"ℹ️ Restaurant info",ta:"ℹ️ உணவகத் தகவல்",hi:"ℹ️ रेस्टोरेंट जानकारी",ml:"ℹ️ റെസ്റ്റോറന്റ് വിവരം",te:"ℹ️ రెస్టారెంట్ సమాచారం",kn:"ℹ️ ರೆಸ್ಟೋರೆಂಟ್ ಮಾಹಿತಿ"},
  banquet:{en:"🎉 Banquet hall",ta:"🎉 விருந்து மண்டபம்",hi:"🎉 बैंक्वेट हॉल",ml:"🎉 ബാങ്ക്വറ്റ് ഹാൾ",te:"🎉 బాంక్వెట్ హాల్",kn:"🎉 ಬ್ಯಾಂಕ್ವೆಟ್ ಹಾಲ್"},
@@ -635,7 +665,11 @@ const DESC={
  gulab:{en:"Warm syrup-soaked milk dumplings; soft and sweet.",ta:"சிரப்பில் ஊறிய சூடான குலாப் ஜாமூன்.",hi:"चाशनी में डूबे गरम गुलाब जामुन।",ml:"സിറപ്പിൽ കുതിർന്ന ചൂടുള്ള ഗുലാബ് ജാമൂൻ.",te:"సిరప్‌లో నానిన వెచ్చని గులాబ్ జామూన్.",kn:"ಸಿರಪ್‌ನಲ್ಲಿ ನೆನೆದ ಬೆಚ್ಚಗಿನ ಗುಲಾಬ್ ಜಾಮೂನ್."},
  kesari:{en:"Sweet semolina pudding with ghee and cashews.",ta:"நெய், முந்திரியுடன் இனிப்பான ரவா கேசரி.",hi:"घी और काजू के साथ मीठा रवा केसरी।",ml:"നെയ്യും കശുവണ്ടിയും ചേർത്ത മധുര റവ കേസരി.",te:"నెయ్యి, జీడిపప్పుతో తీపి రవ్వ కేసరి.",kn:"ತುಪ್ಪ, ಗೋಡಂಬಿಯೊಂದಿಗೆ ಸಿಹಿ ರವಾ ಕೇಸರಿ."}};
 function desc(id){return (DESC[id]&&DESC[id][lang])||(DESC[id]&&DESC[id].en)||MENU[id].d||"a house favourite, freshly prepared.";}
-let lang="en",outlet=null,cart={},notes={},upsold=false;
+let lang="en",outlet=null,cart={},notes={},upsold=false,lastBill=null;
+function getCustomer(){try{return JSON.parse(localStorage.getItem("ody_customer"))||null;}catch(e){return null;}}
+function saveCustomer(c){try{localStorage.setItem("ody_customer",JSON.stringify(c));}catch(e){}}
+function forgetMe(){try{localStorage.removeItem("ody_customer");}catch(e){}showGreeting();}
+function shuffle(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1)),t=a[i];a[i]=a[j];a[j]=t;}return a;}
 const IC={menu:"<svg class='ic' viewBox='0 0 24 24'><path d='M4 14a8 8 0 0 1 16 0'/><path d='M3 14h18'/><path d='M12 6V4'/></svg>",star:"<svg class='ic' viewBox='0 0 24 24'><path d='M12 4l2.3 5.3 5.7.5-4.3 3.7 1.3 5.5-5-3-5 3 1.3-5.5L4.3 9.8l5.7-.5z'/></svg>",info:"<svg class='ic' viewBox='0 0 24 24'><circle cx='12' cy='12' r='9'/><path d='M12 11v6'/><circle cx='12' cy='7.6' r='.7' fill='currentColor' stroke='none'/></svg>",hall:"<svg class='ic' viewBox='0 0 24 24'><path d='M4 21V10l8-5 8 5v11'/><path d='M9 21v-6a3 3 0 0 1 6 0v6'/><path d='M2 21h20'/></svg>",pin:"<svg class='ic' viewBox='0 0 24 24'><path d='M12 22c5-6 7-9 7-13a7 7 0 0 0-14 0c0 4 2 7 7 13z'/><circle cx='12' cy='9' r='2.4'/></svg>",cart:"<svg class='ic' viewBox='0 0 24 24'><path d='M3 4h2l2.4 11.5h10l2-8H7'/><circle cx='9.5' cy='20' r='1.4' fill='currentColor' stroke='none'/><circle cx='17.5' cy='20' r='1.4' fill='currentColor' stroke='none'/></svg>",home:"<svg class='ic' viewBox='0 0 24 24'><path d='M4 11l8-7 8 7'/><path d='M6 10v10h12V10'/></svg>",back:"<svg class='ic' viewBox='0 0 24 24'><path d='M15 5l-7 7 7 7'/></svg>",note:"<svg class='ic' viewBox='0 0 24 24'><path d='M4 20l4-1 11-11-3-3L5 16l-1 4z'/><path d='M14.5 5.5l3 3'/></svg>",bag:"<svg class='ic' viewBox='0 0 24 24'><path d='M6 8h12l-1.2 12H7.2z'/><path d='M9 8a3 3 0 0 1 6 0'/></svg>",check:"<svg class='okcheck' viewBox='0 0 24 24'><circle cx='12' cy='12' r='10'/><path d='M7.5 12.3l3 3 6-7'/></svg>",ok:"<svg class='ic' viewBox='0 0 24 24'><path d='M5 13l4 4 10-11'/></svg>",x:"<svg class='ic' viewBox='0 0 24 24'><path d='M6 6l12 12M18 6L6 18'/></svg>",fb:"<svg class='ic' viewBox='0 0 24 24'><path d='M4 5h16v11H8l-4 4z'/><path d='M8 9.5h8M8 12.5h5'/></svg>"};
 const lbl=k=>T(k).replace(/^[\p{Extended_Pictographic}\p{S}\p{M}\p{Z}\uFE0F\u20E3]+/u,"").trim();
 
@@ -671,6 +705,8 @@ function dishCard(id){const m=MENU[id];
 function sync(){refreshCart();document.querySelectorAll('.dish[data-id]').forEach(el=>{const f=el.querySelector('.frow');if(f)f.innerHTML=dishFooter(el.dataset.id);});document.querySelectorAll('.pi[data-id]').forEach(el=>{const f=el.querySelector('.pifoot');if(f)f.innerHTML=pairFoot(el.dataset.id);});}
 function buzz(){try{if(navigator.vibrate)navigator.vibrate(35);}catch(e){}}
 function dig(el,n){el.value=el.value.replace(/\D/g,"").slice(0,n);}
+function alpha(el){el.value=el.value.replace(/[^A-Za-z ]/g,"").replace(/\s{2,}/g," ").slice(0,30);}
+function pers(el){el.value=el.value.replace(/\D/g,"").replace(/^0+/,"").slice(0,3);}
 function addDish(id){cart[id]=(cart[id]||0)+1;buzz();sync();upsell();}
 function inc2(id){cart[id]++;buzz();sync();}
 function dec2(id){cart[id]--;if(cart[id]<=0){delete cart[id];delete notes[id];}sync();}
@@ -700,6 +736,14 @@ function topDishes(){let b=Object.keys(MENU).filter(i=>MENU[i].best&&avail(i));
  if(!b.length)b=Object.keys(MENU).filter(i=>MENU[i].best);
  return b.slice(0,4);}
 async function showGreeting(instant){chat.innerHTML="";upsold=false;
+ var cust=getCustomer();
+ if(cust&&cust.name){
+   if(!instant){let t=typingBubble();await sleep(450);t.remove();}
+   bot(T("welcomeBack").replace("%n",cust.name));
+   if(!instant)await sleep(220);
+   returningChips();
+   return;
+ }
  if(!instant){let t=typingBubble();await sleep(500);t.remove();}
  bot(GREET[lang].replace("%t",part()).replace("%o",outlet||""));
  if(!instant){await sleep(450);let t=typingBubble();await sleep(600);t.remove();}
@@ -708,6 +752,9 @@ async function showGreeting(instant){chat.innerHTML="";upsold=false;
  const best=topDishes();const g=block("grid","");
  for(const id of best){g.insertAdjacentHTML("beforeend",dishCard(id));toBottom();if(!instant)await sleep(260);}
  if(!instant)await sleep(200);mainChips();}
+function returningChips(){block("chips",`<button class="chip go" onclick="showUsual()">${IC.star}${lbl("myUsual")}</button><button class="chip" onclick="showNew()">${IC.star}${lbl("somethingNew")}</button><button class="chip alt" onclick="explore()">${IC.menu}${lbl("exploreFull")}</button><button class="chip alt" onclick="forgetMe()">${IC.x}${lbl("notYou")}</button>`);}
+function showUsual(){var c=getCustomer()||{};var ids=(c.last||[]).filter(function(i){return MENU[i]&&avail(i);});me(lbl("myUsual"));if(!ids.length){bot(T("noUsual"));return showNew(true);}var rb=bot(T("usualIntro"));renderGrid(ids.slice(0,6));exploreBar();anchorReply(rb);}
+function showNew(skipMe){var c=getCustomer()||{};var prev=c.last||[];if(!skipMe)me(lbl("somethingNew"));var pool=Object.keys(MENU).filter(function(i){return MENU[i].best&&avail(i)&&prev.indexOf(i)<0;});if(pool.length<4)pool=Object.keys(MENU).filter(function(i){return avail(i)&&prev.indexOf(i)<0;});var rb=bot(T("newIntro"));renderGrid(shuffle(pool).slice(0,6));exploreBar();anchorReply(rb);}
 function showSpecials(quiet){const best=topDishes();if(!quiet)me("Today's specials");
  bot(`Here's what's <b>hot &amp; fresh</b> this ${part()} 👇`);renderGrid(best);mainChips();}
 function mainChips(){block("chips",`<button class="chip go" onclick="explore()">${IC.menu}${lbl("exploreFull")}</button><button class="chip" onclick="findForMe()">${IC.star}${lbl("findForMe")}</button><button class="chip alt" onclick="showSpecials()">${IC.star}${lbl("specialsLong")}</button><button class="chip alt" onclick="info()">${IC.info}${lbl("info")}</button><button class="chip alt" onclick="banquet()">${IC.hall}${lbl("banquet")}</button><button class="chip alt" onclick="goOutlets()">${IC.pin}${lbl("changeOutlet")}</button><button class="chip alt" onclick="openFeedback()">${IC.fb}${lbl("feedback")}</button>`);}
@@ -1000,9 +1047,25 @@ function roomFromTable(){const v=parseInt(document.getElementById("tbl").value);
  if(!v||v<1||v>24){rl.innerHTML="";cb.innerHTML="";return;}order.table=v;order.room=v<=12?"Non-AC":"AC";
  rl.innerHTML=`<div class="note">Table ${v} → <b>${order.room} hall</b> ${order.room==="AC"?"❄️":""}</div>`;cb.innerHTML=`<button class="btn" onclick="contact()">Continue →</button>`;}
 function taxRate(){return order.mode==="dine"&&order.room==="AC"?0.075:0.05;}
-function contact(){const sub=cartTotal(),tax=Math.round(sub*taxRate()),gt=sub+tax;const personsFld=order.mode==="dine"?`<div class="fld"><label>Number of persons</label><input id="cpers" inputmode="numeric" maxlength="3" oninput="dig(this,3)" placeholder="e.g. 4"></div>`:"";
- openSheet(`<h2>Confirm &amp; pay</h2><div class="tot"><span>Outlet</span><span>${outlet}</span></div><div class="tot"><span>Order type</span><span>${order.mode==="dine"?`Dine-in · ${order.room} · T${order.table}`:"Takeaway"}</span></div><div class="tot"><span>Subtotal</span><span>₹${sub}</span></div><div class="tot"><span>GST &amp; charges (${(taxRate()*100)}%)</span><span>₹${tax}</span></div><div class="tot big"><span>Grand total</span><span>₹${gt}</span></div><div class="fld" style="margin-top:14px"><label>Your name</label><input id="cn"></div>${personsFld}<div class="fld"><label>WhatsApp number</label><input id="cp" inputmode="numeric" maxlength="10" oninput="dig(this,10)" placeholder="10-digit number"></div><div id="cperr" style="color:#c0392b;font-size:13.5px;margin-top:2px;display:none">Please enter a valid 10-digit number.</div><div class="note">Bill is sent to WhatsApp <b>only after full payment</b>.</div><button class="btn g" onclick="pay(${gt})">Pay ₹${gt} →</button>`);}
-function pay(gt){const cp=document.getElementById("cp");const digits=((cp&&cp.value)||"").replace(/\D/g,"");if(digits.length!==10){const e=document.getElementById("cperr");if(e)e.style.display="block";if(cp){cp.style.borderColor="#c0392b";cp.focus();}return;}const nm=(document.getElementById("cn").value||"Guest"),ph=digits,pers=(document.getElementById("cpers")&&document.getElementById("cpers").value)||"";openSheet(`<div class="ok"><div class="big">${IC.check}</div><h2>Payment successful!</h2><p>Thanks ${nm}! Your order is confirmed and sent to the ${outlet} kitchen.</p><p>Bill sent on WhatsApp to <b>${ph}</b>.</p><p style="margin-top:10px;font-size:13.5px">${order.mode==="dine"?`Table ${order.table} · ${order.room}`:"Takeaway"}${pers?` · ${pers} persons`:""} · Paid ₹${gt}</p><button class="btn" onclick="reset_()">Done</button></div>`);cart={};notes={};sync();}
+function contact(){const sub=cartTotal(),tax=Math.round(sub*taxRate()),gt=sub+tax;const personsFld=order.mode==="dine"?`<div class="fld"><label>Number of persons</label><input id="cpers" inputmode="numeric" maxlength="3" oninput="pers(this)" placeholder="e.g. 4"></div>`:"";
+ openSheet(`<h2>Confirm &amp; pay</h2><div class="tot"><span>Outlet</span><span>${outlet}</span></div><div class="tot"><span>Order type</span><span>${order.mode==="dine"?`Dine-in · ${order.room} · T${order.table}`:"Takeaway"}</span></div><div class="tot"><span>Subtotal</span><span>₹${sub}</span></div><div class="tot"><span>GST &amp; charges (${(taxRate()*100)}%)</span><span>₹${tax}</span></div><div class="tot big"><span>Grand total</span><span>₹${gt}</span></div><div class="fld" style="margin-top:14px"><label>Your name</label><input id="cn" oninput="alpha(this)" maxlength="30" placeholder="Enter your name" value="${order.name||''}"></div>${personsFld}<div class="fld"><label>Phone number</label><input id="cp" inputmode="numeric" maxlength="10" oninput="dig(this,10)" placeholder="10-digit number" value="${order.phone||''}"></div><div id="cperr" style="color:#c0392b;font-size:13.5px;margin-top:2px;display:none">Please enter a valid 10-digit number.</div><div class="note">Bill is sent to WhatsApp <b>only after full payment</b>.</div><button class="btn g" onclick="pay(${gt})">Pay ₹${gt} →</button>`);}
+function pay(gt){const cp=document.getElementById("cp");const digits=((cp&&cp.value)||"").replace(/\D/g,"");if(digits.length!==10){const e=document.getElementById("cperr");if(e)e.style.display="block";if(cp){cp.style.borderColor="#c0392b";cp.focus();}return;}order.name=(document.getElementById("cn").value||"Guest");order.phone=digits;order.persons=(document.getElementById("cpers")&&document.getElementById("cpers").value)||"";confirmNum(gt);}
+function confirmNum(gt){openSheet('<h2>'+T("confirmNumTitle")+'</h2><div class="note" style="margin:0 0 6px">'+T("confirmNumSub")+'</div><div style="text-align:center;font-size:25px;font-weight:800;color:#7a4a24;letter-spacing:1.5px;margin:12px 0 18px">+91 '+order.phone+'</div><button class="btn g" onclick="payMethods('+gt+')">'+T("confirmYes")+'</button><button class="btn" style="background:#fff;color:#7a4a24;border:1.5px solid #7a4a24" onclick="contact()">'+T("confirmEdit")+'</button>');}
+function payMethods(gt){var M=[{k:"Card",l:"Credit & Debit Card",c:"#f47216",g:"💳"},{k:"PhonePe",l:"PhonePe",c:"#5f259f",g:'<b style="color:#5f259f">Pe</b>'},{k:"Google Pay",l:"Google Pay",c:"#4285f4",g:'<b style="color:#4285f4">G</b>'},{k:"Paytm UPI",l:"Paytm",c:"#012a6e",g:'<b style="color:#012a6e">P</b>'},{k:"Other UPI",l:"Other UPI",c:"#7c828c",g:"🏦"}];var tiles=M.map(function(m){return '<button class="paym" style="background:'+m.c+'" onclick="payDone(\''+m.k+'\','+gt+')"><span class="pi">'+m.g+'</span><span>'+m.l+'</span></button>';}).join("");openSheet('<h2>'+T("payTitle").replace("%a",gt)+'</h2><div class="note" style="margin:0 0 12px">'+T("payUsing")+'</div><div class="paygrid">'+tiles+'</div>');}
+function payDone(method,gt){var nm=order.name||"Guest",ph=order.phone||"",pers=order.persons||"";
+  var sub=cartTotal(),tax=Math.round(sub*taxRate());
+  var items=Object.keys(cart).map(function(k){return {n:MENU[k].n,q:cart[k],p:MENU[k].p*cart[k]};});
+  var orderedIds=Object.keys(cart);
+  lastBill={items:items,sub:sub,tax:tax,gt:gt,method:method,name:nm,phone:ph,type:(order.mode==="dine"?"Dine-in · Table "+order.table+" ("+order.room+")":"Takeaway"),when:new Date().toLocaleString()};
+  saveCustomer({name:nm,phone:ph,last:orderedIds,at:Date.now(),visits:((getCustomer()||{}).visits||0)+1});
+  var rows=items.map(function(it){return '<div class="brow"><span>'+it.n+' ×'+it.q+'</span><span>₹'+it.p+'</span></div>';}).join("");
+  var bill='<div class="bill">'+rows+'<div class="brow"><span>Subtotal</span><span>₹'+sub+'</span></div><div class="brow"><span>GST</span><span>₹'+tax+'</span></div><div class="brow tot"><span>'+T("totalPaid")+'</span><span>₹'+gt+'</span></div></div>';
+  openSheet('<div class="ok"><div class="big">'+IC.check+'</div><h2>'+T("paySuccess")+'</h2><p>'+T("payThanks").replace("%n",nm).replace("%o",outlet)+'</p>'+bill+'<p style="margin-top:8px;font-size:12px;color:var(--mut)">'+lastBill.type+(pers?" · "+pers+" "+T("persons"):"")+' · '+T("paidVia")+' '+method+'</p><button class="btn" style="background:#fff;color:#7a4a24;border:1.5px solid #7a4a24" onclick="downloadBill()">'+T("downloadBill")+'</button><button class="btn g" onclick="orderDone()">'+T("done")+'</button></div>');
+  cart={};notes={};sync();}
+function downloadBill(){if(!lastBill)return;var b=lastBill;var rows=b.items.map(function(it){return '<tr><td style="padding:3px 0">'+it.n+' ×'+it.q+'</td><td style="text-align:right">₹'+it.p+'</td></tr>';}).join("");
+  var html='<!doctype html><html><head><meta charset="utf-8"><title>Annapoorna Bill</title></head><body style="font-family:Arial,sans-serif;max-width:380px;margin:20px auto;color:#222;padding:0 16px"><h2 style="color:#7a4a24;margin:0">Sree Annapoorna</h2><div style="color:#888;font-size:13px;margin-bottom:8px">'+outlet+' · '+b.when+'</div><div style="font-size:13px;margin-bottom:12px">'+b.type+'<br>'+b.name+' · +91 '+b.phone+'</div><table style="width:100%;border-collapse:collapse;font-size:14px">'+rows+'<tr><td style="padding-top:6px">Subtotal</td><td style="text-align:right">₹'+b.sub+'</td></tr><tr><td>GST</td><td style="text-align:right">₹'+b.tax+'</td></tr><tr style="font-weight:bold;border-top:1px solid #ccc"><td style="padding-top:6px">Total paid</td><td style="text-align:right">₹'+b.gt+'</td></tr></table><div style="margin-top:12px;font-size:12px;color:#888">Paid via '+b.method+' · Thank you!</div></body></html>';
+  var blob=new Blob([html],{type:"text/html"});var url=URL.createObjectURL(blob);var a=document.createElement("a");a.href=url;a.download="Annapoorna_Bill.html";document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(url);},1500);}
+function orderDone(){closeModal();var rb=bot(T("orderThanks"));if(lastBill)block("chips",'<button class="chip" onclick="downloadBill()">'+lbl("downloadBill")+'</button>');mainChips();anchorReply(rb);}
 function reset_(){closeModal();upsold=false;showGreeting();}
 
 /* ---------- "Find what's for me" — per-visit AI helper ---------- */

@@ -9,7 +9,7 @@ export default function Outlet() {
       {/* Lock the page so only the chatbot scrolls internally — no parent bounce / black gap */}
       <style>{`html,body{height:100%;overflow:hidden;overscroll-behavior:none;background:#0e1116}`}</style>
       <iframe
-        src="/ody/index.html?v=39"
+        src="/ody/index.html?v=48"
         allow="microphone"
         style={{ position: "fixed", inset: 0, width: "100%", height: "100%", border: "none" }}
       />
