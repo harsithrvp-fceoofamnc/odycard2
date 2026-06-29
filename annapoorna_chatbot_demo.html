@@ -1181,20 +1181,30 @@ function tasteStr(){return "";}
 const FINDTX={
  q:{en:"What are you in the mood for today? Tell me, or tap one 😋",ta:"இன்று எதைச் சாப்பிட விரும்புகிறீர்கள்? சொல்லுங்கள் அல்லது தேர்வுசெய்யுங்கள் 😋",hi:"आज आपका क्या खाने का मन है? बताइए या एक चुनिए 😋",ml:"ഇന്ന് എന്ത് കഴിക്കാൻ തോന്നുന്നു? പറയൂ അല്ലെങ്കിൽ ഒന്ന് തിരഞ്ഞെടുക്കൂ 😋",te:"ఈరోజు ఏం తినాలని ఉంది? చెప్పండి లేదా ఒకటి ఎంచుకోండి 😋",kn:"ಇಂದು ಏನು ತಿನ್ನಬೇಕೆನಿಸುತ್ತದೆ? ಹೇಳಿ ಅಥವಾ ಒಂದನ್ನು ಆಯ್ಕೆಮಾಡಿ 😋"},
  intro:{en:"Here's what I'd go for today 😋",ta:"இன்று நான் பரிந்துரைப்பது 😋",hi:"आज के लिए मेरी पसंद 😋",ml:"ഇന്ന് ഞാൻ നിർദേശിക്കുന്നത് 😋",te:"ఈరోజుకి నా సూచనలు 😋",kn:"ಇಂದಿಗೆ ನನ್ನ ಸಲಹೆ 😋"},
- back:{en:"Back",ta:"பின்",hi:"पीछे",ml:"പിന്നോട്ട്",te:"వెనుకకు",kn:"ಹಿಂದೆ"}
+ back:{en:"Back",ta:"பின்",hi:"पीछे",ml:"പിന്നോട്ട്",te:"వెనుకకు",kn:"ಹಿಂದೆ"},
+ chat:{en:"💬 I'll just tell you",ta:"💬 நானே சொல்கிறேன்",hi:"💬 मैं खुद बताता हूँ",ml:"💬 ഞാൻ തന്നെ പറയാം",te:"💬 నేనే చెప్తాను",kn:"💬 ನಾನೇ ಹೇಳುತ್ತೇನೆ"},
+ chatReply:{en:"Sure! Just type what you're craving — a dish, an ingredient, or even a vibe — and I'll find it for you 😊",ta:"நிச்சயமாக! நீங்கள் என்ன விரும்புகிறீர்கள் என்று தட்டச்சு செய்யுங்கள் — ஒரு உணவு, ஒரு பொருள் அல்லது ஒரு மனநிலை — நான் கண்டுபிடிக்கிறேன் 😊",hi:"बिलकुल! बस लिखिए आपका क्या मन है — कोई व्यंजन, सामग्री या मूड — मैं ढूंढ दूँगा 😊",ml:"തീർച്ചയായും! നിങ്ങൾക്ക് എന്ത് വേണമെന്ന് ടൈപ്പ് ചെയ്യൂ — ഒരു വിഭവം, ചേരുവ, അല്ലെങ്കിൽ ഒരു മൂഡ് — ഞാൻ കണ്ടെത്തിത്തരാം 😊",te:"తప్పకుండా! మీకు ఏం కావాలో టైప్ చేయండి — ఒక వంటకం, పదార్థం, లేదా మూడ్ — నేను కనుగొంటాను 😊",kn:"ಖಂಡಿತ! ನಿಮಗೆ ಏನು ಬೇಕು ಎಂದು ಟೈಪ್ ಮಾಡಿ — ಒಂದು ಖಾದ್ಯ, ಪದಾರ್ಥ, ಅಥವಾ ಮೂಡ್ — ನಾನು ಹುಡುಕಿಕೊಡುತ್ತೇನೆ 😊"}
 };
 const MOODS=[
  {k:"light",prompt:"something light and easy",lab:{en:"Something light",ta:"லேசானது",hi:"कुछ हल्का",ml:"ലഘുവായത്",te:"తేలికైనది",kn:"ಹಗುರವಾದದ್ದು"}},
+ {k:"healthy",prompt:"a healthy, wholesome, light and nutritious option",lab:{en:"Healthy & fresh",ta:"ஆரோக்கியமானது",hi:"सेहतमंद",ml:"ആരോഗ്യകരം",te:"ఆరోగ్యకరం",kn:"ಆರೋಗ್ಯಕರ"}},
  {k:"full",prompt:"a full, filling meal",lab:{en:"A full meal",ta:"முழு உணவு",hi:"भरपूर भोजन",ml:"നിറഞ്ഞ ഭക്ഷണം",te:"పూర్తి భోజనం",kn:"ಪೂರ್ಣ ಊಟ"}},
+ {k:"comfort",prompt:"warm, comforting, homely classic dishes",lab:{en:"Comfort food",ta:"ஆறுதல் உணவு",hi:"दिल को सुकून",ml:"ആശ്വാസ ഭക്ഷണം",te:"కంఫర్ట్ ఫుడ్",kn:"ಆರಾಮದ ಆಹಾರ"}},
  {k:"spicy",prompt:"something spicy",lab:{en:"Something spicy",ta:"காரமானது",hi:"कुछ तीखा",ml:"എരിവുള്ളത്",te:"కారంగా ఉండేది",kn:"ಖಾರವಾದದ್ದು"}},
  {k:"sweet",prompt:"something sweet or a dessert",lab:{en:"Something sweet",ta:"இனிப்பானது",hi:"कुछ मीठा",ml:"മധുരമുള്ളത്",te:"తీపి ఏదైనా",kn:"ಸಿಹಿಯಾದದ್ದು"}},
+ {k:"drink",prompt:"a refreshing drink or beverage",lab:{en:"Something to drink",ta:"குடிக்க ஏதாவது",hi:"कुछ पीने को",ml:"കുടിക്കാൻ എന്തെങ്കിലും",te:"తాగడానికి ఏదైనా",kn:"ಕುಡಿಯಲು ಏನಾದರೂ"}},
+ {k:"snack",prompt:"a quick light snack or starter to nibble on",lab:{en:"Quick bite",ta:"சிறு தீனி",hi:"हल्का नाश्ता",ml:"ചെറുകടി",te:"చిన్న స్నాక్",kn:"ಲಘು ತಿಂಡಿ"}},
+ {k:"popular",prompt:"the most popular, best-loved bestseller dishes",lab:{en:"Most loved",ta:"அதிகம் விரும்பப்படுவது",hi:"सबसे पसंदीदा",ml:"ഏറ്റവും പ്രിയം",te:"అత్యంత ఇష్టమైనవి",kn:"ಅತಿ ಪ್ರಿಯವಾದದ್ದು"}},
  {k:"surprise",prompt:"surprise me with a varied, exciting mix across the menu",lab:{en:"Surprise me",ta:"ஆச்சரியப்படுத்து",hi:"सरप्राइज़ करें",ml:"അത്ഭുതപ്പെടുത്തൂ",te:"ఆశ్చర్యపరచండి",kn:"ಅಚ್ಚರಿ ಮಾಡಿ"}}
 ];
 function findL(m){return (m[lang]||m.en);}
 function findForMe(){var rb=bot(findL(FINDTX.q));
-  block("chips",MOODS.map(function(m){return '<button class="chip" onclick="moodPick(\'' + m.k + '\')">'+findL(m.lab)+'</button>';}).join("")+'<button class="chip alt" onclick="mainChips()">'+IC.back+findL(FINDTX.back)+'</button>');
+  block("chips",MOODS.map(function(m){return '<button class="chip" onclick="moodPick(\'' + m.k + '\')">'+findL(m.lab)+'</button>';}).join("")
+    +'<button class="chip go" onclick="findChat()">'+findL(FINDTX.chat)+'</button>'
+    +'<button class="chip alt" onclick="mainChips()">'+IC.back+findL(FINDTX.back)+'</button>');
   anchorReply(rb);}
 function moodPick(k){var m=null;for(var i=0;i<MOODS.length;i++){if(MOODS[i].k===k)m=MOODS[i];}if(!m)return;me(findL(m.lab));findAsk(m.prompt);}
+function findChat(){var rb=bot(findL(FINDTX.chatReply));anchorReply(rb);var inp=document.getElementById("inp");if(inp){inp.focus();autoGrow&&autoGrow();}}
 var _procTimer=null;
 function closeFindOverlay(){var el=document.getElementById("taste");if(el){el.classList.remove("on");el.innerHTML="";}}
 function findProcessing(){var el=document.getElementById("taste");var msgs=[T("proc1"),T("proc2"),T("proc3")],mi=0;
