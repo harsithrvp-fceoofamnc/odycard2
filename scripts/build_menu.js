@@ -187,22 +187,35 @@ const CATMETA={
  desserts:{q:"1 bowl",pt:5,kw:"indian dessert",d:"A sweet finish to your meal."}
 };
 
-// Real food photos from Foodish (a free, veg-safe food image set) mapped per category.
-// Only veg-safe categories are used (dosa/idli/rice/samosa/dessert) so a pure-veg menu never
-// shows meat. Beverages/soups have no good match -> they fall back to the dish icon. The dish
-// card also falls back to the icon automatically if any photo fails to load.
-const FIMG={
- tiffin:"idly", roast:"dosa", uthappam:"dosa", ravaroast:"dosa", roastvar:"dosa", specdosa:"dosa",
- chapathi:"dosa", kothu:"samosa", snacks:"samosa", meals:"rice", lunch:"rice", soups:"",
- ricenoodles:"rice", starters_ni:"samosa", starters_ch:"samosa", gravies:"rice", breads:"dosa",
- pulav:"rice", evespecials:"idly", hot:"", cold:"", juices:"", shakes:"", desserts:"dessert"
+// Real, verified, vegetarian Wikimedia Commons food photos, one per dish type. Wikimedia serves
+// thumbnails at a URL derived from the md5 of the filename, so we can build exact working URLs
+// here. A pure-veg menu never shows meat; categories with no good match (some drinks/soups) fall
+// back to the dish icon, and the card also falls back to the icon if any photo fails to load.
+const crypto=require("crypto");
+const WMFILE={
+ idli:"Idli Sambar Chutney in Madras.JPG",
+ dosa:"Masala dosa (96279).jpg",
+ vada:"Masala vada 02.JPG",
+ paneer:"Paneer Butter Masala.jpg",
+ thali:"A Thali, famous South Indian meal served on a banana leaf.jpg",
+ biryani:"Vegetable Biryani.JPG",
+ coffee:"South Indian filter coffee.JPG",
+ dessert:"Bowl of Gulab Jamun.JPG"
 };
-const _fc={}; // per-foodish-category counter for variety
-function foodishUrl(g){
- const fc=FIMG[g]||""; if(!fc)return "";
- const n=((_fc[fc]=(_fc[fc]||0)+1)-1)%10+1; // 1..10 (low range that reliably exists)
- return `https://foodish-api.com/images/${fc}/${fc}${n}.jpg`;
+function wmUrl(key){
+ const file=WMFILE[key]; if(!file)return "";
+ const f=file.replace(/ /g,"_");
+ const h=crypto.createHash("md5").update(f).digest("hex");
+ // Wikimedia keeps commas/parens literal in thumb URLs; only spaces become underscores.
+ return `https://upload.wikimedia.org/wikipedia/commons/thumb/${h[0]}/${h.slice(0,2)}/${f}/420px-${f}`;
 }
+const PIC={
+ tiffin:"idli", roast:"dosa", uthappam:"dosa", ravaroast:"dosa", roastvar:"dosa", specdosa:"dosa",
+ chapathi:"dosa", kothu:"dosa", snacks:"vada", meals:"thali", lunch:"biryani", soups:"",
+ ricenoodles:"biryani", starters_ni:"paneer", starters_ch:"vada", gravies:"paneer", breads:"dosa",
+ pulav:"biryani", evespecials:"idli", hot:"coffee", cold:"", juices:"", shakes:"", desserts:"dessert"
+};
+function foodishUrl(g){ return wmUrl(PIC[g]); }
 
 // build MENU
 let menuEntries=[];
