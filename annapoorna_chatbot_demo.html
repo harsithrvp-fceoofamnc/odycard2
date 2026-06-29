@@ -193,6 +193,14 @@
     background-size:cover,cover;background-position:center top;background-repeat:no-repeat;
   }
   .dish .pic img{width:86%;max-height:124px;object-fit:contain;opacity:.62}
+  .dish .pic img.ph{width:100%;height:100%;max-height:none;object-fit:cover;opacity:1}
+  .dish .meta{font-size:11.5px;color:var(--mut);line-height:1.35;overflow-wrap:anywhere}
+  .lbpic img.ph{width:100%;height:100%;max-height:none;object-fit:cover;opacity:1}
+  .lbinfo{padding:14px 16px 16px}
+  .lbinfo .lbnm{font-size:19px;font-weight:800;color:var(--ink)}
+  .lbinfo .meta{margin:6px 0;font-size:12.5px;color:var(--mut)}
+  .lbinfo .lbpr{font-size:17px;font-weight:800;color:var(--blue)}
+  .lbinfo .lbdesc{margin-top:6px;font-size:14px;color:var(--ink);line-height:1.5}
   .dish .pic{position:relative}
   .vegbadge{position:absolute;top:8px;left:8px;width:16px;height:16px;border:2px solid #2e7d32;border-radius:3px;background:#fff;z-index:2}
   .vegbadge::after{content:"";position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:8px;height:8px;border-radius:50%;background:#2e7d32}
@@ -690,6 +698,7 @@ const part=()=>HOUR<11?"morning":HOUR<16?"afternoon":"evening";
 const TIME_FILTER=false; // DEMO: false = show ALL dishes/categories. Set to true for the real time-based menu.
 const OPEN=Object.keys(MENU).some(id=>HOUR>=MENU[id].h[0]&&HOUR<MENU[id].h[1]);
 const avail=id=>!TIME_FILTER||!OPEN||(HOUR>=MENU[id].h[0]&&HOUR<MENU[id].h[1]);
+const SHOW_TIMING=TIME_FILTER; // the "timed" build shows serving times on dishes; the all-time build hides them
 const chat=document.getElementById("chat");
 function bot(html){const d=document.createElement("div");d.className="msg bot";d.innerHTML=html;chat.appendChild(d);toBottom();return d;}
 function me(t){const d=document.createElement("div");d.className="msg me";d.textContent=t;chat.appendChild(d);toBottom();}
@@ -712,8 +721,12 @@ function goOutlets(){cart={};notes={};upsold=false;outlet=null;refreshCart();clo
 function dishFooter(id){
  if(cart[id])return `<div class="qtys"><button onclick="dec2('${id}')">−</button><span>${cart[id]}</span><button onclick="inc2('${id}')">+</button></div><button class="infob" onclick="explainDish('${id}')" title="Tell me about this">${IC.info}</button>`;
  return `<button class="add" onclick="addDish('${id}')">+ ${T("add")}</button><button class="infob" onclick="explainDish('${id}')" title="Tell me about this">${IC.info}</button>`;}
+function photoUrl(id){return MENU[id].ph||LOGO;}
+function fmtTime(t){var hr=Math.floor(t),mn=Math.round((t-hr)*60),ap=hr<12?"AM":"PM",hh=hr%12;if(hh===0)hh=12;return hh+(mn?":"+("0"+mn).slice(-2):"")+ap;}
+function fmtWin(id){var h=MENU[id].h;if(!h||!h.length)return"";return h.map(function(w){return fmtTime(w[0])+"–"+fmtTime(w[1]);}).join(", ");}
+function dishMeta(id){var m=MENU[id],p=[];if(m.q)p.push("🍽 "+m.q);if(m.pt)p.push("⏱ ~"+m.pt+" min");if(SHOW_TIMING&&fmtWin(id))p.push("🕒 "+fmtWin(id));return p.join(" · ");}
 function dishCard(id){const m=MENU[id];
- return `<div class="dish" data-id="${id}"><div class="pic" style="cursor:pointer" onclick="zoomDish('${id}')"><span class="vegbadge${MENU[id].nv?' nv':''}" title="${MENU[id].nv?'Non-veg':'Pure veg'}"></span><img src="${LOGO}" alt=""></div><div class="bd">${m.best?`<div class="tag">★ ${T("bestseller")}</div>`:''}<div class="nm">${dn(id)}</div><div class="pr">₹${m.p}</div><div class="frow">${dishFooter(id)}</div></div></div>`;}
+ return `<div class="dish" data-id="${id}"><div class="pic" style="cursor:pointer" onclick="zoomDish('${id}')"><span class="vegbadge${m.nv?' nv':''}" title="${m.nv?'Non-veg':'Pure veg'}"></span><img class="ph" src="${photoUrl(id)}" loading="lazy" alt="${dn(id)}" onerror="this.onerror=null;this.classList.remove('ph');this.src='${LOGO}';"></div><div class="bd">${m.best?`<div class="tag">★ ${T("bestseller")}</div>`:''}<div class="nm">${dn(id)}</div><div class="meta">${dishMeta(id)}</div><div class="pr">₹${m.p}</div><div class="frow">${dishFooter(id)}</div></div></div>`;}
 function sync(){refreshCart();document.querySelectorAll('.dish[data-id]').forEach(el=>{const f=el.querySelector('.frow');if(f)f.innerHTML=dishFooter(el.dataset.id);});document.querySelectorAll('.pi[data-id]').forEach(el=>{const f=el.querySelector('.pifoot');if(f)f.innerHTML=pairFoot(el.dataset.id);});}
 function buzz(){try{if(navigator.vibrate)navigator.vibrate(35);}catch(e){}}
 function dig(el,n){el.value=el.value.replace(/\D/g,"").slice(0,n);}
@@ -722,7 +735,7 @@ function pers(el){el.value=el.value.replace(/\D/g,"").replace(/^0+/,"").slice(0,
 function addDish(id){cart[id]=(cart[id]||0)+1;buzz();sync();upsell();}
 function inc2(id){cart[id]++;buzz();sync();}
 function dec2(id){cart[id]--;if(cart[id]<=0){delete cart[id];delete notes[id];}sync();}
-function explainDish(id){const m=MENU[id];bot(`💬 <b>${dn(id)}</b> — ${desc(id)} <span style="color:#7a4a24;font-weight:700">₹${m.p}</span>`);block("grid",[dishCard(id)]);exploreBar();}
+function explainDish(id){const m=MENU[id];bot(`💬 <b>${dn(id)}</b> — ${desc(id)} <span style="color:#7a4a24;font-weight:700">₹${m.p}</span><br><span class="meta">${dishMeta(id)}</span>`);block("grid",[dishCard(id)]);exploreBar();}
 function grid(ids){ids=ids.filter(avail);if(!ids.length){bot("Those aren't being served right now — here's what's hot at this hour.");return showSpecials();}renderGrid(ids);exploreBar();}
 function refreshCart(){let n=0,t=0;for(const k in cart){n+=cart[k];t+=cart[k]*MENU[k].p;}const b=document.getElementById("cartbar"),c=document.getElementById("cartcount");if(n){b.style.display="flex";if(c)c.textContent=n;b.title=`${T("viewCart")} (${n}) · ₹${t}`;b.setAttribute("aria-label",`${T("viewCart")} (${n}) ₹${t}`);}else b.style.display="none";document.getElementById("phone").classList.toggle("hascart",n>0);}
 
@@ -1110,7 +1123,7 @@ function ai(q){const sug=(id,txt)=>{const rb=bot(txt);block("grid",[dishCard(id)
 
 /* ---------- cart & checkout ---------- */
 const modal=document.getElementById("modal"),sheet=document.getElementById("sheet"),lb=document.getElementById("lb");
-function zoomDish(id){lb.innerHTML=`<div class="lbcard"><button class="lbclose" onclick="closeLb()">✕</button><div class="lbpic"><img src="${LOGO}" alt=""></div></div>`;lb.style.display="flex";}
+function zoomDish(id){const m=MENU[id];lb.innerHTML=`<div class="lbcard"><button class="lbclose" onclick="closeLb()">✕</button><div class="lbpic"><span class="vegbadge${m.nv?' nv':''}"></span><img class="ph" src="${photoUrl(id)}" alt="${dn(id)}" onerror="this.onerror=null;this.classList.remove('ph');this.src='${LOGO}';"></div><div class="lbinfo"><div class="lbnm">${dn(id)}</div><div class="meta">${dishMeta(id)}</div><div class="lbpr">₹${m.p}</div><div class="lbdesc">${desc(id)}</div></div></div>`;lb.style.display="flex";}
 function closeLb(){lb.style.display="none";lb.innerHTML="";}
 function openSheet(html){sheet.innerHTML=html;modal.style.display="flex";sheet.scrollTop=0;}
 function closeModal(){modal.style.display="none";}

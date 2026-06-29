@@ -158,12 +158,46 @@ const groups = {
  ]
 };
 
+// per-category demo metadata: default quantity, prep time (mins), photo keyword, short description.
+// (Pure-veg restaurant, so every dish is vegetarian.)
+const CATMETA={
+ tiffin:{q:"1 plate",pt:10,kw:"south indian tiffin",d:"A classic South Indian tiffin, served hot with chutney and sambar."},
+ roast:{q:"1 dosa",pt:12,kw:"dosa",d:"A crisp golden dosa, roasted to order on the griddle."},
+ uthappam:{q:"1 piece",pt:12,kw:"uttapam",d:"A soft, thick griddle pancake, roasted to order."},
+ ravaroast:{q:"1 dosa",pt:12,kw:"rava dosa",d:"A crackly-thin rava dosa, crisp at the edges."},
+ roastvar:{q:"1 dosa",pt:13,kw:"masala dosa",d:"A crisp dosa with a flavour-packed filling."},
+ specdosa:{q:"1 plate",pt:13,kw:"dosa",d:"A house-special dosa, freshly made to order."},
+ chapathi:{q:"1 piece",pt:8,kw:"chapati",d:"Soft wheat flatbread, made fresh and served warm."},
+ kothu:{q:"1 plate",pt:14,kw:"kothu parotta",d:"Shredded parotta tossed on the griddle with spices."},
+ snacks:{q:"1 plate",pt:10,kw:"indian snacks",d:"A hot, crispy snack, fried fresh to order."},
+ meals:{q:"1 plate",pt:12,kw:"south indian thali meals",d:"A wholesome South Indian platter with rice and sides."},
+ lunch:{q:"1 plate",pt:15,kw:"vegetable biryani",d:"A fragrant rice dish, served hot with raita."},
+ soups:{q:"250 ml",pt:8,kw:"soup bowl",d:"A warm, comforting soup, freshly prepared."},
+ ricenoodles:{q:"1 plate",pt:15,kw:"veg fried rice",d:"Wok-tossed Indo-Chinese, hot and flavourful."},
+ starters_ni:{q:"6 pieces",pt:14,kw:"paneer tikka",d:"A North Indian starter, freshly grilled and spiced."},
+ starters_ch:{q:"1 plate",pt:14,kw:"gobi manchurian",d:"A spicy Indo-Chinese starter, crisp and saucy."},
+ gravies:{q:"350 ml",pt:15,kw:"paneer butter masala",d:"A rich, freshly-made gravy — great with rice or breads."},
+ breads:{q:"1 piece",pt:8,kw:"naan bread",d:"Tandoor-style bread, soft and warm."},
+ pulav:{q:"1 plate",pt:18,kw:"veg pulao",d:"Fragrant rice cooked with whole spices."},
+ evespecials:{q:"1 plate",pt:12,kw:"south indian breakfast",d:"An evening special, freshly prepared."},
+ hot:{q:"150 ml",pt:5,kw:"filter coffee",d:"Freshly brewed and served piping hot."},
+ cold:{q:"300 ml",pt:6,kw:"cold coffee glass",d:"Chilled and refreshing, served cold."},
+ juices:{q:"300 ml",pt:4,kw:"fresh fruit juice",d:"Freshly squeezed — no concentrates."},
+ shakes:{q:"300 ml",pt:6,kw:"milkshake glass",d:"A thick, creamy milkshake, blended fresh."},
+ desserts:{q:"1 bowl",pt:5,kw:"indian dessert",d:"A sweet finish to your meal."}
+};
+
 // build MENU
 let menuEntries=[];
+let _lock=11; // stable-but-varied photo seed per dish
 for(const g in groups){
+ const cm=CATMETA[g]||{q:"1 plate",pt:10,kw:"indian food",d:"Freshly prepared in our kitchen."};
  for(const it of groups[g]){
   const [id,n,p,wk,e,flags]=it;
-  let o=`{n:${JSON.stringify(n)},p:${p},e:"${e}",h:${JSON.stringify(W[wk])}`;
+  const mq=String(n).match(/\((\d+)\)/); // e.g. "Idly (2)" -> 2 pieces
+  const q=mq?(mq[1]+(mq[1]==="1"?" piece":" pieces")):cm.q;
+  const ph=`https://loremflickr.com/400/300/${encodeURIComponent(cm.kw)}?lock=${_lock++}`;
+  let o=`{n:${JSON.stringify(n)},p:${p},e:"${e}",h:${JSON.stringify(W[wk])},q:${JSON.stringify(q)},pt:${cm.pt},ph:${JSON.stringify(ph)},d:${JSON.stringify(cm.d)},veg:1`;
   if(/best/.test(flags))o+=",best:1";
   if(/bev/.test(flags))o+=",bev:1";
   o+="}";
