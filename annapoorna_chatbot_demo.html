@@ -194,6 +194,8 @@
   }
   .dish .pic img{width:86%;max-height:124px;object-fit:contain;opacity:.62}
   .dish .pic img.ph{width:100%;height:100%;max-height:none;object-fit:cover;opacity:1}
+  .dish .pic .demoji{font-size:62px;line-height:1;filter:drop-shadow(0 3px 6px rgba(120,74,36,.18))}
+  .lbpic .demoji.lg{font-size:128px;line-height:1;filter:drop-shadow(0 4px 10px rgba(120,74,36,.18))}
   .dish .meta{font-size:11.5px;color:var(--mut);line-height:1.35;overflow-wrap:anywhere}
   .lbpic img.ph{width:100%;height:100%;max-height:none;object-fit:cover;opacity:1}
   .lbinfo{padding:14px 16px 16px}
@@ -726,7 +728,8 @@ function fmtTime(t){var hr=Math.floor(t),mn=Math.round((t-hr)*60),ap=hr<12?"AM":
 function fmtWin(id){var h=MENU[id].h;if(!h||!h.length)return"";return h.map(function(w){return fmtTime(w[0])+"–"+fmtTime(w[1]);}).join(", ");}
 function dishMeta(id){var m=MENU[id],p=[];if(m.q)p.push("🍽 "+m.q);if(m.pt)p.push("⏱ ~"+m.pt+" min");if(SHOW_TIMING&&fmtWin(id))p.push("🕒 "+fmtWin(id));return p.join(" · ");}
 function dishCard(id){const m=MENU[id];
- return `<div class="dish" data-id="${id}"><div class="pic" style="cursor:pointer" onclick="zoomDish('${id}')"><span class="vegbadge${m.nv?' nv':''}" title="${m.nv?'Non-veg':'Pure veg'}"></span><img class="ph" src="${photoUrl(id)}" loading="lazy" alt="${dn(id)}" onerror="this.onerror=null;this.classList.remove('ph');this.src='${LOGO}';"></div><div class="bd">${m.best?`<div class="tag">★ ${T("bestseller")}</div>`:''}<div class="nm">${dn(id)}</div><div class="meta">${dishMeta(id)}</div><div class="pr">₹${m.p}</div><div class="frow">${dishFooter(id)}</div></div></div>`;}
+ const pic=m.ph?`<img class="ph" src="${m.ph}" loading="lazy" alt="${dn(id)}" onerror="this.onerror=null;this.classList.remove('ph');this.parentNode.innerHTML=this.parentNode.querySelector('.vegbadge').outerHTML+'<span class=\\'demoji\\'>${m.e}</span>';">`:`<span class="demoji">${m.e}</span>`;
+ return `<div class="dish" data-id="${id}"><div class="pic" style="cursor:pointer" onclick="zoomDish('${id}')"><span class="vegbadge${m.nv?' nv':''}" title="${m.nv?'Non-veg':'Pure veg'}"></span>${pic}</div><div class="bd">${m.best?`<div class="tag">★ ${T("bestseller")}</div>`:''}<div class="nm">${dn(id)}</div><div class="meta">${dishMeta(id)}</div><div class="pr">₹${m.p}</div><div class="frow">${dishFooter(id)}</div></div></div>`;}
 function sync(){refreshCart();document.querySelectorAll('.dish[data-id]').forEach(el=>{const f=el.querySelector('.frow');if(f)f.innerHTML=dishFooter(el.dataset.id);});document.querySelectorAll('.pi[data-id]').forEach(el=>{const f=el.querySelector('.pifoot');if(f)f.innerHTML=pairFoot(el.dataset.id);});}
 function buzz(){try{if(navigator.vibrate)navigator.vibrate(35);}catch(e){}}
 function dig(el,n){el.value=el.value.replace(/\D/g,"").slice(0,n);}
@@ -1123,7 +1126,7 @@ function ai(q){const sug=(id,txt)=>{const rb=bot(txt);block("grid",[dishCard(id)
 
 /* ---------- cart & checkout ---------- */
 const modal=document.getElementById("modal"),sheet=document.getElementById("sheet"),lb=document.getElementById("lb");
-function zoomDish(id){const m=MENU[id];lb.innerHTML=`<div class="lbcard"><button class="lbclose" onclick="closeLb()">✕</button><div class="lbpic"><span class="vegbadge${m.nv?' nv':''}"></span><img class="ph" src="${photoUrl(id)}" alt="${dn(id)}" onerror="this.onerror=null;this.classList.remove('ph');this.src='${LOGO}';"></div><div class="lbinfo"><div class="lbnm">${dn(id)}</div><div class="meta">${dishMeta(id)}</div><div class="lbpr">₹${m.p}</div><div class="lbdesc">${desc(id)}</div></div></div>`;lb.style.display="flex";}
+function zoomDish(id){const m=MENU[id];const pic=m.ph?`<img class="ph" src="${m.ph}" alt="${dn(id)}" onerror="this.onerror=null;this.classList.remove('ph');this.parentNode.innerHTML='<span class=\\'demoji lg\\'>${m.e}</span>';">`:`<span class="demoji lg">${m.e}</span>`;lb.innerHTML=`<div class="lbcard"><button class="lbclose" onclick="closeLb()">✕</button><div class="lbpic"><span class="vegbadge${m.nv?' nv':''}"></span>${pic}</div><div class="lbinfo"><div class="lbnm">${dn(id)}</div><div class="meta">${dishMeta(id)}</div><div class="lbpr">₹${m.p}</div><div class="lbdesc">${desc(id)}</div></div></div>`;lb.style.display="flex";}
 function closeLb(){lb.style.display="none";lb.innerHTML="";}
 function openSheet(html){sheet.innerHTML=html;modal.style.display="flex";sheet.scrollTop=0;}
 function closeModal(){modal.style.display="none";}

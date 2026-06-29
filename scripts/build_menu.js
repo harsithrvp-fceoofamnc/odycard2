@@ -187,17 +187,17 @@ const CATMETA={
  desserts:{q:"1 bowl",pt:5,kw:"indian dessert",d:"A sweet finish to your meal."}
 };
 
-// build MENU
+// build MENU. ph (photo URL) is left empty for the demo — dishes render their food icon.
+// When a restaurant uploads real photos via the menu manager, ph gets a real URL and the
+// dish card shows the photo automatically.
 let menuEntries=[];
-let _lock=11; // stable-but-varied photo seed per dish
 for(const g in groups){
  const cm=CATMETA[g]||{q:"1 plate",pt:10,kw:"indian food",d:"Freshly prepared in our kitchen."};
  for(const it of groups[g]){
   const [id,n,p,wk,e,flags]=it;
   const mq=String(n).match(/\((\d+)\)/); // e.g. "Idly (2)" -> 2 pieces
   const q=mq?(mq[1]+(mq[1]==="1"?" piece":" pieces")):cm.q;
-  const ph=`https://loremflickr.com/400/300/${encodeURIComponent(cm.kw)}?lock=${_lock++}`;
-  let o=`{n:${JSON.stringify(n)},p:${p},e:"${e}",h:${JSON.stringify(W[wk])},q:${JSON.stringify(q)},pt:${cm.pt},ph:${JSON.stringify(ph)},d:${JSON.stringify(cm.d)},veg:1`;
+  let o=`{n:${JSON.stringify(n)},p:${p},e:"${e}",h:${JSON.stringify(W[wk])},q:${JSON.stringify(q)},pt:${cm.pt},ph:"",d:${JSON.stringify(cm.d)},veg:1`;
   if(/best/.test(flags))o+=",best:1";
   if(/bev/.test(flags))o+=",bev:1";
   o+="}";
