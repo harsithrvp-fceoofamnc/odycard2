@@ -233,10 +233,8 @@ for(const g in groups){
   const [id,n,p,wk,e,flags]=it;
   const mq=String(n).match(/\((\d+)\)/); // e.g. "Idly (2)" -> 2 pieces
   const q=mq?(mq[1]+(mq[1]==="1"?" piece":" pieces")):cm.q;
-  const simple=SIMPLE_CATS[g]?1:0;
-  const ph=simple?"":(PHOTOS[id]||wmUrl(PIC[g])); // simple items have no photo
+  const ph=PHOTOS[id]||""; // photo only when a real one is provided; otherwise a clean text card
   let o=`{n:${JSON.stringify(n)},p:${p},e:"${e}",h:${JSON.stringify(W[wk])},q:${JSON.stringify(q)},pt:${cm.pt},ph:${JSON.stringify(ph)},d:${JSON.stringify(cm.d)},veg:1`;
-  if(simple)o+=",simple:1";
   if(/best/.test(flags))o+=",best:1";
   if(/bev/.test(flags))o+=",bev:1";
   o+="}";
