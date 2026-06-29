@@ -187,9 +187,24 @@ const CATMETA={
  desserts:{q:"1 bowl",pt:5,kw:"indian dessert",d:"A sweet finish to your meal."}
 };
 
-// build MENU. ph (photo URL) is left empty for the demo — dishes render their food icon.
-// When a restaurant uploads real photos via the menu manager, ph gets a real URL and the
-// dish card shows the photo automatically.
+// Real food photos from Foodish (a free, veg-safe food image set) mapped per category.
+// Only veg-safe categories are used (dosa/idli/rice/samosa/dessert) so a pure-veg menu never
+// shows meat. Beverages/soups have no good match -> they fall back to the dish icon. The dish
+// card also falls back to the icon automatically if any photo fails to load.
+const FIMG={
+ tiffin:"idly", roast:"dosa", uthappam:"dosa", ravaroast:"dosa", roastvar:"dosa", specdosa:"dosa",
+ chapathi:"dosa", kothu:"samosa", snacks:"samosa", meals:"rice", lunch:"rice", soups:"",
+ ricenoodles:"rice", starters_ni:"samosa", starters_ch:"samosa", gravies:"rice", breads:"dosa",
+ pulav:"rice", evespecials:"idly", hot:"", cold:"", juices:"", shakes:"", desserts:"dessert"
+};
+const _fc={}; // per-foodish-category counter for variety
+function foodishUrl(g){
+ const fc=FIMG[g]||""; if(!fc)return "";
+ const n=((_fc[fc]=(_fc[fc]||0)+1)-1)%10+1; // 1..10 (low range that reliably exists)
+ return `https://foodish-api.com/images/${fc}/${fc}${n}.jpg`;
+}
+
+// build MENU
 let menuEntries=[];
 for(const g in groups){
  const cm=CATMETA[g]||{q:"1 plate",pt:10,kw:"indian food",d:"Freshly prepared in our kitchen."};
@@ -197,7 +212,8 @@ for(const g in groups){
   const [id,n,p,wk,e,flags]=it;
   const mq=String(n).match(/\((\d+)\)/); // e.g. "Idly (2)" -> 2 pieces
   const q=mq?(mq[1]+(mq[1]==="1"?" piece":" pieces")):cm.q;
-  let o=`{n:${JSON.stringify(n)},p:${p},e:"${e}",h:${JSON.stringify(W[wk])},q:${JSON.stringify(q)},pt:${cm.pt},ph:"",d:${JSON.stringify(cm.d)},veg:1`;
+  const ph=foodishUrl(g);
+  let o=`{n:${JSON.stringify(n)},p:${p},e:"${e}",h:${JSON.stringify(W[wk])},q:${JSON.stringify(q)},pt:${cm.pt},ph:${JSON.stringify(ph)},d:${JSON.stringify(cm.d)},veg:1`;
   if(/best/.test(flags))o+=",best:1";
   if(/bev/.test(flags))o+=",bev:1";
   o+="}";
