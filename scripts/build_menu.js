@@ -215,7 +215,11 @@ const PIC={
  ricenoodles:"biryani", starters_ni:"paneer", starters_ch:"vada", gravies:"paneer", breads:"dosa",
  pulav:"biryani", evespecials:"idli", hot:"coffee", cold:"", juices:"", shakes:"", desserts:"dessert"
 };
-function foodishUrl(g){ return wmUrl(PIC[g]); }
+// Real dish photos: dish id -> a photo that ships WITH the app (e.g. "/ody/dishpics/idli.jpg").
+// Empty for now. When real photo files are dropped into public/ody/dishpics, fill this map and
+// every dish shows its real photo (and these load reliably because they're served by the app
+// itself, not a third-party host). Dishes with no photo render a clean food-icon tile.
+const PHOTOS={};
 
 // build MENU
 let menuEntries=[];
@@ -225,7 +229,7 @@ for(const g in groups){
   const [id,n,p,wk,e,flags]=it;
   const mq=String(n).match(/\((\d+)\)/); // e.g. "Idly (2)" -> 2 pieces
   const q=mq?(mq[1]+(mq[1]==="1"?" piece":" pieces")):cm.q;
-  const ph=foodishUrl(g);
+  const ph=PHOTOS[id]||""; // real photo URL/path per dish, filled in when photos are provided
   let o=`{n:${JSON.stringify(n)},p:${p},e:"${e}",h:${JSON.stringify(W[wk])},q:${JSON.stringify(q)},pt:${cm.pt},ph:${JSON.stringify(ph)},d:${JSON.stringify(cm.d)},veg:1`;
   if(/best/.test(flags))o+=",best:1";
   if(/bev/.test(flags))o+=",bev:1";
