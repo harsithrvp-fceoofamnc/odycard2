@@ -1379,13 +1379,13 @@ function closeFindOverlay(){var el=document.getElementById("taste");if(el){el.cl
 function findProcessing(){var el=document.getElementById("taste");var msgs=[T("proc1"),T("proc2"),T("proc3")],mi=0;
   el.innerHTML='<div class="tproc"><div class="pstage"><span class="porbglow"></span><span class="porbglow2"></span><span class="pcore"></span><img class="plogo" src="'+LOGO+'" alt=""></div><div class="ptxt" id="ptxt">'+msgs[0]+'</div></div>';el.classList.add("on");
   clearInterval(_procTimer);_procTimer=setInterval(function(){var t=document.getElementById("ptxt");if(!t)return;t.style.opacity="0";setTimeout(function(){mi=(mi+1)%msgs.length;t.textContent=msgs[mi];t.style.opacity="1";},340);},1600);}
-async function findAsk(moodText){findProcessing();
+async function findAsk(moodText){var _typing=typingBubble();
   var picks=[],reply=null;
   try{var msg="The guest is deciding what to eat right now. Their mood/craving: "+moodText+". Recommend 5-6 dishes they'll enjoy, MIXED across different categories and cuisines so they get variety, with a short warm intro. Use show actions with the dish ids.";
     var res=await fetch('/api/ody',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:msg,lang,cart:Object.keys(cart),taste:""})});
     if(res.ok){var data=await res.json();reply=data.reply;var ids=[];(data.actions||[]).forEach(function(a){if(a.type==="show"&&a.ids)ids=ids.concat(a.ids);else if(a.type==="add"&&a.id)ids.push(a.id);});picks=ids.filter(function(i){return MENU[i]&&avail(i);});}
   }catch(e){}
-  await sleep(950);clearInterval(_procTimer);closeFindOverlay();
+  if(_typing)_typing.remove();
   if(!picks.length)picks=topDishes();
   var seen={},uniq=[];picks.forEach(function(i){if(!seen[i]){seen[i]=1;uniq.push(i);}});
   var rb=bot(reply||findL(FINDTX.intro));renderGrid(uniq.slice(0,6));exploreBar();anchorReply(rb);}
