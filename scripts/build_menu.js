@@ -205,9 +205,9 @@ const WMFILE={
 function wmUrl(key){
  const file=WMFILE[key]; if(!file)return "";
  const f=file.replace(/ /g,"_");
- const h=crypto.createHash("md5").update(f).digest("hex");
- // Wikimedia keeps commas/parens literal in thumb URLs; only spaces become underscores.
- return `https://upload.wikimedia.org/wikipedia/commons/thumb/${h[0]}/${h.slice(0,2)}/${f}/420px-${f}`;
+ // Special:FilePath is Wikimedia's official permanent link: it looks up the file and 302-redirects
+ // to the real image. Much more reliable than computing the thumbnail path by hand.
+ return `https://commons.wikimedia.org/wiki/Special:FilePath/${encodeURIComponent(f)}?width=440`;
 }
 const PIC={
  tiffin:"idli", roast:"dosa", uthappam:"dosa", ravaroast:"dosa", roastvar:"dosa", specdosa:"dosa",
@@ -221,6 +221,10 @@ const PIC={
 // itself, not a third-party host). Dishes with no photo render a clean food-icon tile.
 const PHOTOS={};
 
+// "Simple/known" categories render as a clean, photo-free compact card (no image needed) —
+// naan/roti/chapati, parottas and the everyday drinks everyone already knows.
+const SIMPLE_CATS={chapathi:1,breads:1,hot:1,cold:1,juices:1,shakes:1};
+
 // build MENU
 let menuEntries=[];
 for(const g in groups){
@@ -229,8 +233,10 @@ for(const g in groups){
   const [id,n,p,wk,e,flags]=it;
   const mq=String(n).match(/\((\d+)\)/); // e.g. "Idly (2)" -> 2 pieces
   const q=mq?(mq[1]+(mq[1]==="1"?" piece":" pieces")):cm.q;
-  const ph=PHOTOS[id]||""; // real photo URL/path per dish, filled in when photos are provided
+  const simple=SIMPLE_CATS[g]?1:0;
+  const ph=simple?"":(PHOTOS[id]||wmUrl(PIC[g])); // simple items have no photo
   let o=`{n:${JSON.stringify(n)},p:${p},e:"${e}",h:${JSON.stringify(W[wk])},q:${JSON.stringify(q)},pt:${cm.pt},ph:${JSON.stringify(ph)},d:${JSON.stringify(cm.d)},veg:1`;
+  if(simple)o+=",simple:1";
   if(/best/.test(flags))o+=",best:1";
   if(/bev/.test(flags))o+=",bev:1";
   o+="}";

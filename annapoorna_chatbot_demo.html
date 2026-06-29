@@ -197,6 +197,18 @@
   .dish .pic .demoji{font-size:62px;line-height:1;filter:drop-shadow(0 3px 6px rgba(120,74,36,.18))}
   .lbpic .demoji.lg{font-size:128px;line-height:1;filter:drop-shadow(0 4px 10px rgba(120,74,36,.18))}
   .dish .meta{font-size:11.5px;color:var(--mut);line-height:1.35;overflow-wrap:anywhere}
+  .dish.simple{background:linear-gradient(135deg,#fffaf0,#fcf2df);border:1px solid #ecdcbf}
+  .dish.simple .sbd{padding:13px 14px;display:flex;flex-direction:column;gap:6px;flex:1}
+  .dish.simple .srow{display:flex;align-items:center;gap:8px}
+  .dish.simple .sem{font-size:22px;line-height:1}
+  .dish.simple .nm{min-height:0}
+  .dish.simple .sdesc{font-size:12.5px;color:var(--mut);line-height:1.4;overflow-wrap:anywhere}
+  .dish.simple .sfoot{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:auto}
+  .dish.simple .sfoot .frow{flex:0 0 auto;margin-top:0}
+  .vegdot{width:15px;height:15px;border:2px solid #2e7d32;border-radius:3px;position:relative;flex:0 0 auto;background:#fff}
+  .vegdot::after{content:"";position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:7px;height:7px;border-radius:50%;background:#2e7d32}
+  .vegdot.nv{border-color:#c0392b}
+  .vegdot.nv::after{background:#c0392b;border-radius:0;clip-path:polygon(50% 0,100% 100%,0 100%)}
   .lbpic img.ph{width:100%;height:100%;max-height:none;object-fit:cover;opacity:1}
   .lbinfo{padding:14px 16px 16px}
   .lbinfo .lbnm{font-size:19px;font-weight:800;color:var(--ink)}
@@ -727,7 +739,10 @@ function photoUrl(id){return MENU[id].ph||LOGO;}
 function fmtTime(t){var hr=Math.floor(t),mn=Math.round((t-hr)*60),ap=hr<12?"AM":"PM",hh=hr%12;if(hh===0)hh=12;return hh+(mn?":"+("0"+mn).slice(-2):"")+ap;}
 function fmtWin(id){var h=MENU[id].h;if(!h||!h.length)return"";return h.map(function(w){return fmtTime(w[0])+"–"+fmtTime(w[1]);}).join(", ");}
 function dishMeta(id){var m=MENU[id],p=[];if(m.q)p.push("🍽 "+m.q);if(m.pt)p.push("⏱ ~"+m.pt+" min");if(SHOW_TIMING&&fmtWin(id))p.push("🕒 "+fmtWin(id));return p.join(" · ");}
+function compactCard(id){const m=MENU[id];
+ return `<div class="dish simple" data-id="${id}"><div class="sbd"><div class="srow"><span class="vegdot${m.nv?' nv':''}"></span><span class="sem">${m.e}</span><div class="nm">${dn(id)}</div></div>${m.best?`<div class="tag">★ ${T("bestseller")}</div>`:''}<div class="meta">${dishMeta(id)}</div><div class="sdesc">${desc(id)}</div><div class="sfoot"><div class="pr">₹${m.p}</div><div class="frow">${dishFooter(id)}</div></div></div></div>`;}
 function dishCard(id){const m=MENU[id];
+ if(m.simple)return compactCard(id);
  const pic=m.ph?`<img class="ph" src="${m.ph}" loading="lazy" alt="${dn(id)}" onerror="this.onerror=null;this.classList.remove('ph');this.parentNode.innerHTML=this.parentNode.querySelector('.vegbadge').outerHTML+'<span class=\\'demoji\\'>${m.e}</span>';">`:`<span class="demoji">${m.e}</span>`;
  return `<div class="dish" data-id="${id}"><div class="pic" style="cursor:pointer" onclick="zoomDish('${id}')"><span class="vegbadge${m.nv?' nv':''}" title="${m.nv?'Non-veg':'Pure veg'}"></span>${pic}</div><div class="bd">${m.best?`<div class="tag">★ ${T("bestseller")}</div>`:''}<div class="nm">${dn(id)}</div><div class="meta">${dishMeta(id)}</div><div class="pr">₹${m.p}</div><div class="frow">${dishFooter(id)}</div></div></div>`;}
 function sync(){refreshCart();document.querySelectorAll('.dish[data-id]').forEach(el=>{const f=el.querySelector('.frow');if(f)f.innerHTML=dishFooter(el.dataset.id);});document.querySelectorAll('.pi[data-id]').forEach(el=>{const f=el.querySelector('.pifoot');if(f)f.innerHTML=pairFoot(el.dataset.id);});}

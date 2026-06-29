@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Photo test 2</title>
+<style>
+body{font-family:-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:#f3efe7;color:#23262b;padding:20px;max-width:700px;margin:0 auto}
+.card{background:#fff;border:1px solid #e3ddd0;border-radius:14px;padding:14px;margin:14px 0}
+.lbl{font-weight:700;margin-bottom:8px}
+.box{height:220px;background:#efe7d8;border-radius:10px;overflow:hidden}
+.box img{width:100%;height:100%;object-fit:cover;display:block}
+.status{margin-top:8px;font-weight:700}.ok{color:#1b7d3a}.bad{color:#c0392b}
+#diag{background:#fff;border:1px solid #e3ddd0;border-radius:14px;padding:14px;font-size:14px;line-height:1.7}
+#diag b{color:#7a4a24}
+</style></head><body>
+<h1 style="font-size:20px">Photo test 2 — tell me what each line/box says</h1>
+<div id="diag">running checks…</div>
+
+<div class="card"><div class="lbl">A. Embedded image (no internet needed — MUST show green box)</div>
+<div class="box"><img id="iA" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MDAiIGhlaWdodD0iMjQwIj48cmVjdCB3aWR0aD0iNDAwIiBoZWlnaHQ9IjI0MCIgZmlsbD0iIzFiN2QzYSIvPjx0ZXh0IHg9IjIwMCIgeT0iMTMwIiBmb250LXNpemU9IjI2IiBmaWxsPSJ3aGl0ZSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9IkFyaWFsIj5FTUJFRERFRCBJTUFHRSBPSzwvdGV4dD48L3N2Zz4="></div><div class="status" id="sA">…</div></div>
+
+<div class="card"><div class="lbl">B. Internet image — Wikimedia Special:FilePath</div>
+<div class="box"><img id="iB" src="https://commons.wikimedia.org/wiki/Special:FilePath/Masala_dosa_(96279).jpg?width=440"></div><div class="status" id="sB">loading…</div></div>
+
+<script>
+var d=document.getElementById('diag');
+d.innerHTML='<b>Online?</b> '+navigator.onLine+' &nbsp; | &nbsp; <b>Inside a frame/sandbox?</b> '+(window.self!==window.top)+'<br><b>How you opened this:</b> '+location.protocol;
+function watch(i,s){var img=document.getElementById(i),st=document.getElementById(s);
+ function ok(){st.textContent='✓ LOADED';st.className='status ok';}
+ function bad(){st.textContent='✗ FAILED';st.className='status bad';}
+ if(img.complete&&img.naturalWidth>0){ok();return;}
+ img.onload=ok;img.onerror=bad;
+ setTimeout(function(){if(img.naturalWidth>0)ok();else if(st.textContent==='loading…'||st.textContent==='…')bad();},9000);}
+watch('iA','sA');watch('iB','sB');
+</script></body></html>
