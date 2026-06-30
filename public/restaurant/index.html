@@ -195,6 +195,8 @@
   }
   .dish .pic img{width:86%;max-height:124px;object-fit:contain;opacity:.62}
   .dish .pic img.ph{width:100%;height:100%;max-height:none;object-fit:cover;opacity:1}
+  .dish .pic img.piclogo{width:60%;max-height:104px;object-fit:contain;opacity:.5}
+  .lbpic img.piclogo{width:48%;max-height:170px;object-fit:contain;opacity:.55}
   .dish .pic .demoji{font-size:62px;line-height:1;filter:drop-shadow(0 3px 6px rgba(120,74,36,.18))}
   .lbpic .demoji.lg{font-size:128px;line-height:1;filter:drop-shadow(0 4px 10px rgba(120,74,36,.18))}
   .dish .meta{font-size:11.5px;color:var(--mut);line-height:1.35;overflow-wrap:anywhere}
@@ -258,7 +260,7 @@
   .send{background:linear-gradient(135deg,var(--brandtop),var(--brandbot));box-shadow:0 3px 11px rgba(199,146,51,.55)}
   .inputrow textarea{transition:border-color .2s ease,box-shadow .2s ease;background:#fffdf7}
   .inputrow textarea:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(199,146,51,.18)}
-  .tag{animation:tagglow 2.6s ease-in-out infinite}
+  .tag{opacity:.92}
   @keyframes tagglow{0%,100%{opacity:.85}50%{opacity:1}}
   #cartbar{transition:transform .16s ease,box-shadow .2s ease}
   #cartbar:hover{transform:translateY(-1px)}
@@ -898,6 +900,7 @@ const inWin=id=>MENU[id].h.some(w=>HOUR>=w[0]&&HOUR<w[1]);
 const OPEN=Object.keys(MENU).some(inWin);
 const avail=id=>!TIME_FILTER||!OPEN||inWin(id);
 const SHOW_TIMING=TIME_FILTER; // the "timed" build shows serving times on dishes; the all-time build hides them
+const LOGO_PICS=false; // when true, dishes without a real photo show an image block with the logo centred
 const chat=document.getElementById("chat");
 function bot(html){const d=document.createElement("div");d.className="msg bot";d.innerHTML=html;chat.appendChild(d);toBottom();return d;}
 function me(t){const d=document.createElement("div");d.className="msg me";d.textContent=t;chat.appendChild(d);toBottom();}
@@ -928,8 +931,9 @@ function tagsHTML(m){var h="";if(m.best)h+='<div class="tag">★ '+T("bestseller
 function compactCard(id){const m=MENU[id];
  return `<div class="dish simple" data-id="${id}"><div class="sbd"><div class="srow"><span class="vegdot${m.nv?' nv':''}"></span><div class="nm">${dn(id)}</div></div>${tagsHTML(m)}<div class="meta">${dishMeta(id)}</div><div class="sdesc">${desc(id)}</div><div class="sfoot"><div class="pr">₹${m.p}</div><div class="frow">${dishFooter(id)}</div></div></div></div>`;}
 function dishCard(id){const m=MENU[id];
- if(!m.ph)return compactCard(id); // no photo -> clean text card (no icons/emoji)
- return `<div class="dish" data-id="${id}"><div class="pic" style="cursor:pointer" onclick="zoomDish('${id}')"><span class="vegbadge${m.nv?' nv':''}" title="${m.nv?'Non-veg':'Pure veg'}"></span><img class="ph" src="${m.ph}" loading="lazy" alt="${dn(id)}" onerror="this.style.display='none';"></div><div class="bd">${tagsHTML(m)}<div class="nm">${dn(id)}</div><div class="meta">${dishMeta(id)}</div><div class="pr">₹${m.p}</div><div class="frow">${dishFooter(id)}</div></div></div>`;}
+ if(!m.ph&&!LOGO_PICS)return compactCard(id); // no photo & no logo-pics -> clean text card
+ var inner=m.ph?`<img class="ph" src="${m.ph}" loading="lazy" alt="${dn(id)}" onerror="this.style.display='none';">`:`<img class="piclogo" src="${LOGO}" alt="">`;
+ return `<div class="dish" data-id="${id}"><div class="pic" style="cursor:pointer" onclick="zoomDish('${id}')"><span class="vegbadge${m.nv?' nv':''}" title="${m.nv?'Non-veg':'Pure veg'}"></span>${inner}</div><div class="bd">${tagsHTML(m)}<div class="nm">${dn(id)}</div><div class="meta">${dishMeta(id)}</div><div class="pr">₹${m.p}</div><div class="frow">${dishFooter(id)}</div></div></div>`;}
 function sync(){refreshCart();document.querySelectorAll('.dish[data-id]').forEach(el=>{const f=el.querySelector('.frow');if(f)f.innerHTML=dishFooter(el.dataset.id);});document.querySelectorAll('.pi[data-id]').forEach(el=>{const f=el.querySelector('.pifoot');if(f)f.innerHTML=pairFoot(el.dataset.id);});}
 function buzz(){try{if(navigator.vibrate)navigator.vibrate(35);}catch(e){}}
 function dig(el,n){el.value=el.value.replace(/\D/g,"").slice(0,n);}
@@ -1328,7 +1332,7 @@ function ai(q){const sug=(id,txt)=>{const rb=bot(txt);block("grid",[dishCard(id)
 
 /* ---------- cart & checkout ---------- */
 const modal=document.getElementById("modal"),sheet=document.getElementById("sheet"),lb=document.getElementById("lb");
-function zoomDish(id){const m=MENU[id];const pic=m.ph?`<div class="lbpic"><span class="vegbadge${m.nv?' nv':''}"></span><img class="ph" src="${m.ph}" alt="${dn(id)}" onerror="this.style.display='none';"></div>`:'';lb.innerHTML=`<div class="lbcard"><button class="lbclose" onclick="closeLb()">✕</button>${pic}<div class="lbinfo"><div class="lbnm"><span class="vegdot${m.nv?' nv':''}"></span>${dn(id)}</div><div class="meta">${dishMeta(id)}</div><div class="lbpr">₹${m.p}</div><div class="lbdesc">${desc(id)}</div></div></div>`;lb.style.display="flex";}
+function zoomDish(id){const m=MENU[id];const pic=(m.ph||LOGO_PICS)?`<div class="lbpic"><span class="vegbadge${m.nv?' nv':''}"></span>${m.ph?`<img class="ph" src="${m.ph}" alt="${dn(id)}" onerror="this.style.display='none';">`:`<img class="piclogo" src="${LOGO}" alt="">`}</div>`:'';lb.innerHTML=`<div class="lbcard"><button class="lbclose" onclick="closeLb()">✕</button>${pic}<div class="lbinfo"><div class="lbnm"><span class="vegdot${m.nv?' nv':''}"></span>${dn(id)}</div><div class="meta">${dishMeta(id)}</div><div class="lbpr">₹${m.p}</div><div class="lbdesc">${desc(id)}</div></div></div>`;lb.style.display="flex";}
 function closeLb(){lb.style.display="none";lb.innerHTML="";}
 function openSheet(html){sheet.innerHTML=html;modal.style.display="flex";sheet.scrollTop=0;}
 function closeModal(){modal.style.display="none";}

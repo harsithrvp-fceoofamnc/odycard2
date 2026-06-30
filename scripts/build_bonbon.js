@@ -204,12 +204,14 @@ h = h.split("pure-vegetarian South Indian restaurant").join("ice cream parlour")
 // drop "pure veg" stamp text
 h = h.replace(/pureVeg:\{[^}]*\}/, 'pureVeg:{en:"Ice cream parlour",ta:"ஐஸ்கிரீம் பார்லர்",hi:"आइसक्रीम पार्लर",ml:"ഐസ്ക്രീം പാർലർ",te:"ఐస్‌క్రీం పార్లర్",kn:"ಐಸ್‌ಕ್ರೀಂ ಪಾರ್ಲರ್"}');
 
-// ---- ice-cream-parlour theme: white + deep maroon (#550000), neutral surfaces ----
+// ---- ice-cream-parlour theme: white + maroon (#811226), neutral surfaces ----
 h = h.replace(/:root\{[^}]*\}/,
-  ":root{--blue:#550000;--ink:#2a1212;--mut:#9a8585;--line:#ecdcdc;--cream:#faf2f1;--gold:#550000;--card:#fffdfc;--brandtop:#550000;--brandbot:#3a0000;}");
+  ":root{--blue:#811226;--ink:#2a1212;--mut:#9a8585;--line:#ecdcdc;--cream:#faf2f1;--gold:#811226;--card:#fffdfc;--brandtop:#811226;--brandbot:#5a0c1a;}");
 // language bar -> dark maroon
 h = h.replace(/\.langbar\{display:flex;gap:6px;overflow-x:auto;padding:8px 12px;background:#4d3017;/,
-  ".langbar{display:flex;gap:6px;overflow-x:auto;padding:8px 12px;background:#4a0000;");
+  ".langbar{display:flex;gap:6px;overflow-x:auto;padding:8px 12px;background:#5a0c1a;");
+// dish cards: show the image block with the logo centred (like the original chatbot)
+h = h.replace("const LOGO_PICS=false;", "const LOGO_PICS=true;");
 // page frame behind the phone -> warm neutral
 h = h.replace("background:#0e1116;", "background:#efe4e2;");
 // chat wallpaper -> clean neutral surface
