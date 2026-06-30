@@ -1,20 +1,15 @@
 "use client";
 import { useState, useEffect } from "react";
 
-// Homepage = access-code screen. Starts LOCKED on every load/refresh (in-memory state),
-// so the code is required every single time. The screen styles itself for whichever demo
-// the visitor came from: clean light "Odysra" for the white-label /restaurant demo,
-// warm espresso "Sree Annapoorna" otherwise.
+// odysra.com homepage = futuristic access-code screen. Starts locked on every load.
+// On the correct code it opens the Hub (or the specific demo the visitor came from).
 export default function Home() {
   const [code, setCode] = useState("");
   const [err, setErr] = useState(false);
   const [busy, setBusy] = useState(false);
-  const [demo, setDemo] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
-  useEffect(() => {
-    const nx = new URLSearchParams(window.location.search).get("next");
-    setDemo(!!nx && nx.startsWith("/restaurant"));
-  }, []);
+  useEffect(() => setMounted(true), []);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -29,78 +24,85 @@ export default function Home() {
       });
       if (r.ok) {
         const nx = new URLSearchParams(window.location.search).get("next");
-        window.location.href = nx && (nx.startsWith("/annapoorna") || nx.startsWith("/restaurant")) ? nx : "/annapoorna";
+        window.location.href = nx && (nx.startsWith("/annapoorna") || nx.startsWith("/restaurant")) ? nx : "/hub";
         return;
-      } else {
-        setErr(true);
-        setCode("");
       }
+      setErr(true);
+      setCode("");
     } catch {
       setErr(true);
     }
     setBusy(false);
   }
 
-  const dots = (stroke: string, op: string) =>
-    `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'%3E%3Cg fill='none' stroke='${stroke}' stroke-width='1' stroke-opacity='${op}'%3E%3Ccircle cx='0' cy='0' r='20'/%3E%3Ccircle cx='40' cy='0' r='20'/%3E%3Ccircle cx='0' cy='40' r='20'/%3E%3Ccircle cx='40' cy='40' r='20'/%3E%3Ccircle cx='20' cy='20' r='20'/%3E%3C/g%3E%3C/svg%3E")`;
-
-  const t = demo
-    ? {
-        bg: `${dots("%231f2430", "0.04")}, linear-gradient(160deg,#ffffff,#eef1f4)`,
-        logoBg: "#2b313a", logoFg: "#f4ecdb", ring: "#c79233", logoChar: "O",
-        titleColor: "#1f2430", sub: "AI Waiter — Demo", subColor: "#8a909c",
-        label: "#5a6172", inputBg: "#ffffff", inputBorder: "rgba(43,49,58,.2)", inputText: "#1f2430",
-        btn: "linear-gradient(135deg,#2b313a,#161a20)", btnText: "#ffffff", btnShadow: "0 6px 16px rgba(43,49,58,.25)",
-        foot: "#9aa0ab", errText: "#d9622d",
-      }
-    : {
-        bg: `${dots("%23ffffff", "0.05")}, linear-gradient(160deg,#3e2713,#241509)`,
-        logoBg: "#fff8ec", logoFg: "#3e2713", ring: "#c79233", logoChar: "A",
-        titleColor: "#e3b956", sub: "Sree Annapoorna · AI Waiter", subColor: "#d9c5a3",
-        label: "#ecdcc0", inputBg: "rgba(255,255,255,.07)", inputBorder: "rgba(227,185,86,.4)", inputText: "#ffffff",
-        btn: "linear-gradient(135deg,#e3b956,#c79233)", btnText: "#3a2a05", btnShadow: "0 6px 16px rgba(199,146,51,.35)",
-        foot: "#d9c5a3", errText: "#f4a261",
-      };
-
   return (
-    <div style={{
-      position: "fixed", inset: 0, display: "flex", flexDirection: "column",
-      alignItems: "center", justifyContent: "center",
-      background: t.bg, backgroundSize: "40px 40px, cover",
-      fontFamily: "-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,sans-serif", padding: 20, textAlign: "center",
-    }}>
-      <div style={{
-        width: 56, height: 56, borderRadius: 14, marginBottom: 16,
-        background: t.logoBg, color: t.logoFg, display: "flex", alignItems: "center", justifyContent: "center",
-        fontWeight: 800, fontSize: 26, boxShadow: `0 0 0 2px ${t.ring}, 0 6px 18px rgba(0,0,0,.30)`,
-      }}>{t.logoChar}</div>
-      <div style={{ fontSize: 27, fontWeight: 800, letterSpacing: 1, color: t.titleColor }}>Odysra</div>
-      <div style={{ fontSize: 13, marginTop: 4, marginBottom: 34, color: t.subColor }}>{t.sub}</div>
+    <div className="gate">
+      <div className="glow g1" />
+      <div className="glow g2" />
+      <div className="grid" />
+      <div className={"card" + (mounted ? " in" : "")}>
+        <div className="orb"><span>O</span></div>
+        <div className="word">ODYSRA</div>
+        <div className="tag">The soul behind the menu</div>
 
-      <form onSubmit={submit} style={{ width: "100%", maxWidth: 320 }}>
-        <div style={{ fontSize: 15, marginBottom: 14, color: t.label }}>Enter access code</div>
-        <input
-          value={code}
-          onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
-          inputMode="numeric"
-          autoFocus
-          placeholder="••••••"
-          style={{
-            width: "100%", textAlign: "center", fontSize: 30, letterSpacing: 12,
-            padding: "14px 10px", borderRadius: 14,
-            border: err ? "2px solid #e76f51" : `2px solid ${t.inputBorder}`,
-            background: t.inputBg, color: t.inputText, outline: "none",
-          }}
-        />
-        {err && <div style={{ color: t.errText, fontSize: 13, marginTop: 10 }}>Wrong code — try again.</div>}
-        <button type="submit" disabled={busy} style={{
-          width: "100%", marginTop: 18, padding: 13, borderRadius: 12, border: "none",
-          background: t.btn, color: t.btnText, fontWeight: 800, fontSize: 15, cursor: "pointer",
-          boxShadow: t.btnShadow, opacity: busy ? 0.6 : 1,
-        }}>{busy ? "Checking…" : "Unlock"}</button>
-      </form>
+        <form onSubmit={submit}>
+          <div className="lab">Enter access code</div>
+          <input
+            value={code}
+            onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
+            inputMode="numeric"
+            autoFocus
+            placeholder="••••••"
+            className={"pin" + (err ? " bad" : "")}
+          />
+          {err && <div className="errl">Wrong code — try again.</div>}
+          <button type="submit" disabled={busy} className="unlock">
+            <span>{busy ? "Verifying…" : "Unlock"}</span>
+          </button>
+        </form>
+        <div className="foot">Authorised access only</div>
+      </div>
 
-      <div style={{ fontSize: 11, opacity: 0.6, marginTop: 28, color: t.foot }}>Authorised access only</div>
+      <style>{`
+        *{box-sizing:border-box}
+        .gate{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;overflow:hidden;
+          background:radial-gradient(1200px 700px at 50% -10%,#1a2030 0%,#0c0e14 55%,#08090d 100%);
+          font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,sans-serif;padding:20px}
+        .grid{position:absolute;inset:0;background-image:linear-gradient(rgba(227,185,86,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(227,185,86,.05) 1px,transparent 1px);background-size:46px 46px;mask-image:radial-gradient(circle at 50% 40%,#000 0%,transparent 75%);-webkit-mask-image:radial-gradient(circle at 50% 40%,#000 0%,transparent 75%);animation:drift 22s linear infinite}
+        @keyframes drift{to{background-position:46px 46px,46px 46px}}
+        .glow{position:absolute;border-radius:50%;filter:blur(80px);opacity:.5;pointer-events:none}
+        .g1{width:520px;height:520px;background:radial-gradient(circle,#c79233,transparent 65%);top:-180px;left:-120px;animation:float1 16s ease-in-out infinite}
+        .g2{width:480px;height:480px;background:radial-gradient(circle,#3d6bff,transparent 65%);bottom:-200px;right:-140px;opacity:.35;animation:float2 20s ease-in-out infinite}
+        @keyframes float1{0%,100%{transform:translate(0,0)}50%{transform:translate(60px,50px)}}
+        @keyframes float2{0%,100%{transform:translate(0,0)}50%{transform:translate(-50px,-40px)}}
+        .card{position:relative;z-index:2;width:360px;max-width:100%;padding:38px 30px 26px;text-align:center;border-radius:24px;
+          background:rgba(255,255,255,.05);border:1px solid rgba(227,185,86,.22);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+          box-shadow:0 30px 80px rgba(0,0,0,.55);opacity:0;transform:translateY(18px) scale(.98);transition:.6s cubic-bezier(.2,.9,.3,1)}
+        .card.in{opacity:1;transform:none}
+        .orb{width:64px;height:64px;margin:0 auto 16px;border-radius:18px;display:flex;align-items:center;justify-content:center;
+          color:#1b1408;font-weight:800;font-size:30px;background:conic-gradient(from 130deg,#e3b956,#c79233,#f0d28a,#c79233,#e3b956);
+          box-shadow:0 0 0 1px rgba(227,185,86,.5),0 12px 30px rgba(199,146,51,.4);animation:spin 12s linear infinite}
+        .orb span{animation:spin 12s linear infinite reverse;display:block}
+        @keyframes spin{to{transform:rotate(360deg)}}
+        .word{font-size:27px;font-weight:800;letter-spacing:4px;background:linear-gradient(100deg,#f3d9a0,#e3b956,#fff4d6,#e3b956);
+          -webkit-background-clip:text;background-clip:text;color:transparent;background-size:250% 100%;animation:hue 7s linear infinite}
+        @keyframes hue{to{background-position:250% 0}}
+        .tag{font-size:12.5px;color:#9aa3b5;margin:6px 0 30px;letter-spacing:.4px}
+        .lab{font-size:13px;color:#c9cfdd;margin-bottom:12px;letter-spacing:.3px}
+        .pin{width:100%;text-align:center;font-size:30px;letter-spacing:14px;padding:14px 10px;border-radius:14px;
+          border:1.5px solid rgba(227,185,86,.35);background:rgba(8,10,16,.6);color:#fff;outline:none;transition:.2s}
+        .pin:focus{border-color:#e3b956;box-shadow:0 0 0 4px rgba(227,185,86,.16)}
+        .pin.bad{border-color:#e76f51;animation:shake .3s}
+        @keyframes shake{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+        .errl{color:#f4a261;font-size:13px;margin-top:10px}
+        .unlock{position:relative;overflow:hidden;width:100%;margin-top:18px;padding:14px;border:0;border-radius:13px;cursor:pointer;
+          font-weight:800;font-size:15px;letter-spacing:.5px;color:#1b1408;background:linear-gradient(135deg,#e3b956,#c79233);
+          box-shadow:0 10px 26px rgba(199,146,51,.4);transition:transform .15s,box-shadow .2s}
+        .unlock:hover{transform:translateY(-2px);box-shadow:0 16px 34px rgba(199,146,51,.5)}
+        .unlock:active{transform:translateY(0) scale(.99)}
+        .unlock:disabled{opacity:.6}
+        .foot{font-size:11px;color:#6a7283;margin-top:22px;letter-spacing:.5px}
+      `}</style>
     </div>
   );
 }

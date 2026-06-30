@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Odysra Kitchen Display — Demo</title>
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;background:#0e1116;color:#e7ecf3;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+  .top{display:flex;align-items:center;gap:14px;padding:12px 18px;background:#151a22;border-bottom:1px solid #232b36;position:sticky;top:0;z-index:5}
+  .brand{display:flex;align-items:center;gap:10px}
+  .logo{width:34px;height:34px;border-radius:9px;background:#c79233;color:#3a2a05;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:17px}
+  .brand h1{font-size:15px;margin:0;font-weight:700}
+  .brand .sub{font-size:11.5px;color:#8a95a5}
+  .stats{display:flex;gap:8px;margin-left:auto;align-items:center}
+  .stat{background:#1b212b;border:1px solid #283140;border-radius:10px;padding:6px 12px;text-align:center;min-width:64px}
+  .stat b{display:block;font-size:18px;line-height:1.1}
+  .stat span{font-size:10px;color:#8a95a5;text-transform:uppercase;letter-spacing:.4px}
+  .clock{font-variant-numeric:tabular-nums;font-weight:700;font-size:15px;color:#c9d3e0}
+  .filters{display:flex;gap:7px;padding:10px 18px;flex-wrap:wrap;background:#10151c;border-bottom:1px solid #1d242e}
+  .filters button{background:#1b212b;border:1px solid #2a3340;color:#c4cdd9;font-size:13px;font-weight:600;padding:6px 13px;border-radius:18px;cursor:pointer}
+  .filters button.on{background:#c79233;border-color:#c79233;color:#2a1d06}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:13px;padding:16px 18px 40px;align-items:start}
+  .tkt{background:#1a1f27;border:1px solid #2a3340;border-radius:13px;overflow:hidden;display:flex;flex-direction:column;animation:pop .25s ease}
+  @keyframes pop{from{opacity:0;transform:translateY(8px) scale(.98)}to{opacity:1;transform:none}}
+  .tkt .strip{height:5px;background:#3a4658}
+  .tkt.s_new .strip{background:#3d8bff}
+  .tkt.s_prep .strip{background:#e0a02e}
+  .tkt.s_ready .strip{background:#28b463}
+  .tkt.late{border-color:#e1483f;box-shadow:0 0 0 1px #e1483f}
+  .tkt.late .strip{background:#e1483f;animation:bl 1s infinite}
+  @keyframes bl{50%{opacity:.45}}
+  .th{display:flex;align-items:center;gap:8px;padding:10px 12px 6px}
+  .tok{font-size:17px;font-weight:800}
+  .tbl{font-size:12px;background:#222b37;border:1px solid #2f3a48;color:#aab6c5;padding:2px 8px;border-radius:14px;font-weight:600}
+  .reg{font-size:10.5px;background:rgba(199,146,51,.18);color:#e6b964;border:1px solid #6a531f;padding:2px 7px;border-radius:14px;font-weight:700}
+  .timer{margin-left:auto;font-variant-numeric:tabular-nums;font-weight:800;font-size:15px;color:#9fb0c4}
+  .tkt.late .timer{color:#ff7a70}
+  .items{padding:4px 12px 8px;display:flex;flex-direction:column;gap:7px}
+  .it{display:flex;gap:8px;font-size:14.5px;line-height:1.25}
+  .it .q{color:#c79233;font-weight:800;min-width:26px}
+  .it .nm{font-weight:600}
+  .it .mod{display:block;font-size:12px;color:#e0a02e;font-weight:600;margin-top:1px}
+  .station{font-size:9.5px;color:#7c8696;text-transform:uppercase;letter-spacing:.4px;border:1px solid #2a3340;border-radius:6px;padding:0 5px;margin-left:auto;align-self:flex-start}
+  .act{margin:auto 10px 10px;padding:10px;border:0;border-radius:10px;font-size:14px;font-weight:800;cursor:pointer;color:#0e1116}
+  .a_new{background:#3d8bff;color:#fff}
+  .a_prep{background:#e0a02e}
+  .a_ready{background:#28b463;color:#fff}
+  .empty{color:#5e6b7c;text-align:center;padding:60px 20px;font-size:15px}
+  .ctrlrow{display:flex;gap:8px;align-items:center;margin-left:14px}
+  .ctrlrow button{background:#222b37;border:1px solid #313c4b;color:#cdd6e2;font-size:12.5px;font-weight:600;padding:6px 11px;border-radius:9px;cursor:pointer}
+</style>
+</head>
+<body>
+<div class="top">
+  <div class="brand"><div class="logo">A</div><div><h1>Odysra Kitchen Display</h1><div class="sub">Annapoorna · RS Puram</div></div></div>
+  <div class="ctrlrow"><button onclick="addOrder()">+ New order</button><button id="autobtn" onclick="toggleAuto()">Auto: OFF</button></div>
+  <div class="stats">
+    <div class="stat"><b id="s_active">0</b><span>Active</span></div>
+    <div class="stat"><b id="s_prep">0</b><span>Cooking</span></div>
+    <div class="stat"><b id="s_avg">0:00</b><span>Avg wait</span></div>
+    <div class="clock" id="clock"></div>
+  </div>
+</div>
+<div class="filters" id="filters"></div>
+<div class="grid" id="grid"></div>
+<script>
+var STATIONS=["All","Tiffin","Mains","Chinese","Beverages","Dessert"];
+var MENU=[
+ {n:"Ghee Roast",st:"Tiffin"},{n:"Masala Dosa",st:"Tiffin"},{n:"Idli (2)",st:"Tiffin"},
+ {n:"Pongal",st:"Tiffin"},{n:"Sambar Vada",st:"Tiffin"},{n:"Poori (2)",st:"Tiffin"},
+ {n:"S. Indian Meals",st:"Mains"},{n:"Veg Biriyani",st:"Mains"},{n:"Curd Rice",st:"Mains"},
+ {n:"Chilli Parotta",st:"Mains"},{n:"Paneer Butter Masala",st:"Mains"},{n:"Chapati (2)",st:"Mains"},
+ {n:"Gobi Manchurian",st:"Chinese"},{n:"Veg Fried Rice",st:"Chinese"},{n:"Veg Noodles",st:"Chinese"},
+ {n:"Filter Coffee",st:"Beverages"},{n:"Rose Milk",st:"Beverages"},{n:"Mango Shake",st:"Beverages"},
+ {n:"Gulab Jamun",st:"Dessert"},{n:"Rava Kesari",st:"Dessert"}
+];
+var MODS=["less spicy","no onion","extra chutney","make it crispy","no coriander","packed separately","extra sambar"];
+var orders=[],token=40,filter="All",auto=false,sound=0;
+function rnd(a){return a[Math.floor(Math.random()*a.length)];}
+function makeOrder(){
+  var n=1+Math.floor(Math.random()*3),items=[],used={};
+  for(var i=0;i<n;i++){var m=rnd(MENU);if(used[m.n])continue;used[m.n]=1;
+    items.push({q:1+Math.floor(Math.random()*2),n:m.n,st:m.st,mod:Math.random()<0.35?rnd(MODS):""});}
+  var takeaway=Math.random()<0.3;
+  return {id:++token,tbl:takeaway?"Takeaway":"Table "+(1+Math.floor(Math.random()*18)),reg:Math.random()<0.25,
+    items:items,status:"new",t0:Date.now()};
+}
+function addOrder(){orders.unshift(makeOrder());render();}
+function advance(id){var o=orders.find(function(x){return x.id===id;});if(!o)return;
+  if(o.status==="new")o.status="prep";else if(o.status==="prep")o.status="ready";else removeO(id);render();}
+function removeO(id){orders=orders.filter(function(x){return x.id!==id;});render();}
+function fmt(ms){var s=Math.floor(ms/1000);return Math.floor(s/60)+":"+("0"+(s%60)).slice(-2);}
+function render(){
+  var g=document.getElementById("grid");
+  var list=orders.filter(function(o){return filter==="All"||o.items.some(function(i){return i.st===filter;});});
+  if(!list.length){g.innerHTML='<div class="empty">No active orders. Tap “+ New order”.</div>';}
+  else{g.innerHTML=list.map(function(o){
+    var el=Date.now()-o.t0,late=el>8*60000&&o.status!=="ready";
+    var scls=o.status==="new"?"s_new":o.status==="prep"?"s_prep":"s_ready";
+    var btn=o.status==="new"?'<button class="act a_new" onclick="advance('+o.id+')">▶ Start cooking</button>'
+      :o.status==="prep"?'<button class="act a_prep" onclick="advance('+o.id+')">✓ Mark ready</button>'
+      :'<button class="act a_ready" onclick="advance('+o.id+')">Bump ✕</button>';
+    var items=o.items.map(function(i){return '<div class="it"><span class="q">'+i.q+'×</span><span class="nm">'+i.n+(i.mod?'<span class="mod">↳ '+i.mod+'</span>':'')+'</span><span class="station">'+i.st+'</span></div>';}).join("");
+    return '<div class="tkt '+scls+(late?' late':'')+'" data-id="'+o.id+'"><div class="strip"></div><div class="th"><span class="tok">#'+o.id+'</span><span class="tbl">'+o.tbl+'</span>'+(o.reg?'<span class="reg">★ Regular</span>':'')+'<span class="timer">'+fmt(el)+'</span></div><div class="items">'+items+'</div>'+btn+'</div>';
+  }).join("");}
+  refreshStats();
+}
+function refreshStats(){
+  document.getElementById("s_active").textContent=orders.length;
+  document.getElementById("s_prep").textContent=orders.filter(function(o){return o.status==="prep";}).length;
+  var act=orders.filter(function(o){return o.status!=="ready";});
+  var avg=act.length?act.reduce(function(s,o){return s+(Date.now()-o.t0);},0)/act.length:0;
+  document.getElementById("s_avg").textContent=fmt(avg);
+}
+function updateTimers(){
+  document.querySelectorAll(".tkt").forEach(function(el){
+    var id=+el.getAttribute("data-id"),o=orders.find(function(x){return x.id===id;});if(!o)return;
+    var ms=Date.now()-o.t0,late=ms>8*60000&&o.status!=="ready";
+    el.classList.toggle("late",late);
+    var tm=el.querySelector(".timer");if(tm)tm.textContent=fmt(ms);
+  });
+  refreshStats();
+}
+function setFilter(f){filter=f;document.querySelectorAll("#filters button").forEach(function(b){b.classList.toggle("on",b.getAttribute("data-f")===f);});render();}
+function toggleAuto(){auto=!auto;document.getElementById("autobtn").textContent="Auto: "+(auto?"ON":"OFF");}
+document.getElementById("filters").innerHTML=STATIONS.map(function(s){return '<button data-f="'+s+'"'+(s==="All"?' class="on"':'')+' onclick="setFilter(\''+s+'\')">'+s+'</button>';}).join("");
+function tick(){document.getElementById("clock").textContent=new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit',second:'2-digit'});updateTimers();}
+for(var i=0;i<4;i++)orders.push(makeOrder());
+render();tick();
+setInterval(tick,1000);
+setInterval(function(){if(auto&&orders.length<14&&Math.random()<0.5)addOrder();},3500);
+</script>
+</body>
+</html>

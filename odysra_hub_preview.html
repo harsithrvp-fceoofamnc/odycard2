@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Odysra — gate & hub preview</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,sans-serif;background:#08090d;color:#e9edf5}
+.switch{position:fixed;top:14px;left:50%;transform:translateX(-50%);z-index:50;display:flex;gap:4px;background:rgba(20,24,32,.8);border:1px solid rgba(227,185,86,.25);padding:5px;border-radius:999px;backdrop-filter:blur(8px)}
+.switch button{border:0;background:transparent;color:#c9cfdd;font:inherit;font-weight:700;font-size:13px;padding:8px 18px;border-radius:999px;cursor:pointer}
+.switch button.on{background:linear-gradient(135deg,#e3b956,#c79233);color:#1b1408}
+.view{display:none}.view.show{display:block}
+
+/* shared bg */
+.bg{position:fixed;inset:0;z-index:0;overflow:hidden;background:radial-gradient(1100px 700px at 50% -10%,#1a2030 0%,#0c0e14 55%,#08090d 100%)}
+.grid{position:absolute;inset:0;background-image:linear-gradient(rgba(227,185,86,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(227,185,86,.05) 1px,transparent 1px);background-size:48px 48px;-webkit-mask-image:radial-gradient(circle at 50% 30%,#000,transparent 80%);mask-image:radial-gradient(circle at 50% 30%,#000,transparent 80%)}
+.glow{position:absolute;border-radius:50%;filter:blur(90px)}
+.g1{width:520px;height:520px;background:radial-gradient(circle,#c79233,transparent 65%);opacity:.4;top:-200px;left:-140px;animation:f1 17s ease-in-out infinite}
+.g2{width:480px;height:480px;background:radial-gradient(circle,#3d6bff,transparent 65%);opacity:.3;bottom:-220px;right:-160px;animation:f2 21s ease-in-out infinite}
+@keyframes f1{0%,100%{transform:translate(0,0)}50%{transform:translate(60px,46px)}}
+@keyframes f2{0%,100%{transform:translate(0,0)}50%{transform:translate(-50px,-40px)}}
+.orb{border-radius:16px;display:flex;align-items:center;justify-content:center;color:#1b1408;font-weight:800;background:conic-gradient(from 130deg,#e3b956,#c79233,#f0d28a,#c79233,#e3b956);box-shadow:0 0 0 1px rgba(227,185,86,.5),0 12px 30px rgba(199,146,51,.4);animation:spin 12s linear infinite}
+.orb span{animation:spin 12s linear infinite reverse;display:block}
+@keyframes spin{to{transform:rotate(360deg)}}
+.word{font-weight:800;letter-spacing:3px;background:linear-gradient(100deg,#f3d9a0,#e3b956,#fff4d6,#e3b956);-webkit-background-clip:text;background-clip:text;color:transparent;background-size:250% 100%;animation:hue 7s linear infinite}
+@keyframes hue{to{background-position:250% 0}}
+
+/* gate */
+.gate{position:relative;z-index:2;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
+.gcard{width:360px;max-width:100%;padding:38px 30px 26px;text-align:center;border-radius:24px;background:rgba(255,255,255,.05);border:1px solid rgba(227,185,86,.22);backdrop-filter:blur(16px);box-shadow:0 30px 80px rgba(0,0,0,.55)}
+.gcard .orb{width:64px;height:64px;margin:0 auto 16px;font-size:30px}
+.gcard .word{font-size:27px;letter-spacing:4px}
+.tag{font-size:12.5px;color:#9aa3b5;margin:6px 0 30px}
+.lab{font-size:13px;color:#c9cfdd;margin-bottom:12px}
+.pin{width:100%;text-align:center;font-size:30px;letter-spacing:14px;padding:14px 10px;border-radius:14px;border:1.5px solid rgba(227,185,86,.35);background:rgba(8,10,16,.6);color:#fff;outline:none}
+.pin:focus{border-color:#e3b956;box-shadow:0 0 0 4px rgba(227,185,86,.16)}
+.unlock{width:100%;margin-top:18px;padding:14px;border:0;border-radius:13px;cursor:pointer;font-weight:800;font-size:15px;color:#1b1408;background:linear-gradient(135deg,#e3b956,#c79233);box-shadow:0 10px 26px rgba(199,146,51,.4)}
+.foot{font-size:11px;color:#6a7283;margin-top:22px}
+
+/* hub */
+.hub{position:relative;z-index:2;padding:26px 18px 60px}
+.head{display:flex;align-items:center;gap:14px;max-width:880px;margin:6px auto 26px}
+.head .orb{width:50px;height:50px;font-size:24px}
+.head .word{font-size:23px}
+.sub{font-size:12.5px;color:#9aa3b5;margin-top:2px}
+.wrap{max-width:880px;margin:0 auto}
+.sec{margin-bottom:24px}
+.seclab{font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#c79233;margin:0 4px 12px}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
+.card{display:flex;align-items:center;gap:13px;padding:15px 16px;border-radius:16px;text-decoration:none;color:inherit;background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.08);backdrop-filter:blur(10px);transition:transform .2s,box-shadow .25s,border-color .25s,background .25s;cursor:pointer}
+.card:hover{transform:translateY(-3px);border-color:var(--c);background:rgba(255,255,255,.07);box-shadow:0 14px 34px rgba(0,0,0,.5),0 0 0 1px var(--c),0 0 26px -6px var(--c)}
+.dot{width:11px;height:11px;border-radius:50%;flex:0 0 auto;background:var(--c);box-shadow:0 0 12px var(--c)}
+.ct{flex:1;min-width:0}.t{font-size:15.5px;font-weight:700;color:#f2f5fb}.s{font-size:12px;color:#97a0b2;margin-top:2px}
+.arr{color:var(--c);font-size:18px;opacity:.7;transition:transform .2s,opacity .2s}
+.card:hover .arr{transform:translateX(4px);opacity:1}
+.footer{text-align:center;color:#5e6678;font-size:11.5px;margin-top:30px}
+</style></head>
+<body>
+<div class="bg"><div class="grid"></div><div class="glow g1"></div><div class="glow g2"></div></div>
+<div class="switch"><button id="tg" class="on" onclick="show('gate')">Password screen</button><button id="th" onclick="show('hub')">Hub</button></div>
+
+<section id="gate" class="view show"><div class="gate"><div class="gcard">
+  <div class="orb"><span>O</span></div><div class="word">ODYSRA</div><div class="tag">The soul behind the menu</div>
+  <div class="lab">Enter access code</div>
+  <input class="pin" inputmode="numeric" placeholder="••••••" maxlength="6">
+  <button class="unlock" onclick="show('hub')">Unlock</button>
+  <div class="foot">Authorised access only</div>
+</div></div></section>
+
+<section id="hub" class="view"><div class="hub">
+  <header class="head"><div class="orb"><span>O</span></div><div><div class="word">ODYSRA</div><div class="sub">Control hub · pick a destination</div></div></header>
+  <div class="wrap" id="grps"></div>
+  <div class="footer">Odysra · authorised internal access</div>
+</div></section>
+
+<script>
+var GROUPS=[
+ {label:"AI Waiter",items:[
+   {t:"Sree Annapoorna",s:"Live AI waiter — full menu demo",c:"#e3b956"},
+   {t:"White-label demo",s:"Generic branded restaurant bot",c:"#5dcaa5"}]},
+ {label:"Platform",items:[
+   {t:"Admin dashboard",s:"Branches, staff, sales (owner)",c:"#4285f4"},
+   {t:"Supervisor",s:"Branch staff & waiters",c:"#7c4dff"},
+   {t:"Waiter",s:"Floor app login",c:"#34a853"},
+   {t:"Sign up",s:"Create an admin account",c:"#f0997b"},
+   {t:"Log in",s:"Owner / staff login",c:"#9aa3b5"}]},
+ {label:"Operations demos",items:[
+   {t:"Kitchen display — fast food",s:"Live order tickets board",c:"#ef9f27"},
+   {t:"Kitchen display — dine-in",s:"Table rounds + re-order priority",c:"#e24b4a"},
+   {t:"Waiter app",s:"Ready-order alerts per zone",c:"#1d9e75"}]}
+];
+document.getElementById('grps').innerHTML=GROUPS.map(function(g){
+ return '<section class="sec"><div class="seclab">'+g.label+'</div><div class="cards">'+
+   g.items.map(function(it){return '<div class="card" style="--c:'+it.c+'"><span class="dot"></span><div class="ct"><div class="t">'+it.t+'</div><div class="s">'+it.s+'</div></div><span class="arr">→</span></div>';}).join("")+
+ '</div></section>';}).join("");
+function show(v){document.getElementById('gate').classList.toggle('show',v==='gate');document.getElementById('hub').classList.toggle('show',v==='hub');document.getElementById('tg').classList.toggle('on',v==='gate');document.getElementById('th').classList.toggle('on',v==='hub');window.scrollTo(0,0);}
+</script>
+</body></html>

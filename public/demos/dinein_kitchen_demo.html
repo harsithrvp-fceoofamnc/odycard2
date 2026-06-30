@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Odysra Kitchen Display — Dine-in (Annapoorna)</title>
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;background:#0e1116;color:#e7ecf3;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+  .top{display:flex;align-items:center;gap:14px;padding:12px 18px;background:#151a22;border-bottom:1px solid #232b36;position:sticky;top:0;z-index:5;flex-wrap:wrap}
+  .brand{display:flex;align-items:center;gap:10px}
+  .logo{width:34px;height:34px;border-radius:9px;background:#c79233;color:#3a2a05;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:17px}
+  .brand h1{font-size:15px;margin:0;font-weight:700}
+  .brand .sub{font-size:11.5px;color:#8a95a5}
+  .ctrlrow{display:flex;gap:8px;align-items:center}
+  .ctrlrow button{background:#222b37;border:1px solid #313c4b;color:#cdd6e2;font-size:12.5px;font-weight:700;padding:7px 12px;border-radius:9px;cursor:pointer}
+  .ctrlrow .re{background:#3a2c10;border-color:#6a531f;color:#e6b964}
+  .stats{display:flex;gap:8px;margin-left:auto;align-items:center}
+  .stat{background:#1b212b;border:1px solid #283140;border-radius:10px;padding:6px 12px;text-align:center;min-width:60px}
+  .stat b{display:block;font-size:18px;line-height:1.1}
+  .stat span{font-size:10px;color:#8a95a5;text-transform:uppercase;letter-spacing:.4px}
+  .clock{font-variant-numeric:tabular-nums;font-weight:700;font-size:15px;color:#c9d3e0}
+  .legend{font-size:12px;color:#8a95a5;padding:8px 18px;background:#10151c;border-bottom:1px solid #1d242e}
+  .legend b{color:#e6b964}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(248px,1fr));gap:13px;padding:16px 18px 40px;align-items:start}
+  .tkt{background:#1a1f27;border:1px solid #2a3340;border-radius:13px;overflow:hidden;display:flex;flex-direction:column;animation:pop .25s ease}
+  @keyframes pop{from{opacity:0;transform:translateY(8px) scale(.98)}to{opacity:1;transform:none}}
+  .tkt .strip{height:5px;background:#3a4658}
+  .tkt.s_new .strip{background:#3d8bff}
+  .tkt.s_prep .strip{background:#e0a02e}
+  .tkt.s_ready .strip{background:#28b463}
+  .tkt.exp{border-color:#c79233;box-shadow:0 0 0 1px #c79233}
+  .exbar{background:#c79233;color:#2a1d06;font-size:11.5px;font-weight:800;padding:5px 12px;letter-spacing:.3px;display:flex;align-items:center;gap:6px}
+  .th{display:flex;align-items:center;gap:8px;padding:10px 12px 4px}
+  .tok{font-size:18px;font-weight:800}
+  .round{font-size:11.5px;background:#222b37;border:1px solid #2f3a48;color:#aab6c5;padding:2px 8px;border-radius:14px;font-weight:700}
+  .timer{margin-left:auto;font-variant-numeric:tabular-nums;font-weight:800;font-size:15px;color:#9fb0c4}
+  .guest{padding:0 12px 2px;font-size:12px;color:#8a95a5}
+  .guest .reg{color:#e6b964;font-weight:700}
+  .items{padding:6px 12px 8px;display:flex;flex-direction:column;gap:7px}
+  .it{display:flex;gap:8px;font-size:14.5px;line-height:1.25}
+  .it .q{color:#c79233;font-weight:800;min-width:26px}
+  .it .nm{font-weight:600}
+  .it .mod{display:block;font-size:12px;color:#e0a02e;font-weight:600;margin-top:1px}
+  .serveban{margin:0 10px 8px;background:rgba(40,180,99,.16);border:1px solid #28b463;color:#7ee2a6;font-weight:800;font-size:13px;text-align:center;padding:7px;border-radius:9px;letter-spacing:.3px}
+  .act{margin:auto 10px 10px;padding:10px;border:0;border-radius:10px;font-size:14px;font-weight:800;cursor:pointer}
+  .a_new{background:#3d8bff;color:#fff}
+  .a_prep{background:#e0a02e;color:#2a1d06}
+  .a_ready{background:#28b463;color:#fff}
+  .empty{color:#5e6b7c;text-align:center;padding:60px 20px;font-size:15px}
+</style>
+</head>
+<body>
+<div class="top">
+  <div class="brand"><div class="logo">A</div><div><h1>Odysra Kitchen Display</h1><div class="sub">Annapoorna · RS Puram — Dine-in</div></div></div>
+  <div class="ctrlrow"><button onclick="addNew()">+ New table</button><button class="re" onclick="addReorder()">⚡ Order again (seated guest)</button></div>
+  <div class="stats">
+    <div class="stat"><b id="s_active">0</b><span>Active</span></div>
+    <div class="stat"><b id="s_ready">0</b><span>To serve</span></div>
+    <div class="stat"><b id="s_avg">0:00</b><span>Avg wait</span></div>
+    <div class="clock" id="clock"></div>
+  </div>
+</div>
+<div class="legend">⚡ <b>When a seated guest orders again, it jumps to the top</b> so it's served quickly. When a dish is ready, staff get a <b>“Serve to Table”</b> alert. Steps: Start cooking → Mark ready → Served.</div>
+<div class="grid" id="grid"></div>
+<script>
+var MAINS=[{q:2,n:"Masala Dosa"},{q:1,n:"S. Indian Meals"},{q:1,n:"Veg Biriyani"},{q:2,n:"Idli (2)"},{q:1,n:"Pongal"},{q:1,n:"Paneer Butter Masala"},{q:2,n:"Chapati (2)"},{q:1,n:"Gobi Manchurian"},{q:1,n:"Ghee Roast"}];
+var QUICK=[{n:"Naan"},{n:"Filter Coffee"},{n:"Curd Rice"},{n:"Extra Sambar"},{n:"Plain Rice"},{n:"Rasam"}];
+var NAMES=["Ram","Priya","Karthik","Divya","Suresh","Anitha"];
+var orders=[],activeTables={},filterNone=true;
+function rnd(a){return a[Math.floor(Math.random()*a.length)];}
+
+// seed a realistic board
+function seed(){
+  push({tbl:7,round:2,exp:true,guest:"Ram",reg:true,status:"new",ago:14,items:[{q:2,n:"Naan",mod:"hot from tandoor"}]});
+  push({tbl:3,round:1,exp:false,guest:"Karthik",reg:false,status:"prep",ago:200,items:[{q:2,n:"Masala Dosa",mod:""},{q:1,n:"Filter Coffee",mod:""}]});
+  push({tbl:5,round:3,exp:true,guest:"Priya",reg:true,status:"new",ago:30,items:[{q:1,n:"Filter Coffee",mod:""},{q:1,n:"Extra Sambar",mod:""}]});
+  push({tbl:11,round:1,exp:false,guest:"Divya",reg:false,status:"new",ago:75,items:[{q:1,n:"S. Indian Meals",mod:""},{q:1,n:"Veg Biriyani",mod:"less spicy"}]});
+  push({tbl:9,round:1,exp:false,guest:"Suresh",reg:false,status:"ready",ago:340,items:[{q:1,n:"Ghee Roast",mod:""},{q:2,n:"Idli (2)",mod:"extra chutney"}]});
+}
+function push(o){o.t0=Date.now()-(o.ago||0)*1000;orders.push(o);activeTables[o.tbl]=Math.max(activeTables[o.tbl]||0,o.round);}
+function freeTable(){var t;do{t=1+Math.floor(Math.random()*18);}while(activeTables[t]);return t;}
+function addNew(){
+  var t=freeTable(),its=[],n=1+Math.floor(Math.random()*2),used={};
+  for(var i=0;i<n;i++){var m=rnd(MAINS);if(used[m.n])continue;used[m.n]=1;its.push({q:m.q,n:m.n,mod:Math.random()<0.3?"less spicy":""});}
+  push({tbl:t,round:1,exp:false,guest:rnd(NAMES),reg:Math.random()<0.25,status:"new",items:its});
+  render();
+}
+function addReorder(){
+  var keys=Object.keys(activeTables);var t=keys.length?+rnd(keys):freeTable();
+  var r=(activeTables[t]||0)+1;var q=rnd(QUICK);
+  push({tbl:t,round:r,exp:true,guest:rnd(NAMES),reg:Math.random()<0.4,status:"new",items:[{q:1+Math.floor(Math.random()*2),n:q.n,mod:""}]});
+  render();
+}
+function advance(id){var o=orders.find(function(x){return x.id===id;});if(!o)return;
+  if(o.status==="new")o.status="prep";else if(o.status==="prep")o.status="ready";else{orders=orders.filter(function(x){return x.id!==id;});}
+  render();}
+var seq=0;
+function fmt(ms){var s=Math.floor(ms/1000);return Math.floor(s/60)+":"+("0"+(s%60)).slice(-2);}
+function sortKey(){
+  return orders.slice().sort(function(a,b){
+    if(a.exp!==b.exp)return a.exp?-1:1;     // expedite first
+    return a.t0-b.t0;                         // then oldest first (FIFO)
+  });
+}
+function render(){
+  orders.forEach(function(o){if(!o.id)o.id=++seq;});
+  var list=sortKey();var g=document.getElementById("grid");
+  if(!list.length){g.innerHTML='<div class="empty">No active orders. Add a table or a re-order above.</div>';refreshStats();return;}
+  g.innerHTML=list.map(function(o){
+    var scls=o.status==="new"?"s_new":o.status==="prep"?"s_prep":"s_ready";
+    var btn=o.status==="new"?'<button class="act a_new" onclick="advance('+o.id+')">▶ Start cooking</button>'
+      :o.status==="prep"?'<button class="act a_prep" onclick="advance('+o.id+')">✓ Mark ready</button>'
+      :'<button class="act a_ready" onclick="advance('+o.id+')">Served ✓</button>';
+    var items=o.items.map(function(i){return '<div class="it"><span class="q">'+i.q+'×</span><span class="nm">'+i.n+(i.mod?'<span class="mod">↳ '+i.mod+'</span>':'')+'</span></div>';}).join("");
+    var exbar=o.exp?'<div class="exbar">⚡ ORDERED AGAIN — already eating, serve quickly</div>':'';
+    var serve=o.status==="ready"?'<div class="serveban">🔔 SERVE TO TABLE '+o.tbl+'</div>':'';
+    var guest=o.guest?'<div class="guest">'+o.guest+(o.reg?' · <span class="reg">★ Regular</span>':'')+'</div>':'';
+    return '<div class="tkt '+scls+(o.exp?' exp':'')+'" data-id="'+o.id+'"><div class="strip"></div>'+exbar+
+      '<div class="th"><span class="tok">Table '+o.tbl+'</span><span class="round">Round '+o.round+'</span><span class="timer">'+fmt(Date.now()-o.t0)+'</span></div>'+
+      guest+'<div class="items">'+items+'</div>'+serve+btn+'</div>';
+  }).join("");
+  refreshStats();
+}
+function refreshStats(){
+  document.getElementById("s_active").textContent=orders.length;
+  document.getElementById("s_ready").textContent=orders.filter(function(o){return o.status==="ready";}).length;
+  var act=orders.filter(function(o){return o.status!=="ready";});
+  var avg=act.length?act.reduce(function(s,o){return s+(Date.now()-o.t0);},0)/act.length:0;
+  document.getElementById("s_avg").textContent=fmt(avg);
+}
+function updateTimers(){
+  document.querySelectorAll(".tkt").forEach(function(el){
+    var id=+el.getAttribute("data-id"),o=orders.find(function(x){return x.id===id;});if(!o)return;
+    var tm=el.querySelector(".timer");if(tm)tm.textContent=fmt(Date.now()-o.t0);
+  });
+  refreshStats();
+}
+function tick(){document.getElementById("clock").textContent=new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit',second:'2-digit'});updateTimers();}
+seed();render();tick();
+setInterval(tick,1000);
+</script>
+</body>
+</html>

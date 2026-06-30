@@ -27,8 +27,10 @@ export function middleware(req: NextRequest) {
     return NextResponse.next();
   }
 
-  // Demo chatbot + its AI + speech-to-text: only after the access code was entered.
+  // Hub + demo pages + chatbot + its AI + speech-to-text: only after the access code was entered.
   if (
+    pathname.startsWith("/hub") ||
+    pathname.startsWith("/demos") ||
     pathname.startsWith("/annapoorna") ||
     pathname.startsWith("/restaurant") ||
     pathname.startsWith("/ody") ||
