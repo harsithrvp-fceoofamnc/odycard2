@@ -112,6 +112,14 @@ export default function Hub() {
         .arr{color:#b6bcc7;font-size:18px;transition:transform .2s,color .2s}
         .card:hover .arr{transform:translateX(4px);color:var(--c)}
         .footer{text-align:center;color:#a2a8b4;font-size:11.5px;margin-top:30px;letter-spacing:.3px}
+        @media (max-width:560px){
+          .hub{padding:22px 14px 50px}
+          .cards{grid-template-columns:1fr;gap:10px}
+          .head{margin-bottom:20px}
+          .logo{width:42px;height:42px}
+          .word{font-size:19px;letter-spacing:3px}
+          .card{padding:14px 14px}
+        }
       `}</style>
     </div>
   );

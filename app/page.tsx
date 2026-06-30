@@ -86,6 +86,13 @@ export default function Home() {
         .unlock:active{transform:translateY(0)}
         .unlock:disabled{opacity:.55}
         .foot{font-size:11px;color:#a2a8b4;margin-top:22px;letter-spacing:.4px}
+        @media (max-width:420px){
+          .gate{padding:16px}
+          .card{padding:30px 22px 22px;border-radius:18px}
+          .logo{width:54px;height:54px}
+          .word{font-size:20px;letter-spacing:4px}
+          .pin{font-size:24px;letter-spacing:9px}
+        }
       `}</style>
     </div>
   );
