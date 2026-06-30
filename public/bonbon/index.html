@@ -3,12 +3,12 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>Odysra AI Waiter — Demo</title>
+<title>Bon Bon — AI Ice Cream Menu</title>
 <style>
-  :root{--blue:#222831;--ink:#1f2430;--mut:#8a909c;--line:#e7e9ee;--cream:#f6f7f8;--gold:#c79233;--card:#ffffff;--brandtop:#2b313a;--brandbot:#161a20;}
+  :root{--blue:#8e2b4d;--ink:#2a1620;--mut:#9b8791;--line:#efdfe6;--cream:#fdeff4;--gold:#d81b60;--card:#fffafc;--brandtop:#8e2b4d;--brandbot:#5e1730;}
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   html{height:100%;overscroll-behavior:none}
-  body{margin:0;background:#e9ebee;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;display:flex;justify-content:center;align-items:center;min-height:100vh;min-height:100dvh;height:100dvh;overflow:hidden;overscroll-behavior:none}
+  body{margin:0;background:#f4e6ec;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;display:flex;justify-content:center;align-items:center;min-height:100vh;min-height:100dvh;height:100dvh;overflow:hidden;overscroll-behavior:none}
   #phone{width:100%;max-width:440px;height:100vh;height:100dvh;background:var(--cream);overflow:hidden;display:flex;flex-direction:column;position:relative}
   @media(min-width:480px){
     body{padding:16px;box-sizing:border-box}
@@ -20,7 +20,7 @@
   header .sub{font-size:12.5px;opacity:.9;margin-top:1px;color:#f3e2c4}
   header .hback{background:rgba(255,255,255,.18);border:0;color:#fff;width:32px;height:32px;border-radius:9px;font-size:20px;line-height:1;cursor:pointer;flex:0 0 auto;display:none;transition:background .2s}
   header .hback:hover{background:rgba(255,255,255,.3)}
-  .langbar{display:flex;gap:6px;overflow-x:auto;padding:8px 12px;background:#222831;scrollbar-width:none;-ms-overflow-style:none}
+  .langbar{display:flex;gap:6px;overflow-x:auto;padding:8px 12px;background:#5e1730;scrollbar-width:none;-ms-overflow-style:none}
   .langbar::-webkit-scrollbar{display:none;width:0;height:0}
   .lang{flex:0 0 auto;font-size:13.5px;color:#f0e2cb;background:rgba(255,255,255,.12);border:0;padding:5px 11px;border-radius:20px;cursor:pointer;transition:all .2s ease}
   .lang:hover{background:rgba(255,255,255,.2)}
@@ -45,7 +45,7 @@
   .outlet button{background:#fff;border:1.4px solid var(--blue);color:var(--blue);font-weight:700;padding:15px 8px;border-radius:13px;font-size:15.5px;cursor:pointer}
   .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;align-self:stretch;padding:0}
   .dish{background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden;display:flex;flex-direction:column}
-  .dish .pic{height:165px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='30' height='30' viewBox='0 0 30 30'%3E%3Cg fill='none' stroke='%23a8752a' stroke-width='1' stroke-opacity='0.14'%3E%3Ccircle cx='0' cy='0' r='15'/%3E%3Ccircle cx='30' cy='0' r='15'/%3E%3Ccircle cx='0' cy='30' r='15'/%3E%3Ccircle cx='30' cy='30' r='15'/%3E%3Ccircle cx='15' cy='15' r='15'/%3E%3C/g%3E%3C/svg%3E"),linear-gradient(135deg,#f1f3f6,#e9ecf1);background-size:30px 30px,cover;display:flex;align-items:center;justify-content:center;font-size:34px}
+  .dish .pic{height:165px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='30' height='30' viewBox='0 0 30 30'%3E%3Cg fill='none' stroke='%23a8752a' stroke-width='1' stroke-opacity='0.14'%3E%3Ccircle cx='0' cy='0' r='15'/%3E%3Ccircle cx='30' cy='0' r='15'/%3E%3Ccircle cx='0' cy='30' r='15'/%3E%3Ccircle cx='30' cy='30' r='15'/%3E%3Ccircle cx='15' cy='15' r='15'/%3E%3C/g%3E%3C/svg%3E"),linear-gradient(135deg,#fbe2ec,#f3d3e0);background-size:30px 30px,cover;display:flex;align-items:center;justify-content:center;font-size:34px}
   .dish .bd{padding:11px 12px;display:flex;flex-direction:column;gap:5px;flex:1}
   .dish .nm{font-size:16px;font-weight:700;color:var(--ink);line-height:1.25;min-height:2.1em;overflow-wrap:anywhere}
   .dish .pr{font-size:15.5px;color:var(--blue);font-weight:700}
@@ -190,7 +190,7 @@
   /* ---------- elegant polish & animations ---------- */
   /* Doodle wallpaper sits behind the WHOLE screen, so the translucent input bar reveals it too */
   #phone{
-    background:#f6f7f8;
+    background:#fdeff4;
     background-size:cover,cover;background-position:center top;background-repeat:no-repeat;
   }
   .dish .pic img{width:86%;max-height:124px;object-fit:contain;opacity:.62}
@@ -298,7 +298,7 @@
 </head>
 <body>
 <div id="phone">
-  <header><button id="back" class="hback" onclick="goOutlets()" title="Change outlet">←</button><div class="logo">O</div><div><h1 id="hname">Odysra</h1><div class="sub" id="hsub">Choose your outlet — AI Waiter by Odysra</div></div></header>
+  <header><button id="back" class="hback" onclick="goOutlets()" title="Change outlet">←</button><div class="logo">B</div><div><h1 id="hname">Bon Bon</h1><div class="sub" id="hsub">Choose your outlet — AI Waiter by Odysra</div></div></header>
   <div class="langbar" id="langbar"></div>
   <div id="wm"></div>
   <div id="chat"></div>
@@ -325,216 +325,131 @@
 </div>
 <script>
 const MENU={
- idli:{n:"Idly (2)",p:50,e:"🍥",h:[[6,10.5],[18,22]],q:"2 pieces",pt:10,ph:"",d:"A classic South Indian tiffin, served hot with chutney and sambar.",veg:1,best:1},
- idli1:{n:"Idly (1)",p:30,e:"🍥",h:[[6,10.5],[18,22]],q:"1 piece",pt:10,ph:"",d:"A classic South Indian tiffin, served hot with chutney and sambar.",veg:1},
- sambaridli:{n:"Sambar Idly (2)",p:65,e:"🍥",h:[[6,10.5],[18,22]],q:"2 pieces",pt:10,ph:"",d:"A classic South Indian tiffin, served hot with chutney and sambar.",veg:1},
- sambaridli1:{n:"Sambar Idly (1)",p:42,e:"🍥",h:[[6,10.5],[18,22]],q:"1 piece",pt:10,ph:"",d:"A classic South Indian tiffin, served hot with chutney and sambar.",veg:1},
- vada:{n:"Vadai (1)",p:33,e:"🍩",h:[[6,10.5],[18,22]],q:"1 piece",pt:10,ph:"",d:"A classic South Indian tiffin, served hot with chutney and sambar.",veg:1},
- sambarvadai:{n:"Sambar Vadai (1)",p:44,e:"🍩",h:[[6,10.5],[18,22]],q:"1 piece",pt:10,ph:"",d:"A classic South Indian tiffin, served hot with chutney and sambar.",veg:1},
- pongal:{n:"Pongal",p:80,e:"🥣",h:[[6,10.5],[18,22]],q:"1 plate",pt:10,ph:"",d:"A classic South Indian tiffin, served hot with chutney and sambar.",veg:1,best:1},
- ravakitchadi:{n:"Veg Rava Kitchadi",p:75,e:"🥣",h:[[6,10.5],[18,22]],q:"1 plate",pt:10,ph:"",d:"A classic South Indian tiffin, served hot with chutney and sambar.",veg:1},
- poori2:{n:"Poori w/ Potato Masal (2)",p:95,e:"🫓",h:[[6,10.5],[18,22]],q:"2 pieces",pt:10,ph:"",d:"A classic South Indian tiffin, served hot with chutney and sambar.",veg:1},
- poori1:{n:"Poori w/ Potato Masal (1)",p:50,e:"🫓",h:[[6,10.5],[18,22]],q:"1 piece",pt:10,ph:"",d:"A classic South Indian tiffin, served hot with chutney and sambar.",veg:1},
- idiyappam:{n:"Idiyappam w/ Coconut Milk & Stew",p:95,e:"🍝",h:[[6,10.5],[18,22]],q:"1 plate",pt:10,ph:"",d:"A classic South Indian tiffin, served hot with chutney and sambar.",veg:1},
- lemonsevai:{n:"Lemon Sevai",p:77,e:"🍝",h:[[6,10.5],[18,22]],q:"1 plate",pt:10,ph:"",d:"A classic South Indian tiffin, served hot with chutney and sambar.",veg:1},
- gheeminiidli:{n:"Ghee Mini Idly in Sambar",p:105,e:"🍥",h:[[6,10.5],[18,22]],q:"1 plate",pt:10,ph:"",d:"A classic South Indian tiffin, served hot with chutney and sambar.",veg:1},
- wheatuppuma:{n:"Wheat Uppuma",p:75,e:"🥣",h:[[6,10.5]],q:"1 plate",pt:10,ph:"",d:"A classic South Indian tiffin, served hot with chutney and sambar.",veg:1},
- wheatuppumacurd:{n:"Wheat Uppuma with Curd",p:88,e:"🥣",h:[[6,10.5]],q:"1 plate",pt:10,ph:"",d:"A classic South Indian tiffin, served hot with chutney and sambar.",veg:1},
- channabhatura:{n:"Channa Bhatura (Chola Poori)",p:130,e:"🫓",h:[[18,22]],q:"1 plate",pt:10,ph:"",d:"A classic South Indian tiffin, served hot with chutney and sambar.",veg:1},
- gheeroast:{n:"Ghee Roast",p:95,e:"🫓",h:[[6.5,22.5]],q:"1 dosa",pt:12,ph:"",d:"A crisp golden dosa, roasted to order on the griddle.",veg:1,best:1},
- paperroast:{n:"Paper Roast",p:135,e:"🫓",h:[[6.5,22.5]],q:"1 dosa",pt:12,ph:"",d:"A crisp golden dosa, roasted to order on the griddle.",veg:1},
- familyroast:{n:"Family Roast",p:500,e:"🫓",h:[[6.5,22.5]],q:"1 dosa",pt:12,ph:"",d:"A crisp golden dosa, roasted to order on the griddle.",veg:1},
- masalroast:{n:"Masal Roast (Potato Masal)",p:135,e:"🫓",h:[[6.5,22.5]],q:"1 dosa",pt:12,ph:"",d:"A crisp golden dosa, roasted to order on the griddle.",veg:1,best:1},
- gheemasalroast:{n:"Ghee Masal Roast (Potato Masal)",p:145,e:"🫓",h:[[6.5,22.5]],q:"1 dosa",pt:12,ph:"",d:"A crisp golden dosa, roasted to order on the griddle.",veg:1},
- buttermasalroast:{n:"Butter Masal Roast (Potato Masal)",p:140,e:"🫓",h:[[6.5,22.5]],q:"1 dosa",pt:12,ph:"",d:"A crisp golden dosa, roasted to order on the griddle.",veg:1},
- onionroast:{n:"Onion Roast",p:125,e:"🫓",h:[[6.5,22.5]],q:"1 dosa",pt:12,ph:"",d:"A crisp golden dosa, roasted to order on the griddle.",veg:1},
- gheeonionroast:{n:"Ghee Onion Roast",p:135,e:"🫓",h:[[6.5,22.5]],q:"1 dosa",pt:12,ph:"",d:"A crisp golden dosa, roasted to order on the griddle.",veg:1},
- podiroast:{n:"Podi Roast",p:120,e:"🫓",h:[[6.5,22.5]],q:"1 dosa",pt:12,ph:"",d:"A crisp golden dosa, roasted to order on the griddle.",veg:1},
- uthappam:{n:"Uthappam",p:95,e:"🥞",h:[[6.5,22.5]],q:"1 piece",pt:12,ph:"",d:"A soft, thick griddle pancake, roasted to order.",veg:1,best:1},
- gheeuthappam:{n:"Ghee Uthappam",p:130,e:"🥞",h:[[6.5,22.5]],q:"1 piece",pt:12,ph:"",d:"A soft, thick griddle pancake, roasted to order.",veg:1},
- onionuthappam:{n:"Onion Uthappam",p:125,e:"🥞",h:[[6.5,22.5]],q:"1 piece",pt:12,ph:"",d:"A soft, thick griddle pancake, roasted to order.",veg:1},
- gheeonionuthappam:{n:"Ghee Onion Uthappam",p:135,e:"🥞",h:[[6.5,22.5]],q:"1 piece",pt:12,ph:"",d:"A soft, thick griddle pancake, roasted to order.",veg:1},
- podiuthappam:{n:"Podi Uthappam",p:110,e:"🥞",h:[[6.5,22.5]],q:"1 piece",pt:12,ph:"",d:"A soft, thick griddle pancake, roasted to order.",veg:1},
- tomatouthappam:{n:"Tomato Uthappam",p:110,e:"🥞",h:[[6.5,22.5]],q:"1 piece",pt:12,ph:"",d:"A soft, thick griddle pancake, roasted to order.",veg:1},
- ravaroast:{n:"Rava Roast",p:135,e:"🫓",h:[[6.75,22.5]],q:"1 dosa",pt:12,ph:"",d:"A crackly-thin rava dosa, crisp at the edges.",veg:1},
- gheeravaroast:{n:"Ghee Rava Roast",p:145,e:"🫓",h:[[6.75,22.5]],q:"1 dosa",pt:12,ph:"",d:"A crackly-thin rava dosa, crisp at the edges.",veg:1},
- onionravaroast:{n:"Onion Rava Roast",p:145,e:"🫓",h:[[6.75,22.5]],q:"1 dosa",pt:12,ph:"",d:"A crackly-thin rava dosa, crisp at the edges.",veg:1},
- ravamasalroast:{n:"Rava Masal Roast",p:145,e:"🫓",h:[[6.75,22.5]],q:"1 dosa",pt:12,ph:"",d:"A crackly-thin rava dosa, crisp at the edges.",veg:1},
- chocolateroast:{n:"Chocolate Roast",p:160,e:"🍫",h:[[15,22]],q:"1 dosa",pt:13,ph:"",d:"A crisp dosa with a flavour-packed filling.",veg:1},
- cauliflowerroast:{n:"Cauliflower Masal Roast",p:140,e:"🫓",h:[[15,22]],q:"1 dosa",pt:13,ph:"",d:"A crisp dosa with a flavour-packed filling.",veg:1},
- mushroomroast:{n:"Mushroom Masal Roast",p:140,e:"🫓",h:[[15,22]],q:"1 dosa",pt:13,ph:"",d:"A crisp dosa with a flavour-packed filling.",veg:1},
- paneerroast:{n:"Paneer Masal Roast",p:160,e:"🫓",h:[[15,22]],q:"1 dosa",pt:13,ph:"",d:"A crisp dosa with a flavour-packed filling.",veg:1},
- garlicroast:{n:"Garlic Masal Roast",p:140,e:"🫓",h:[[15,22]],q:"1 dosa",pt:13,ph:"",d:"A crisp dosa with a flavour-packed filling.",veg:1},
- tomatoroast:{n:"Tomato Masal Roast",p:140,e:"🫓",h:[[15,22]],q:"1 dosa",pt:13,ph:"",d:"A crisp dosa with a flavour-packed filling.",veg:1},
- vendhayadosa:{n:"Vendhaya Dosa w/ Poondu Kolambu",p:110,e:"🫓",h:[[16,19]],q:"1 plate",pt:13,ph:"",d:"A house-special dosa, freshly made to order.",veg:1},
- adaiaviyal:{n:"Adai Aviyal",p:105,e:"🫓",h:[[16,19]],q:"1 plate",pt:13,ph:"",d:"A house-special dosa, freshly made to order.",veg:1},
- setdosa:{n:"Set Dosa with Vada Curry",p:105,e:"🫓",h:[[16,19]],q:"1 plate",pt:13,ph:"",d:"A house-special dosa, freshly made to order.",veg:1},
- vegomelette:{n:"Veg Omelette",p:85,e:"🍳",h:[[16,19]],q:"1 plate",pt:13,ph:"",d:"A house-special dosa, freshly made to order.",veg:1},
- siparotta:{n:"South Indian Parotta (1)",p:75,e:"🫓",h:[[11,22.5]],q:"1 piece",pt:8,ph:"",d:"Soft wheat flatbread, made fresh and served warm.",veg:1},
- chapathi2:{n:"Chappathi (2)",p:70,e:"🫓",h:[[11,22.5]],q:"2 pieces",pt:8,ph:"",d:"Soft wheat flatbread, made fresh and served warm.",veg:1},
- chapati:{n:"Chappathi (1)",p:40,e:"🫓",h:[[11,22.5]],q:"1 piece",pt:8,ph:"",d:"Soft wheat flatbread, made fresh and served warm.",veg:1},
- chilliparotta:{n:"Chilly Parotta",p:130,e:"🌶️",h:[[12,22.5]],q:"1 plate",pt:14,ph:"",d:"Shredded parotta tossed on the griddle with spices.",veg:1,best:1},
- kothuparotta:{n:"Kothu Parotta",p:130,e:"🍳",h:[[12,22.5]],q:"1 plate",pt:14,ph:"",d:"Shredded parotta tossed on the griddle with spices.",veg:1},
- mushroomkothu:{n:"Mushroom Kothu Parotta",p:135,e:"🍳",h:[[12,22.5]],q:"1 plate",pt:14,ph:"",d:"Shredded parotta tossed on the griddle with spices.",veg:1},
- paneerkothu:{n:"Paneer Kothu Parotta",p:165,e:"🍳",h:[[12,22.5]],q:"1 plate",pt:14,ph:"",d:"Shredded parotta tossed on the griddle with spices.",veg:1},
- curdvadai:{n:"Curd Vadai (1)",p:52,e:"🍩",h:[[11,12.5],[16,17.5]],q:"1 piece",pt:10,ph:"",d:"A hot, crispy snack, fried fresh to order.",veg:1},
- potatobonda:{n:"Potato Bonda (2)",p:40,e:"🧆",h:[[11,12.5],[16,17.5]],q:"2 pieces",pt:10,ph:"",d:"A hot, crispy snack, fried fresh to order.",veg:1},
- mysorebonda:{n:"Mysore Bonda (2)",p:40,e:"🧆",h:[[11,12.5],[16,17.5]],q:"2 pieces",pt:10,ph:"",d:"A hot, crispy snack, fried fresh to order.",veg:1},
- rawbananabajji:{n:"Raw Banana Bajji (2)",p:35,e:"🧆",h:[[11,12.5],[16,17.5]],q:"2 pieces",pt:10,ph:"",d:"A hot, crispy snack, fried fresh to order.",veg:1},
- onionbajji:{n:"Onion Bajji (2)",p:35,e:"🧆",h:[[11,12.5],[16,17.5]],q:"2 pieces",pt:10,ph:"",d:"A hot, crispy snack, fried fresh to order.",veg:1},
- masalvadai:{n:"Masal Vadai (2)",p:35,e:"🧆",h:[[11,12.5],[16,17.5]],q:"2 pieces",pt:10,ph:"",d:"A hot, crispy snack, fried fresh to order.",veg:1},
- frenchfries:{n:"French Fries",p:80,e:"🍟",h:[[11,12.5],[16,17.5]],q:"1 plate",pt:10,ph:"",d:"A hot, crispy snack, fried fresh to order.",veg:1},
- rajabhojanam:{n:"Rajabhojanam (Full Thali)",p:278,e:"🍛",h:[[12,15]],q:"1 plate",pt:12,ph:"",d:"A wholesome South Indian platter with rice and sides.",veg:1,best:1},
- meals:{n:"South Indian Meals",p:180,e:"🍛",h:[[12,15.5]],q:"1 plate",pt:12,ph:"",d:"A wholesome South Indian platter with rice and sides.",veg:1,best:1},
- execlunch:{n:"Executive Lunch (Limited)",p:158,e:"🍛",h:[[11,15]],q:"1 plate",pt:12,ph:"",d:"A wholesome South Indian platter with rice and sides.",veg:1},
- vegbriyani:{n:"Veg Briyani",p:110,e:"🍚",h:[[10.5,15.5]],q:"1 plate",pt:15,ph:"",d:"A fragrant rice dish, served hot with raita.",veg:1,best:1},
- mushroombiriyani:{n:"Mushroom Biriyani",p:125,e:"🍚",h:[[10.5,15.5]],q:"1 plate",pt:15,ph:"",d:"A fragrant rice dish, served hot with raita.",veg:1},
- hydmushroombriyani:{n:"Special Hyderabadi Mushroom Briyani",p:190,e:"🍚",h:[[12,15.5]],q:"1 plate",pt:15,ph:"",d:"A fragrant rice dish, served hot with raita.",veg:1,best:1},
- sambarrice:{n:"Sambar Rice",p:85,e:"🍚",h:[[10.5,15.5]],q:"1 plate",pt:15,ph:"",d:"A fragrant rice dish, served hot with raita.",veg:1},
- curdrice:{n:"Curd Rice",p:82,e:"🍚",h:[[10.5,15.5]],q:"1 plate",pt:15,ph:"",d:"A fragrant rice dish, served hot with raita.",veg:1},
- curdsemiya:{n:"Curd Semiya",p:85,e:"🍚",h:[[10.5,15.5]],q:"1 plate",pt:15,ph:"",d:"A fragrant rice dish, served hot with raita.",veg:1},
- lemonrice:{n:"Lemon Rice",p:75,e:"🍚",h:[[10.5,15.5]],q:"1 plate",pt:15,ph:"",d:"A fragrant rice dish, served hot with raita.",veg:1},
- tomatorice:{n:"Tomato Rice",p:75,e:"🍚",h:[[10.5,15.5]],q:"1 plate",pt:15,ph:"",d:"A fragrant rice dish, served hot with raita.",veg:1},
- tomatosoup:{n:"Tomato Soup",p:100,e:"🥣",h:[[12,15.5],[19,22.5]],q:"250 ml",pt:8,ph:"",d:"A warm, comforting soup, freshly prepared.",veg:1},
- sweetcornsoup:{n:"Sweet Corn Soup",p:100,e:"🥣",h:[[12,15.5],[19,22.5]],q:"250 ml",pt:8,ph:"",d:"A warm, comforting soup, freshly prepared.",veg:1},
- milagusoup:{n:"Milagu Dhania Soup",p:100,e:"🥣",h:[[12,15.5],[19,22.5]],q:"250 ml",pt:8,ph:"",d:"A warm, comforting soup, freshly prepared.",veg:1},
- vegclearsoup:{n:"Veg Clear Soup",p:100,e:"🥣",h:[[12,15.5],[19,22.5]],q:"250 ml",pt:8,ph:"",d:"A warm, comforting soup, freshly prepared.",veg:1},
- creammushroomsoup:{n:"Cream of Mushroom / Veg",p:105,e:"🥣",h:[[12,15.5],[19,22.5]],q:"250 ml",pt:8,ph:"",d:"A warm, comforting soup, freshly prepared.",veg:1},
- vegnoodles:{n:"Veg Noodles",p:175,e:"🍜",h:[[12,15.5],[19,22.5]],q:"1 plate",pt:15,ph:"",d:"Wok-tossed Indo-Chinese, hot and flavourful.",veg:1},
- vegfriedrice:{n:"Veg Fried Rice",p:175,e:"🍚",h:[[12,15.5],[19,22.5]],q:"1 plate",pt:15,ph:"",d:"Wok-tossed Indo-Chinese, hot and flavourful.",veg:1},
- mushfriedrice:{n:"Mushroom Fried Rice",p:180,e:"🍚",h:[[12,15.5],[19,22.5]],q:"1 plate",pt:15,ph:"",d:"Wok-tossed Indo-Chinese, hot and flavourful.",veg:1},
- mushnoodles:{n:"Mushroom Noodles",p:180,e:"🍜",h:[[12,15.5],[19,22.5]],q:"1 plate",pt:15,ph:"",d:"Wok-tossed Indo-Chinese, hot and flavourful.",veg:1},
- szechfriedrice:{n:"Veg Szechwan Fried Rice",p:180,e:"🍚",h:[[12,15.5],[19,22.5]],q:"1 plate",pt:15,ph:"",d:"Wok-tossed Indo-Chinese, hot and flavourful.",veg:1},
- szechnoodles:{n:"Veg Szechwan Noodles",p:180,e:"🍜",h:[[12,15.5],[19,22.5]],q:"1 plate",pt:15,ph:"",d:"Wok-tossed Indo-Chinese, hot and flavourful.",veg:1},
- paneerfriedrice:{n:"Paneer Fried Rice",p:225,e:"🍚",h:[[12,15.5],[19,22.5]],q:"1 plate",pt:15,ph:"",d:"Wok-tossed Indo-Chinese, hot and flavourful.",veg:1},
- paneernoodles:{n:"Paneer Noodles",p:225,e:"🍜",h:[[12,15.5],[19,22.5]],q:"1 plate",pt:15,ph:"",d:"Wok-tossed Indo-Chinese, hot and flavourful.",veg:1},
- paneertikka:{n:"Paneer Tikka",p:245,e:"🍢",h:[[12,15.5],[19,22.5]],q:"6 pieces",pt:14,ph:"",d:"A North Indian starter, freshly grilled and spiced.",veg:1,best:1},
- broccolitikka:{n:"Broccoli Tikka",p:240,e:"🍢",h:[[12,15.5],[19,22.5]],q:"6 pieces",pt:14,ph:"",d:"A North Indian starter, freshly grilled and spiced.",veg:1},
- masalapapad:{n:"Masala Papad",p:50,e:"🫓",h:[[12,15.5],[19,22.5]],q:"6 pieces",pt:14,ph:"",d:"A North Indian starter, freshly grilled and spiced.",veg:1},
- roastedpapad:{n:"Roasted Papad",p:30,e:"🫓",h:[[12,15.5],[19,22.5]],q:"6 pieces",pt:14,ph:"",d:"A North Indian starter, freshly grilled and spiced.",veg:1},
- chilligobi:{n:"Chilli Gobi",p:165,e:"🍢",h:[[12,15.5],[19,22.5]],q:"1 plate",pt:14,ph:"",d:"A spicy Indo-Chinese starter, crisp and saucy.",veg:1,best:1},
- chillipaneer:{n:"Chilli Paneer",p:245,e:"🍢",h:[[12,15.5],[19,22.5]],q:"1 plate",pt:14,ph:"",d:"A spicy Indo-Chinese starter, crisp and saucy.",veg:1},
- chillimushroom:{n:"Chilli Mushroom",p:200,e:"🍢",h:[[12,15.5],[19,22.5]],q:"1 plate",pt:14,ph:"",d:"A spicy Indo-Chinese starter, crisp and saucy.",veg:1},
- mushpepperfry:{n:"Mushroom Pepper Fry",p:190,e:"🍢",h:[[12,15.5],[19,22.5]],q:"1 plate",pt:14,ph:"",d:"A spicy Indo-Chinese starter, crisp and saucy.",veg:1},
- paneerpepperfry:{n:"Paneer Pepper Fry",p:225,e:"🍢",h:[[12,15.5],[19,22.5]],q:"1 plate",pt:14,ph:"",d:"A spicy Indo-Chinese starter, crisp and saucy.",veg:1},
- gobipepperfry:{n:"Gobi Pepper Fry",p:165,e:"🍢",h:[[12,15.5],[19,22.5]],q:"1 plate",pt:14,ph:"",d:"A spicy Indo-Chinese starter, crisp and saucy.",veg:1},
- chinchilligobi:{n:"Chinese Chilli Gobi",p:165,e:"🍢",h:[[12,15.5],[19,22.5]],q:"1 plate",pt:14,ph:"",d:"A spicy Indo-Chinese starter, crisp and saucy.",veg:1},
- chinchillimush:{n:"Chinese Chilli Mushroom",p:190,e:"🍢",h:[[12,15.5],[19,22.5]],q:"1 plate",pt:14,ph:"",d:"A spicy Indo-Chinese starter, crisp and saucy.",veg:1},
- chinchillipaneer:{n:"Chinese Chilli Paneer",p:225,e:"🍢",h:[[12,15.5],[19,22.5]],q:"1 plate",pt:14,ph:"",d:"A spicy Indo-Chinese starter, crisp and saucy.",veg:1},
- vegspringroll:{n:"Veg Spring Rolls (5)",p:220,e:"🥢",h:[[12,15.5],[19,22.5]],q:"5 pieces",pt:14,ph:"",d:"A spicy Indo-Chinese starter, crisp and saucy.",veg:1},
- paneerspringroll:{n:"Paneer Spring Rolls (5)",p:245,e:"🥢",h:[[12,15.5],[19,22.5]],q:"5 pieces",pt:14,ph:"",d:"A spicy Indo-Chinese starter, crisp and saucy.",veg:1},
- szechpaneer:{n:"Szechwan Paneer",p:235,e:"🍢",h:[[12,15.5],[19,22.5]],q:"1 plate",pt:14,ph:"",d:"A spicy Indo-Chinese starter, crisp and saucy.",veg:1},
- dragonpaneer:{n:"Dragon Paneer",p:230,e:"🍢",h:[[12,15.5],[19,22.5]],q:"1 plate",pt:14,ph:"",d:"A spicy Indo-Chinese starter, crisp and saucy.",veg:1},
- gobimanch:{n:"Gobi Manchurian",p:165,e:"🍢",h:[[12,15.5],[19,22.5]],q:"1 plate",pt:14,ph:"",d:"A spicy Indo-Chinese starter, crisp and saucy.",veg:1,best:1},
- paneermanch:{n:"Paneer Manchurian",p:225,e:"🍢",h:[[12,15.5],[19,22.5]],q:"1 plate",pt:14,ph:"",d:"A spicy Indo-Chinese starter, crisp and saucy.",veg:1},
- mushmanch:{n:"Mushroom Manchurian",p:190,e:"🍢",h:[[12,15.5],[19,22.5]],q:"1 plate",pt:14,ph:"",d:"A spicy Indo-Chinese starter, crisp and saucy.",veg:1},
- babycornmanch:{n:"Babycorn Manchurian",p:195,e:"🍢",h:[[12,15.5],[19,22.5]],q:"1 plate",pt:14,ph:"",d:"A spicy Indo-Chinese starter, crisp and saucy.",veg:1},
- vegballmanch:{n:"Veg Ball Manchurian",p:200,e:"🍢",h:[[12,15.5],[19,22.5]],q:"1 plate",pt:14,ph:"",d:"A spicy Indo-Chinese starter, crisp and saucy.",veg:1},
- paneerbuttermasala:{n:"Paneer Butter Masala",p:235,e:"🍲",h:[[12,15.5],[19,22.5]],q:"350 ml",pt:15,ph:"",d:"A rich, freshly-made gravy — great with rice or breads.",veg:1,best:1},
- mushroommasala:{n:"Mushroom Masala",p:190,e:"🍲",h:[[12,15.5],[19,22.5]],q:"350 ml",pt:15,ph:"",d:"A rich, freshly-made gravy — great with rice or breads.",veg:1},
- vegchettinadu:{n:"Veg Chettinadu",p:170,e:"🍲",h:[[12,15.5],[19,22.5]],q:"350 ml",pt:15,ph:"",d:"A rich, freshly-made gravy — great with rice or breads.",veg:1},
- paneerchettinadu:{n:"Paneer Chettinadu",p:235,e:"🍲",h:[[12,15.5],[19,22.5]],q:"350 ml",pt:15,ph:"",d:"A rich, freshly-made gravy — great with rice or breads.",veg:1},
- mushchettinadu:{n:"Mushroom Chettinadu",p:195,e:"🍲",h:[[12,15.5],[19,22.5]],q:"350 ml",pt:15,ph:"",d:"A rich, freshly-made gravy — great with rice or breads.",veg:1},
- kadaiveg:{n:"Kadai Veg",p:170,e:"🍲",h:[[12,15.5],[19,22.5]],q:"350 ml",pt:15,ph:"",d:"A rich, freshly-made gravy — great with rice or breads.",veg:1},
- kadaipaneer:{n:"Kadai Paneer",p:245,e:"🍲",h:[[12,15.5],[19,22.5]],q:"350 ml",pt:15,ph:"",d:"A rich, freshly-made gravy — great with rice or breads.",veg:1},
- kadaimushroom:{n:"Kadai Mushroom",p:195,e:"🍲",h:[[12,15.5],[19,22.5]],q:"350 ml",pt:15,ph:"",d:"A rich, freshly-made gravy — great with rice or breads.",veg:1},
- malaikofta:{n:"Malai Kofta Curry",p:245,e:"🍲",h:[[12,15.5],[19,22.5]],q:"350 ml",pt:15,ph:"",d:"A rich, freshly-made gravy — great with rice or breads.",veg:1},
- mixedvegcurry:{n:"Mixed Veg Curry",p:165,e:"🍲",h:[[12,15.5],[19,22.5]],q:"350 ml",pt:15,ph:"",d:"A rich, freshly-made gravy — great with rice or breads.",veg:1},
- greenpeasmasala:{n:"Green Peas Masala",p:165,e:"🍲",h:[[12,15.5],[19,22.5]],q:"350 ml",pt:15,ph:"",d:"A rich, freshly-made gravy — great with rice or breads.",veg:1},
- channamasala:{n:"Channa Masala",p:165,e:"🍲",h:[[12,15.5],[19,22.5]],q:"350 ml",pt:15,ph:"",d:"A rich, freshly-made gravy — great with rice or breads.",veg:1},
- paneerhyderabadi:{n:"Paneer Hyderabadi",p:235,e:"🍲",h:[[12,15.5],[19,22.5]],q:"350 ml",pt:15,ph:"",d:"A rich, freshly-made gravy — great with rice or breads.",veg:1},
- paneermatar:{n:"Paneer Matar Curry",p:235,e:"🍲",h:[[12,15.5],[19,22.5]],q:"350 ml",pt:15,ph:"",d:"A rich, freshly-made gravy — great with rice or breads.",veg:1},
- paneertikkamasala:{n:"Paneer Tikka Masala",p:260,e:"🍲",h:[[12,15.5],[19,22.5]],q:"350 ml",pt:15,ph:"",d:"A rich, freshly-made gravy — great with rice or breads.",veg:1},
- mushhyderabadi:{n:"Mushroom Hyderabadi",p:195,e:"🍲",h:[[12,15.5],[19,22.5]],q:"350 ml",pt:15,ph:"",d:"A rich, freshly-made gravy — great with rice or breads.",veg:1},
- mushvartha:{n:"Mushroom Vartha Curry",p:200,e:"🍲",h:[[12,15.5],[19,22.5]],q:"350 ml",pt:15,ph:"",d:"A rich, freshly-made gravy — great with rice or breads.",veg:1},
- dalfry:{n:"Dal Fry",p:165,e:"🍲",h:[[12,15.5],[19,22.5]],q:"350 ml",pt:15,ph:"",d:"A rich, freshly-made gravy — great with rice or breads.",veg:1},
- cashewmasala:{n:"Cashew Masala",p:225,e:"🍲",h:[[12,15.5],[19,22.5]],q:"350 ml",pt:15,ph:"",d:"A rich, freshly-made gravy — great with rice or breads.",veg:1},
- aloogobimasala:{n:"Aloo Gobi Masala",p:165,e:"🍲",h:[[12,15.5],[19,22.5]],q:"350 ml",pt:15,ph:"",d:"A rich, freshly-made gravy — great with rice or breads.",veg:1},
- roti:{n:"Roti",p:50,e:"🫓",h:[[12,15.5],[19,22.5]],q:"1 piece",pt:8,ph:"",d:"Tandoor-style bread, soft and warm.",veg:1},
- naan:{n:"Naan",p:50,e:"🫓",h:[[12,15.5],[19,22.5]],q:"1 piece",pt:8,ph:"",d:"Tandoor-style bread, soft and warm.",veg:1},
- kulcha:{n:"Kulcha",p:55,e:"🫓",h:[[12,15.5],[19,22.5]],q:"1 piece",pt:8,ph:"",d:"Tandoor-style bread, soft and warm.",veg:1},
- butterbread:{n:"Butter Roti / Naan / Kulcha",p:65,e:"🫓",h:[[12,15.5],[19,22.5]],q:"1 piece",pt:8,ph:"",d:"Tandoor-style bread, soft and warm.",veg:1},
- rumaliroti:{n:"Rumali Roti",p:60,e:"🫓",h:[[12,15.5],[19,22.5]],q:"1 piece",pt:8,ph:"",d:"Tandoor-style bread, soft and warm.",veg:1},
- garlicroti:{n:"Garlic Roti",p:80,e:"🫓",h:[[12,15.5],[19,22.5]],q:"1 piece",pt:8,ph:"",d:"Tandoor-style bread, soft and warm.",veg:1},
- garlickulcha:{n:"Garlic Kulcha",p:80,e:"🫓",h:[[12,15.5],[19,22.5]],q:"1 piece",pt:8,ph:"",d:"Tandoor-style bread, soft and warm.",veg:1},
- tandooriparatha:{n:"Tandoori Paratha",p:65,e:"🫓",h:[[12,15.5],[19,22.5]],q:"1 piece",pt:8,ph:"",d:"Tandoor-style bread, soft and warm.",veg:1},
- garlicbutternaan:{n:"Garlic Butter Naan",p:80,e:"🫓",h:[[12,15.5],[19,22.5]],q:"1 piece",pt:8,ph:"",d:"Tandoor-style bread, soft and warm.",veg:1},
- vegpulav:{n:"Veg Pulav",p:175,e:"🍚",h:[[12,15.5],[19,22.5]],q:"1 plate",pt:18,ph:"",d:"Fragrant rice cooked with whole spices.",veg:1},
- paneerpulav:{n:"Paneer Pulav",p:235,e:"🍚",h:[[12,15.5],[19,22.5]],q:"1 plate",pt:18,ph:"",d:"Fragrant rice cooked with whole spices.",veg:1},
- mushpulav:{n:"Mushroom Pulav",p:180,e:"🍚",h:[[12,15.5],[19,22.5]],q:"1 plate",pt:18,ph:"",d:"Fragrant rice cooked with whole spices.",veg:1},
- peaspulav:{n:"Peas Pulav",p:170,e:"🍚",h:[[12,15.5],[19,22.5]],q:"1 plate",pt:18,ph:"",d:"Fragrant rice cooked with whole spices.",veg:1},
- cashewpulav:{n:"Cashew Pulav",p:245,e:"🍚",h:[[12,15.5],[19,22.5]],q:"1 plate",pt:18,ph:"",d:"Fragrant rice cooked with whole spices.",veg:1},
- jeerarice:{n:"Jeera Rice",p:170,e:"🍚",h:[[12,15.5],[19,22.5]],q:"1 plate",pt:18,ph:"",d:"Fragrant rice cooked with whole spices.",veg:1},
- gheerice:{n:"Ghee Rice",p:220,e:"🍚",h:[[12,15.5],[19,22.5]],q:"1 plate",pt:18,ph:"",d:"Fragrant rice cooked with whole spices.",veg:1},
- chillyidly:{n:"Chilly Idly",p:100,e:"🌶️",h:[[18,22]],q:"1 plate",pt:12,ph:"",d:"An evening special, freshly prepared.",veg:1},
- pepperidly:{n:"Pepper Idly",p:100,e:"🍥",h:[[18,22]],q:"1 plate",pt:12,ph:"",d:"An evening special, freshly prepared.",veg:1},
- podiidly:{n:"Podi Idly",p:100,e:"🍥",h:[[18,22]],q:"1 plate",pt:12,ph:"",d:"An evening special, freshly prepared.",veg:1},
- specialsevai:{n:"Special Sevai of the Day",p:95,e:"🍝",h:[[18,22]],q:"1 plate",pt:12,ph:"",d:"An evening special, freshly prepared.",veg:1},
- aappam:{n:"Aappam w/ Coconut Milk & Stew",p:92,e:"🥞",h:[[18,22]],q:"1 plate",pt:12,ph:"",d:"An evening special, freshly prepared.",veg:1},
- paniyaram:{n:"Paniyaram (6 pcs)",p:80,e:"🟤",h:[[18,22]],q:"1 plate",pt:12,ph:"",d:"An evening special, freshly prepared.",veg:1},
- kuzhaputtu:{n:"Kuzha Puttu w/ Kadala Curry",p:105,e:"🍚",h:[[18,22]],q:"1 plate",pt:12,ph:"",d:"An evening special, freshly prepared.",veg:1},
- coffee:{n:"Special Filter Coffee",p:43,e:"☕",h:[[6,22.75]],q:"150 ml",pt:5,ph:"",d:"Freshly brewed and served piping hot.",veg:1,best:1,bev:1},
- blackcoffee:{n:"Black Coffee",p:38,e:"☕",h:[[6,22.75]],q:"150 ml",pt:5,ph:"",d:"Freshly brewed and served piping hot.",veg:1,bev:1},
- hotmilk:{n:"Hot Milk",p:35,e:"🥛",h:[[6,22.75]],q:"150 ml",pt:5,ph:"",d:"Freshly brewed and served piping hot.",veg:1,bev:1},
- tea:{n:"Tea",p:40,e:"🍵",h:[[6,22.75]],q:"150 ml",pt:5,ph:"",d:"Freshly brewed and served piping hot.",veg:1,bev:1},
- blacktea:{n:"Black Tea",p:30,e:"🍵",h:[[6,22.75]],q:"150 ml",pt:5,ph:"",d:"Freshly brewed and served piping hot.",veg:1,bev:1},
- greentea:{n:"Green Tea (dip)",p:30,e:"🍵",h:[[6,22.75]],q:"150 ml",pt:5,ph:"",d:"Freshly brewed and served piping hot.",veg:1,bev:1},
- lemontea:{n:"Lemon Tea (dip)",p:30,e:"🍵",h:[[6,22.75]],q:"150 ml",pt:5,ph:"",d:"Freshly brewed and served piping hot.",veg:1,bev:1},
- bournvita:{n:"Bournvita",p:60,e:"🥛",h:[[6,22.75]],q:"150 ml",pt:5,ph:"",d:"Freshly brewed and served piping hot.",veg:1,bev:1},
- horlicks:{n:"Horlicks",p:60,e:"🥛",h:[[6,22.75]],q:"150 ml",pt:5,ph:"",d:"Freshly brewed and served piping hot.",veg:1,bev:1},
- coldcoffee:{n:"Cold Coffee",p:150,e:"🧋",h:[[6,22.75]],q:"300 ml",pt:6,ph:"",d:"Chilled and refreshing, served cold.",veg:1,bev:1},
- mango:{n:"Mango Milk Shake",p:90,e:"🥤",h:[[6,22.75]],q:"300 ml",pt:6,ph:"",d:"Chilled and refreshing, served cold.",veg:1,bev:1},
- rosemilk:{n:"Rose Milk",p:85,e:"🥛",h:[[6,22.75]],q:"300 ml",pt:6,ph:"",d:"Chilled and refreshing, served cold.",veg:1,bev:1},
- saltlassi:{n:"Salt Lassi",p:80,e:"🥛",h:[[6,22.75]],q:"300 ml",pt:6,ph:"",d:"Chilled and refreshing, served cold.",veg:1,bev:1},
- sweetlassi:{n:"Sweet Lassi",p:80,e:"🥛",h:[[6,22.75]],q:"300 ml",pt:6,ph:"",d:"Chilled and refreshing, served cold.",veg:1,bev:1},
- applejuice:{n:"Apple Juice",p:80,e:"🧃",h:[[8,22.5]],q:"300 ml",pt:4,ph:"",d:"Freshly squeezed — no concentrates.",veg:1,bev:1},
- sweetlimejuice:{n:"Sweet Lime (Mozambi)",p:75,e:"🧃",h:[[8,22.5]],q:"300 ml",pt:4,ph:"",d:"Freshly squeezed — no concentrates.",veg:1,bev:1},
- orangejuice:{n:"Orange Juice",p:80,e:"🧃",h:[[8,22.5]],q:"300 ml",pt:4,ph:"",d:"Freshly squeezed — no concentrates.",veg:1,bev:1},
- muskmelonjuice:{n:"Musk Melon Juice",p:75,e:"🧃",h:[[8,22.5]],q:"300 ml",pt:4,ph:"",d:"Freshly squeezed — no concentrates.",veg:1,bev:1},
- pineapplejuice:{n:"Pineapple Juice",p:75,e:"🧃",h:[[8,22.5]],q:"300 ml",pt:4,ph:"",d:"Freshly squeezed — no concentrates.",veg:1,bev:1},
- watermelonjuice:{n:"Watermelon Juice",p:70,e:"🧃",h:[[8,22.5]],q:"300 ml",pt:4,ph:"",d:"Freshly squeezed — no concentrates.",veg:1,bev:1},
- limesoda:{n:"Fresh Lime Soda",p:60,e:"🥤",h:[[8,22.5]],q:"300 ml",pt:4,ph:"",d:"Freshly squeezed — no concentrates.",veg:1,bev:1},
- limejuice:{n:"Fresh Lime Juice",p:35,e:"🥤",h:[[8,22.5]],q:"300 ml",pt:4,ph:"",d:"Freshly squeezed — no concentrates.",veg:1,bev:1},
- mintlime:{n:"Mint Lime Juice",p:45,e:"🥤",h:[[8,22.5]],q:"300 ml",pt:4,ph:"",d:"Freshly squeezed — no concentrates.",veg:1,bev:1},
- carrotjuice:{n:"Carrot Juice",p:70,e:"🧃",h:[[8,22.5]],q:"300 ml",pt:4,ph:"",d:"Freshly squeezed — no concentrates.",veg:1,bev:1},
- strawberryshake:{n:"Strawberry Milkshake",p:160,e:"🥤",h:[[10,22.5]],q:"300 ml",pt:6,ph:"",d:"A thick, creamy milkshake, blended fresh.",veg:1,bev:1},
- butterscotchshake:{n:"Butterscotch Milkshake",p:160,e:"🥤",h:[[10,22.5]],q:"300 ml",pt:6,ph:"",d:"A thick, creamy milkshake, blended fresh.",veg:1,bev:1},
- chocolateshake:{n:"Chocolate Milkshake",p:160,e:"🥤",h:[[10,22.5]],q:"300 ml",pt:6,ph:"",d:"A thick, creamy milkshake, blended fresh.",veg:1,bev:1},
- vanillashake:{n:"Vanilla Milkshake",p:160,e:"🥤",h:[[10,22.5]],q:"300 ml",pt:6,ph:"",d:"A thick, creamy milkshake, blended fresh.",veg:1,bev:1},
- pistashake:{n:"Pista Milkshake",p:160,e:"🥤",h:[[10,22.5]],q:"300 ml",pt:6,ph:"",d:"A thick, creamy milkshake, blended fresh.",veg:1,bev:1},
- almondshake:{n:"Almond Milkshake",p:180,e:"🥤",h:[[10,22.5]],q:"300 ml",pt:6,ph:"",d:"A thick, creamy milkshake, blended fresh.",veg:1,bev:1},
- icecreamshake:{n:"Milkshake with Ice Cream",p:220,e:"🥤",h:[[10,22.5]],q:"300 ml",pt:6,ph:"",d:"A thick, creamy milkshake, blended fresh.",veg:1,bev:1},
- rasamalai:{n:"Rasamalai",p:60,e:"🍮",h:[[10,22.5]],q:"1 bowl",pt:5,ph:"",d:"A sweet finish to your meal.",veg:1},
- rasagulla:{n:"Rasagulla",p:40,e:"🍮",h:[[10,22.5]],q:"1 bowl",pt:5,ph:"",d:"A sweet finish to your meal.",veg:1},
- carrothalwa:{n:"Carrot Halwa w/ Ice Cream",p:140,e:"🍨",h:[[10,22.5]],q:"1 bowl",pt:5,ph:"",d:"A sweet finish to your meal.",veg:1},
- hotjamun:{n:"Hot Jamun w/ Ice Cream",p:145,e:"🍮",h:[[10,22.5]],q:"1 bowl",pt:5,ph:"",d:"A sweet finish to your meal.",veg:1,best:1},
- fruitsalad:{n:"Fruit Salad w/ Ice Cream",p:145,e:"🍨",h:[[10,22.5]],q:"1 bowl",pt:5,ph:"",d:"A sweet finish to your meal.",veg:1},
- falooda:{n:"Falooda",p:225,e:"🍧",h:[[10,22.5]],q:"1 bowl",pt:5,ph:"",d:"A sweet finish to your meal.",veg:1},
- chocobrownie:{n:"Chocolate Brownie w/ Ice Cream",p:180,e:"🍨",h:[[10,22.5]],q:"1 bowl",pt:5,ph:"",d:"A sweet finish to your meal.",veg:1},
- icecreamnuts:{n:"Ice Cream w/ Choc Sauce & Nuts",p:125,e:"🍨",h:[[10,22.5]],q:"1 bowl",pt:5,ph:"",d:"A sweet finish to your meal.",veg:1},
- choiceicecream:{n:"Choice of Ice Cream",p:105,e:"🍨",h:[[10,22.5]],q:"1 bowl",pt:5,ph:"",d:"A sweet finish to your meal.",veg:1}};
+ madagascarvanilla:{n:"Madagascar Vanilla",p:80,e:"🍨",h:[[8,23]],q:"1 scoop",pt:3,ph:"",d:"A scoop served on a crisp waffle cup or cone.",veg:1},
+ cookiencream:{n:"Cookie N Cream",p:90,e:"🍨",h:[[8,23]],q:"1 scoop",pt:3,ph:"",d:"A scoop served on a crisp waffle cup or cone.",veg:1,best:1},
+ blackcurrant_sc:{n:"Black Currant",p:90,e:"🍨",h:[[8,23]],q:"1 scoop",pt:3,ph:"",d:"A scoop served on a crisp waffle cup or cone.",veg:1},
+ hopscotch:{n:"Hop Scotch Butterscotch",p:90,e:"🍨",h:[[8,23]],q:"1 scoop",pt:3,ph:"",d:"A scoop served on a crisp waffle cup or cone.",veg:1},
+ alphonsomango_sc:{n:"Alphonso Mango",p:90,e:"🍨",h:[[8,23]],q:"1 scoop",pt:3,ph:"",d:"A scoop served on a crisp waffle cup or cone.",veg:1,must:1},
+ bananacaramel:{n:"Banana Caramel",p:90,e:"🍨",h:[[8,23]],q:"1 scoop",pt:3,ph:"",d:"A scoop served on a crisp waffle cup or cone.",veg:1,best:1},
+ belgianchoc_sc:{n:"Belgian Chocolate",p:90,e:"🍨",h:[[8,23]],q:"1 scoop",pt:3,ph:"",d:"A scoop served on a crisp waffle cup or cone.",veg:1},
+ tendercoconut:{n:"Tender Coconut",p:90,e:"🍨",h:[[8,23]],q:"1 scoop",pt:3,ph:"",d:"A scoop served on a crisp waffle cup or cone.",veg:1,must:1},
+ honeynutcrunch:{n:"Honey Nut Crunch",p:90,e:"🍨",h:[[8,23]],q:"1 scoop",pt:3,ph:"",d:"A scoop served on a crisp waffle cup or cone.",veg:1},
+ caramelnutty:{n:"Caramel Nutty Crunch",p:90,e:"🍨",h:[[8,23]],q:"1 scoop",pt:3,ph:"",d:"A scoop served on a crisp waffle cup or cone.",veg:1,best:1},
+ tajmahal:{n:"Taj Mahal",p:90,e:"🍨",h:[[8,23]],q:"1 scoop",pt:3,ph:"",d:"A scoop served on a crisp waffle cup or cone.",veg:1},
+ strawberry_sc:{n:"Strawberry",p:80,e:"🍨",h:[[8,23]],q:"1 scoop",pt:3,ph:"",d:"A scoop served on a crisp waffle cup or cone.",veg:1},
+ lotusbiscoff:{n:"Lotus Biscoff",p:90,e:"🍨",h:[[8,23]],q:"1 scoop",pt:3,ph:"",d:"A scoop served on a crisp waffle cup or cone.",veg:1,best:1},
+ saltedcaramel:{n:"Salted Caramel",p:90,e:"🍨",h:[[8,23]],q:"1 scoop",pt:3,ph:"",d:"A scoop served on a crisp waffle cup or cone.",veg:1},
+ ogjackfruit:{n:"The Og Jackfruit",p:90,e:"🍨",h:[[8,23]],q:"1 scoop",pt:3,ph:"",d:"A scoop served on a crisp waffle cup or cone.",veg:1},
+ cottoncandy_sc:{n:"Cotton Candy",p:90,e:"🍨",h:[[8,23]],q:"1 scoop",pt:3,ph:"",d:"A scoop served on a crisp waffle cup or cone.",veg:1,best:1},
+ filtercoffee_sc:{n:"Filter Coffee",p:90,e:"🍨",h:[[8,23]],q:"1 scoop",pt:3,ph:"",d:"A scoop served on a crisp waffle cup or cone.",veg:1,must:1},
+ ferreroroucher:{n:"Ferrero Roucher",p:110,e:"🍨",h:[[8,23]],q:"1 scoop",pt:3,ph:"",d:"A scoop served on a crisp waffle cup or cone.",veg:1,must:1},
+ madagascarsofty:{n:"Madagascar Vanilla Softy",p:60,e:"🍨",h:[[8,23]],q:"1 cone",pt:3,ph:"",d:"Creamy soft-serve, freshly swirled.",veg:1},
+ ripple:{n:"Ripple",p:90,e:"🍨",h:[[8,23]],q:"1 cone",pt:3,ph:"",d:"Creamy soft-serve, freshly swirled.",veg:1},
+ hotchocodip:{n:"Hot Choco Dip",p:90,e:"🍨",h:[[8,23]],q:"1 cone",pt:3,ph:"",d:"Creamy soft-serve, freshly swirled.",veg:1},
+ bonbonfruit:{n:"Bon Bon Fruit Special",p:120,e:"🍨",h:[[8,23]],q:"1 cone",pt:3,ph:"",d:"Creamy soft-serve, freshly swirled.",veg:1},
+ apricotalmond:{n:"Apricot Almond",p:120,e:"🍨",h:[[8,23]],q:"1 cone",pt:3,ph:"",d:"Creamy soft-serve, freshly swirled.",veg:1},
+ crackynutty:{n:"Cracky Nutty Crunch",p:120,e:"🍨",h:[[8,23]],q:"1 cone",pt:3,ph:"",d:"Creamy soft-serve, freshly swirled.",veg:1},
+ blackcurrantalmond:{n:"Black Currant Almond",p:120,e:"🍨",h:[[8,23]],q:"1 cone",pt:3,ph:"",d:"Creamy soft-serve, freshly swirled.",veg:1},
+ nutbutterscotch_so:{n:"Nut Butterscotch",p:120,e:"🍨",h:[[8,23]],q:"1 cone",pt:3,ph:"",d:"Creamy soft-serve, freshly swirled.",veg:1},
+ royalkesar_so:{n:"Royal Kesar Badam & Pista",p:120,e:"🍨",h:[[8,23]],q:"1 cone",pt:3,ph:"",d:"Creamy soft-serve, freshly swirled.",veg:1},
+ fruitycrunch:{n:"Fruity Crunch",p:120,e:"🍨",h:[[8,23]],q:"1 cone",pt:3,ph:"",d:"Creamy soft-serve, freshly swirled.",veg:1},
+ belgianwaffle:{n:"Belgian Waffle",p:160,e:"🍨",h:[[8,23]],q:"1 plate",pt:8,ph:"",d:"Hot & soft Belgian waffle with Nutella, fruits & honey.",veg:1},
+ belgianwafflesizzler:{n:"Belgian Waffle Sizzler",p:200,e:"🍨",h:[[8,23]],q:"1 plate",pt:8,ph:"",d:"Hot & soft Belgian waffle with Nutella, fruits & honey.",veg:1,must:1},
+ belgianwaffleic:{n:"Belgian Waffle with Ice Cream",p:250,e:"🍨",h:[[8,23]],q:"1 plate",pt:8,ph:"",d:"Hot & soft Belgian waffle with Nutella, fruits & honey.",veg:1,best:1},
+ belgianwaffleic2:{n:"Belgian Waffle with Icecream",p:230,e:"🍨",h:[[8,23]],q:"1 bowl",pt:6,ph:"",d:"A loaded ice-cream sundae — our best sellers.",veg:1},
+ deathbychocolate:{n:"Death by Chocolate",p:230,e:"🍨",h:[[8,23]],q:"1 bowl",pt:6,ph:"",d:"A loaded ice-cream sundae — our best sellers.",veg:1,best:1},
+ mississippimud:{n:"Mississippi Mud Sundae",p:220,e:"🍨",h:[[8,23]],q:"1 bowl",pt:6,ph:"",d:"A loaded ice-cream sundae — our best sellers.",veg:1},
+ sizzlinghotbrownie:{n:"Sizzling Hot Brownie Sizzler",p:210,e:"🍨",h:[[8,23]],q:"1 bowl",pt:6,ph:"",d:"A loaded ice-cream sundae — our best sellers.",veg:1,best:1},
+ gudbud:{n:"Gud Bud Sundae",p:210,e:"🍨",h:[[8,23]],q:"1 bowl",pt:6,ph:"",d:"A loaded ice-cream sundae — our best sellers.",veg:1},
+ tiramisu:{n:"Tiramisu Sundae",p:210,e:"🍨",h:[[8,23]],q:"1 bowl",pt:6,ph:"",d:"A loaded ice-cream sundae — our best sellers.",veg:1},
+ belgiandarkchoc:{n:"Belgian Dark Chocolate Sundae",p:210,e:"🍨",h:[[8,23]],q:"1 bowl",pt:6,ph:"",d:"A loaded ice-cream sundae — our best sellers.",veg:1},
+ browniebomb:{n:"Brownie Bomb",p:180,e:"🍨",h:[[8,23]],q:"1 bowl",pt:6,ph:"",d:"A loaded ice-cream sundae — our best sellers.",veg:1,must:1},
+ specialdryfruits_ic:{n:"Special Dry Fruits",p:180,e:"🍨",h:[[8,23]],q:"1 bowl",pt:6,ph:"",d:"A loaded ice-cream sundae — our best sellers.",veg:1},
+ hotfudge:{n:"Hot Fudge Sundae",p:180,e:"🍨",h:[[8,23]],q:"1 bowl",pt:6,ph:"",d:"A loaded ice-cream sundae — our best sellers.",veg:1},
+ titanicboat:{n:"Titanic Boat",p:210,e:"🍨",h:[[8,23]],q:"1 bowl",pt:6,ph:"",d:"A loaded ice-cream sundae — our best sellers.",veg:1,best:1},
+ tallbeauty:{n:"Tall Beauty",p:200,e:"🍨",h:[[8,23]],q:"1 bowl",pt:6,ph:"",d:"A loaded ice-cream sundae — our best sellers.",veg:1},
+ naughtynutella_ic:{n:"Naughty Nutella Sundae",p:250,e:"🍨",h:[[8,23]],q:"1 bowl",pt:6,ph:"",d:"A loaded ice-cream sundae — our best sellers.",veg:1,must:1},
+ blackforest_ic:{n:"Black Forest Sundae",p:170,e:"🍨",h:[[8,23]],q:"1 bowl",pt:6,ph:"",d:"A loaded ice-cream sundae — our best sellers.",veg:1},
+ chocomania:{n:"Choco Mania",p:180,e:"🍨",h:[[8,23]],q:"1 bowl",pt:6,ph:"",d:"A loaded ice-cream sundae — our best sellers.",veg:1},
+ blackbeauty:{n:"Black Beauty",p:195,e:"🍨",h:[[8,23]],q:"1 bowl",pt:6,ph:"",d:"A loaded ice-cream sundae — our best sellers.",veg:1},
+ mixedfruitcaramel:{n:"Mixed Fruit Caramel",p:180,e:"🍨",h:[[8,23]],q:"1 bowl",pt:6,ph:"",d:"A loaded ice-cream sundae — our best sellers.",veg:1},
+ butterscotchproline:{n:"Butter Scotch Proline",p:170,e:"🍨",h:[[8,23]],q:"250 ml",pt:5,ph:"",d:"A layered ice-cream sundae. Also in 500 ml — ₹300.",veg:1},
+ chocobutterchips:{n:"Choco Butter Chips",p:180,e:"🍨",h:[[8,23]],q:"250 ml",pt:5,ph:"",d:"A layered ice-cream sundae. Also in 500 ml — ₹340.",veg:1},
+ lovelichee:{n:"Love Lichee",p:180,e:"🍨",h:[[8,23]],q:"250 ml",pt:5,ph:"",d:"A layered ice-cream sundae. Also in 500 ml — ₹340.",veg:1},
+ fruitsalad:{n:"Fruit Salad",p:170,e:"🍨",h:[[8,23]],q:"250 ml",pt:5,ph:"",d:"A layered ice-cream sundae. Also in 500 ml — ₹300.",veg:1},
+ proteinblast_su:{n:"Protein Blast",p:180,e:"🍨",h:[[8,23]],q:"250 ml",pt:5,ph:"",d:"A layered ice-cream sundae. Also in 500 ml — ₹340.",veg:1},
+ getsmart:{n:"Get Smart",p:180,e:"🍨",h:[[8,23]],q:"250 ml",pt:5,ph:"",d:"A layered ice-cream sundae. Also in 500 ml — ₹340.",veg:1},
+ blackcurrant_su:{n:"Black Currant",p:170,e:"🍨",h:[[8,23]],q:"250 ml",pt:5,ph:"",d:"A layered ice-cream sundae. Also in 500 ml — ₹300.",veg:1},
+ blackforestdream:{n:"Black Forest Dream",p:170,e:"🍨",h:[[8,23]],q:"250 ml",pt:5,ph:"",d:"A layered ice-cream sundae. Also in 500 ml — ₹300.",veg:1},
+ pistachio:{n:"Pista Chio",p:180,e:"🍨",h:[[8,23]],q:"250 ml",pt:5,ph:"",d:"A layered ice-cream sundae. Also in 500 ml — ₹340.",veg:1},
+ mixfruitjelly:{n:"Mix Fruit Jelly",p:170,e:"🍨",h:[[8,23]],q:"250 ml",pt:5,ph:"",d:"A layered ice-cream sundae. Also in 500 ml — ₹300.",veg:1},
+ dryfruitjelly:{n:"Dry Fruit Jelly",p:180,e:"🍨",h:[[8,23]],q:"250 ml",pt:5,ph:"",d:"A layered ice-cream sundae. Also in 500 ml — ₹340.",veg:1},
+ rainbowcassata:{n:"Rainbow Cassata",p:200,e:"🍨",h:[[8,23]],q:"250 ml",pt:5,ph:"",d:"A layered ice-cream sundae. Also in 500 ml — ₹360.",veg:1,must:1},
+ specialdryfruits_su:{n:"Special Dry Fruits",p:180,e:"🍨",h:[[8,23]],q:"250 ml",pt:5,ph:"",d:"A layered ice-cream sundae. Also in 500 ml — ₹340.",veg:1,best:1},
+ hotfudgenut:{n:"Hot Fudge Nut Sundae",p:130,e:"🍨",h:[[8,23]],q:"1 cup",pt:5,ph:"",d:"A bite-sized Bon Bon sundae cup.",veg:1},
+ nutbutterscotch_mi:{n:"Nut Butterscotch Sundae",p:130,e:"🍨",h:[[8,23]],q:"1 cup",pt:5,ph:"",d:"A bite-sized Bon Bon sundae cup.",veg:1},
+ chocobutterchips_mi:{n:"Choco Butter Chips",p:130,e:"🍨",h:[[8,23]],q:"1 cup",pt:5,ph:"",d:"A bite-sized Bon Bon sundae cup.",veg:1},
+ strawberrybanana:{n:"Strawberry Banana Bon",p:130,e:"🍨",h:[[8,23]],q:"1 cup",pt:5,ph:"",d:"A bite-sized Bon Bon sundae cup.",veg:1},
+ litchibon:{n:"Litchi Bon",p:130,e:"🍨",h:[[8,23]],q:"1 cup",pt:5,ph:"",d:"A bite-sized Bon Bon sundae cup.",veg:1},
+ proteinblastbon:{n:"Protein Blast Bon",p:130,e:"🍨",h:[[8,23]],q:"1 cup",pt:5,ph:"",d:"A bite-sized Bon Bon sundae cup.",veg:1},
+ chococherrybon:{n:"Choco Cherry Bon",p:130,e:"🍨",h:[[8,23]],q:"1 cup",pt:5,ph:"",d:"A bite-sized Bon Bon sundae cup.",veg:1},
+ blackcurrantbon:{n:"Black Currant Bon",p:130,e:"🍨",h:[[8,23]],q:"1 cup",pt:5,ph:"",d:"A bite-sized Bon Bon sundae cup.",veg:1},
+ blackforestbon:{n:"Black Forest Bon",p:130,e:"🍨",h:[[8,23]],q:"1 cup",pt:5,ph:"",d:"A bite-sized Bon Bon sundae cup.",veg:1},
+ chocolatebon:{n:"Chocolate Bon",p:130,e:"🍨",h:[[8,23]],q:"1 cup",pt:5,ph:"",d:"A bite-sized Bon Bon sundae cup.",veg:1},
+ licheechocostraw:{n:"Lichee Choco Strawberry Bon",p:130,e:"🍨",h:[[8,23]],q:"1 cup",pt:5,ph:"",d:"A bite-sized Bon Bon sundae cup.",veg:1},
+ alphonsomangobon:{n:"Alphonso Mango Bon",p:130,e:"🍨",h:[[8,23]],q:"1 cup",pt:5,ph:"",d:"A bite-sized Bon Bon sundae cup.",veg:1},
+ royaldryfruits:{n:"Royal Dry Fruits",p:170,e:"🍨",h:[[8,23]],q:"1 glass",pt:6,ph:"",d:"Classic falooda with vermicelli, jelly & ice cream.",veg:1,best:1},
+ realalphonso:{n:"Real Alphonso Mango",p:150,e:"🍨",h:[[8,23]],q:"1 glass",pt:6,ph:"",d:"Classic falooda with vermicelli, jelly & ice cream.",veg:1,best:1},
+ ogrose:{n:"Og Rose Falooda",p:150,e:"🍨",h:[[8,23]],q:"1 glass",pt:6,ph:"",d:"Classic falooda with vermicelli, jelly & ice cream.",veg:1},
+ belgianchoc_fa:{n:"Belgian Chocolate",p:150,e:"🍨",h:[[8,23]],q:"1 glass",pt:6,ph:"",d:"Classic falooda with vermicelli, jelly & ice cream.",veg:1},
+ cottoncandy_fa:{n:"Cotton Candy",p:170,e:"🍨",h:[[8,23]],q:"1 glass",pt:6,ph:"",d:"Classic falooda with vermicelli, jelly & ice cream.",veg:1,must:1},
+ frenchvanilla:{n:"French Vanilla",p:120,e:"🍨",h:[[8,23]],q:"1 glass",pt:5,ph:"",d:"Thick, creamy blended shake.",veg:1,ao:"extraicecream"},
+ belgianchoc_ts:{n:"Belgian Chocolate",p:130,e:"🍨",h:[[8,23]],q:"1 glass",pt:5,ph:"",d:"Thick, creamy blended shake.",veg:1,ao:"extraicecream"},
+ classiccoldcoffee:{n:"Classic Cold Coffee",p:130,e:"🍨",h:[[8,23]],q:"1 glass",pt:5,ph:"",d:"Thick, creamy blended shake.",veg:1,best:1,ao:"extraicecream"},
+ caramelcoldcoffee:{n:"Caramel Cold Coffee",p:140,e:"🍨",h:[[8,23]],q:"1 glass",pt:5,ph:"",d:"Thick, creamy blended shake.",veg:1,must:1,ao:"extraicecream"},
+ royalkesarbadam:{n:"Royal Kesar Badam",p:150,e:"🍨",h:[[8,23]],q:"1 glass",pt:5,ph:"",d:"Thick, creamy blended shake.",veg:1,ao:"extraicecream"},
+ litchi_ts:{n:"Litchi",p:180,e:"🍨",h:[[8,23]],q:"1 glass",pt:5,ph:"",d:"Thick, creamy blended shake.",veg:1,best:1,ao:"extraicecream"},
+ blackcurrant_ts:{n:"Black Currant",p:130,e:"🍨",h:[[8,23]],q:"1 glass",pt:5,ph:"",d:"Thick, creamy blended shake.",veg:1,ao:"extraicecream"},
+ ogoreo:{n:"Og Oreo",p:150,e:"🍨",h:[[8,23]],q:"1 glass",pt:5,ph:"",d:"Thick, creamy blended shake.",veg:1,best:1,ao:"extraicecream"},
+ chocolateoreo:{n:"Chocolate Oreo",p:160,e:"🍨",h:[[8,23]],q:"1 glass",pt:5,ph:"",d:"Thick, creamy blended shake.",veg:1,ao:"extraicecream"},
+ naughtynutella_ts:{n:"Naughty Nutella",p:200,e:"🍨",h:[[8,23]],q:"1 glass",pt:5,ph:"",d:"Thick, creamy blended shake.",veg:1,must:1,ao:"extraicecream"},
+ oghazelnut:{n:"Og Hazelnut",p:200,e:"🍨",h:[[8,23]],q:"1 glass",pt:5,ph:"",d:"Thick, creamy blended shake.",veg:1,ao:"extraicecream"},
+ coffeehazelnut:{n:"Coffee Hazelnut",p:250,e:"🍨",h:[[8,23]],q:"1 glass",pt:5,ph:"",d:"Thick, creamy blended shake.",veg:1,best:1,ao:"extraicecream"},
+ snickerscaramel:{n:"Snickers Caramel",p:250,e:"🍨",h:[[8,23]],q:"1 glass",pt:5,ph:"",d:"Thick, creamy blended shake.",veg:1,ao:"extraicecream"},
+ exoticalphonso:{n:"Exotic Alphonso Mango",p:250,e:"🍨",h:[[8,23]],q:"1 glass",pt:5,ph:"",d:"Thick, creamy blended shake.",veg:1,best:1,ao:"extraicecream"},
+ chocobrownie_ts:{n:"Choco Brownie",p:250,e:"🍨",h:[[8,23]],q:"1 glass",pt:5,ph:"",d:"Thick, creamy blended shake.",veg:1,ao:"extraicecream"},
+ tresleches:{n:"Tres Leches",p:250,e:"🍨",h:[[8,23]],q:"1 glass",pt:5,ph:"",d:"Thick, creamy blended shake.",veg:1,must:1,ao:"extraicecream"},
+ proteinblast_ts:{n:"Protein Blast",p:250,e:"🍨",h:[[8,23]],q:"1 glass",pt:5,ph:"",d:"Thick, creamy blended shake.",veg:1,ao:"extraicecream"},
+ frenchfriessmall:{n:"French Fries Small",p:110,e:"🍨",h:[[8,23]],q:"1 plate",pt:8,ph:"",d:"A hot, crispy savoury bite.",veg:1},
+ frenchfrieslarge:{n:"French Fries Large",p:130,e:"🍨",h:[[8,23]],q:"1 plate",pt:8,ph:"",d:"A hot, crispy savoury bite.",veg:1},
+ loadedfries:{n:"Loaded Fries",p:150,e:"🍨",h:[[8,23]],q:"1 plate",pt:8,ph:"",d:"A hot, crispy savoury bite.",veg:1},
+ comboplatter:{n:"Combo Platter",p:200,e:"🍨",h:[[8,23]],q:"1 plate",pt:8,ph:"",d:"A hot, crispy savoury bite.",veg:1},
+ cheeseball:{n:"Cheese Ball",p:150,e:"🍨",h:[[8,23]],q:"1 plate",pt:8,ph:"",d:"A hot, crispy savoury bite.",veg:1},
+ smileyssmall:{n:"Smileys (Small)",p:100,e:"🍨",h:[[8,23]],q:"1 plate",pt:8,ph:"",d:"A hot, crispy savoury bite.",veg:1},
+ smileyslarge:{n:"Smileys (Large)",p:160,e:"🍨",h:[[8,23]],q:"1 plate",pt:8,ph:"",d:"A hot, crispy savoury bite.",veg:1},
+ vegsandwich:{n:"Veg Sandwich",p:110,e:"🍨",h:[[8,23]],q:"1 plate",pt:8,ph:"",d:"A hot, crispy savoury bite.",veg:1},
+ paneersandwich:{n:"Paneer Sandwich",p:130,e:"🍨",h:[[8,23]],q:"1 plate",pt:8,ph:"",d:"A hot, crispy savoury bite.",veg:1},
+ cheeseballsandwich:{n:"Cheese Ball Sandwich",p:180,e:"🍨",h:[[8,23]],q:"1 plate",pt:8,ph:"",d:"A hot, crispy savoury bite.",veg:1},
+ extraicecream:{n:"Extra Ice Cream",p:30,e:"🍨",h:[[8,23]],q:"1 scoop",pt:1,ph:"",d:"An extra scoop of ice cream.",veg:1}};
 const CATS=[
- {name:"Tiffin",ids:["idli","idli1","sambaridli","sambaridli1","vada","sambarvadai","pongal","ravakitchadi","poori2","poori1","idiyappam","lemonsevai","gheeminiidli","wheatuppuma","wheatuppumacurd","channabhatura"]},
- {name:"Roast & Uthappam",subs:[{name:"Roast",ids:["gheeroast","paperroast","familyroast","masalroast","gheemasalroast","buttermasalroast","onionroast","gheeonionroast","podiroast"]},{name:"Uthappam",ids:["uthappam","gheeuthappam","onionuthappam","gheeonionuthappam","podiuthappam","tomatouthappam"]},{name:"Rava Roast",ids:["ravaroast","gheeravaroast","onionravaroast","ravamasalroast"]},{name:"Roast Varieties",ids:["chocolateroast","cauliflowerroast","mushroomroast","paneerroast","garlicroast","tomatoroast"]},{name:"Special Dosa",ids:["vendhayadosa","adaiaviyal","setdosa","vegomelette"]}]},
- {name:"Parotta & Chapathi",subs:[{name:"Chapathi & Parotta",ids:["siparotta","chapathi2","chapati"]},{name:"Kothu & Chilly",ids:["chilliparotta","kothuparotta","mushroomkothu","paneerkothu"]}]},
- {name:"Meals",ids:["rajabhojanam","meals","execlunch"]},
- {name:"Lunch (Rice)",ids:["vegbriyani","mushroombiriyani","hydmushroombriyani","sambarrice","curdrice","curdsemiya","lemonrice","tomatorice"]},
- {name:"Soups",ids:["tomatosoup","sweetcornsoup","milagusoup","vegclearsoup","creammushroomsoup"]},
- {name:"Rice & Noodles",ids:["vegnoodles","vegfriedrice","mushfriedrice","mushnoodles","szechfriedrice","szechnoodles","paneerfriedrice","paneernoodles"]},
- {name:"Starters",subs:[{name:"North Indian",ids:["paneertikka","broccolitikka","masalapapad","roastedpapad"]},{name:"Chinese",ids:["chilligobi","chillipaneer","chillimushroom","mushpepperfry","paneerpepperfry","gobipepperfry","chinchilligobi","chinchillimush","chinchillipaneer","vegspringroll","paneerspringroll","szechpaneer","dragonpaneer","gobimanch","paneermanch","mushmanch","babycornmanch","vegballmanch"]}]},
- {name:"North Indian",subs:[{name:"Gravies",ids:["paneerbuttermasala","mushroommasala","vegchettinadu","paneerchettinadu","mushchettinadu","kadaiveg","kadaipaneer","kadaimushroom","malaikofta","mixedvegcurry","greenpeasmasala","channamasala","paneerhyderabadi","paneermatar","paneertikkamasala","mushhyderabadi","mushvartha","dalfry","cashewmasala","aloogobimasala"]},{name:"Breads",ids:["roti","naan","kulcha","butterbread","rumaliroti","garlicroti","garlickulcha","tandooriparatha","garlicbutternaan"]},{name:"Pulav",ids:["vegpulav","paneerpulav","mushpulav","peaspulav","cashewpulav","jeerarice","gheerice"]}]},
- {name:"Evening Specials",ids:["chillyidly","pepperidly","podiidly","specialsevai","aappam","paniyaram","kuzhaputtu"]},
- {name:"Beverages",subs:[{name:"Hot",ids:["coffee","blackcoffee","hotmilk","tea","blacktea","greentea","lemontea","bournvita","horlicks"]},{name:"Cold",ids:["coldcoffee","mango","rosemilk","saltlassi","sweetlassi"]},{name:"Fresh Juices",ids:["applejuice","sweetlimejuice","orangejuice","muskmelonjuice","pineapplejuice","watermelonjuice","limesoda","limejuice","mintlime","carrotjuice"]},{name:"Milkshakes",ids:["strawberryshake","butterscotchshake","chocolateshake","vanillashake","pistashake","almondshake","icecreamshake"]}]},
- {name:"Desserts & Ice Cream",ids:["rasamalai","rasagulla","carrothalwa","hotjamun","fruitsalad","falooda","chocobrownie","icecreamnuts","choiceicecream"]}
+ {name:"Scoops",ids:["madagascarvanilla","cookiencream","blackcurrant_sc","hopscotch","alphonsomango_sc","bananacaramel","belgianchoc_sc","tendercoconut","honeynutcrunch","caramelnutty","tajmahal","strawberry_sc","lotusbiscoff","saltedcaramel","ogjackfruit","cottoncandy_sc","filtercoffee_sc","ferreroroucher"]},
+ {name:"Softy",ids:["madagascarsofty","ripple","hotchocodip","bonbonfruit","apricotalmond","crackynutty","blackcurrantalmond","nutbutterscotch_so","royalkesar_so","fruitycrunch"]},
+ {name:"Waffle",ids:["belgianwaffle","belgianwafflesizzler","belgianwaffleic"]},
+ {name:"Ice Cream Specials",ids:["belgianwaffleic2","deathbychocolate","mississippimud","sizzlinghotbrownie","gudbud","tiramisu","belgiandarkchoc","browniebomb","specialdryfruits_ic","hotfudge","titanicboat","tallbeauty","naughtynutella_ic","blackforest_ic","chocomania","blackbeauty","mixedfruitcaramel"]},
+ {name:"Sundae",ids:["butterscotchproline","chocobutterchips","lovelichee","fruitsalad","proteinblast_su","getsmart","blackcurrant_su","blackforestdream","pistachio","mixfruitjelly","dryfruitjelly","rainbowcassata","specialdryfruits_su"]},
+ {name:"Mini Sundae",ids:["hotfudgenut","nutbutterscotch_mi","chocobutterchips_mi","strawberrybanana","litchibon","proteinblastbon","chococherrybon","blackcurrantbon","blackforestbon","chocolatebon","licheechocostraw","alphonsomangobon"]},
+ {name:"Falooda",ids:["royaldryfruits","realalphonso","ogrose","belgianchoc_fa","cottoncandy_fa"]},
+ {name:"Thick Shakes",ids:["frenchvanilla","belgianchoc_ts","classiccoldcoffee","caramelcoldcoffee","royalkesarbadam","litchi_ts","blackcurrant_ts","ogoreo","chocolateoreo","naughtynutella_ts","oghazelnut","coffeehazelnut","snickerscaramel","exoticalphonso","chocobrownie_ts","tresleches","proteinblast_ts"]},
+ {name:"Snacks",ids:["frenchfriessmall","frenchfrieslarge","loadedfries","comboplatter","cheeseball","smileyssmall","smileyslarge","vegsandwich","paneersandwich","cheeseballsandwich"]}
 ];
-const OUTLETS=["Main Branch","City Centre","Marina","Highway Road","Tech Park","Lakeview"];
-const LOGO="/odysra_logo.png";
-const GREET={en:"Good %t! Welcome to Odysra, %o. I'm your AI waiter — what are you in the mood for today?",
- ta:"வணக்கம்! Odysra %o-விற்கு வரவேற்கிறோம். நான் உங்கள் AI வெயிட்டர் — இன்று என்ன சாப்பிட விரும்புகிறீர்கள்?",
- hi:"नमस्ते! Odysra %o में आपका स्वागत है। मैं आपका AI वेटर हूँ — आज आप क्या खाना पसंद करेंगे?",
- ml:"നമസ്കാരം! Odysra %o-ലേക്ക് സ്വാഗതം. ഞാൻ നിങ്ങളുടെ AI വെയിറ്റർ — ഇന്ന് എന്ത് കഴിക്കാൻ ആഗ്രഹിക്കുന്നു?",
- te:"నమస్కారం! Odysra %o-కు స్వాగతం. నేను మీ AI వెయిటర్ — ఈ రోజు ఏం తినాలనుకుంటున్నారు?",
- kn:"ನಮಸ್ಕಾರ! Odysra %o-ಗೆ ಸ್ವಾಗತ. ನಾನು ನಿಮ್ಮ AI ವೇಟರ್ — ಇಂದು ಏನು ತಿನ್ನಲು ಬಯಸುತ್ತೀರಿ?"};
+const OUTLETS=["Bon Bon"];
+const LOGO="/bon_bon_logo.png";
+const GREET={en:"Good %t! Welcome to Bon Bon, %o. I'm your AI waiter — what are you in the mood for today?",
+ ta:"வணக்கம்! அன்னபூர்ணா %o-விற்கு வரவேற்கிறோம். நான் உங்கள் AI வெயிட்டர் — இன்று என்ன சாப்பிட விரும்புகிறீர்கள்?",
+ hi:"नमस्ते! अन्नपूर्णा %o में आपका स्वागत है। मैं आपका AI वेटर हूँ — आज आप क्या खाना पसंद करेंगे?",
+ ml:"നമസ്കാരം! അന്നപൂർണ %o-ലേക്ക് സ്വാഗതം. ഞാൻ നിങ്ങളുടെ AI വെയിറ്റർ — ഇന്ന് എന്ത് കഴിക്കാൻ ആഗ്രഹിക്കുന്നു?",
+ te:"నమస్కారం! అన్నపూర్ణ %o-కు స్వాగతం. నేను మీ AI వెయిటర్ — ఈ రోజు ఏం తినాలనుకుంటున్నారు?",
+ kn:"ನಮಸ್ಕಾರ! ಅನ್ನಪೂರ್ಣ %o-ಗೆ ಸ್ವಾಗತ. ನಾನು ನಿಮ್ಮ AI ವೇಟರ್ — ಇಂದು ಏನು ತಿನ್ನಲು ಬಯಸುತ್ತೀರಿ?"};
 const LANGS=[["en","English"],["ta","தமிழ்"],["hi","हिन्दी"],["ml","മലയാളം"],["te","తెలుగు"],["kn","ಕನ್ನಡ"]];
 const FRESH={en:"Here's what's <b>hot &amp; fresh</b> right now 👇",
  ta:"இப்போது <b>சூடாகவும் புதிதாகவும்</b> இருப்பவை 👇",
@@ -831,8 +746,8 @@ const TXT={
  addonNo:{en:"No thanks",ta:"வேண்டாம்",hi:"नहीं शुक्रिया",ml:"വേണ്ട",te:"వద్దు",kn:"ಬೇಡ"},
  addonAdded:{en:"Added! 🍨",ta:"சேர்க்கப்பட்டது! 🍨",hi:"जोड़ दिया! 🍨",ml:"ചേർത്തു! 🍨",te:"జోడించాను! 🍨",kn:"ಸೇರಿಸಿದೆ! 🍨"},
  transcribing:{en:"Transcribing…",ta:"எழுத்தாக்குகிறது…",hi:"लिख रहा हूँ…",ml:"പകർത്തുന്നു…",te:"రాస్తోంది…",kn:"ಬರೆಯುತ್ತಿದೆ…"},
- welcome:{en:"Welcome! Which outlet are you dining at today?",ta:"வரவேற்கிறோம்! இன்று எந்தக் கிளையில் சாப்பிடுகிறீர்கள்?",hi:"स्वागत है! आज आप किस आउटलेट पर हैं?",ml:"സ്വാഗതം! ഇന്ന് ഏത് ഔട്ട്‌ലെറ്റിലാണ്?",te:"స్వాగతం! ఈ రోజు మీరు ఏ అవుట్‌లెట్‌లో ఉన్నారు?",kn:"ಸ್ವಾಗತ! ಇಂದು ನೀವು ಯಾವ ಔಟ್‌ಲೆಟ್‌ನಲ್ಲಿ ಇದ್ದೀರಿ?"},
- pureVeg:{en:"",ta:"",hi:"",ml:"",te:"",kn:""},
+ welcome:{en:"Welcome to <b>Bon Bon</b> Which outlet are you dining at today?",ta:"<b>ஸ்ரீ அன்னபூர்ணா</b>விற்கு வரவேற்கிறோம் இன்று எந்தக் கிளையில் சாப்பிடுகிறீர்கள்?",hi:"<b>श्री अन्नपूर्णा</b> में आपका स्वागत है आज आप किस आउटलेट पर हैं?",ml:"<b>ശ്രീ അന്നപൂർണ</b>യിലേക്ക് സ്വാഗതം ഇന്ന് ഏത് ഔട്ട്‌ലെറ്റിലാണ്?",te:"<b>శ్రీ అన్నపూర్ణ</b>కు స్వాగతం ఈ రోజు మీరు ఏ అవుట్‌లెట్‌లో ఉన్నారు?",kn:"<b>ಶ್ರೀ ಅನ್ನಪೂರ್ಣ</b>ಗೆ ಸ್ವಾಗತ ಇಂದು ನೀವು ಯಾವ ಔಟ್‌ಲೆಟ್‌ನಲ್ಲಿ ಇದ್ದೀರಿ?"},
+ pureVeg:{en:"Ice cream parlour",ta:"ஐஸ்கிரீம் பார்லர்",hi:"आइसक्रीम पार्लर",ml:"ഐസ്ക്രീം പാർലർ",te:"ఐస్‌క్రీం పార్లర్",kn:"ಐಸ್‌ಕ್ರೀಂ ಪಾರ್ಲರ್"},
  chooseSub:{en:"Choose your outlet — AI Waiter by Odysra",ta:"உங்கள் கிளையைத் தேர்வுசெய்க — Odysra",hi:"अपना आउटलेट चुनें — Odysra",ml:"നിങ്ങളുടെ ഔട്ട്‌ലെറ്റ് തിരഞ്ഞെടുക്കൂ — Odysra",te:"మీ అవుట్‌లెట్‌ను ఎంచుకోండి — Odysra",kn:"ನಿಮ್ಮ ಔಟ್‌ಲೆಟ್ ಆಯ್ಕೆಮಾಡಿ — Odysra"},
  alsoLike:{en:"You might also like",ta:"இவையும் பிடிக்கும்",hi:"ये भी पसंद आ सकते हैं",ml:"ഇതും ഇഷ്ടപ്പെടാം",te:"ఇవి కూడా నచ్చవచ్చు",kn:"ಇವೂ ಇಷ್ಟವಾಗಬಹುದು"},
  add:{en:"Add",ta:"சேர்",hi:"जोड़ें",ml:"ചേർക്കൂ",te:"జోడించు",kn:"ಸೇರಿಸಿ"},
@@ -893,10 +808,9 @@ const lbl=k=>T(k).replace(/^[\p{Extended_Pictographic}\p{S}\p{M}\p{Z}\uFE0F\u20E
 
 const HOUR=new Date().getHours();
 const part=()=>HOUR<11?"morning":HOUR<16?"afternoon":"evening";
-const TIME_FILTER=false;
-const inWin=id=>MENU[id].h.some(w=>HOUR>=w[0]&&HOUR<w[1]);
-const OPEN=Object.keys(MENU).some(inWin);
-const avail=id=>!TIME_FILTER||!OPEN||inWin(id);
+const TIME_FILTER=false; // DEMO: false = show ALL dishes/categories. Set to true for the real time-based menu.
+const OPEN=Object.keys(MENU).some(id=>HOUR>=MENU[id].h[0]&&HOUR<MENU[id].h[1]);
+const avail=id=>!TIME_FILTER||!OPEN||(HOUR>=MENU[id].h[0]&&HOUR<MENU[id].h[1]);
 const SHOW_TIMING=TIME_FILTER; // the "timed" build shows serving times on dishes; the all-time build hides them
 const chat=document.getElementById("chat");
 function bot(html){const d=document.createElement("div");d.className="msg bot";d.innerHTML=html;chat.appendChild(d);toBottom();return d;}
@@ -909,12 +823,12 @@ function anchorTop(){}
 function anchorReply(){}
 
 /* ---------- outlet picker ---------- */
-function renderOutlets(){chat.innerHTML="";document.getElementById("phone").classList.add("outletview");document.getElementById("bar").style.display="none";document.getElementById("wm").style.display="none";document.getElementById("back").style.display="none";document.getElementById("hname").textContent="Odysra";document.getElementById("hsub").textContent=T("chooseSub");bot(T("welcome"));
+function renderOutlets(){chat.innerHTML="";document.getElementById("phone").classList.add("outletview");document.getElementById("bar").style.display="none";document.getElementById("wm").style.display="none";document.getElementById("back").style.display="none";document.getElementById("hname").textContent="Bon Bon";document.getElementById("hsub").textContent=T("chooseSub");bot(T("welcome"));
  block("outlet",OUTLETS.map(o=>`<button onclick="chooseOutlet('${o}')">${IC.pin}${o}</button>`).join(""));
  block("wmark",`<img src="${LOGO}"><div class="cap">${T("pureVeg")}</div>`);}
 function setUrl(path){try{if(window.parent&&window.parent!==window)window.parent.history.replaceState(null,"",path);}catch(e){}}
-function chooseOutlet(o){document.getElementById("phone").classList.remove("outletview");document.getElementById("bar").style.display="";document.getElementById("wm").style.display="";document.getElementById("back").style.display="";document.getElementById("inp").placeholder=T("ask");outlet=o;document.getElementById("hname").textContent="Odysra · "+o;document.getElementById("hsub").textContent="AI Waiter — powered by Odysra";setUrl("/restaurant/"+slugify(o));showGreeting();}
-function goOutlets(){cart={};notes={};upsold=false;outlet=null;refreshCart();closeModal();setUrl("/restaurant");renderOutlets();}
+function chooseOutlet(o){document.getElementById("phone").classList.remove("outletview");document.getElementById("bar").style.display="";document.getElementById("wm").style.display="";document.getElementById("back").style.display="";document.getElementById("inp").placeholder=T("ask");outlet=o;document.getElementById("hname").textContent="Bon Bon";document.getElementById("hsub").textContent="AI Waiter — powered by Odysra";setUrl("/bonbon/"+slugify(o));showGreeting();}
+function goOutlets(){cart={};notes={};upsold=false;outlet=null;refreshCart();closeModal();setUrl("/bonbon");renderOutlets();}
 
 /* ---------- dishes ---------- */
 function dishFooter(id){
@@ -1006,7 +920,7 @@ function openCat(i){const c=CATS[i];me(cn(c.name));if(c.subs){const ss=c.subs.fi
   block("chips",ss.map((s)=>`<button class="chip" onclick="openSub(${i},${c.subs.indexOf(s)})">${cn(s.name)}</button>`).join("")+`<button class="chip alt" onclick="explore()">${IC.back}${lbl("back")}</button>`);
  }else{bot(`<b>${cn(c.name)}</b> — ${T("tapAdd")}:`);grid(c.ids);}}
 function openSub(i,j){const s=CATS[i].subs[j];me(cn(s.name));bot(`<b>${cn(s.name)}</b> — ${T("tapAdd")}:`);grid(s.ids);}
-function info(){me("Restaurant info");bot(`📍 <b>Odysra, ${outlet}</b><br>🕖 Open 6:30 AM – 11:00 PM, all days<br>🅿️ Valet parking available<br>❄️ AC &amp; Non-AC dining halls<br>📞 +91 98765 43210`);exploreBar();}
+function info(){me("Restaurant info");bot(`📍 <b>Bon Bon, ${outlet}</b><br>🕖 Open 6:30 AM – 11:00 PM, all days<br>🅿️ Valet parking available<br>❄️ AC &amp; Non-AC dining halls<br>📞 0422-xxxxxxx`);exploreBar();}
 function banquet(){me("Banquet hall enquiry");bot(`We'd be glad to host your event at <b>${outlet}</b>! 🎉 Our hall seats up to 250 with pure-veg catering. Leave your details and our banquet manager will call you.`);
  openSheet(`<h2>Banquet enquiry</h2><div class="fld"><label>Name</label><input id="bn"></div><div class="fld"><label>Phone</label><input id="bp" inputmode="tel"></div><div class="fld"><label>Event date</label><input id="bd" placeholder="e.g. 15 Aug"></div><div class="fld"><label>Approx. guests</label><input id="bg" inputmode="numeric"></div><button class="btn" onclick="closeModal();bot('✅ Thanks! Our banquet manager will call you shortly. (Lead captured for staff.)')">Submit enquiry</button>`);}
 
@@ -1301,7 +1215,7 @@ async function finalizeSidecar(){
 async function sendText(){if(busy)return;const inp=document.getElementById("inp");const v=inp.value.trim();if(!v)return;voiceLocked=true;if(listening)stopVoice();inp.value="";autoGrow();me(v);await askOdy(v);}
 function setBusy(on){var b=document.getElementById("bar");if(b)b.classList.toggle("busy",on);}
 async function askOdy(q){busy=true;setBusy(true);const typing=typingBubble();
- try{const res=await fetch('/api/ody',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:q,lang,cart:Object.keys(cart),taste:tasteStr(),restaurant:"our restaurant (a multi-cuisine restaurant)"})});
+ try{const res=await fetch('/api/bonbon',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:q,lang,cart:Object.keys(cart),taste:tasteStr(),restaurant:"Bon Bon, an ice cream parlour"})});
   if(!res.ok)throw 0;const data=await res.json();typing.remove();
   let rb=null;if(data.reply)rb=bot(data.reply);const added=runActions(data.actions);
   if(added){const cc=confirmOrder();anchorReply(cc||rb);}else{exploreBar();anchorReply(rb);}
@@ -1324,7 +1238,7 @@ function ai(q){const sug=(id,txt)=>{const rb=bot(txt);block("grid",[dishCard(id)
  if(/coffee|drink|beverage|thirsty|cold/.test(q))return sug(avail("mango")?"mango":"coffee","Here's a refreshing pick for you:");
  if(/breakfast|morning|tiffin/.test(q))return openCat(0);
  if(/recommend|best|special|good|popular|suggest/.test(q))return showSpecials();
- bot("I can help you explore Odysra's menu, recommend dishes, answer about ingredients or take your order. Tap <b>Explore more</b> or tell me what you feel like! 🙂");exploreBar();}
+ bot("I can help you explore Bon Bon's menu, recommend dishes, answer about ingredients or take your order. Tap <b>Explore more</b> or tell me what you feel like! 🙂");exploreBar();}
 
 /* ---------- cart & checkout ---------- */
 const modal=document.getElementById("modal"),sheet=document.getElementById("sheet"),lb=document.getElementById("lb");
@@ -1389,8 +1303,8 @@ function payDone(method,gt){var nm=order.name||"Guest",ph=order.phone||"",pers=o
   openSheet('<div class="ok"><div class="big">'+IC.check+'</div><h2>'+T("paySuccess")+'</h2><p>'+T("payThanks").replace("%n",nm).replace("%o",outlet)+'</p>'+bill+'<p style="margin-top:8px;font-size:12px;color:var(--mut)">'+lastBill.type+(pers?" · "+pers+" "+T("persons"):"")+' · '+T("paidVia")+' '+method+'</p><button class="btn" style="background:#fff;color:#7a4a24;border:1.5px solid #7a4a24" onclick="downloadBill()">'+T("downloadBill")+'</button><button class="btn g" onclick="orderDone()">'+T("done")+'</button></div>');
   cart={};notes={};sync();}
 function downloadBill(){if(!lastBill)return;var b=lastBill;var rows=b.items.map(function(it){return '<tr><td style="padding:3px 0">'+it.n+' ×'+it.q+'</td><td style="text-align:right">₹'+it.p+'</td></tr>';}).join("");
-  var html='<!doctype html><html><head><meta charset="utf-8"><title>Odysra Bill</title></head><body style="font-family:Arial,sans-serif;max-width:380px;margin:20px auto;color:#222;padding:0 16px"><h2 style="color:#7a4a24;margin:0">Odysra</h2><div style="color:#888;font-size:13px;margin-bottom:8px">'+outlet+' · '+b.when+'</div><div style="font-size:13px;margin-bottom:12px">'+b.type+'<br>'+b.name+' · +91 '+b.phone+'</div><table style="width:100%;border-collapse:collapse;font-size:14px">'+rows+'<tr><td style="padding-top:6px">Subtotal</td><td style="text-align:right">₹'+b.sub+'</td></tr><tr><td>GST</td><td style="text-align:right">₹'+b.tax+'</td></tr><tr style="font-weight:bold;border-top:1px solid #ccc"><td style="padding-top:6px">Total paid</td><td style="text-align:right">₹'+b.gt+'</td></tr></table><div style="margin-top:12px;font-size:12px;color:#888">Paid via '+b.method+' · Thank you!</div></body></html>';
-  var blob=new Blob([html],{type:"text/html"});var url=URL.createObjectURL(blob);var a=document.createElement("a");a.href=url;a.download="Odysra_Bill.html";document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(url);},1500);}
+  var html='<!doctype html><html><head><meta charset="utf-8"><title>Bon Bon Bill</title></head><body style="font-family:Arial,sans-serif;max-width:380px;margin:20px auto;color:#222;padding:0 16px"><h2 style="color:#7a4a24;margin:0">Bon Bon</h2><div style="color:#888;font-size:13px;margin-bottom:8px">'+outlet+' · '+b.when+'</div><div style="font-size:13px;margin-bottom:12px">'+b.type+'<br>'+b.name+' · +91 '+b.phone+'</div><table style="width:100%;border-collapse:collapse;font-size:14px">'+rows+'<tr><td style="padding-top:6px">Subtotal</td><td style="text-align:right">₹'+b.sub+'</td></tr><tr><td>GST</td><td style="text-align:right">₹'+b.tax+'</td></tr><tr style="font-weight:bold;border-top:1px solid #ccc"><td style="padding-top:6px">Total paid</td><td style="text-align:right">₹'+b.gt+'</td></tr></table><div style="margin-top:12px;font-size:12px;color:#888">Paid via '+b.method+' · Thank you!</div></body></html>';
+  var blob=new Blob([html],{type:"text/html"});var url=URL.createObjectURL(blob);var a=document.createElement("a");a.href=url;a.download="Bon Bon_Bill.html";document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(url);},1500);}
 function orderDone(){closeModal();var rb=bot(T("orderThanks"));if(lastBill)block("chips",'<button class="chip" onclick="downloadBill()">'+lbl("downloadBill")+'</button>');mainChips();anchorReply(rb);}
 function reset_(){closeModal();upsold=false;showGreeting();}
 
@@ -1431,7 +1345,7 @@ function findProcessing(){var el=document.getElementById("taste");var msgs=[T("p
 async function findAsk(moodText){var _typing=typingBubble();
   var picks=[],reply=null;
   try{var msg="The guest is deciding what to eat right now. Their mood/craving: "+moodText+". Recommend 5-6 dishes they'll enjoy, MIXED across different categories and cuisines so they get variety, with a short warm intro. Use show actions with the dish ids.";
-    var res=await fetch('/api/ody',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:msg,lang,cart:Object.keys(cart),taste:""})});
+    var res=await fetch('/api/bonbon',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:msg,lang,cart:Object.keys(cart),taste:""})});
     if(res.ok){var data=await res.json();reply=data.reply;var ids=[];(data.actions||[]).forEach(function(a){if(a.type==="show"&&a.ids)ids=ids.concat(a.ids);else if(a.type==="add"&&a.id)ids.push(a.id);});picks=ids.filter(function(i){return MENU[i]&&avail(i);});}
   }catch(e){}
   if(_typing)_typing.remove();
@@ -1446,9 +1360,9 @@ document.getElementById("wm").innerHTML='<img src="'+LOGO+'">';
 function slugify(s){return s.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");}
 (function(){
   var pa=new URLSearchParams(location.search).get("outlet");
-  if(!pa){try{var pp=(window.parent&&window.parent!==window?window.parent.location.pathname:location.pathname).split("/").filter(Boolean);if(pp[0]==="restaurant"&&pp[1])pa=pp[1];}catch(e){}}
+  if(!pa){try{var pp=(window.parent&&window.parent!==window?window.parent.location.pathname:location.pathname).split("/").filter(Boolean);if(pp[0]==="bonbon"&&pp[1])pa=pp[1];}catch(e){}}
   var o=pa&&OUTLETS.find(function(x){return slugify(x)===pa;});
-  if(o)chooseOutlet(o);else renderOutlets();
+  chooseOutlet(o||OUTLETS[0]);
 })();
 </script>
 </body>

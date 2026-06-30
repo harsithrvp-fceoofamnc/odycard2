@@ -10,6 +10,7 @@ const GROUPS: Group[] = [
     accent: "#2f6fed",
     items: [
       { title: "Sree Annapoorna", sub: "Live AI waiter — full menu demo", href: "/annapoorna" },
+      { title: "Bon Bon", sub: "Ice-cream parlour AI menu", href: "/bonbon" },
       { title: "White-label demo", sub: "Generic branded restaurant bot", href: "/restaurant" },
     ],
   },

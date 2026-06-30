@@ -33,8 +33,10 @@ export function middleware(req: NextRequest) {
     pathname.startsWith("/demos") ||
     pathname.startsWith("/annapoorna") ||
     pathname.startsWith("/restaurant") ||
+    pathname.startsWith("/bonbon") ||
     pathname.startsWith("/ody") ||
     pathname.startsWith("/api/ody") ||
+    pathname.startsWith("/api/bonbon") ||
     pathname.startsWith("/api/stt")
   ) {
     if (gated) return NextResponse.next();

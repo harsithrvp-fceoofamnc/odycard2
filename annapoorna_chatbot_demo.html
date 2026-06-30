@@ -50,6 +50,7 @@
   .dish .nm{font-size:16px;font-weight:700;color:var(--ink);line-height:1.25;min-height:2.1em;overflow-wrap:anywhere}
   .dish .pr{font-size:15.5px;color:var(--blue);font-weight:700}
   .dish .tag{font-size:12.5px;color:var(--gold);font-weight:700}
+  .dish .tag.must{color:#c2185b}
   .frow{display:flex;gap:5px;margin-top:auto;align-items:center}
   .add{flex:1;border:1.4px solid var(--blue);background:#fff;color:var(--blue);font-weight:700;font-size:15px;padding:9px;border-radius:10px;cursor:pointer}
   .add.in{background:var(--blue);color:#fff}
@@ -646,6 +647,11 @@ const TXT={
  pickType:{en:"pick a type",ta:"வகையைத் தேர்ந்தெடுக்கவும்",hi:"एक प्रकार चुनें",ml:"ഒരു തരം തിരഞ്ഞെടുക്കൂ",te:"ఒక రకాన్ని ఎంచుకోండి",kn:"ಒಂದು ಪ್ರಕಾರ ಆಯ್ಕೆಮಾಡಿ"},
  tapAdd:{en:"tap to add",ta:"சேர்க்க தட்டவும்",hi:"जोड़ने के लिए टैप करें",ml:"ചേർക്കാൻ ടാപ്പ് ചെയ്യൂ",te:"జోడించడానికి ట్యాప్ చేయండి",kn:"ಸೇರಿಸಲು ಟ್ಯಾಪ್ ಮಾಡಿ"},
  bestseller:{en:"BESTSELLER",ta:"பெஸ்ட்செல்லர்",hi:"बेस्टसेलर",ml:"ബെസ്റ്റ്സെല്ലർ",te:"బెస్ట్‌సెల్లర్",kn:"ಬೆಸ್ಟ್‌ಸೆಲ್ಲರ್"},
+ musttry:{en:"MUST TRY",ta:"கட்டாயம் சுவை",hi:"ज़रूर आज़माएँ",ml:"തീർച്ചയായും രുചിക്കൂ",te:"తప్పక రుచి చూడండి",kn:"ತಪ್ಪದೆ ಸವಿಯಿರಿ"},
+ addonAsk:{en:"Want to add %n for ₹%p? 😋",ta:"%n ₹%p-க்கு சேர்க்கவா? 😋",hi:"%n ₹%p में जोड़ें? 😋",ml:"%n ₹%p-ന് ചേർക്കണോ? 😋",te:"%n ₹%p కి జోడించాలా? 😋",kn:"%n ₹%p ಕ್ಕೆ ಸೇರಿಸಲೇ? 😋"},
+ addonYes:{en:"Yes, add it",ta:"ஆம், சேர்",hi:"हाँ, जोड़ें",ml:"അതെ, ചേർക്കൂ",te:"అవును, జోడించు",kn:"ಹೌದು, ಸೇರಿಸಿ"},
+ addonNo:{en:"No thanks",ta:"வேண்டாம்",hi:"नहीं शुक्रिया",ml:"വേണ്ട",te:"వద్దు",kn:"ಬೇಡ"},
+ addonAdded:{en:"Added! 🍨",ta:"சேர்க்கப்பட்டது! 🍨",hi:"जोड़ दिया! 🍨",ml:"ചേർത്തു! 🍨",te:"జోడించాను! 🍨",kn:"ಸೇರಿಸಿದೆ! 🍨"},
  transcribing:{en:"Transcribing…",ta:"எழுத்தாக்குகிறது…",hi:"लिख रहा हूँ…",ml:"പകർത്തുന്നു…",te:"రాస్తోంది…",kn:"ಬರೆಯುತ್ತಿದೆ…"},
  welcome:{en:"Welcome to <b>Sree Annapoorna</b> Which outlet are you dining at today?",ta:"<b>ஸ்ரீ அன்னபூர்ணா</b>விற்கு வரவேற்கிறோம் இன்று எந்தக் கிளையில் சாப்பிடுகிறீர்கள்?",hi:"<b>श्री अन्नपूर्णा</b> में आपका स्वागत है आज आप किस आउटलेट पर हैं?",ml:"<b>ശ്രീ അന്നപൂർണ</b>യിലേക്ക് സ്വാഗതം ഇന്ന് ഏത് ഔട്ട്‌ലെറ്റിലാണ്?",te:"<b>శ్రీ అన్నపూర్ణ</b>కు స్వాగతం ఈ రోజు మీరు ఏ అవుట్‌లెట్‌లో ఉన్నారు?",kn:"<b>ಶ್ರೀ ಅನ್ನಪೂರ್ಣ</b>ಗೆ ಸ್ವಾಗತ ಇಂದು ನೀವು ಯಾವ ಔಟ್‌ಲೆಟ್‌ನಲ್ಲಿ ಇದ್ದೀರಿ?"},
  pureVeg:{en:"Pure Vegetarian Restaurant",ta:"தூய சைவ உணவகம்",hi:"शुद्ध शाकाहारी रेस्टोरेंट",ml:"ശുദ്ധ സസ്യാഹാര റെസ്റ്റോറന്റ്",te:"స్వచ్ఛమైన శాకాహార రెస్టారెంట్",kn:"ಶುದ್ಧ ಸಸ್ಯಾಹಾರಿ ರೆಸ್ಟೋರೆಂಟ್"},
@@ -739,17 +745,20 @@ function photoUrl(id){return MENU[id].ph||LOGO;}
 function fmtTime(t){var hr=Math.floor(t),mn=Math.round((t-hr)*60),ap=hr<12?"AM":"PM",hh=hr%12;if(hh===0)hh=12;return hh+(mn?":"+("0"+mn).slice(-2):"")+ap;}
 function fmtWin(id){var h=MENU[id].h;if(!h||!h.length)return"";return h.map(function(w){return fmtTime(w[0])+"–"+fmtTime(w[1]);}).join(", ");}
 function dishMeta(id){var m=MENU[id],p=[];if(m.q)p.push(m.q);if(m.pt)p.push("~"+m.pt+" min");if(SHOW_TIMING&&fmtWin(id))p.push(fmtWin(id));return p.join(" · ");}
+function tagsHTML(m){var h="";if(m.best)h+='<div class="tag">★ '+T("bestseller")+'</div>';if(m.must)h+='<div class="tag must">✦ '+T("musttry")+'</div>';return h;}
 function compactCard(id){const m=MENU[id];
- return `<div class="dish simple" data-id="${id}"><div class="sbd"><div class="srow"><span class="vegdot${m.nv?' nv':''}"></span><div class="nm">${dn(id)}</div></div>${m.best?`<div class="tag">★ ${T("bestseller")}</div>`:''}<div class="meta">${dishMeta(id)}</div><div class="sdesc">${desc(id)}</div><div class="sfoot"><div class="pr">₹${m.p}</div><div class="frow">${dishFooter(id)}</div></div></div></div>`;}
+ return `<div class="dish simple" data-id="${id}"><div class="sbd"><div class="srow"><span class="vegdot${m.nv?' nv':''}"></span><div class="nm">${dn(id)}</div></div>${tagsHTML(m)}<div class="meta">${dishMeta(id)}</div><div class="sdesc">${desc(id)}</div><div class="sfoot"><div class="pr">₹${m.p}</div><div class="frow">${dishFooter(id)}</div></div></div></div>`;}
 function dishCard(id){const m=MENU[id];
  if(!m.ph)return compactCard(id); // no photo -> clean text card (no icons/emoji)
- return `<div class="dish" data-id="${id}"><div class="pic" style="cursor:pointer" onclick="zoomDish('${id}')"><span class="vegbadge${m.nv?' nv':''}" title="${m.nv?'Non-veg':'Pure veg'}"></span><img class="ph" src="${m.ph}" loading="lazy" alt="${dn(id)}" onerror="this.style.display='none';"></div><div class="bd">${m.best?`<div class="tag">★ ${T("bestseller")}</div>`:''}<div class="nm">${dn(id)}</div><div class="meta">${dishMeta(id)}</div><div class="pr">₹${m.p}</div><div class="frow">${dishFooter(id)}</div></div></div>`;}
+ return `<div class="dish" data-id="${id}"><div class="pic" style="cursor:pointer" onclick="zoomDish('${id}')"><span class="vegbadge${m.nv?' nv':''}" title="${m.nv?'Non-veg':'Pure veg'}"></span><img class="ph" src="${m.ph}" loading="lazy" alt="${dn(id)}" onerror="this.style.display='none';"></div><div class="bd">${tagsHTML(m)}<div class="nm">${dn(id)}</div><div class="meta">${dishMeta(id)}</div><div class="pr">₹${m.p}</div><div class="frow">${dishFooter(id)}</div></div></div>`;}
 function sync(){refreshCart();document.querySelectorAll('.dish[data-id]').forEach(el=>{const f=el.querySelector('.frow');if(f)f.innerHTML=dishFooter(el.dataset.id);});document.querySelectorAll('.pi[data-id]').forEach(el=>{const f=el.querySelector('.pifoot');if(f)f.innerHTML=pairFoot(el.dataset.id);});}
 function buzz(){try{if(navigator.vibrate)navigator.vibrate(35);}catch(e){}}
 function dig(el,n){el.value=el.value.replace(/\D/g,"").slice(0,n);}
 function alpha(el){el.value=el.value.replace(/[^A-Za-z ]/g,"").replace(/\s{2,}/g," ").slice(0,30);}
 function pers(el){el.value=el.value.replace(/\D/g,"").replace(/^0+/,"").slice(0,3);}
-function addDish(id){cart[id]=(cart[id]||0)+1;buzz();sync();upsell();}
+function addDish(id){cart[id]=(cart[id]||0)+1;buzz();sync();if(MENU[id]&&MENU[id].ao&&MENU[MENU[id].ao]){offerAddon(id);}else{upsell();}}
+function offerAddon(srcId){var aid=MENU[srcId].ao;if(cart[aid]){upsell();return;}var rb=bot(T("addonAsk").replace("%n",dn(aid)).replace("%p",MENU[aid].p));block("chips",'<button class="chip go" onclick="addAddon(\''+aid+'\')">'+lbl("addonYes")+'</button><button class="chip alt" onclick="mainChips()">'+lbl("addonNo")+'</button>');anchorReply(rb);}
+function addAddon(aid){cart[aid]=(cart[aid]||0)+1;buzz();sync();var rb=bot(T("addonAdded"));mainChips();anchorReply(rb);}
 function inc2(id){cart[id]++;buzz();sync();}
 function dec2(id){cart[id]--;if(cart[id]<=0){delete cart[id];delete notes[id];}sync();}
 function explainDish(id){const m=MENU[id];bot(`<b>${dn(id)}</b> — ${desc(id)} <span style="color:#7a4a24;font-weight:700">₹${m.p}</span><br><span class="meta">${dishMeta(id)}</span>`);block("grid",[dishCard(id)]);exploreBar();}
