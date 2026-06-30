@@ -204,19 +204,19 @@ h = h.split("pure-vegetarian South Indian restaurant").join("ice cream parlour")
 // drop "pure veg" stamp text
 h = h.replace(/pureVeg:\{[^}]*\}/, 'pureVeg:{en:"Ice cream parlour",ta:"ஐஸ்கிரீம் பார்லர்",hi:"आइसक्रीम पार्लर",ml:"ഐസ്ക്രീം പാർലർ",te:"ఐస్‌క్రీం పార్లర్",kn:"ಐಸ್‌ಕ್ರೀಂ ಪಾರ್ಲರ್"}');
 
-// ---- ice-cream-parlour theme: white / maroon / pink ----
+// ---- ice-cream-parlour theme: white + deep maroon (#550000), neutral surfaces ----
 h = h.replace(/:root\{[^}]*\}/,
-  ":root{--blue:#8e2b4d;--ink:#2a1620;--mut:#9b8791;--line:#efdfe6;--cream:#fdeff4;--gold:#d81b60;--card:#fffafc;--brandtop:#8e2b4d;--brandbot:#5e1730;}");
-// language bar -> maroon
+  ":root{--blue:#550000;--ink:#2a1212;--mut:#9a8585;--line:#ecdcdc;--cream:#faf2f1;--gold:#550000;--card:#fffdfc;--brandtop:#550000;--brandbot:#3a0000;}");
+// language bar -> dark maroon
 h = h.replace(/\.langbar\{display:flex;gap:6px;overflow-x:auto;padding:8px 12px;background:#4d3017;/,
-  ".langbar{display:flex;gap:6px;overflow-x:auto;padding:8px 12px;background:#5e1730;");
-// page frame behind the phone -> soft pink
-h = h.replace("background:#0e1116;", "background:#f4e6ec;");
-// chat wallpaper -> clean pink surface
+  ".langbar{display:flex;gap:6px;overflow-x:auto;padding:8px 12px;background:#4a0000;");
+// page frame behind the phone -> warm neutral
+h = h.replace("background:#0e1116;", "background:#efe4e2;");
+// chat wallpaper -> clean neutral surface
 h = h.replace(/background-image:linear-gradient\(rgba\(246,238,221[^)]*\),rgba\([^)]*\)\),url\('chat-bg\.jpg'\);/,
-  "background:#fdeff4;");
+  "background:#faf2f1;");
 // dish-card image placeholder tint
-h = h.replace("linear-gradient(135deg,#f3e9d2,#e9dcbf)", "linear-gradient(135deg,#fbe2ec,#f3d3e0)");
+h = h.replace("linear-gradient(135deg,#f3e9d2,#e9dcbf)", "linear-gradient(135deg,#f3e7e6,#ead9d7)");
 
 // ---- AI route -> /api/bonbon ----
 h = h.split("/api/ody").join("/api/bonbon");

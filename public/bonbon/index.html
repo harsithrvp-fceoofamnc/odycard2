@@ -5,10 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
 <title>Bon Bon — AI Ice Cream Menu</title>
 <style>
-  :root{--blue:#8e2b4d;--ink:#2a1620;--mut:#9b8791;--line:#efdfe6;--cream:#fdeff4;--gold:#d81b60;--card:#fffafc;--brandtop:#8e2b4d;--brandbot:#5e1730;}
+  :root{--blue:#550000;--ink:#2a1212;--mut:#9a8585;--line:#ecdcdc;--cream:#faf2f1;--gold:#550000;--card:#fffdfc;--brandtop:#550000;--brandbot:#3a0000;}
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   html{height:100%;overscroll-behavior:none}
-  body{margin:0;background:#f4e6ec;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;display:flex;justify-content:center;align-items:center;min-height:100vh;min-height:100dvh;height:100dvh;overflow:hidden;overscroll-behavior:none}
+  body{margin:0;background:#efe4e2;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;display:flex;justify-content:center;align-items:center;min-height:100vh;min-height:100dvh;height:100dvh;overflow:hidden;overscroll-behavior:none}
   #phone{width:100%;max-width:440px;height:100vh;height:100dvh;background:var(--cream);overflow:hidden;display:flex;flex-direction:column;position:relative}
   @media(min-width:480px){
     body{padding:16px;box-sizing:border-box}
@@ -20,7 +20,7 @@
   header .sub{font-size:12.5px;opacity:.9;margin-top:1px;color:#f3e2c4}
   header .hback{background:rgba(255,255,255,.18);border:0;color:#fff;width:32px;height:32px;border-radius:9px;font-size:20px;line-height:1;cursor:pointer;flex:0 0 auto;display:none;transition:background .2s}
   header .hback:hover{background:rgba(255,255,255,.3)}
-  .langbar{display:flex;gap:6px;overflow-x:auto;padding:8px 12px;background:#5e1730;scrollbar-width:none;-ms-overflow-style:none}
+  .langbar{display:flex;gap:6px;overflow-x:auto;padding:8px 12px;background:#4a0000;scrollbar-width:none;-ms-overflow-style:none}
   .langbar::-webkit-scrollbar{display:none;width:0;height:0}
   .lang{flex:0 0 auto;font-size:13.5px;color:#f0e2cb;background:rgba(255,255,255,.12);border:0;padding:5px 11px;border-radius:20px;cursor:pointer;transition:all .2s ease}
   .lang:hover{background:rgba(255,255,255,.2)}
@@ -45,12 +45,12 @@
   .outlet button{background:#fff;border:1.4px solid var(--blue);color:var(--blue);font-weight:700;padding:15px 8px;border-radius:13px;font-size:15.5px;cursor:pointer}
   .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;align-self:stretch;padding:0}
   .dish{background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden;display:flex;flex-direction:column}
-  .dish .pic{height:165px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='30' height='30' viewBox='0 0 30 30'%3E%3Cg fill='none' stroke='%23a8752a' stroke-width='1' stroke-opacity='0.14'%3E%3Ccircle cx='0' cy='0' r='15'/%3E%3Ccircle cx='30' cy='0' r='15'/%3E%3Ccircle cx='0' cy='30' r='15'/%3E%3Ccircle cx='30' cy='30' r='15'/%3E%3Ccircle cx='15' cy='15' r='15'/%3E%3C/g%3E%3C/svg%3E"),linear-gradient(135deg,#fbe2ec,#f3d3e0);background-size:30px 30px,cover;display:flex;align-items:center;justify-content:center;font-size:34px}
+  .dish .pic{height:165px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='30' height='30' viewBox='0 0 30 30'%3E%3Cg fill='none' stroke='%23a8752a' stroke-width='1' stroke-opacity='0.14'%3E%3Ccircle cx='0' cy='0' r='15'/%3E%3Ccircle cx='30' cy='0' r='15'/%3E%3Ccircle cx='0' cy='30' r='15'/%3E%3Ccircle cx='30' cy='30' r='15'/%3E%3Ccircle cx='15' cy='15' r='15'/%3E%3C/g%3E%3C/svg%3E"),linear-gradient(135deg,#f3e7e6,#ead9d7);background-size:30px 30px,cover;display:flex;align-items:center;justify-content:center;font-size:34px}
   .dish .bd{padding:11px 12px;display:flex;flex-direction:column;gap:5px;flex:1}
   .dish .nm{font-size:16px;font-weight:700;color:var(--ink);line-height:1.25;min-height:2.1em;overflow-wrap:anywhere}
   .dish .pr{font-size:15.5px;color:var(--blue);font-weight:700}
   .dish .tag{font-size:12.5px;color:var(--gold);font-weight:700}
-  .dish .tag.must{color:#c2185b}
+  .dish .tag.must{color:var(--gold)}
   .frow{display:flex;gap:5px;margin-top:auto;align-items:center}
   .add{flex:1;border:1.4px solid var(--blue);background:#fff;color:var(--blue);font-weight:700;font-size:15px;padding:9px;border-radius:10px;cursor:pointer}
   .add.in{background:var(--blue);color:#fff}
@@ -190,7 +190,7 @@
   /* ---------- elegant polish & animations ---------- */
   /* Doodle wallpaper sits behind the WHOLE screen, so the translucent input bar reveals it too */
   #phone{
-    background:#fdeff4;
+    background:#faf2f1;
     background-size:cover,cover;background-position:center top;background-repeat:no-repeat;
   }
   .dish .pic img{width:86%;max-height:124px;object-fit:contain;opacity:.62}
