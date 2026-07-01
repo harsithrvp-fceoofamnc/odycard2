@@ -123,9 +123,7 @@ h = h.replace(/background-image:linear-gradient\(rgba\(246,238,221[^)]*\),rgba\(
 h = h.replace("linear-gradient(135deg,#f3e9d2,#e9dcbf)", "linear-gradient(135deg,#f3e7e6,#ead9d7)");
 // hide dish timings on the cards (prep "~X min" + availability window) — Bon Bon only, for now
 h = h.replace('if(m.pt)p.push("~"+m.pt+" min");if(SHOW_TIMING&&fmtWin(id))p.push(fmtWin(id));', "");
-// TEMP: turn on the on-screen voice diagnostic readout (bottom-left) so we can see what the
-// phone's speech engine actually does. Remove this line once voice is sorted.
-h = h.replace("window.__VDBG=window.__VDBG||false;", "window.__VDBG=true;");
+// (voice diagnostic readout stays OFF — window.__VDBG defaults to false)
 
 // ---- recording pill + active mic: white text/icon (gold pill used near-black; on maroon it must be white) ----
 h = h.replace(".micpill.on .microt{color:#3a2a05}", ".micpill.on .microt{color:#fff}");
