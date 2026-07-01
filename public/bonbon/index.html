@@ -922,6 +922,8 @@ function banquet(){me("Banquet hall enquiry");bot(`We'd be glad to host your eve
    Primary: record audio and send to /api/stt (Sarvam) for accurate Indian-language transcription.
    Fallback: the browser's built-in SpeechRecognition (used if recording isn't supported or
    Sarvam isn't configured). */
+window.__VDBG=true;
+function vdbg(m){try{if(!window.__VDBG)return;var d=document.getElementById('__vdbg');if(!d){d=document.createElement('div');d.id='__vdbg';d.style.cssText='position:fixed;left:6px;bottom:6px;z-index:99999;max-width:88vw;background:rgba(0,0,0,.85);color:#31ff8f;font:11px/1.45 monospace;padding:7px 9px;border-radius:7px;white-space:pre-wrap';d.onclick=function(){d.style.display='none';};document.body.appendChild(d);}var line=(new Date().toLocaleTimeString().replace(/\s?[AP]M/i,''))+'  '+m;d.textContent=line+'\n'+d.textContent;d.textContent=d.textContent.split('\n').slice(0,14).join('\n');}catch(e){}}
 function setMic(on){document.getElementById("mic").classList.toggle("on",on);}
 function heard(t){const inp=document.getElementById("inp");inp.value=(inp.value?inp.value.trim()+" ":"")+t;}
 function simHeard(){const s=["something light and not too spicy","what's good for breakfast","show me the dosa varieties","I'd like a sweet dish","recommend a good cold drink"];
@@ -944,7 +946,9 @@ function recordVoice(){
  // Edge and Android. Sarvam (recording -> server) is only the fallback when the browser
  // engine isn't available (e.g. Firefox) or has been marked broken at runtime.
  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+ vdbg("mic tapped · SR="+(!!SR)+" srBroken="+srBroken);
  if(SR&&!srBroken){startBrowserSR();return;}
+ vdbg("-> SARVAM record+upload (not live)");
  startSarvamRecording();
 }
 // FALLBACK: record audio and send it to Sarvam (good Indian-language accuracy) for transcription.
@@ -1112,8 +1116,10 @@ async function transcribe(blob){
   let sendBlob=blob,fname='audio.webm';
   try{sendBlob=await blobToWav(blob);fname='audio.wav';}catch(e){}
   const fd=new FormData();fd.append('file',sendBlob,fname);fd.append('lang',lang);
+  var __t0=Date.now();vdbg("uploading audio to /api/stt…");
   const res=await fetch('/api/stt',{method:'POST',body:fd});
   let data={};try{data=await res.json();}catch(e){}
+  vdbg("/api/stt replied in "+(Date.now()-__t0)+"ms");
   inp.placeholder=T("ask");
   if(voiceLocked)return; // the message was already sent — don't refill the box or show errors
   if(res.status===503){ // key not configured at all -> fall back to browser engine
@@ -1139,16 +1145,18 @@ function startBrowserSR(){
  voiceBase=base; // remembered for the accurate Sarvam pass on stop
  try{recog=new SR();}catch(e){srBroken=true;startSarvamRecording();return;}
  recog.lang=SLANG[lang]||'en-IN';recog.continuous=true;recog.interimResults=true;recog.maxAlternatives=1;
- recog.onstart=()=>{showListening(true);};
+ recog.onstart=()=>{vdbg("SR onstart — live engine running");showListening(true);};
  recog.onresult=e=>{
   let interim="";
   for(let i=e.resultIndex;i<e.results.length;i++){const t=e.results[i][0].transcript;if(e.results[i].isFinal)finalText+=t+" ";else interim+=t;}
   if(voiceLocked)return; // message already sent
+  if(!gotAny)vdbg("SR LIVE ✓ words appearing");
   gotAny=true;showListening(true); // keep the "tap to stop" cue up the whole time
   inp.value=(finalText+interim).trim();autoGrow();
  };
  recog.onerror=ev=>{
   const er=ev&&ev.error;
+  vdbg("SR ERROR: "+er);
   if(er==="not-allowed"){listening=false;setMic(false);showListening(false);bot("🎙️ Please allow microphone access to use voice.");return;}
   if(er==="service-not-allowed"||er==="language-not-supported"||er==="audio-capture"){
    // browser engine can't run here -> switch to the Sarvam recording fallback
