@@ -220,6 +220,19 @@ h = h.replace(/background-image:linear-gradient\(rgba\(246,238,221[^)]*\),rgba\(
 // dish-card image placeholder tint
 h = h.replace("linear-gradient(135deg,#f3e9d2,#e9dcbf)", "linear-gradient(135deg,#f3e7e6,#ead9d7)");
 
+// ---- recolor every leftover GOLD accent -> maroon (Annapoorna keeps gold; this is Bon Bon only) ----
+// active language pill: gold gradient -> solid maroon
+h = h.replace(".lang.on{background:linear-gradient(135deg,#f6e8c9,#e9cf94);color:var(--brandbot);",
+  ".lang.on{background:var(--blue);color:#fff;");
+// mic active / gold gradients -> maroon gradient
+h = h.split("linear-gradient(135deg,#e3b956,#c79233)").join("linear-gradient(135deg,#a83048,#811226)");
+// gold glows/shadows (dish card, sheen, mic ripple) -> maroon
+h = h.split("199,146,51").join("129,18,38");
+// any remaining gold hexes -> maroon shades
+h = h.split("#c79233").join("#811226");
+h = h.split("#e3b956").join("#a83048");
+h = h.split("#a8752a").join("#8a3a4c");
+
 // ---- AI route -> /api/bonbon ----
 h = h.split("/api/ody").join("/api/bonbon");
 h = h.replace("body:JSON.stringify({message:q,lang,cart:Object.keys(cart),taste:tasteStr()})",
