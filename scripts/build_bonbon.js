@@ -8,16 +8,18 @@ const ROOT = path.resolve(__dirname, "..");
 const TPL = path.join(ROOT, "annapoorna_chatbot_demo.html");
 
 // ---- per-category presentation (quantity, prep mins, default description) ----
+// q = quantity. The Bon Bon menu only states a size for Sundae (250 ml / 500 ml);
+// every other section has no quantity printed, so we leave q blank (owner fills it in manually later).
 const CM = {
-  scoops:   { label: "Scoops",          q: "1 scoop", pt: 3, d: "A scoop served on a crisp waffle cup or cone." },
-  softy:    { label: "Softy",           q: "1 cone",  pt: 3, d: "Creamy soft-serve, freshly swirled." },
-  waffle:   { label: "Waffle",          q: "1 plate", pt: 8, d: "Hot & soft Belgian waffle with Nutella, fruits & honey." },
-  icecream: { label: "Ice Cream Specials", q: "1 bowl", pt: 6, d: "A loaded ice-cream sundae — our best sellers." },
-  sundae:   { label: "Sundae",          q: "250 ml",  pt: 5, d: "A layered ice-cream sundae." },
-  mini:     { label: "Mini Sundae",     q: "1 cup",   pt: 5, d: "A bite-sized Bon Bon sundae cup." },
-  falooda:  { label: "Falooda",         q: "1 glass", pt: 6, d: "Classic falooda with vermicelli, jelly & ice cream." },
-  shakes:   { label: "Thick Shakes",    q: "1 glass", pt: 5, d: "Thick, creamy blended shake." },
-  snacks:   { label: "Snacks",          q: "1 plate", pt: 8, d: "A hot, crispy savoury bite." },
+  scoops:   { label: "Scoops",          q: "", pt: 3, d: "A scoop served on a crisp waffle cup or cone." },
+  softy:    { label: "Softy",           q: "", pt: 3, d: "Creamy soft-serve, freshly swirled." },
+  waffle:   { label: "Waffle",          q: "", pt: 8, d: "Hot & soft Belgian waffle with Nutella, fruits & honey." },
+  icecream: { label: "Ice Cream Specials", q: "", pt: 6, d: "A loaded ice-cream sundae — our best sellers." },
+  sundae:   { label: "Sundae",          q: "250 ml", pt: 5, d: "A layered ice-cream sundae." },
+  mini:     { label: "Mini Sundae",     q: "", pt: 5, d: "A bite-sized Bon Bon sundae cup." },
+  falooda:  { label: "Falooda",         q: "", pt: 6, d: "Classic falooda with vermicelli, jelly & ice cream." },
+  shakes:   { label: "Thick Shakes",    q: "", pt: 5, d: "Thick, creamy blended shake." },
+  snacks:   { label: "Snacks",          q: "", pt: 8, d: "A hot, crispy savoury bite." },
 };
 
 // ---- menu (id, name, price, flags). f: "best" | "must"; ao = add-on item id; big = 500ml price ----
@@ -171,7 +173,7 @@ for (const g in groups) {
   }
 }
 // hidden add-on item (not shown in any category)
-entries.push(' extraicecream:{n:"Extra Ice Cream",p:30,e:"🍨",h:[[8,23]],q:"1 scoop",pt:1,ph:"",d:"An extra scoop of ice cream.",veg:1}');
+entries.push(' extraicecream:{n:"Extra Ice Cream",p:30,e:"🍨",h:[[8,23]],q:"",pt:1,ph:"",d:"An extra scoop of ice cream.",veg:1}');
 const MENU = `const MENU={\n${entries.join(",\n")}};`;
 
 // ---- CATS (browse tabs) ----
