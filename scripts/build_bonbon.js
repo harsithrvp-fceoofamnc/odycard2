@@ -241,6 +241,9 @@ h = h.replace("body:JSON.stringify({message:q,lang,cart:Object.keys(cart),taste:
 h = h.split('"/annapoorna/"').join('"/bonbon/"');
 h = h.split('"/annapoorna"').join('"/bonbon"');
 h = h.split('==="annapoorna"').join('==="bonbon"');
+// single outlet -> keep the browser URL clean at /bon-bon (no nested outlet slug)
+h = h.split('setUrl("/bonbon/"+slugify(o))').join('setUrl("/bon-bon")');
+h = h.split('setUrl("/bonbon")').join('setUrl("/bon-bon")');
 
 // (keep the original mobile phone-view framing — same as Annapoorna)
 

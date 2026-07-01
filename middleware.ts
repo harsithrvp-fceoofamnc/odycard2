@@ -33,6 +33,7 @@ export function middleware(req: NextRequest) {
     pathname.startsWith("/demos") ||
     pathname.startsWith("/annapoorna") ||
     pathname.startsWith("/restaurant") ||
+    pathname.startsWith("/bon-bon") ||
     pathname.startsWith("/bonbon") ||
     pathname.startsWith("/ody") ||
     pathname.startsWith("/api/ody") ||
