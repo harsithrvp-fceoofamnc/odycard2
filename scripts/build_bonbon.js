@@ -127,6 +127,11 @@ h = h.replace('if(m.pt)p.push("~"+m.pt+" min");if(SHOW_TIMING&&fmtWin(id))p.push
 // phone's speech engine actually does. Remove this line once voice is sorted.
 h = h.replace("window.__VDBG=window.__VDBG||false;", "window.__VDBG=true;");
 
+// ---- recording pill + active mic: white text/icon (gold pill used near-black; on maroon it must be white) ----
+h = h.replace(".micpill.on .microt{color:#3a2a05}", ".micpill.on .microt{color:#fff}");
+h = h.replace(".micpill.on .micicon{stroke:#3a2a05}", ".micpill.on .micicon{stroke:#fff}");
+h = h.replace(".mic.on{background:linear-gradient(135deg,#e3b956,#c79233);color:#3a2a05;border-color:#c79233}", ".mic.on{background:linear-gradient(135deg,#e3b956,#c79233);color:#fff;border-color:#c79233}");
+
 // ---- recolor every leftover GOLD accent -> maroon (Annapoorna keeps gold; this is Bon Bon only) ----
 // active language pill: gold gradient -> solid maroon
 h = h.replace(".lang.on{background:linear-gradient(135deg,#f6e8c9,#e9cf94);color:var(--brandbot);",
