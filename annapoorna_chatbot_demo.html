@@ -847,6 +847,9 @@ function simHeard(){const s=["something light and not too spicy","what's good fo
  bot("🎙️ <i>(Voice needs Chrome with mic permission — simulating a query for this demo)</i>");setTimeout(()=>heard(s[Math.floor(Math.random()*s.length)]),500);}
 const SLANG={en:'en-IN',ta:'ta-IN',hi:'hi-IN',ml:'ml-IN',te:'te-IN',kn:'kn-IN'};
 let listening=false,mediaRec=null,chunks=[],micStream=null,sttBroken=false,srBroken=false,recog=null;
+// Brave (and some privacy browsers) start the Web Speech engine but block Google's service, so it
+// returns nothing and never errors. Detect Brave up front and go straight to live server streaming.
+try{if(navigator.brave&&navigator.brave.isBrave){navigator.brave.isBrave().then(function(v){if(v){srBroken=true;vdbg("Brave detected → using live server streaming");}});}}catch(e){}
 // "sidecar" recorder: while the browser shows live words, we also capture clean audio and run
 // one accurate Sarvam pass on stop (full context = Claude-like accuracy) that refines the text.
 let sideRec=null,sideStream=null,sideChunks=[];
@@ -1058,7 +1061,7 @@ function startBrowserSR(){
  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
  if(!SR){srBroken=true;startSarvamRecording();return;}
  const inp=document.getElementById("inp");
- const base=inp.value?inp.value.trim()+" ":"";let finalText=base;let gotAny=false;
+ const base=inp.value?inp.value.trim()+" ":"";let finalText=base;let gotAny=false;let srWatch=null;
  voiceBase=base; // remembered for the accurate Sarvam pass on stop
  try{recog=new SR();}catch(e){srBroken=true;startSarvamRecording();return;}
  recog.lang=SLANG[lang]||'en-IN';recog.continuous=true;recog.interimResults=true;recog.maxAlternatives=1;
@@ -1067,7 +1070,7 @@ function startBrowserSR(){
   let interim="";
   for(let i=e.resultIndex;i<e.results.length;i++){const t=e.results[i][0].transcript;if(e.results[i].isFinal)finalText+=t+" ";else interim+=t;}
   if(voiceLocked)return; // message already sent
-  if(!gotAny)vdbg("SR LIVE ✓ words appearing");
+  if(!gotAny){if(srWatch){clearTimeout(srWatch);srWatch=null;}vdbg("SR LIVE ✓ words appearing");}
   gotAny=true;showListening(true); // keep the "tap to stop" cue up the whole time
   inp.value=(finalText+interim).trim();autoGrow();
  };
@@ -1077,7 +1080,7 @@ function startBrowserSR(){
   if(er==="not-allowed"){listening=false;setMic(false);showListening(false);bot("🎙️ Please allow microphone access to use voice.");return;}
   if(er==="service-not-allowed"||er==="language-not-supported"||er==="audio-capture"){
    // browser engine can't run here -> switch to the Sarvam recording fallback
-   srBroken=true;try{recog.onend=null;recog.abort();}catch(e){}stopSidecar();
+   srBroken=true;if(srWatch){clearTimeout(srWatch);srWatch=null;}try{recog.onend=null;recog.abort();}catch(e){}stopSidecar();
    if(listening){listening=false;setMic(false);startSarvamRecording();}return;
   }
   // no-speech / aborted / network blips: keep listening (onend will restart)
@@ -1090,6 +1093,22 @@ function startBrowserSR(){
  listening=true;setMic(true);
  try{recog.start();}catch(e){srBroken=true;listening=false;setMic(false);startSarvamRecording();return;}
  if(listening&&!srBroken)startSidecar(); // also record clean audio for the accurate final pass
+ // Watchdog: Brave & some privacy browsers start the engine but never deliver words and never error.
+ // If nothing arrives within ~2.2s, treat the engine as dead and switch to live server streaming.
+ if(srWatch)clearTimeout(srWatch);
+ srWatch=setTimeout(function(){
+  srWatch=null;
+  if(!listening||gotAny)return;
+  vdbg("SR silent 2.2s → switching to live server streaming");
+  srBroken=true;
+  try{recog.onend=null;recog.onerror=null;recog.abort();}catch(e){}
+  // tear the sidecar recorder down WITHOUT running its on-stop pass (avoids a duplicate transcription)
+  try{if(sideRec){sideRec.onstop=null;if(sideRec.state&&sideRec.state!=="inactive")sideRec.stop();}}catch(e){}
+  try{if(sideStream){sideStream.getTracks().forEach(function(t){t.stop();});}}catch(e){}
+  sideRec=null;sideStream=null;sideChunks=[];
+  listening=false;setMic(false);
+  startSarvamRecording();
+ },2200);
 }
 // Record clean, near-field audio alongside the live engine. On stop we run ONE accurate Sarvam
 // pass over the whole clip — full context + noise suppression = it locks onto the nearest (your)
