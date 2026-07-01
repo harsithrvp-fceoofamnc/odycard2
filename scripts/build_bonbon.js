@@ -121,6 +121,8 @@ h = h.replace(/background-image:linear-gradient\(rgba\(246,238,221[^)]*\),rgba\(
   "background:#faf2f1;");
 // dish-card image placeholder tint
 h = h.replace("linear-gradient(135deg,#f3e9d2,#e9dcbf)", "linear-gradient(135deg,#f3e7e6,#ead9d7)");
+// hide dish timings on the cards (prep "~X min" + availability window) — Bon Bon only, for now
+h = h.replace('if(m.pt)p.push("~"+m.pt+" min");if(SHOW_TIMING&&fmtWin(id))p.push(fmtWin(id));', "");
 
 // ---- recolor every leftover GOLD accent -> maroon (Annapoorna keeps gold; this is Bon Bon only) ----
 // active language pill: gold gradient -> solid maroon

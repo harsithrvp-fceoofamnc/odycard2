@@ -830,7 +830,7 @@ function dishFooter(id){
 function photoUrl(id){return MENU[id].ph||LOGO;}
 function fmtTime(t){var hr=Math.floor(t),mn=Math.round((t-hr)*60),ap=hr<12?"AM":"PM",hh=hr%12;if(hh===0)hh=12;return hh+(mn?":"+("0"+mn).slice(-2):"")+ap;}
 function fmtWin(id){var h=MENU[id].h;if(!h||!h.length)return"";return h.map(function(w){return fmtTime(w[0])+"–"+fmtTime(w[1]);}).join(", ");}
-function dishMeta(id){var m=MENU[id],p=[];if(m.q)p.push(m.q);if(m.pt)p.push("~"+m.pt+" min");if(SHOW_TIMING&&fmtWin(id))p.push(fmtWin(id));return p.join(" · ");}
+function dishMeta(id){var m=MENU[id],p=[];if(m.q)p.push(m.q);return p.join(" · ");}
 function tagsHTML(m){var h="";if(m.best)h+='<div class="tag">★ '+T("bestseller")+'</div>';if(m.must)h+='<div class="tag must">✦ '+T("musttry")+'</div>';return h;}
 function compactCard(id){const m=MENU[id];
  return `<div class="dish simple" data-id="${id}"><div class="sbd"><div class="srow"><span class="vegdot${m.nv?' nv':''}"></span><div class="nm">${dn(id)}</div></div>${tagsHTML(m)}<div class="meta">${dishMeta(id)}</div><div class="sdesc">${desc(id)}</div><div class="sfoot"><div class="pr">₹${m.p}</div><div class="frow">${dishFooter(id)}</div></div></div></div>`;}
