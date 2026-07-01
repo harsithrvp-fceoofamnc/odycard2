@@ -49,22 +49,22 @@ blackforest_ic | Black Forest Sundae | Rs.170 | Ice Cream Specials
 chocomania | Choco Mania | Rs.180 | Ice Cream Specials
 blackbeauty | Black Beauty | Rs.195 | Ice Cream Specials
 mixedfruitcaramel | Mixed Fruit Caramel | Rs.180 | Ice Cream Specials
-butterscotchproline | Butter Scotch Proline | Rs.170 | Sundae
-chocobutterchips | Choco Butter Chips | Rs.180 | Sundae
-lovelichee | Love Lichee | Rs.180 | Sundae
-fruitsalad | Fruit Salad | Rs.170 | Sundae
-proteinblast_su | Protein Blast | Rs.180 | Sundae
-getsmart | Get Smart | Rs.180 | Sundae
-blackcurrant_su | Black Currant | Rs.170 | Sundae
-blackforestdream | Black Forest Dream | Rs.170 | Sundae
-pistachio | Pista Chio | Rs.180 | Sundae
+butterscotchproline | Butter Scotch Proline Sundae | Rs.170 | Sundae
+chocobutterchips | Choco Butter Chips Sundae | Rs.180 | Sundae
+lovelichee | Love Lichee Sundae | Rs.180 | Sundae
+fruitsalad | Fruit Salad Sundae | Rs.170 | Sundae
+proteinblast_su | Protein Blast Sundae | Rs.180 | Sundae
+getsmart | Get Smart Sundae | Rs.180 | Sundae
+blackcurrant_su | Black Currant Sundae | Rs.170 | Sundae
+blackforestdream | Black Forest Dream Sundae | Rs.170 | Sundae
+pistachio | Pista Chio Sundae | Rs.180 | Sundae
 mixfruitjelly | Mix Fruit Jelly | Rs.170 | Sundae
 dryfruitjelly | Dry Fruit Jelly | Rs.180 | Sundae
 rainbowcassata | Rainbow Cassata | Rs.200 | Sundae
-specialdryfruits_su | Special Dry Fruits | Rs.180 | Sundae
+specialdryfruits_su | Special Dry Fruits Sundae | Rs.180 | Sundae
 hotfudgenut | Hot Fudge Nut Sundae | Rs.130 | Mini Sundae
 nutbutterscotch_mi | Nut Butterscotch Sundae | Rs.130 | Mini Sundae
-chocobutterchips_mi | Choco Butter Chips | Rs.130 | Mini Sundae
+chocobutterchips_mi | Choco Butter Chips Bon | Rs.130 | Mini Sundae
 strawberrybanana | Strawberry Banana Bon | Rs.130 | Mini Sundae
 litchibon | Litchi Bon | Rs.130 | Mini Sundae
 proteinblastbon | Protein Blast Bon | Rs.130 | Mini Sundae
@@ -74,28 +74,28 @@ blackforestbon | Black Forest Bon | Rs.130 | Mini Sundae
 chocolatebon | Chocolate Bon | Rs.130 | Mini Sundae
 licheechocostraw | Lichee Choco Strawberry Bon | Rs.130 | Mini Sundae
 alphonsomangobon | Alphonso Mango Bon | Rs.130 | Mini Sundae
-royaldryfruits | Royal Dry Fruits | Rs.170 | Falooda
-realalphonso | Real Alphonso Mango | Rs.150 | Falooda
+royaldryfruits | Royal Dry Fruits Falooda | Rs.170 | Falooda
+realalphonso | Real Alphonso Mango Falooda | Rs.150 | Falooda
 ogrose | Og Rose Falooda | Rs.150 | Falooda
-belgianchoc_fa | Belgian Chocolate | Rs.150 | Falooda
-cottoncandy_fa | Cotton Candy | Rs.170 | Falooda
-frenchvanilla | French Vanilla | Rs.120 | Thick Shakes
-belgianchoc_ts | Belgian Chocolate | Rs.130 | Thick Shakes
+belgianchoc_fa | Belgian Chocolate Falooda | Rs.150 | Falooda
+cottoncandy_fa | Cotton Candy Falooda | Rs.170 | Falooda
+frenchvanilla | French Vanilla Shake | Rs.120 | Thick Shakes
+belgianchoc_ts | Belgian Chocolate Shake | Rs.130 | Thick Shakes
 classiccoldcoffee | Classic Cold Coffee | Rs.130 | Thick Shakes
 caramelcoldcoffee | Caramel Cold Coffee | Rs.140 | Thick Shakes
-royalkesarbadam | Royal Kesar Badam | Rs.150 | Thick Shakes
-litchi_ts | Litchi | Rs.180 | Thick Shakes
-blackcurrant_ts | Black Currant | Rs.130 | Thick Shakes
-ogoreo | Og Oreo | Rs.150 | Thick Shakes
-chocolateoreo | Chocolate Oreo | Rs.160 | Thick Shakes
-naughtynutella_ts | Naughty Nutella | Rs.200 | Thick Shakes
-oghazelnut | Og Hazelnut | Rs.200 | Thick Shakes
-coffeehazelnut | Coffee Hazelnut | Rs.250 | Thick Shakes
-snickerscaramel | Snickers Caramel | Rs.250 | Thick Shakes
-exoticalphonso | Exotic Alphonso Mango | Rs.250 | Thick Shakes
-chocobrownie_ts | Choco Brownie | Rs.250 | Thick Shakes
-tresleches | Tres Leches | Rs.250 | Thick Shakes
-proteinblast_ts | Protein Blast | Rs.250 | Thick Shakes
+royalkesarbadam | Royal Kesar Badam Shake | Rs.150 | Thick Shakes
+litchi_ts | Litchi Shake | Rs.180 | Thick Shakes
+blackcurrant_ts | Black Currant Shake | Rs.130 | Thick Shakes
+ogoreo | Og Oreo Shake | Rs.150 | Thick Shakes
+chocolateoreo | Chocolate Oreo Shake | Rs.160 | Thick Shakes
+naughtynutella_ts | Naughty Nutella Shake | Rs.200 | Thick Shakes
+oghazelnut | Og Hazelnut Shake | Rs.200 | Thick Shakes
+coffeehazelnut | Coffee Hazelnut Shake | Rs.250 | Thick Shakes
+snickerscaramel | Snickers Caramel Shake | Rs.250 | Thick Shakes
+exoticalphonso | Exotic Alphonso Mango Shake | Rs.250 | Thick Shakes
+chocobrownie_ts | Choco Brownie Shake | Rs.250 | Thick Shakes
+tresleches | Tres Leches Shake | Rs.250 | Thick Shakes
+proteinblast_ts | Protein Blast Shake | Rs.250 | Thick Shakes
 frenchfriessmall | French Fries Small | Rs.110 | Snacks
 frenchfrieslarge | French Fries Large | Rs.130 | Snacks
 loadedfries | Loaded Fries | Rs.150 | Snacks

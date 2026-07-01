@@ -147,6 +147,13 @@ const groups = {
   ],
 };
 
+// ---- disambiguate names so each stands alone (no more "Litchi"/"Black Currant" confusion) ----
+// Append the item type; leave scoops as natural flavours and cold coffees as-is.
+groups.shakes.forEach((it) => { if (!/Cold Coffee/i.test(it[1])) it[1] += " Shake"; });
+groups.falooda.forEach((it) => { if (!/Falooda/i.test(it[1])) it[1] += " Falooda"; });
+groups.sundae.forEach((it) => { if (!/(Jelly|Cassata|Sundae)/i.test(it[1])) it[1] += " Sundae"; });
+groups.mini.forEach((it) => { if (!/(Bon|Sundae)/i.test(it[1])) it[1] += " Bon"; });
+
 // ---- build MENU object ----
 let entries = [];
 for (const g in groups) {

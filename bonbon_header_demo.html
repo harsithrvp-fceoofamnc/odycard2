@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bon Bon — stripes + designs</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#eae0e2;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;padding:22px 12px 50px}
+h2{text-align:center;color:#5a2b34;font-size:18px;margin:0 0 2px}.sub{text-align:center;color:#8a6b73;font-size:13px;margin:0 0 22px}
+.row{display:flex;flex-wrap:wrap;gap:20px;justify-content:center}.opt{width:340px;max-width:100%}
+.lbl{font-weight:800;color:#811226;font-size:14px;margin:0 0 8px;text-align:center}
+.hd{border-radius:16px;overflow:hidden;box-shadow:0 8px 24px rgba(90,12,26,.16)}
+.top{color:#fff;background-size:auto,auto,cover}
+.hrow{display:flex;align-items:center;gap:11px;padding:13px 14px 12px}
+.tile{width:44px;height:44px;flex:none;border-radius:12px;background:#fbeef1;display:flex;align-items:center;justify-content:center;box-shadow:0 3px 10px rgba(0,0,0,.25)}
+.tile b{font-size:22px;font-weight:800;color:#811226}
+.n{font-size:16px;font-weight:800}.s{font-size:11.5px;color:rgba(255,255,255,.72);margin-top:2px}
+.langglass{display:flex;gap:4px;padding:7px 8px;background:rgba(255,255,255,.06);border-top:1px solid rgba(255,255,255,.14);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+.lang{flex:1;text-align:center;font-size:11px;font-weight:600;color:rgba(255,255,255,.88);padding:6px 2px;border-radius:10px;white-space:nowrap}
+.lang.on{color:#5a0c1a;font-weight:800;background:#fbeef1}
+.scallop{height:16px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='16' viewBox='0 0 80 16'%3E%3Cpath d='M0 0H40V2A20 20 0 0 1 0 2Z' fill='%23fbeef1'/%3E%3Cpath d='M40 0H80V2A20 20 0 0 1 40 2Z' fill='%23eaa7bd'/%3E%3C/svg%3E") repeat-x top;background-size:60px 16px}
+/* stripes + motif combos */
+.c1{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='52' height='52'%3E%3Cg stroke-width='2.6' stroke-linecap='round'%3E%3Cpath d='M6 11l5 4' stroke='%23ffffff' stroke-opacity='.5'/%3E%3Cpath d='M33 8l4 5' stroke='%23f7b8cb' stroke-opacity='.55'/%3E%3Cpath d='M23 27l6 2' stroke='%23ffe6a8' stroke-opacity='.5'/%3E%3Cpath d='M12 40l5 4' stroke='%23ffffff' stroke-opacity='.45'/%3E%3Cpath d='M40 36l3 6' stroke='%23bfe3ff' stroke-opacity='.45'/%3E%3C/g%3E%3C/svg%3E"),repeating-linear-gradient(90deg,rgba(251,238,241,.10) 0 15px,transparent 15px 30px),linear-gradient(135deg,#811226,#5a0c1a)}
+.c2{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='30' height='30'%3E%3Cg fill='%23ffffff' fill-opacity='.11'%3E%3Ccircle cx='7' cy='7' r='2.6'/%3E%3Ccircle cx='22' cy='18' r='2.6'/%3E%3C/g%3E%3C/svg%3E"),repeating-linear-gradient(90deg,rgba(251,238,241,.10) 0 15px,transparent 15px 30px),linear-gradient(135deg,#811226,#5a0c1a)}
+.c3{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='50' height='50'%3E%3Cg fill='%23ffffff' fill-opacity='.14'%3E%3Cpath d='M13 20c-4-4-8-1-8 2.5 0 4 8 8.5 8 8.5s8-4.5 8-8.5c0-3.5-4-6-8-2.5z'/%3E%3Cpath d='M37 40c-3-3-6-.8-6 1.8 0 3 6 6.2 6 6.2s6-3.2 6-6.2c0-2.6-3-4.8-6-1.8z'/%3E%3C/g%3E%3C/svg%3E"),repeating-linear-gradient(90deg,rgba(251,238,241,.10) 0 15px,transparent 15px 30px),linear-gradient(135deg,#811226,#5a0c1a)}
+.c4{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='46' height='46'%3E%3Cg fill='%23ffffff' fill-opacity='.15'%3E%3Cpath d='M12 4l2 6 6 2-6 2-2 6-2-6-6-2 6-2z'/%3E%3Cpath d='M34 26l1.4 4 4 1.5-4 1.5-1.4 4-1.4-4-4-1.5 4-1.5z'/%3E%3C/g%3E%3C/svg%3E"),repeating-linear-gradient(90deg,rgba(251,238,241,.10) 0 15px,transparent 15px 30px),linear-gradient(135deg,#811226,#5a0c1a)}
+.c5{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='56'%3E%3Cg fill='none' stroke='%23ffffff' stroke-opacity='.16' stroke-width='2' stroke-linejoin='round' stroke-linecap='round'%3E%3Cpath d='M11 17l5 11 5-11z'/%3E%3Ccircle cx='16' cy='13' r='4'/%3E%3Cpath d='M37 35l5 11 5-11z'/%3E%3Ccircle cx='42' cy='31' r='4'/%3E%3C/g%3E%3C/svg%3E"),repeating-linear-gradient(90deg,rgba(251,238,241,.10) 0 15px,transparent 15px 30px),linear-gradient(135deg,#811226,#5a0c1a)}
+.c6{background-image:repeating-linear-gradient(90deg,rgba(251,238,241,.16) 0 17px,rgba(247,184,203,.13) 17px 34px),linear-gradient(135deg,#811226,#5a0c1a)}
+</style></head><body>
+<h2>Stripes + a design on top</h2><div class="sub">Tell me the number (strength & motif adjustable).</div>
+<div class="row" id="row"></div>
+<script>
+var opts=[["1 · Stripes + sprinkles","c1",0],["2 · Stripes + dots","c2",0],["3 · Stripes + hearts","c3",0],["4 · Stripes + sparkles","c4",0],["5 · Stripes + cones","c5",0],["6 · Awning stripes + scalloped edge","c6",1]];
+var langs=['<span class="lang on">English</span>','<span class="lang">தமிழ்</span>','<span class="lang">हिंदी</span>','<span class="lang">മലയാളം</span>','<span class="lang">తెలుగు</span>','<span class="lang">ಕನ್ನಡ</span>'].join("");
+document.getElementById("row").innerHTML=opts.map(function(o){
+ var scal=o[2]?'<div class="scallop"></div>':'';
+ return '<div class="opt"><div class="lbl">'+o[0]+'</div><div class="hd"><div class="top '+o[1]+'"><div class="hrow"><div class="tile"><b>B</b></div><div><div class="n">Bon Bon</div><div class="s">AI Menu — powered by Odysra</div></div></div><div class="langglass">'+langs+'</div></div>'+scal+'</div></div>';
+}).join("");
+</script>
+</body></html>
