@@ -242,12 +242,7 @@ h = h.split('"/annapoorna/"').join('"/bonbon/"');
 h = h.split('"/annapoorna"').join('"/bonbon"');
 h = h.split('==="annapoorna"').join('==="bonbon"');
 
-// ---- FULLSCREEN: drop the desktop phone-mockup framing so it fills the screen ----
-h = h.replace("width:100%;max-width:440px;height:100vh;height:100dvh;background:var(--cream);",
-  "width:100%;max-width:none;height:100vh;height:100dvh;background:var(--cream);");
-h = h.replace("body{padding:16px;box-sizing:border-box}", "body{padding:0;box-sizing:border-box}");
-h = h.replace("#phone{height:calc(100dvh - 32px);max-height:820px;border-radius:24px;box-shadow:0 18px 50px rgba(0,0,0,.45)}",
-  "#phone{height:100dvh}");
+// (keep the original mobile phone-view framing — same as Annapoorna)
 
 // ---- ice-cream tone: greeting, "specials", moods, find-for-me wording ----
 h = h.replace(/const GREET=\{[\s\S]*?\};/,
