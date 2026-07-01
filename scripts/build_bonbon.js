@@ -242,6 +242,41 @@ h = h.split('"/annapoorna/"').join('"/bonbon/"');
 h = h.split('"/annapoorna"').join('"/bonbon"');
 h = h.split('==="annapoorna"').join('==="bonbon"');
 
+// ---- FULLSCREEN: drop the desktop phone-mockup framing so it fills the screen ----
+h = h.replace("width:100%;max-width:440px;height:100vh;height:100dvh;background:var(--cream);",
+  "width:100%;max-width:none;height:100vh;height:100dvh;background:var(--cream);");
+h = h.replace("body{padding:16px;box-sizing:border-box}", "body{padding:0;box-sizing:border-box}");
+h = h.replace("#phone{height:calc(100dvh - 32px);max-height:820px;border-radius:24px;box-shadow:0 18px 50px rgba(0,0,0,.45)}",
+  "#phone{height:100dvh}");
+
+// ---- ice-cream tone: greeting, "specials", moods, find-for-me wording ----
+h = h.replace(/const GREET=\{[\s\S]*?\};/,
+  'const GREET={en:"Hi! 🍦 Welcome to Bon Bon Ice Creams — what are you craving today?",ta:"வணக்கம்! 🍦 பான் பான் ஐஸ்கிரீம்ஸுக்கு வரவேற்கிறோம் — இன்று என்ன விரும்புகிறீர்கள்?",hi:"नमस्ते! 🍦 बॉन बॉन आइसक्रीम्स में आपका स्वागत है — आज क्या खाने का मन है?",ml:"ഹായ്! 🍦 ബോൺ ബോൺ ഐസ്ക്രീംസിലേക്ക് സ്വാഗതം — ഇന്ന് എന്ത് വേണം?",te:"హాయ్! 🍦 బాన్ బాన్ ఐస్‌క్రీమ్స్‌కు స్వాగతం — ఈరోజు ఏం కావాలి?",kn:"ಹಾಯ್! 🍦 ಬಾನ್ ಬಾನ್ ಐಸ್‌ಕ್ರೀಮ್ಸ್‌ಗೆ ಸ್ವಾಗತ — ಇಂದು ಏನು ಬೇಕು?"};');
+h = h.replace(/const FRESH=\{[\s\S]*?\};/,
+  'const FRESH={en:"Here are some of our favourites 🍨👇",ta:"எங்கள் சில பிடித்தவை 🍨👇",hi:"हमारी कुछ पसंदीदा 🍨👇",ml:"ഞങ്ങളുടെ ചില പ്രിയപ്പെട്ടവ 🍨👇",te:"మా కొన్ని ఇష్టమైనవి 🍨👇",kn:"ನಮ್ಮ ಕೆಲವು ಮೆಚ್ಚಿನವು 🍨👇"};');
+// "hot & fresh" specials line -> sweet favourites
+h = h.replace("Here's what's <b>hot &amp; fresh</b> this ${part()} 👇", "Here are our sweet favourites 🍨👇");
+// dessert moods for "Find what's for me"
+h = h.replace(/const MOODS=\[[\s\S]*?\];/,
+  'const MOODS=[' +
+  '{k:"chocolatey",prompt:"something rich and chocolatey",lab:{en:"Chocolatey",ta:"சாக்லேட்",hi:"चॉकलेटी",ml:"ചോക്ലേറ്റ്",te:"చాక్లెట్",kn:"ಚಾಕ್ಲೇಟ್"}},' +
+  '{k:"fruity",prompt:"something fruity and refreshing",lab:{en:"Fruity & fresh",ta:"பழச்சுவை",hi:"फ्रूटी",ml:"ഫ്രൂട്ടി",te:"ఫ్రూటీ",kn:"ಹಣ್ಣಿನ"}},' +
+  '{k:"nutty",prompt:"something nutty and crunchy",lab:{en:"Nutty & crunchy",ta:"நட்ஸ்",hi:"नट्स वाला",ml:"നട്ട്സ്",te:"నట్స్",kn:"ಬೀಜಗಳ"}},' +
+  '{k:"classic",prompt:"a classic, timeless ice cream flavour",lab:{en:"Classic flavour",ta:"கிளாசிக்",hi:"क्लासिक",ml:"ക്ലാസിക്",te:"క్లాసిక్",kn:"ಕ್ಲಾಸಿಕ್"}},' +
+  '{k:"shake",prompt:"a thick, creamy milkshake",lab:{en:"A thick shake",ta:"திக் ஷேக்",hi:"थिक शेक",ml:"തിക് ഷേക്ക്",te:"థిక్ షేక్",kn:"ತಿಕ್ ಶೇಕ್"}},' +
+  '{k:"waffle",prompt:"a warm waffle with ice cream",lab:{en:"Waffle treat",ta:"வாஃபிள்",hi:"वॉफल",ml:"വാഫിൾ",te:"వాఫిల్",kn:"ವಾಫಲ್"}},' +
+  '{k:"popular",prompt:"the most popular, best-loved treats",lab:{en:"Most loved",ta:"அதிகம் விரும்பப்படுவது",hi:"सबसे पसंदीदा",ml:"ഏറ്റവും പ്രിയം",te:"అత్యంత ఇష్టమైనవి",kn:"ಅತಿ ಪ್ರಿಯ"}},' +
+  '{k:"surprise",prompt:"surprise me with an exciting mix of treats",lab:{en:"Surprise me",ta:"ஆச்சரியப்படுத்து",hi:"सरप्राइज़ करें",ml:"അത്ഭുതപ്പെടുത്തൂ",te:"ఆశ్చర్యపరచండి",kn:"ಅಚ್ಚರಿ ಮಾಡಿ"}}' +
+  '];');
+// find-for-me AI wording -> desserts, not "eat / cuisines"
+h = h.replace("The guest is deciding what to eat right now. Their mood/craving: ", "The guest is choosing a dessert at an ice cream parlour. Their craving: ");
+h = h.replace("Recommend 5-6 dishes they'll enjoy, MIXED across different categories and cuisines so they get variety", "Recommend 5-6 treats they'll love, MIXED across categories (scoops, sundaes, shakes, waffles, falooda) for variety");
+
+// ---- chips: drop banquet + change-outlet (not relevant), relabel header + info ----
+h = h.replace('<button class="chip alt" onclick="banquet()">${IC.hall}${lbl("banquet")}</button><button class="chip alt" onclick="goOutlets()">${IC.pin}${lbl("changeOutlet")}</button>', "");
+h = h.split("AI Waiter — powered by Odysra").join("AI Menu — powered by Odysra");
+h = h.split("Restaurant info").join("Store info");
+
 fs.mkdirSync(ROOT + "/public/bonbon", { recursive: true });
 fs.writeFileSync(ROOT + "/public/bonbon/index.html", h);
 console.log("WROTE public/bonbon/index.html — items:", entries.length, "— remaining 'annapoorna':", (h.match(/annapoorna/gi) || []).length);
@@ -264,6 +299,7 @@ function systemPrompt(lang: string, rest?: string) {
     "You are the warm, friendly AI server for " + (rest || "Bon Bon, an ice cream parlour") + ".",
     "You ONLY know the menu below. NEVER invent items or prices. If asked for something not on the menu, say it's unavailable and suggest a close alternative.",
     "Stay strictly about Bon Bon's ice creams, desserts, shakes and snacks. Politely decline anything unrelated.",
+    "IMPORTANT: Bon Bon is an ICE CREAM PARLOUR. Almost everything is a COLD sweet treat — scoops, softy, sundaes, thick shakes, falooda, waffles. NEVER describe items as 'hot and fresh' or like cooked restaurant meals, and NEVER call yourself a 'waiter' serving food — you are helping pick desserts. Talk about flavours, scoops, toppings and sweetness.",
     "Reply ONLY in this language code: " + lang + ". Be warm and concise (1-2 short sentences).",
     "Feel free to use a few friendly dessert emojis (🍨🍦🧇😋) — but don't overdo it.",
     "You can take orders and help guests explore. Respond ONLY with a JSON object:",

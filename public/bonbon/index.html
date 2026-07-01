@@ -9,10 +9,10 @@
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   html{height:100%;overscroll-behavior:none}
   body{margin:0;background:#efe4e2;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;display:flex;justify-content:center;align-items:center;min-height:100vh;min-height:100dvh;height:100dvh;overflow:hidden;overscroll-behavior:none}
-  #phone{width:100%;max-width:440px;height:100vh;height:100dvh;background:var(--cream);overflow:hidden;display:flex;flex-direction:column;position:relative}
+  #phone{width:100%;max-width:none;height:100vh;height:100dvh;background:var(--cream);overflow:hidden;display:flex;flex-direction:column;position:relative}
   @media(min-width:480px){
-    body{padding:16px;box-sizing:border-box}
-    #phone{height:calc(100dvh - 32px);max-height:820px;border-radius:24px;box-shadow:0 18px 50px rgba(0,0,0,.45)}
+    body{padding:0;box-sizing:border-box}
+    #phone{height:100dvh}
   }
   header{background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'%3E%3Cg fill='none' stroke='%23ffffff' stroke-width='1' stroke-opacity='0.07'%3E%3Ccircle cx='0' cy='0' r='20'/%3E%3Ccircle cx='40' cy='0' r='20'/%3E%3Ccircle cx='0' cy='40' r='20'/%3E%3Ccircle cx='40' cy='40' r='20'/%3E%3Ccircle cx='20' cy='20' r='20'/%3E%3C/g%3E%3C/svg%3E"),linear-gradient(135deg,var(--brandtop),var(--brandbot));background-size:40px 40px,cover;color:#fff;padding:12px 16px 10px;display:flex;align-items:center;gap:10px;box-shadow:0 2px 14px rgba(62,39,19,.35);border-bottom:2px solid var(--gold);position:relative;z-index:2;overflow:hidden}
   header .logo{width:38px;height:38px;border-radius:9px;background:#fff8ec;color:var(--brandbot);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:19px;box-shadow:0 0 0 1.5px var(--gold),0 2px 6px rgba(0,0,0,.18)}
@@ -446,19 +446,9 @@ const CATS=[
 ];
 const OUTLETS=["Bon Bon"];
 const LOGO="/bon_bon_logo.png";
-const GREET={en:"Good %t! Welcome to Bon Bon, %o. I'm your AI waiter — what are you in the mood for today?",
- ta:"வணக்கம்! அன்னபூர்ணா %o-விற்கு வரவேற்கிறோம். நான் உங்கள் AI வெயிட்டர் — இன்று என்ன சாப்பிட விரும்புகிறீர்கள்?",
- hi:"नमस्ते! अन्नपूर्णा %o में आपका स्वागत है। मैं आपका AI वेटर हूँ — आज आप क्या खाना पसंद करेंगे?",
- ml:"നമസ്കാരം! അന്നപൂർണ %o-ലേക്ക് സ്വാഗതം. ഞാൻ നിങ്ങളുടെ AI വെയിറ്റർ — ഇന്ന് എന്ത് കഴിക്കാൻ ആഗ്രഹിക്കുന്നു?",
- te:"నమస్కారం! అన్నపూర్ణ %o-కు స్వాగతం. నేను మీ AI వెయిటర్ — ఈ రోజు ఏం తినాలనుకుంటున్నారు?",
- kn:"ನಮಸ್ಕಾರ! ಅನ್ನಪೂರ್ಣ %o-ಗೆ ಸ್ವಾಗತ. ನಾನು ನಿಮ್ಮ AI ವೇಟರ್ — ಇಂದು ಏನು ತಿನ್ನಲು ಬಯಸುತ್ತೀರಿ?"};
+const GREET={en:"Hi! 🍦 Welcome to Bon Bon Ice Creams — what are you craving today?",ta:"வணக்கம்! 🍦 பான் பான் ஐஸ்கிரீம்ஸுக்கு வரவேற்கிறோம் — இன்று என்ன விரும்புகிறீர்கள்?",hi:"नमस्ते! 🍦 बॉन बॉन आइसक्रीम्स में आपका स्वागत है — आज क्या खाने का मन है?",ml:"ഹായ്! 🍦 ബോൺ ബോൺ ഐസ്ക്രീംസിലേക്ക് സ്വാഗതം — ഇന്ന് എന്ത് വേണം?",te:"హాయ్! 🍦 బాన్ బాన్ ఐస్‌క్రీమ్స్‌కు స్వాగతం — ఈరోజు ఏం కావాలి?",kn:"ಹಾಯ್! 🍦 ಬಾನ್ ಬಾನ್ ಐಸ್‌ಕ್ರೀಮ್ಸ್‌ಗೆ ಸ್ವಾಗತ — ಇಂದು ಏನು ಬೇಕು?"};
 const LANGS=[["en","English"],["ta","தமிழ்"],["hi","हिन्दी"],["ml","മലയാളം"],["te","తెలుగు"],["kn","ಕನ್ನಡ"]];
-const FRESH={en:"Here's what's <b>hot &amp; fresh</b> right now 👇",
- ta:"இப்போது <b>சூடாகவும் புதிதாகவும்</b> இருப்பவை 👇",
- hi:"अभी जो <b>गरम और ताज़ा</b> है 👇",
- ml:"ഇപ്പോൾ <b>ചൂടും പുതുമയും</b> ഉള്ളവ 👇",
- te:"ఇప్పుడు <b>వేడిగా, తాజాగా</b> ఉన్నవి 👇",
- kn:"ಈಗ <b>ಬಿಸಿಯಾಗಿ, ತಾಜಾ</b> ಇರುವವು 👇"};
+const FRESH={en:"Here are some of our favourites 🍨👇",ta:"எங்கள் சில பிடித்தவை 🍨👇",hi:"हमारी कुछ पसंदीदा 🍨👇",ml:"ഞങ്ങളുടെ ചില പ്രിയപ്പെട്ടവ 🍨👇",te:"మా కొన్ని ఇష్టమైనవి 🍨👇",kn:"ನಮ್ಮ ಕೆಲವು ಮೆಚ್ಚಿನವು 🍨👇"};
 const NAMES={
  idli:{ta:"இட்லி",hi:"इडली",ml:"ഇഡ്ലി",te:"ఇడ్లీ",kn:"ಇಡ್ಲಿ"},
  vada:{ta:"மெது வடா",hi:"मेदु वड़ा",ml:"മേദു വട",te:"మేదు వడ",kn:"ಮೇದು ವಡ"},
@@ -728,7 +718,7 @@ const TXT={
  payCancelledMsg:{en:"No problem — the payment was cancelled and nothing was charged. Your items are still in your cart whenever you'd like to try again. 🙂",ta:"பரவாயில்லை — பணம் செலுத்துதல் ரத்துசெய்யப்பட்டது, எந்தத் தொகையும் கழிக்கப்படவில்லை. நீங்கள் மீண்டும் முயற்சிக்க விரும்பினால் உங்கள் உணவுகள் கூடையில் உள்ளன. 🙂",hi:"कोई बात नहीं — भुगतान रद्द कर दिया गया और कोई राशि नहीं कटी। जब भी आप दोबारा कोशिश करना चाहें, आपके आइटम कार्ट में मौजूद हैं। 🙂",ml:"കുഴപ്പമില്ല — പേയ്മെന്റ് റദ്ദാക്കി, പണമൊന്നും ഈടാക്കിയിട്ടില്ല. വീണ്ടും ശ്രമിക്കാൻ ആഗ്രഹിക്കുമ്പോൾ നിങ്ങളുടെ വിഭവങ്ങൾ കാർട്ടിൽ ഉണ്ട്. 🙂",te:"ఫర్వాలేదు — చెల్లింపు రద్దు చేయబడింది, ఎలాంటి మొత్తం వసూలు కాలేదు. మీరు మళ్లీ ప్రయత్నించాలనుకున్నప్పుడు మీ వస్తువులు కార్ట్‌లో ఉన్నాయి. 🙂",kn:"ಪರವಾಗಿಲ್ಲ — ಪಾವತಿ ರದ್ದಾಗಿದೆ, ಯಾವುದೇ ಮೊತ್ತ ಕಡಿತವಾಗಿಲ್ಲ. ನೀವು ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಲು ಬಯಸಿದಾಗ ನಿಮ್ಮ ಐಟಂಗಳು ಕಾರ್ಟ್‌ನಲ್ಲಿವೆ. 🙂"},
  downloadBill:{en:"⬇ Download bill",ta:"⬇ பில் பதிவிறக்கு",hi:"⬇ बिल डाउनलोड करें",ml:"⬇ ബിൽ ഡൗൺലോഡ് ചെയ്യൂ",te:"⬇ బిల్లు డౌన్‌లోడ్",kn:"⬇ ಬಿಲ್ ಡೌನ್‌ಲೋಡ್"},
  specials:{en:"⭐ Specials",ta:"⭐ ஸ்பெஷல்",hi:"⭐ स्पेशल",ml:"⭐ സ്പെഷ്യൽ",te:"⭐ స్పెషల్స్",kn:"⭐ ಸ್ಪೆಷಲ್"},
- info:{en:"ℹ️ Restaurant info",ta:"ℹ️ உணவகத் தகவல்",hi:"ℹ️ रेस्टोरेंट जानकारी",ml:"ℹ️ റെസ്റ്റോറന്റ് വിവരം",te:"ℹ️ రెస్టారెంట్ సమాచారం",kn:"ℹ️ ರೆಸ್ಟೋರೆಂಟ್ ಮಾಹಿತಿ"},
+ info:{en:"ℹ️ Store info",ta:"ℹ️ உணவகத் தகவல்",hi:"ℹ️ रेस्टोरेंट जानकारी",ml:"ℹ️ റെസ്റ്റോറന്റ് വിവരം",te:"ℹ️ రెస్టారెంట్ సమాచారం",kn:"ℹ️ ರೆಸ್ಟೋರೆಂಟ್ ಮಾಹಿತಿ"},
  banquet:{en:"🎉 Banquet hall",ta:"🎉 விருந்து மண்டபம்",hi:"🎉 बैंक्वेट हॉल",ml:"🎉 ബാങ്ക്വറ്റ് ഹാൾ",te:"🎉 బాంక్వెట్ హాల్",kn:"🎉 ಬ್ಯಾಂಕ್ವೆಟ್ ಹಾಲ್"},
  changeOutlet:{en:"📍 Change outlet",ta:"📍 கிளையை மாற்று",hi:"📍 आउटलेट बदलें",ml:"📍 ഔട്ട്‌ലെറ്റ് മാറ്റുക",te:"📍 అవుట్‌లెట్ మార్చండి",kn:"📍 ಔಟ್‌ಲೆಟ್ ಬದಲಿಸಿ"},
  feedback:{en:"Give feedback",ta:"கருத்து தெரிவிக்க",hi:"प्रतिक्रिया दें",ml:"അഭിപ്രായം നൽകുക",te:"అభిప్రాయం ఇవ్వండి",kn:"ಪ್ರತಿಕ್ರಿಯೆ ನೀಡಿ"},
@@ -830,7 +820,7 @@ function renderOutlets(){chat.innerHTML="";document.getElementById("phone").clas
  block("outlet",OUTLETS.map(o=>`<button onclick="chooseOutlet('${o}')">${IC.pin}${o}</button>`).join(""));
  block("wmark",`<img src="${LOGO}"><div class="cap">${T("pureVeg")}</div>`);}
 function setUrl(path){try{if(window.parent&&window.parent!==window)window.parent.history.replaceState(null,"",path);}catch(e){}}
-function chooseOutlet(o){document.getElementById("phone").classList.remove("outletview");document.getElementById("bar").style.display="";document.getElementById("wm").style.display="";document.getElementById("back").style.display="";document.getElementById("inp").placeholder=T("ask");outlet=o;document.getElementById("hname").textContent="Bon Bon";document.getElementById("hsub").textContent="AI Waiter — powered by Odysra";setUrl("/bonbon/"+slugify(o));showGreeting();}
+function chooseOutlet(o){document.getElementById("phone").classList.remove("outletview");document.getElementById("bar").style.display="";document.getElementById("wm").style.display="";document.getElementById("back").style.display="";document.getElementById("inp").placeholder=T("ask");outlet=o;document.getElementById("hname").textContent="Bon Bon";document.getElementById("hsub").textContent="AI Menu — powered by Odysra";setUrl("/bonbon/"+slugify(o));showGreeting();}
 function goOutlets(){cart={};notes={};upsold=false;outlet=null;refreshCart();closeModal();setUrl("/bonbon");renderOutlets();}
 
 /* ---------- dishes ---------- */
@@ -904,8 +894,8 @@ function returningChips(){block("chips",`<button class="chip go" onclick="showUs
 function showUsual(){var c=getCustomer()||{};var ids=(c.last||[]).filter(function(i){return MENU[i]&&avail(i);});me(lbl("myUsual"));if(!ids.length){bot(T("noUsual"));return showNew(true);}var rb=bot(T("usualIntro"));renderGrid(ids.slice(0,6));exploreBar();anchorReply(rb);}
 function showNew(skipMe){var c=getCustomer()||{};var prev=c.last||[];if(!skipMe)me(lbl("somethingNew"));var pool=Object.keys(MENU).filter(function(i){return MENU[i].best&&avail(i)&&prev.indexOf(i)<0;});if(pool.length<4)pool=Object.keys(MENU).filter(function(i){return avail(i)&&prev.indexOf(i)<0;});var rb=bot(T("newIntro"));renderGrid(shuffle(pool).slice(0,6));exploreBar();anchorReply(rb);}
 function showSpecials(quiet){const best=topDishes();if(!quiet)me("Today's specials");
- bot(`Here's what's <b>hot &amp; fresh</b> this ${part()} 👇`);renderGrid(best);mainChips();}
-function mainChips(){block("chips",`<button class="chip go" onclick="explore()">${IC.menu}${lbl("exploreFull")}</button><button class="chip" onclick="findForMe()">${IC.star}${lbl("findForMe")}</button><button class="chip alt" onclick="showSpecials()">${IC.star}${lbl("specialsLong")}</button><button class="chip alt" onclick="info()">${IC.info}${lbl("info")}</button><button class="chip alt" onclick="banquet()">${IC.hall}${lbl("banquet")}</button><button class="chip alt" onclick="goOutlets()">${IC.pin}${lbl("changeOutlet")}</button><button class="chip alt" onclick="openFeedback()">${IC.fb}${lbl("feedback")}</button>`);}
+ bot(`Here are our sweet favourites 🍨👇`);renderGrid(best);mainChips();}
+function mainChips(){block("chips",`<button class="chip go" onclick="explore()">${IC.menu}${lbl("exploreFull")}</button><button class="chip" onclick="findForMe()">${IC.star}${lbl("findForMe")}</button><button class="chip alt" onclick="showSpecials()">${IC.star}${lbl("specialsLong")}</button><button class="chip alt" onclick="info()">${IC.info}${lbl("info")}</button><button class="chip alt" onclick="openFeedback()">${IC.fb}${lbl("feedback")}</button>`);}
 let fbRating=0,fbCur="";
 const FBTOPICS=["Food & Taste","Service","Cleanliness","Ambience","Staff","Value for Money","App Experience"];
 function openFeedback(){const rb=bot("What would you like to share feedback about? 😊");block("chips",FBTOPICS.map(a=>`<button class="chip" onclick="fbTopic('${a}')">${a}</button>`).join("")+`<button class="chip alt" onclick="fbCustom()">${IC.note}Something else</button><button class="chip alt" onclick="mainChips()">${IC.back}Done</button>`);}
@@ -924,7 +914,7 @@ function openCat(i){const c=CATS[i];me(cn(c.name));if(c.subs){const ss=c.subs.fi
   block("chips",ss.map((s)=>`<button class="chip" onclick="openSub(${i},${c.subs.indexOf(s)})">${cn(s.name)}</button>`).join("")+`<button class="chip alt" onclick="explore()">${IC.back}${lbl("back")}</button>`);
  }else{bot(`<b>${cn(c.name)}</b> — ${T("tapAdd")}:`);grid(c.ids);}}
 function openSub(i,j){const s=CATS[i].subs[j];me(cn(s.name));bot(`<b>${cn(s.name)}</b> — ${T("tapAdd")}:`);grid(s.ids);}
-function info(){me("Restaurant info");bot(`📍 <b>Bon Bon, ${outlet}</b><br>🕖 Open 6:30 AM – 11:00 PM, all days<br>🅿️ Valet parking available<br>❄️ AC &amp; Non-AC dining halls<br>📞 0422-xxxxxxx`);exploreBar();}
+function info(){me("Store info");bot(`📍 <b>Bon Bon, ${outlet}</b><br>🕖 Open 6:30 AM – 11:00 PM, all days<br>🅿️ Valet parking available<br>❄️ AC &amp; Non-AC dining halls<br>📞 0422-xxxxxxx`);exploreBar();}
 function banquet(){me("Banquet hall enquiry");bot(`We'd be glad to host your event at <b>${outlet}</b>! 🎉 Our hall seats up to 250 with pure-veg catering. Leave your details and our banquet manager will call you.`);
  openSheet(`<h2>Banquet enquiry</h2><div class="fld"><label>Name</label><input id="bn"></div><div class="fld"><label>Phone</label><input id="bp" inputmode="tel"></div><div class="fld"><label>Event date</label><input id="bd" placeholder="e.g. 15 Aug"></div><div class="fld"><label>Approx. guests</label><input id="bg" inputmode="numeric"></div><button class="btn" onclick="closeModal();bot('✅ Thanks! Our banquet manager will call you shortly. (Lead captured for staff.)')">Submit enquiry</button>`);}
 
@@ -1321,18 +1311,7 @@ const FINDTX={
  chat:{en:"💬 I'll just tell you",ta:"💬 நானே சொல்கிறேன்",hi:"💬 मैं खुद बताता हूँ",ml:"💬 ഞാൻ തന്നെ പറയാം",te:"💬 నేనే చెప్తాను",kn:"💬 ನಾನೇ ಹೇಳುತ್ತೇನೆ"},
  chatReply:{en:"Sure! Just type what you're craving — a dish, an ingredient, or even a vibe — and I'll find it for you 😊",ta:"நிச்சயமாக! நீங்கள் என்ன விரும்புகிறீர்கள் என்று தட்டச்சு செய்யுங்கள் — ஒரு உணவு, ஒரு பொருள் அல்லது ஒரு மனநிலை — நான் கண்டுபிடிக்கிறேன் 😊",hi:"बिलकुल! बस लिखिए आपका क्या मन है — कोई व्यंजन, सामग्री या मूड — मैं ढूंढ दूँगा 😊",ml:"തീർച്ചയായും! നിങ്ങൾക്ക് എന്ത് വേണമെന്ന് ടൈപ്പ് ചെയ്യൂ — ഒരു വിഭവം, ചേരുവ, അല്ലെങ്കിൽ ഒരു മൂഡ് — ഞാൻ കണ്ടെത്തിത്തരാം 😊",te:"తప్పకుండా! మీకు ఏం కావాలో టైప్ చేయండి — ఒక వంటకం, పదార్థం, లేదా మూడ్ — నేను కనుగొంటాను 😊",kn:"ಖಂಡಿತ! ನಿಮಗೆ ಏನು ಬೇಕು ಎಂದು ಟೈಪ್ ಮಾಡಿ — ಒಂದು ಖಾದ್ಯ, ಪದಾರ್ಥ, ಅಥವಾ ಮೂಡ್ — ನಾನು ಹುಡುಕಿಕೊಡುತ್ತೇನೆ 😊"}
 };
-const MOODS=[
- {k:"light",prompt:"something light and easy",lab:{en:"Something light",ta:"லேசானது",hi:"कुछ हल्का",ml:"ലഘുവായത്",te:"తేలికైనది",kn:"ಹಗುರವಾದದ್ದು"}},
- {k:"healthy",prompt:"a healthy, wholesome, light and nutritious option",lab:{en:"Healthy & fresh",ta:"ஆரோக்கியமானது",hi:"सेहतमंद",ml:"ആരോഗ്യകരം",te:"ఆరోగ్యకరం",kn:"ಆರೋಗ್ಯಕರ"}},
- {k:"full",prompt:"a full, filling meal",lab:{en:"A full meal",ta:"முழு உணவு",hi:"भरपूर भोजन",ml:"നിറഞ്ഞ ഭക്ഷണം",te:"పూర్తి భోజనం",kn:"ಪೂರ್ಣ ಊಟ"}},
- {k:"comfort",prompt:"warm, comforting, homely classic dishes",lab:{en:"Comfort food",ta:"ஆறுதல் உணவு",hi:"दिल को सुकून",ml:"ആശ്വാസ ഭക്ഷണം",te:"కంఫర్ట్ ఫుడ్",kn:"ಆರಾಮದ ಆಹಾರ"}},
- {k:"spicy",prompt:"something spicy",lab:{en:"Something spicy",ta:"காரமானது",hi:"कुछ तीखा",ml:"എരിവുള്ളത്",te:"కారంగా ఉండేది",kn:"ಖಾರವಾದದ್ದು"}},
- {k:"sweet",prompt:"something sweet or a dessert",lab:{en:"Something sweet",ta:"இனிப்பானது",hi:"कुछ मीठा",ml:"മധുരമുള്ളത്",te:"తీపి ఏదైనా",kn:"ಸಿಹಿಯಾದದ್ದು"}},
- {k:"drink",prompt:"a refreshing drink or beverage",lab:{en:"Something to drink",ta:"குடிக்க ஏதாவது",hi:"कुछ पीने को",ml:"കുടിക്കാൻ എന്തെങ്കിലും",te:"తాగడానికి ఏదైనా",kn:"ಕುಡಿಯಲು ಏನಾದರೂ"}},
- {k:"snack",prompt:"a quick light snack or starter to nibble on",lab:{en:"Quick bite",ta:"சிறு தீனி",hi:"हल्का नाश्ता",ml:"ചെറുകടി",te:"చిన్న స్నాక్",kn:"ಲಘು ತಿಂಡಿ"}},
- {k:"popular",prompt:"the most popular, best-loved bestseller dishes",lab:{en:"Most loved",ta:"அதிகம் விரும்பப்படுவது",hi:"सबसे पसंदीदा",ml:"ഏറ്റവും പ്രിയം",te:"అత్యంత ఇష్టమైనవి",kn:"ಅತಿ ಪ್ರಿಯವಾದದ್ದು"}},
- {k:"surprise",prompt:"surprise me with a varied, exciting mix across the menu",lab:{en:"Surprise me",ta:"ஆச்சரியப்படுத்து",hi:"सरप्राइज़ करें",ml:"അത്ഭുതപ്പെടുത്തൂ",te:"ఆశ్చర్యపరచండి",kn:"ಅಚ್ಚರಿ ಮಾಡಿ"}}
-];
+const MOODS=[{k:"chocolatey",prompt:"something rich and chocolatey",lab:{en:"Chocolatey",ta:"சாக்லேட்",hi:"चॉकलेटी",ml:"ചോക്ലേറ്റ്",te:"చాక్లెట్",kn:"ಚಾಕ್ಲೇಟ್"}},{k:"fruity",prompt:"something fruity and refreshing",lab:{en:"Fruity & fresh",ta:"பழச்சுவை",hi:"फ्रूटी",ml:"ഫ്രൂട്ടി",te:"ఫ్రూటీ",kn:"ಹಣ್ಣಿನ"}},{k:"nutty",prompt:"something nutty and crunchy",lab:{en:"Nutty & crunchy",ta:"நட்ஸ்",hi:"नट्स वाला",ml:"നട്ട്സ്",te:"నట్స్",kn:"ಬೀಜಗಳ"}},{k:"classic",prompt:"a classic, timeless ice cream flavour",lab:{en:"Classic flavour",ta:"கிளாசிக்",hi:"क्लासिक",ml:"ക്ലാസിക്",te:"క్లాసిక్",kn:"ಕ್ಲಾಸಿಕ್"}},{k:"shake",prompt:"a thick, creamy milkshake",lab:{en:"A thick shake",ta:"திக் ஷேக்",hi:"थिक शेक",ml:"തിക് ഷേക്ക്",te:"థిక్ షేక్",kn:"ತಿಕ್ ಶೇಕ್"}},{k:"waffle",prompt:"a warm waffle with ice cream",lab:{en:"Waffle treat",ta:"வாஃபிள்",hi:"वॉफल",ml:"വാഫിൾ",te:"వాఫిల్",kn:"ವಾಫಲ್"}},{k:"popular",prompt:"the most popular, best-loved treats",lab:{en:"Most loved",ta:"அதிகம் விரும்பப்படுவது",hi:"सबसे पसंदीदा",ml:"ഏറ്റവും പ്രിയം",te:"అత్యంత ఇష్టమైనవి",kn:"ಅತಿ ಪ್ರಿಯ"}},{k:"surprise",prompt:"surprise me with an exciting mix of treats",lab:{en:"Surprise me",ta:"ஆச்சரியப்படுத்து",hi:"सरप्राइज़ करें",ml:"അത്ഭുതപ്പെടുത്തൂ",te:"ఆశ్చర్యపరచండి",kn:"ಅಚ್ಚರಿ ಮಾಡಿ"}}];
 function findL(m){return (m[lang]||m.en);}
 function findForMe(){var rb=bot(findL(FINDTX.q));
   block("chips",MOODS.map(function(m){return '<button class="chip" onclick="moodPick(\'' + m.k + '\')">'+findL(m.lab)+'</button>';}).join("")
@@ -1348,7 +1327,7 @@ function findProcessing(){var el=document.getElementById("taste");var msgs=[T("p
   clearInterval(_procTimer);_procTimer=setInterval(function(){var t=document.getElementById("ptxt");if(!t)return;t.style.opacity="0";setTimeout(function(){mi=(mi+1)%msgs.length;t.textContent=msgs[mi];t.style.opacity="1";},340);},1600);}
 async function findAsk(moodText){var _typing=typingBubble();
   var picks=[],reply=null;
-  try{var msg="The guest is deciding what to eat right now. Their mood/craving: "+moodText+". Recommend 5-6 dishes they'll enjoy, MIXED across different categories and cuisines so they get variety, with a short warm intro. Use show actions with the dish ids.";
+  try{var msg="The guest is choosing a dessert at an ice cream parlour. Their craving: "+moodText+". Recommend 5-6 treats they'll love, MIXED across categories (scoops, sundaes, shakes, waffles, falooda) for variety, with a short warm intro. Use show actions with the dish ids.";
     var res=await fetch('/api/bonbon',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:msg,lang,cart:Object.keys(cart),taste:""})});
     if(res.ok){var data=await res.json();reply=data.reply;var ids=[];(data.actions||[]).forEach(function(a){if(a.type==="show"&&a.ids)ids=ids.concat(a.ids);else if(a.type==="add"&&a.id)ids.push(a.id);});picks=ids.filter(function(i){return MENU[i]&&avail(i);});}
   }catch(e){}
