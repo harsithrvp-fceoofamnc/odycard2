@@ -11,6 +11,15 @@ export function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
   const gated = req.cookies.get("ody_gate")?.value === "ok";
   const hasSession = !!req.cookies.get("ody_session")?.value;
+  const hasBB = !!req.cookies.get("bb_session")?.value;
+
+  // Bon Bon back-of-house pages (owner/supervisor/waiter/kitchen) require a Bon Bon staff
+  // session. They still sit behind the demo gate below; role is verified in-page.
+  const bbProtected =
+    pathname.startsWith("/bon-bon/admin") ||
+    pathname.startsWith("/bon-bon/manage") ||
+    pathname.startsWith("/bon-bon/kitchen") ||
+    pathname.startsWith("/bon-bon/waiter");
 
   // Always open: Next internals, static files (not .html), the gate screen and gate API,
   // the public sign-up / login pages.
@@ -40,7 +49,15 @@ export function middleware(req: NextRequest) {
     pathname.startsWith("/api/bonbon") ||
     pathname.startsWith("/api/stt")
   ) {
-    if (gated) return NextResponse.next();
+    if (gated) {
+      // Bon Bon staff pages additionally need a Bon Bon login.
+      if (bbProtected && !hasBB) {
+        const url = req.nextUrl.clone();
+        url.pathname = "/bon-bon/login";
+        return NextResponse.redirect(url);
+      }
+      return NextResponse.next();
+    }
     const url = req.nextUrl.clone();
     url.pathname = "/";
     if (pathname.startsWith("/annapoorna") || pathname.startsWith("/restaurant")) url.searchParams.set("next", pathname);

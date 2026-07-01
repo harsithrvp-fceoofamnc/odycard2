@@ -1291,7 +1291,7 @@ function payDone(method,gt){var nm=order.name||"Guest",ph=order.phone||"",pers=o
   var items=Object.keys(cart).map(function(k){return {n:MENU[k].n,q:cart[k],p:MENU[k].p*cart[k]};});
   var orderedIds=Object.keys(cart);
   lastBill={items:items,sub:sub,tax:tax,gt:gt,method:method,name:nm,phone:ph,type:(order.mode==="dine"?"Dine-in · Table "+order.table+" ("+order.room+")":"Takeaway"),when:new Date().toLocaleString()};
-  saveCustomer({name:nm,phone:ph,last:orderedIds,at:Date.now(),visits:((getCustomer()||{}).visits||0)+1});
+  saveCustomer({name:nm,phone:ph,last:orderedIds,at:Date.now(),visits:((getCustomer()||{}).visits||0)+1});try{fetch('/api/bonbon/orders',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({items:items.map(function(it){return {name:it.n,qty:it.q,price:it.p};}),total:gt,name:nm,phone:ph,mode:order.mode,table:(order.mode==='dine'?('Table '+order.table+(order.room?' ('+order.room+')':'')):'')})});}catch(e){}
   var rows=items.map(function(it){return '<div class="brow"><span>'+it.n+' ×'+it.q+'</span><span>₹'+it.p+'</span></div>';}).join("");
   var bill='<div class="bill">'+rows+'<div class="brow"><span>Subtotal</span><span>₹'+sub+'</span></div><div class="brow"><span>GST</span><span>₹'+tax+'</span></div><div class="brow tot"><span>'+T("totalPaid")+'</span><span>₹'+gt+'</span></div></div>';
   openSheet('<div class="ok"><div class="big">'+IC.check+'</div><h2>'+T("paySuccess")+'</h2><p>'+T("payThanks").replace("%n",nm).replace("%o",outlet)+'</p>'+bill+'<p style="margin-top:8px;font-size:12px;color:var(--mut)">'+lastBill.type+(pers?" · "+pers+" "+T("persons"):"")+' · '+T("paidVia")+' '+method+'</p><button class="btn" style="background:#fff;color:#7a4a24;border:1.5px solid #7a4a24" onclick="downloadBill()">'+T("downloadBill")+'</button><button class="btn g" onclick="orderDone()">'+T("done")+'</button></div>');
@@ -1335,6 +1335,31 @@ async function findAsk(moodText){var _typing=typingBubble();
   if(!picks.length)picks=topDishes();
   var seen={},uniq=[];picks.forEach(function(i){if(!seen[i]){seen[i]=1;uniq.push(i);}});
   var rb=bot(reply||findL(FINDTX.intro));renderGrid(uniq.slice(0,6));exploreBar();anchorReply(rb);}
+
+function bbApplyLiveMenu(items){
+  try{
+    var order=["scoops","softy","waffle","icecream","sundae","mini","falooda","shakes","snacks"];
+    var labels={scoops:"Scoops",softy:"Softy",waffle:"Waffle",icecream:"Ice Cream Specials",sundae:"Sundae",mini:"Mini Sundae",falooda:"Falooda",shakes:"Thick Shakes",snacks:"Snacks"};
+    Object.keys(MENU).forEach(function(k){delete MENU[k];});
+    var byCat={};
+    items.forEach(function(it){
+      // add-ons (e.g. extra ice cream) stay available but never appear as their own card;
+      // ordinary items only appear when they're not hidden and not sold out.
+      var isAddon=it.cat==="addon";
+      if(!isAddon && (it.hidden || it.available===0)) return;
+      MENU[it.key]={n:it.name,p:it.price,e:"\uD83C\uDF68",h:[[8,23]],q:it.q||"",pt:it.pt||0,ph:"",d:it.desc||"",veg:1};
+      if(it.best)MENU[it.key].best=1;
+      if(it.must)MENU[it.key].must=1;
+      if(it.ao)MENU[it.key].ao=it.ao;
+      if(!isAddon)(byCat[it.cat]=byCat[it.cat]||[]).push(it);
+    });
+    CATS.length=0;
+    order.forEach(function(c){
+      var list=(byCat[c]||[]).sort(function(a,b){return (a.sort||0)-(b.sort||0);}).map(function(it){return it.key;});
+      if(list.length)CATS.push({name:labels[c],ids:list});
+    });
+  }catch(e){}
+}
 /* init */
 document.getElementById("langbar").innerHTML=LANGS.map(l=>`<button class="lang ${l[0]==='en'?'on':''}" data-l="${l[0]}" onclick="setLang('${l[0]}',this)">${l[1]}</button>`).join("");
 function setLang(l,b){lang=l;document.querySelectorAll(".lang").forEach(x=>x.classList.remove("on"));b.classList.add("on");
@@ -1345,7 +1370,7 @@ function slugify(s){return s.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^
   var pa=new URLSearchParams(location.search).get("outlet");
   if(!pa){try{var pp=(window.parent&&window.parent!==window?window.parent.location.pathname:location.pathname).split("/").filter(Boolean);if(pp[0]==="bonbon"&&pp[1])pa=pp[1];}catch(e){}}
   var o=pa&&OUTLETS.find(function(x){return slugify(x)===pa;});
-  chooseOutlet(o||OUTLETS[0]);
+  fetch('/api/bonbon/menu').then(function(r){return r.json();}).then(function(d){if(d&&d.items&&d.items.length)bbApplyLiveMenu(d.items);}).catch(function(){}).then(function(){chooseOutlet(o||OUTLETS[0]);});
 })();
 </script>
 </body>

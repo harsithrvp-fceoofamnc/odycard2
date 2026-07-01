@@ -26,6 +26,17 @@ const GROUPS: Group[] = [
     ],
   },
   {
+    label: "Bon Bon — live back office",
+    accent: "#811226",
+    items: [
+      { title: "Bon Bon staff login", sub: "Owner · supervisor · waiter", href: "/bon-bon/login" },
+      { title: "Owner dashboard", sub: "Sales, staff, live orders", href: "/bon-bon/admin" },
+      { title: "Menu manager", sub: "Edit, hide, sold-out, promote", href: "/bon-bon/manage" },
+      { title: "Kitchen display", sub: "Live order tickets", href: "/bon-bon/kitchen" },
+      { title: "Waiter app", sub: "Ready orders to serve", href: "/bon-bon/waiter" },
+    ],
+  },
+  {
     label: "Operations demos",
     accent: "#c08a2e",
     items: [

@@ -7,154 +7,9 @@ const path = require("path");
 const ROOT = path.resolve(__dirname, "..");
 const TPL = path.join(ROOT, "annapoorna_chatbot_demo.html");
 
-// ---- per-category presentation (quantity, prep mins, default description) ----
-// q = quantity. The Bon Bon menu only states a size for Sundae (250 ml / 500 ml);
-// every other section has no quantity printed, so we leave q blank (owner fills it in manually later).
-const CM = {
-  scoops:   { label: "Scoops",          q: "", pt: 3, d: "A scoop served on a crisp waffle cup or cone." },
-  softy:    { label: "Softy",           q: "", pt: 3, d: "Creamy soft-serve, freshly swirled." },
-  waffle:   { label: "Waffle",          q: "", pt: 8, d: "Hot & soft Belgian waffle with Nutella, fruits & honey." },
-  icecream: { label: "Ice Cream Specials", q: "", pt: 6, d: "A loaded ice-cream sundae — our best sellers." },
-  sundae:   { label: "Sundae",          q: "250 ml", pt: 5, d: "A layered ice-cream sundae." },
-  mini:     { label: "Mini Sundae",     q: "", pt: 5, d: "A bite-sized Bon Bon sundae cup." },
-  falooda:  { label: "Falooda",         q: "", pt: 6, d: "Classic falooda with vermicelli, jelly & ice cream." },
-  shakes:   { label: "Thick Shakes",    q: "", pt: 5, d: "Thick, creamy blended shake." },
-  snacks:   { label: "Snacks",          q: "", pt: 8, d: "A hot, crispy savoury bite." },
-};
-
-// ---- menu (id, name, price, flags). f: "best" | "must"; ao = add-on item id; big = 500ml price ----
-const groups = {
-  scoops: [
-    ["madagascarvanilla","Madagascar Vanilla",80],
-    ["cookiencream","Cookie N Cream",90,"best"],
-    ["blackcurrant_sc","Black Currant",90],
-    ["hopscotch","Hop Scotch Butterscotch",90],
-    ["alphonsomango_sc","Alphonso Mango",90,"must"],
-    ["bananacaramel","Banana Caramel",90,"best"],
-    ["belgianchoc_sc","Belgian Chocolate",90],
-    ["tendercoconut","Tender Coconut",90,"must"],
-    ["honeynutcrunch","Honey Nut Crunch",90],
-    ["caramelnutty","Caramel Nutty Crunch",90,"best"],
-    ["tajmahal","Taj Mahal",90],
-    ["strawberry_sc","Strawberry",80],
-    ["lotusbiscoff","Lotus Biscoff",90,"best"],
-    ["saltedcaramel","Salted Caramel",90],
-    ["ogjackfruit","The Og Jackfruit",90],
-    ["cottoncandy_sc","Cotton Candy",90,"best"],
-    ["filtercoffee_sc","Filter Coffee",90,"must"],
-    ["ferreroroucher","Ferrero Roucher",110,"must"],
-  ],
-  softy: [
-    ["madagascarsofty","Madagascar Vanilla Softy",60],
-    ["ripple","Ripple",90],
-    ["hotchocodip","Hot Choco Dip",90],
-    ["bonbonfruit","Bon Bon Fruit Special",120],
-    ["apricotalmond","Apricot Almond",120],
-    ["crackynutty","Cracky Nutty Crunch",120],
-    ["blackcurrantalmond","Black Currant Almond",120],
-    ["nutbutterscotch_so","Nut Butterscotch",120],
-    ["royalkesar_so","Royal Kesar Badam & Pista",120],
-    ["fruitycrunch","Fruity Crunch",120],
-  ],
-  waffle: [
-    ["belgianwaffle","Belgian Waffle",160],
-    ["belgianwafflesizzler","Belgian Waffle Sizzler",200,"must"],
-    ["belgianwaffleic","Belgian Waffle with Ice Cream",250,"best"],
-  ],
-  icecream: [
-    ["belgianwaffleic2","Belgian Waffle with Icecream",230],
-    ["deathbychocolate","Death by Chocolate",230,"best"],
-    ["mississippimud","Mississippi Mud Sundae",220],
-    ["sizzlinghotbrownie","Sizzling Hot Brownie Sizzler",210,"best"],
-    ["gudbud","Gud Bud Sundae",210],
-    ["tiramisu","Tiramisu Sundae",210],
-    ["belgiandarkchoc","Belgian Dark Chocolate Sundae",210],
-    ["browniebomb","Brownie Bomb",180,"must"],
-    ["specialdryfruits_ic","Special Dry Fruits",180],
-    ["hotfudge","Hot Fudge Sundae",180],
-    ["titanicboat","Titanic Boat",210,"best"],
-    ["tallbeauty","Tall Beauty",200],
-    ["naughtynutella_ic","Naughty Nutella Sundae",250,"must"],
-    ["blackforest_ic","Black Forest Sundae",170],
-    ["chocomania","Choco Mania",180],
-    ["blackbeauty","Black Beauty",195],
-    ["mixedfruitcaramel","Mixed Fruit Caramel",180],
-  ],
-  sundae: [ // [id,name,price250,flags,price500]
-    ["butterscotchproline","Butter Scotch Proline",170,"",300],
-    ["chocobutterchips","Choco Butter Chips",180,"",340],
-    ["lovelichee","Love Lichee",180,"",340],
-    ["fruitsalad","Fruit Salad",170,"",300],
-    ["proteinblast_su","Protein Blast",180,"",340],
-    ["getsmart","Get Smart",180,"",340],
-    ["blackcurrant_su","Black Currant",170,"",300],
-    ["blackforestdream","Black Forest Dream",170,"",300],
-    ["pistachio","Pista Chio",180,"",340],
-    ["mixfruitjelly","Mix Fruit Jelly",170,"",300],
-    ["dryfruitjelly","Dry Fruit Jelly",180,"",340],
-    ["rainbowcassata","Rainbow Cassata",200,"must",360],
-    ["specialdryfruits_su","Special Dry Fruits",180,"best",340],
-  ],
-  mini: [
-    ["hotfudgenut","Hot Fudge Nut Sundae",130],
-    ["nutbutterscotch_mi","Nut Butterscotch Sundae",130],
-    ["chocobutterchips_mi","Choco Butter Chips",130],
-    ["strawberrybanana","Strawberry Banana Bon",130],
-    ["litchibon","Litchi Bon",130],
-    ["proteinblastbon","Protein Blast Bon",130],
-    ["chococherrybon","Choco Cherry Bon",130],
-    ["blackcurrantbon","Black Currant Bon",130],
-    ["blackforestbon","Black Forest Bon",130],
-    ["chocolatebon","Chocolate Bon",130],
-    ["licheechocostraw","Lichee Choco Strawberry Bon",130],
-    ["alphonsomangobon","Alphonso Mango Bon",130],
-  ],
-  falooda: [
-    ["royaldryfruits","Royal Dry Fruits",170,"best"],
-    ["realalphonso","Real Alphonso Mango",150,"best"],
-    ["ogrose","Og Rose Falooda",150],
-    ["belgianchoc_fa","Belgian Chocolate",150],
-    ["cottoncandy_fa","Cotton Candy",170,"must"],
-  ],
-  shakes: [ // thick shakes -> all get the extra-ice-cream add-on
-    ["frenchvanilla","French Vanilla",120],
-    ["belgianchoc_ts","Belgian Chocolate",130],
-    ["classiccoldcoffee","Classic Cold Coffee",130,"best"],
-    ["caramelcoldcoffee","Caramel Cold Coffee",140,"must"],
-    ["royalkesarbadam","Royal Kesar Badam",150],
-    ["litchi_ts","Litchi",180,"best"],
-    ["blackcurrant_ts","Black Currant",130],
-    ["ogoreo","Og Oreo",150,"best"],
-    ["chocolateoreo","Chocolate Oreo",160],
-    ["naughtynutella_ts","Naughty Nutella",200,"must"],
-    ["oghazelnut","Og Hazelnut",200],
-    ["coffeehazelnut","Coffee Hazelnut",250,"best"],
-    ["snickerscaramel","Snickers Caramel",250],
-    ["exoticalphonso","Exotic Alphonso Mango",250,"best"],
-    ["chocobrownie_ts","Choco Brownie",250],
-    ["tresleches","Tres Leches",250,"must"],
-    ["proteinblast_ts","Protein Blast",250],
-  ],
-  snacks: [
-    ["frenchfriessmall","French Fries Small",110],
-    ["frenchfrieslarge","French Fries Large",130],
-    ["loadedfries","Loaded Fries",150],
-    ["comboplatter","Combo Platter",200],
-    ["cheeseball","Cheese Ball",150],
-    ["smileyssmall","Smileys (Small)",100],
-    ["smileyslarge","Smileys (Large)",160],
-    ["vegsandwich","Veg Sandwich",110],
-    ["paneersandwich","Paneer Sandwich",130],
-    ["cheeseballsandwich","Cheese Ball Sandwich",180],
-  ],
-};
-
-// ---- disambiguate names so each stands alone (no more "Litchi"/"Black Currant" confusion) ----
-// Append the item type; leave scoops as natural flavours and cold coffees as-is.
-groups.shakes.forEach((it) => { if (!/Cold Coffee/i.test(it[1])) it[1] += " Shake"; });
-groups.falooda.forEach((it) => { if (!/Falooda/i.test(it[1])) it[1] += " Falooda"; });
-groups.sundae.forEach((it) => { if (!/(Jelly|Cassata|Sundae)/i.test(it[1])) it[1] += " Sundae"; });
-groups.mini.forEach((it) => { if (!/(Bon|Sundae)/i.test(it[1])) it[1] += " Bon"; });
+// Menu data (CM + groups, already name-disambiguated) comes from the single source of truth
+// so the chatbot HTML and the Firestore-backed dashboards can never drift apart.
+const { CM, groups } = require("./bonbonMenuData.js");
 
 // ---- build MENU object ----
 let entries = [];
@@ -198,8 +53,46 @@ let h = tpl.slice(0, i1) + MENU + "\n" + CATS + "\n" + tpl.slice(i2);
 
 // ---- single outlet, no picker ----
 h = h.replace(/const OUTLETS=\[[^\]]*\]/, 'const OUTLETS=["Bon Bon"]');
-// init: always open the (single) outlet directly
-h = h.replace("if(o)chooseOutlet(o);else renderOutlets();", "chooseOutlet(o||OUTLETS[0]);");
+
+// ---- LIVE MENU: pull the supervisor-managed menu from Firestore before first render ----
+// The supervisor's edits (price, sold-out, hide, best/must, new items) show up for customers.
+// Falls back to the baked-in menu if the fetch fails, so the bot always works.
+const LIVE_FN = `
+function bbApplyLiveMenu(items){
+  try{
+    var order=["scoops","softy","waffle","icecream","sundae","mini","falooda","shakes","snacks"];
+    var labels={scoops:"Scoops",softy:"Softy",waffle:"Waffle",icecream:"Ice Cream Specials",sundae:"Sundae",mini:"Mini Sundae",falooda:"Falooda",shakes:"Thick Shakes",snacks:"Snacks"};
+    Object.keys(MENU).forEach(function(k){delete MENU[k];});
+    var byCat={};
+    items.forEach(function(it){
+      // add-ons (e.g. extra ice cream) stay available but never appear as their own card;
+      // ordinary items only appear when they're not hidden and not sold out.
+      var isAddon=it.cat==="addon";
+      if(!isAddon && (it.hidden || it.available===0)) return;
+      MENU[it.key]={n:it.name,p:it.price,e:"\\uD83C\\uDF68",h:[[8,23]],q:it.q||"",pt:it.pt||0,ph:"",d:it.desc||"",veg:1};
+      if(it.best)MENU[it.key].best=1;
+      if(it.must)MENU[it.key].must=1;
+      if(it.ao)MENU[it.key].ao=it.ao;
+      if(!isAddon)(byCat[it.cat]=byCat[it.cat]||[]).push(it);
+    });
+    CATS.length=0;
+    order.forEach(function(c){
+      var list=(byCat[c]||[]).sort(function(a,b){return (a.sort||0)-(b.sort||0);}).map(function(it){return it.key;});
+      if(list.length)CATS.push({name:labels[c],ids:list});
+    });
+  }catch(e){}
+}`;
+h = h.replace("/* init */", LIVE_FN + "\n/* init */");
+// init: fetch the live menu, then open the (single) outlet directly
+h = h.replace("if(o)chooseOutlet(o);else renderOutlets();",
+  "fetch('/api/bonbon/menu').then(function(r){return r.json();}).then(function(d){if(d&&d.items&&d.items.length)bbApplyLiveMenu(d.items);}).catch(function(){}).then(function(){chooseOutlet(o||OUTLETS[0]);});");
+
+// ---- REAL ORDERS: on successful payment, send the order to the kitchen board ----
+h = h.replace(
+  "saveCustomer({name:nm,phone:ph,last:orderedIds,at:Date.now(),visits:((getCustomer()||{}).visits||0)+1});",
+  "saveCustomer({name:nm,phone:ph,last:orderedIds,at:Date.now(),visits:((getCustomer()||{}).visits||0)+1});" +
+  "try{fetch('/api/bonbon/orders',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({items:items.map(function(it){return {name:it.n,qty:it.q,price:it.p};}),total:gt,name:nm,phone:ph,mode:order.mode,table:(order.mode==='dine'?('Table '+order.table+(order.room?' ('+order.room+')':'')):'')})});}catch(e){}"
+);
 // header shows just the brand (single outlet)
 h = h.replace('document.getElementById("hname").textContent="Annapoorna · "+o;', 'document.getElementById("hname").textContent="Bon Bon";');
 
