@@ -94,11 +94,43 @@ export function bbAdminPass(): string {
 
 // ── Firestore collections ───────────────────────────────────────────────────────
 export const BB = {
-  menu: "bonbon_menu",
+  menu: "bonbon_menu", // the DEFAULT outlet's menu lives here (keeps the live chatbot untouched)
   staff: "bonbon_staff",
   orders: "bonbon_orders",
+  restaurants: "bonbon_restaurants",
+  outlets: "bonbon_outlets",
 };
+
+// The original Bon Bon is restaurant #1 / outlet #1. Its menu stays in the top-level `bonbon_menu`
+// collection so nothing that already works breaks; every NEW outlet gets its own menu subcollection.
+export const DEFAULT_RESTAURANT_ID = 1;
+export const DEFAULT_OUTLET_ID = 1;
 
 export function bbDb() {
   return getDb();
+}
+
+export function isDefaultOutlet(outletId: unknown): boolean {
+  return outletId == null || outletId === "" || String(outletId) === String(DEFAULT_OUTLET_ID);
+}
+
+/** Menu collection for a given outlet. Default outlet -> top-level `bonbon_menu`; others -> a
+ *  per-outlet subcollection, so each outlet keeps its own independent menu. */
+export function bbMenuCol(outletId?: unknown) {
+  const db = getDb();
+  return isDefaultOutlet(outletId)
+    ? db.collection(BB.menu)
+    : db.collection(BB.outlets).doc(String(outletId)).collection("menu");
+}
+
+/** Make sure the first restaurant + outlet exist (the original Bon Bon). Idempotent. */
+export async function ensureDefaultTenant() {
+  const db = getDb();
+  const rRef = db.collection(BB.restaurants).doc(String(DEFAULT_RESTAURANT_ID));
+  const oRef = db.collection(BB.outlets).doc(String(DEFAULT_OUTLET_ID));
+  const [r, o] = await Promise.all([rRef.get(), oRef.get()]);
+  const now = new Date().toISOString();
+  if (!r.exists) await rRef.set({ name: "Bon Bon", created_at: now });
+  if (!o.exists)
+    await oRef.set({ restaurant_id: DEFAULT_RESTAURANT_ID, name: "Bon Bon", slug: "bon-bon", created_at: now });
 }

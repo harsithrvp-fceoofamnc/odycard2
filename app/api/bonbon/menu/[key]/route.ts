@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { BB, bbDb, requireBB } from "@/lib/bonbon";
+import { bbMenuCol, requireBB } from "@/lib/bonbon";
 
-// Edit / toggle / delete a single menu item — supervisor or admin.
+// Edit / toggle / delete a single menu item — supervisor or admin. Scoped to ?outlet=<id>.
 // PATCH accepts any subset of editable fields; booleans map to 0/1.
 
 export async function PATCH(req: NextRequest, ctx: { params: Promise<{ key: string }> }) {
@@ -9,8 +9,7 @@ export async function PATCH(req: NextRequest, ctx: { params: Promise<{ key: stri
   if (!s) return NextResponse.json({ error: "Not authorised" }, { status: 401 });
   try {
     const { key } = await ctx.params;
-    const db = bbDb();
-    const ref = db.collection(BB.menu).doc(key);
+    const ref = bbMenuCol(req.nextUrl.searchParams.get("outlet")).doc(key);
     const cur = await ref.get();
     if (!cur.exists) return NextResponse.json({ error: "Item not found" }, { status: 404 });
 
@@ -39,14 +38,14 @@ export async function PATCH(req: NextRequest, ctx: { params: Promise<{ key: stri
   }
 }
 
-export async function DELETE(_req: NextRequest, ctx: { params: Promise<{ key: string }> }) {
+export async function DELETE(req: NextRequest, ctx: { params: Promise<{ key: string }> }) {
   const s = await requireBB(["admin", "supervisor"]);
   if (!s) return NextResponse.json({ error: "Not authorised" }, { status: 401 });
   try {
     const { key } = await ctx.params;
     if (key === "extraicecream")
       return NextResponse.json({ error: "That add-on can't be deleted" }, { status: 400 });
-    await bbDb().collection(BB.menu).doc(key).delete();
+    await bbMenuCol(req.nextUrl.searchParams.get("outlet")).doc(key).delete();
     return NextResponse.json({ ok: true });
   } catch (e) {
     console.error("DELETE /api/bonbon/menu/[key]:", e);

@@ -10,15 +10,32 @@ export default function ManagePage() {
   const [tab, setTab] = useState<string>("scoops");
   const [editing, setEditing] = useState<string | null>(null);
   const [adding, setAdding] = useState(false);
+  const [outlet, setOutlet] = useState<string>(""); // which outlet's menu we're editing (from ?outlet=)
+  const [outletName, setOutletName] = useState<string>("");
+
+  useEffect(() => {
+    const o = new URLSearchParams(window.location.search).get("outlet") || "";
+    setOutlet(o);
+    if (o) {
+      fetch("/api/bonbon/outlets")
+        .then((r) => (r.ok ? r.json() : { outlets: [] }))
+        .then((d) => {
+          const found = (d.outlets || []).find((x: { id: number }) => String(x.id) === o);
+          if (found) setOutletName(found.name);
+        })
+        .catch(() => {});
+    }
+  }, []);
+  const qs = outlet ? `?outlet=${outlet}` : "";
 
   const load = useCallback(async () => {
-    const r = await fetch("/api/bonbon/menu");
+    const r = await fetch(`/api/bonbon/menu${outlet ? `?outlet=${outlet}` : ""}`);
     if (r.ok) {
       const d = await r.json();
       setItems((d.items as BBMenuItem[]).filter((x) => x.cat !== "addon"));
     }
     setLoading(false);
-  }, []);
+  }, [outlet]);
   useEffect(() => {
     if (ready) load();
   }, [ready, load]);
@@ -26,7 +43,7 @@ export default function ManagePage() {
   async function patch(key: string, body: Partial<BBMenuItem>) {
     // optimistic
     setItems((prev) => prev.map((x) => (x.key === key ? { ...x, ...body } : x)));
-    const r = await fetch(`/api/bonbon/menu/${key}`, {
+    const r = await fetch(`/api/bonbon/menu/${key}${qs}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
@@ -37,7 +54,7 @@ export default function ManagePage() {
   async function del(key: string) {
     if (!confirm("Remove this item from the menu?")) return;
     setItems((prev) => prev.filter((x) => x.key !== key));
-    await fetch(`/api/bonbon/menu/${key}`, { method: "DELETE" });
+    await fetch(`/api/bonbon/menu/${key}${qs}`, { method: "DELETE" });
   }
 
   if (!ready || !me) return <Spinner label="Checking access…" />;
@@ -46,7 +63,7 @@ export default function ManagePage() {
 
   return (
     <Shell
-      title="Menu manager"
+      title={outletName ? `Menu — ${outletName}` : "Menu manager"}
       role={me.role}
       name={me.name}
       nav={
@@ -115,7 +132,7 @@ export default function ManagePage() {
         </div>
       )}
 
-      {adding && <AddModal onClose={() => setAdding(false)} onDone={() => { setAdding(false); load(); }} defaultCat={tab} />}
+      {adding && <AddModal onClose={() => setAdding(false)} onDone={() => { setAdding(false); load(); }} defaultCat={tab} outlet={outlet} />}
     </Shell>
   );
 }
@@ -240,7 +257,7 @@ function ItemRow({
   );
 }
 
-function AddModal({ onClose, onDone, defaultCat }: { onClose: () => void; onDone: () => void; defaultCat: string }) {
+function AddModal({ onClose, onDone, defaultCat, outlet }: { onClose: () => void; onDone: () => void; defaultCat: string; outlet: string }) {
   const [f, setF] = useState({ name: "", price: "", cat: defaultCat, price500: "", q: "", desc: "", best: false, must: false });
   const [err, setErr] = useState("");
   const [busy, setBusy] = useState(false);
@@ -250,7 +267,7 @@ function AddModal({ onClose, onDone, defaultCat }: { onClose: () => void; onDone
     const r = await fetch("/api/bonbon/menu", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(f),
+      body: JSON.stringify({ ...f, outlet }),
     });
     const d = await r.json();
     setBusy(false);

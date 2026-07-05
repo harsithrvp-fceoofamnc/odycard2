@@ -4,28 +4,63 @@ import { C, Shell, NavLink, Spinner, PasswordField, useBBSession } from "../_ui"
 
 type Staff = { id: string; name: string; username: string; role: string; active: boolean };
 type Order = { id: string; total: number; status: string; created_at: string };
+type Restaurant = { id: number; name: string };
+type Outlet = { id: number; restaurant_id: number; name: string; slug: string };
 
 export default function AdminPage() {
   const { me, ready } = useBBSession(["admin"]);
   const [staff, setStaff] = useState<Staff[]>([]);
   const [menuCount, setMenuCount] = useState<number | null>(null);
   const [orders, setOrders] = useState<Order[]>([]);
+  const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
+  const [outlets, setOutlets] = useState<Outlet[]>([]);
   const [loading, setLoading] = useState(true);
 
   const load = useCallback(async () => {
-    const [s, m, o] = await Promise.all([
+    const [s, m, o, r, ou] = await Promise.all([
       fetch("/api/bonbon/staff"),
       fetch("/api/bonbon/menu"),
       fetch("/api/bonbon/orders?status=all"),
+      fetch("/api/bonbon/restaurants"),
+      fetch("/api/bonbon/outlets"),
     ]);
     if (s.ok) setStaff((await s.json()).staff || []);
     if (m.ok) setMenuCount(((await m.json()).items || []).filter((x: { cat: string }) => x.cat !== "addon").length);
     if (o.ok) setOrders((await o.json()).orders || []);
+    if (r.ok) setRestaurants((await r.json()).restaurants || []);
+    if (ou.ok) setOutlets((await ou.json()).outlets || []);
     setLoading(false);
   }, []);
   useEffect(() => {
     if (ready) load();
   }, [ready, load]);
+
+  // create restaurant / outlet
+  const [rName, setRName] = useState("");
+  const [rMsg, setRMsg] = useState("");
+  async function addRestaurant(e: React.FormEvent) {
+    e.preventDefault();
+    setRMsg("");
+    const r = await fetch("/api/bonbon/restaurants", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name: rName }),
+    });
+    const d = await r.json();
+    if (!r.ok) return setRMsg(d.error || "Could not add");
+    setRName("");
+    load();
+  }
+  async function addOutlet(restaurant_id: number, name: string) {
+    if (!name.trim()) return;
+    const r = await fetch("/api/bonbon/outlets", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ restaurant_id, name }),
+    });
+    if (r.ok) load();
+    else alert((await r.json()).error || "Could not add outlet");
+  }
 
   // create staff
   const [role, setRole] = useState("supervisor");
@@ -110,6 +145,43 @@ export default function AdminPage() {
             placed through the chatbot.
           </p>
 
+          {/* restaurants & outlets */}
+          <section style={{ ...card, marginBottom: 16 }}>
+            <h2 style={h2}>Restaurants &amp; outlets</h2>
+            <p style={hint}>
+              Add a restaurant, then give it one or more outlets (branches). Each outlet has its <b>own menu</b> — open
+              it to edit that branch&apos;s items independently.
+            </p>
+            {restaurants.map((r) => {
+              const os = outlets.filter((o) => o.restaurant_id === r.id);
+              return (
+                <div key={r.id} style={{ borderTop: `1px solid ${C.line}`, paddingTop: 12, marginTop: 12 }}>
+                  <div style={{ fontWeight: 800, color: C.ink, fontSize: 15 }}>{r.name}</div>
+                  <div style={{ display: "grid", gap: 8, margin: "8px 0 4px" }}>
+                    {os.map((o) => (
+                      <div key={o.id} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, flexWrap: "wrap", background: "#faf2f1", border: `1px solid ${C.line}`, borderRadius: 10, padding: "9px 12px" }}>
+                        <div style={{ fontWeight: 700, color: C.ink, fontSize: 14 }}>{o.name}</div>
+                        <div style={{ display: "flex", gap: 6 }}>
+                          <a href={`/bon-bon/manage?outlet=${o.id}`} style={{ ...outBtn, background: C.maroon, color: "#fff", border: 0 }}>Edit menu →</a>
+                        </div>
+                      </div>
+                    ))}
+                    {os.length === 0 && <div style={{ fontSize: 12.5, color: C.mut }}>No outlets yet.</div>}
+                  </div>
+                  <AddOutlet onAdd={(name) => addOutlet(r.id, name)} />
+                </div>
+              );
+            })}
+            <form onSubmit={addRestaurant} style={{ borderTop: `1px solid ${C.line}`, paddingTop: 12, marginTop: 12 }}>
+              <div style={{ fontWeight: 700, fontSize: 13, color: C.mut, marginBottom: 6 }}>Add a restaurant</div>
+              <div style={{ display: "flex", gap: 8 }}>
+                <input style={{ ...inp, flex: 1 }} value={rName} onChange={(e) => setRName(e.target.value)} placeholder="Restaurant name" />
+                <button style={primaryBtn}>Add</button>
+              </div>
+              {rMsg && <div style={{ marginTop: 8, fontSize: 13, color: C.warn }}>{rMsg}</div>}
+            </form>
+          </section>
+
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(320px,1fr))", gap: 16 }}>
             {/* staff list */}
             <section style={card}>
@@ -178,6 +250,26 @@ export default function AdminPage() {
   );
 }
 
+function AddOutlet({ onAdd }: { onAdd: (name: string) => void }) {
+  const [v, setV] = useState("");
+  return (
+    <div style={{ display: "flex", gap: 8, marginTop: 6 }}>
+      <input
+        style={{ ...inp, flex: 1, padding: "8px 11px", fontSize: 13.5 }}
+        value={v}
+        onChange={(e) => setV(e.target.value)}
+        placeholder="New outlet name (e.g. Anna Nagar)"
+      />
+      <button
+        onClick={() => { onAdd(v); setV(""); }}
+        style={{ ...outBtn, background: C.maroon, color: "#fff", border: 0 }}
+      >
+        + Outlet
+      </button>
+    </div>
+  );
+}
+
 function Stat({ label, value, accent }: { label: string; value: string; accent?: boolean }) {
   return (
     <div style={{ background: accent ? `linear-gradient(135deg,${C.maroon},${C.dark})` : C.card, border: `1px solid ${C.line}`, borderRadius: 14, padding: "14px 16px" }}>
@@ -194,6 +286,7 @@ const row: React.CSSProperties = { display: "flex", justifyContent: "space-betwe
 const inp: React.CSSProperties = { width: "100%", boxSizing: "border-box", padding: "10px 12px", borderRadius: 10, border: `1.5px solid ${C.line}`, fontSize: 14.5, outline: "none", color: C.ink, background: "#fff" };
 const primaryBtn: React.CSSProperties = { padding: "11px 16px", border: 0, borderRadius: 11, background: `linear-gradient(135deg,${C.maroon},${C.dark})`, color: "#fff", fontSize: 14.5, fontWeight: 800, cursor: "pointer" };
 const miniBtn: React.CSSProperties = { padding: "6px 11px", borderRadius: 9, border: `1.5px solid ${C.line}`, background: "#fff", color: C.ink, fontWeight: 700, fontSize: 12.5, cursor: "pointer" };
+const outBtn: React.CSSProperties = { padding: "7px 12px", borderRadius: 9, border: `1.5px solid ${C.line}`, background: "#fff", color: C.maroon, fontWeight: 700, fontSize: 12.5, cursor: "pointer", textDecoration: "none", whiteSpace: "nowrap", display: "inline-block" };
 const tag = (role: string): React.CSSProperties => ({
   fontSize: 10, fontWeight: 800, textTransform: "uppercase", letterSpacing: 0.4, padding: "2px 7px", borderRadius: 8, marginLeft: 6,
   background: role === "supervisor" ? "#f7e3e8" : role === "waiter" ? "#eaf3de" : "#eee",
