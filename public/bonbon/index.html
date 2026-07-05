@@ -889,16 +889,16 @@ function topDishes(){let b=Object.keys(MENU).filter(i=>MENU[i].best&&avail(i));
  if(b.length<4)b=b.concat(Object.keys(MENU).filter(i=>avail(i)&&!b.includes(i)));
  if(!b.length)b=Object.keys(MENU).filter(i=>MENU[i].best);
  return b.slice(0,4);}
-async function showGreeting(instant){chat.innerHTML="";upsold=false;
+async function showGreeting(instant){var pre=chat.querySelector(".typing");if(!pre)chat.innerHTML="";upsold=false;
  var cust=getCustomer();
  if(cust&&cust.name){
-   if(!instant){let t=typingBubble();await sleep(450);t.remove();}
+   if(!instant){let t=pre||typingBubble();await sleep(pre?300:450);t.remove();pre=null;}else if(pre){pre.remove();pre=null;}
    bot(T("welcomeBack").replace("%n",cust.name));
    if(!instant)await sleep(220);
    returningChips();
    return;
  }
- if(!instant){let t=typingBubble();await sleep(500);t.remove();}
+ if(!instant){let t=pre||typingBubble();await sleep(pre?300:500);t.remove();pre=null;}else if(pre){pre.remove();pre=null;}
  bot(GREET[lang].replace("%t",part()).replace("%o",outlet||""));
  if(!instant){await sleep(450);let t=typingBubble();await sleep(600);t.remove();}
  bot(FRESH[lang]);
