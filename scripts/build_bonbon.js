@@ -140,6 +140,8 @@ h = h.split("linear-gradient(135deg,#e3b956,#c79233)").join("linear-gradient(135
 h = h.split("199,146,51").join("129,18,38");
 // any remaining gold hexes -> maroon shades
 h = h.split("#c79233").join("#811226");
+h = h.split("#c8972f").join("#811226"); // typing-indicator dots
+
 h = h.split("#e3b956").join("#a83048");
 h = h.split("#a8752a").join("#8a3a4c");
 
