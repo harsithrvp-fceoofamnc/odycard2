@@ -50,10 +50,13 @@ export function middleware(req: NextRequest) {
     pathname.startsWith("/api/stt")
   ) {
     if (gated) {
-      // Bon Bon staff pages additionally need a Bon Bon login.
+      // Bon Bon staff pages additionally need a Bon Bon login. Remember where they were headed
+      // (incl. any ?outlet=…) so the login can drop them on that exact dashboard afterwards.
       if (bbProtected && !hasBB) {
         const url = req.nextUrl.clone();
         url.pathname = "/bon-bon/login";
+        url.search = "";
+        url.searchParams.set("next", pathname + (req.nextUrl.search || ""));
         return NextResponse.redirect(url);
       }
       return NextResponse.next();

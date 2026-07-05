@@ -16,12 +16,13 @@ export default function BonBonLogin() {
       .then((r) => r.json())
       .then((d) => {
         const s = d.session;
-        if (s) router.replace(dest(s.role));
+        if (s) router.replace(target(s.role));
       })
       .catch(() => {});
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Each role's home dashboard.
   function dest(role: string) {
     return role === "admin"
       ? "/bon-bon/admin"
@@ -30,6 +31,23 @@ export default function BonBonLogin() {
       : role === "kitchen"
       ? "/bon-bon/kitchen"
       : "/bon-bon/waiter";
+  }
+
+  // Can this role open this dashboard path?
+  function roleCanAccess(role: string, path: string) {
+    const p = path.split("?")[0];
+    if (role === "admin") return true;
+    if (role === "supervisor")
+      return p.startsWith("/bon-bon/manage") || p.startsWith("/bon-bon/kitchen") || p.startsWith("/bon-bon/waiter");
+    if (role === "kitchen") return p.startsWith("/bon-bon/kitchen");
+    if (role === "waiter") return p.startsWith("/bon-bon/waiter");
+    return false;
+  }
+
+  // Where to send them: the dashboard they were headed to (if allowed), else their home.
+  function target(role: string) {
+    const next = new URLSearchParams(window.location.search).get("next") || "";
+    return next && roleCanAccess(role, next) ? next : dest(role);
   }
 
   async function submit(e: React.FormEvent) {
@@ -48,7 +66,7 @@ export default function BonBonLogin() {
         setBusy(false);
         return;
       }
-      router.replace(dest(d.role));
+      router.replace(target(d.role));
     } catch {
       setErr("Network error — try again");
       setBusy(false);
