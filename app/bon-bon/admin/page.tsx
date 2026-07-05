@@ -1,6 +1,6 @@
 "use client";
 import { useCallback, useEffect, useState } from "react";
-import { C, Shell, NavLink, Spinner, useBBSession } from "../_ui";
+import { C, Shell, NavLink, Spinner, PasswordField, useBBSession } from "../_ui";
 
 type Staff = { id: string; name: string; username: string; role: string; active: boolean };
 type Order = { id: string; total: number; status: string; created_at: string };
@@ -154,12 +154,12 @@ export default function AdminPage() {
                 </div>
                 <input style={inp} value={name} onChange={(e) => setName(e.target.value)} placeholder="Full name" />
                 <input style={{ ...inp, marginTop: 8 }} value={user} onChange={(e) => setUser(e.target.value)} placeholder="Username (their login)" autoCapitalize="none" />
-                <input
-                  style={{ ...inp, marginTop: 8 }}
-                  type="password"
+                <PasswordField
                   value={pass}
-                  onChange={(e) => setPass(e.target.value)}
+                  onChange={setPass}
+                  autoComplete="new-password"
                   placeholder={role === "supervisor" ? "Password (8+ characters)" : "Password (4+ characters)"}
+                  style={{ ...inp, marginTop: 8 }}
                 />
                 {msg && <div style={{ marginTop: 10, fontSize: 13, color: msg.startsWith("Created") ? C.good : C.warn }}>{msg}</div>}
                 <button style={{ ...primaryBtn, marginTop: 12, width: "100%" }} disabled={busy}>

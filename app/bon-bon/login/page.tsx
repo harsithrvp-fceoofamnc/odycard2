@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { C, font } from "../_ui";
+import { C, font, PasswordField } from "../_ui";
 
 export default function BonBonLogin() {
   const router = useRouter();
@@ -88,13 +88,7 @@ export default function BonBonLogin() {
             autoCorrect="off"
             style={inp}
           />
-          <input
-            value={p}
-            onChange={(e) => setP(e.target.value)}
-            placeholder="Password"
-            type="password"
-            style={{ ...inp, marginTop: 10 }}
-          />
+          <PasswordField value={p} onChange={setP} placeholder="Password" autoComplete="current-password" style={{ ...inp, marginTop: 10 }} />
           {err && <div style={{ color: C.warn, fontSize: 13, marginTop: 10 }}>{err}</div>}
           <button type="submit" disabled={busy} style={{ ...btn, opacity: busy ? 0.7 : 1 }}>
             {busy ? "Signing in…" : "Sign in"}
