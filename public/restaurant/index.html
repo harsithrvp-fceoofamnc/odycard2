@@ -95,6 +95,11 @@
   .inputrow textarea::-webkit-scrollbar{display:none}
   .mic{position:relative;background:#fffdf7;border:1px solid var(--line);color:var(--blue);width:46px;height:46px;border-radius:50%;font-size:18px;cursor:pointer}
   .mic.on{background:linear-gradient(135deg,#e3b956,#c79233);color:#3a2a05;border-color:#c79233}
+  .inputrow{position:relative}
+  .wform{position:absolute;inset:0;display:none;align-items:center;justify-content:center;gap:3px;padding:0 52px 0 18px;background:#fff;border:1.5px solid var(--blue);border-radius:22px;cursor:pointer;overflow:hidden}
+  .wform.show{display:flex}
+  .wform .wbar{width:4px;flex:0 0 4px;height:12%;background:var(--blue);border-radius:3px;transition:height .07s linear}
+  .wtime{position:absolute;right:16px;font-size:12.5px;font-weight:700;color:var(--mut);font-variant-numeric:tabular-nums}
   .mic.on::before,.mic.on::after{content:"";position:absolute;inset:-1px;border-radius:50%;border:2px solid rgba(199,146,51,.5);animation:ripple 1.9s cubic-bezier(.22,1,.36,1) infinite;pointer-events:none}
   .mic.on::after{animation-delay:.95s}
   @keyframes ripple{0%{transform:scale(1);opacity:.65}70%{opacity:.18}100%{transform:scale(2.3);opacity:0}}
@@ -318,6 +323,7 @@
     <div class="inputrow">
       <textarea id="inp" rows="1" placeholder="Ask me anything…" oninput="autoGrow()" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendText();}"></textarea>
       <button class="send" onclick="sendText()"><svg class='icbtn' viewBox='0 0 24 24'><path d='M4 12l16-8-6 16-3-7z'/><path d='M11 13l9-9'/></svg></button>
+      <div class="wform" id="wform" onclick="recordVoice()" title="Tap to stop"><span class="wtime" id="wtime">0:00</span></div>
     </div>
     <div class="foot">Demo prototype · simulated AI &amp; payment · © Odysra</div>
   </div>
@@ -1037,19 +1043,64 @@ let liveTimer=null,liveBusy=false,liveSeq=0;
 let segTimer=null,segText="";const SEG_MS=2200; // segmented live transcription (Brave/no-SR path)
 // real-time streaming state
 let sttWs=null,pcmCtx=null,pcmNode=null,pcmSrc=null,wsMode=false,wsGotData=false,wsText="";
+// Voice input, ChatGPT-style: tap to record, a live sound-wave reacts to the guest's voice,
+// and when they tap stop we transcribe the whole clip (via Sarvam) and drop the text in the box.
+// One consistent flow on every browser (Chrome, Brave, Firefox, iOS) — no live-engine surprises.
 function recordVoice(){
  if(listening){stopVoice();return;}
  if(busy)return;
  voiceLocked=false;
- // PRIMARY: the browser's own speech engine. It shows words live as they're spoken,
- // needs no API key, no server round-trip and no credits, so it "just works" on Chrome,
- // Edge and Android. Sarvam (recording -> server) is only the fallback when the browser
- // engine isn't available (e.g. Firefox) or has been marked broken at runtime.
- const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
- vdbg("mic tapped · SR="+(!!SR)+" srBroken="+srBroken);
- if(SR&&!srBroken){startBrowserSR();return;}
- vdbg("-> SARVAM record+upload (not live)");
- startSarvamRecording();
+ startRecording();
+}
+function startRecording(){
+ if(!(navigator.mediaDevices&&navigator.mediaDevices.getUserMedia&&window.MediaRecorder)){simHeard();return;}
+ navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true,channelCount:1}}).then(function(stream){
+  micStream=stream;chunks=[];
+  var inp=document.getElementById("inp");
+  voiceBase=inp.value?inp.value.trim()+" ":"";oldPH=inp.placeholder;
+  try{mediaRec=new MediaRecorder(stream);}catch(e){try{mediaRec=new MediaRecorder(stream,{});}catch(e2){listening=false;setMic(false);return;}}
+  mediaRec.ondataavailable=function(e){if(e.data&&e.data.size>0)chunks.push(e.data);};
+  mediaRec.onstop=function(){
+   if(micStream){micStream.getTracks().forEach(function(t){t.stop();});micStream=null;}
+   stopWave();setMic(false);showListening(false);
+   var el=document.getElementById("inp");
+   if(voiceLocked){if(el)el.placeholder=T("ask");return;} // message already sent
+   if(el)el.placeholder=T("transcribing");
+   var blob=chunks.length?new Blob(chunks,{type:mediaRec.mimeType||'audio/webm'}):null;
+   if(blob){transcribe(blob);}else if(el){el.placeholder=T("ask");}
+  };
+  listening=true;setMic(true);showListening(true);
+  try{mediaRec.start();}catch(e){}
+  startWave(stream); // sound-wave reacts to the voice while recording
+ }).catch(function(){listening=false;setMic(false);bot("🎙️ Please allow microphone access to use voice.");});
+}
+// Sound-wave: bars driven by the mic's live frequency data + a running timer.
+var waveRAF=null,waveTimer=null,waveCtx=null;
+function startWave(stream){
+ var wf=document.getElementById("wform");if(!wf)return;
+ if(!wf.querySelector(".wbar")){var b="";for(var i=0;i<32;i++)b+='<span class="wbar"></span>';wf.insertAdjacentHTML("afterbegin",b);}
+ wf.classList.add("show");
+ var tEl=document.getElementById("wtime");recStart=Date.now();
+ if(tEl){tEl.textContent="0:00";waveTimer=setInterval(function(){var s=Math.floor((Date.now()-recStart)/1000);tEl.textContent=Math.floor(s/60)+":"+("0"+(s%60)).slice(-2);},250);}
+ try{
+  var AC=window.AudioContext||window.webkitAudioContext;waveCtx=new AC();
+  var src=waveCtx.createMediaStreamSource(stream),an=waveCtx.createAnalyser();an.fftSize=64;src.connect(an);
+  var buf=new Uint8Array(an.frequencyBinCount);
+  var bars=wf.querySelectorAll(".wbar");
+  var loop=function(){
+   if(!listening){return;}
+   an.getByteFrequencyData(buf);
+   for(var i=0;i<bars.length;i++){var v=(buf[i]||0)/255;var h=Math.max(9,Math.min(100,v*150));bars[i].style.height=h+"%";}
+   waveRAF=requestAnimationFrame(loop);
+  };
+  loop();
+ }catch(e){}
+}
+function stopWave(){
+ if(waveRAF){cancelAnimationFrame(waveRAF);waveRAF=null;}
+ if(waveTimer){clearInterval(waveTimer);waveTimer=null;}
+ if(waveCtx){try{waveCtx.close();}catch(e){}waveCtx=null;}
+ var wf=document.getElementById("wform");if(wf)wf.classList.remove("show");
 }
 // FALLBACK: record audio and send it to Sarvam (good Indian-language accuracy) for transcription.
 function startSarvamRecording(){
@@ -1207,8 +1258,8 @@ function micRunSet(){var i=0;(function step(){if(typeof listening!=="undefined"&
 setTimeout(micRunSet,1400);
 function showListening(on){var p=document.getElementById("mic"),r=document.getElementById("microt");if(!r)return;if(on){r.textContent=T("tapStop");if(p)p.classList.add("show");}else{if(p)p.classList.remove("show");}}
 function stopVoice(){showListening(false);
- if(mediaRec&&mediaRec.state&&mediaRec.state!=="inactive"){listening=false;setMic(false);if(segTimer)clearTimeout(segTimer);try{mediaRec.stop();}catch(e){}return;}
- listening=false;setMic(false);stopMeter();if(recog){try{recog.stop();}catch(e){}}stopSidecar();
+ if(mediaRec&&mediaRec.state&&mediaRec.state!=="inactive"){listening=false;setMic(false);try{mediaRec.stop();}catch(e){}return;} // -> onstop transcribes
+ listening=false;setMic(false);stopWave();stopMeter();if(recog){try{recog.stop();}catch(e){}}stopSidecar();
 }
 // Sarvam only accepts WAV/MP3, but browsers record webm/opus — so convert to 16 kHz mono WAV here.
 async function blobToWav(blob){
