@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { BB, bbDb, requireBB } from "@/lib/bonbon";
+import { BB, bbDb, requireBB, DEFAULT_OUTLET_ID } from "@/lib/bonbon";
 import { getNextId } from "@/lib/firebase";
 
 // Orders flow: chatbot POSTs a paid order (open, behind the demo gate) → it lands as "new"
@@ -23,9 +23,11 @@ export async function POST(req: NextRequest) {
     if (items.length === 0) return NextResponse.json({ error: "No items" }, { status: 400 });
 
     const total = parseInt(String(b.total), 10) || items.reduce((s, it) => s + it.price, 0);
+    const outlet = parseInt(String(b.outlet), 10) || DEFAULT_OUTLET_ID;
     const ticket = await getNextId(BB.orders);
     const doc = {
       ticket,
+      outlet,
       items,
       total,
       customer: String(b.name || "Guest").slice(0, 60),
@@ -50,9 +52,13 @@ export async function GET(req: NextRequest) {
   try {
     const url = new URL(req.url);
     const statusParam = url.searchParams.get("status"); // e.g. "new,preparing,ready" or "active"
+    const outletParam = url.searchParams.get("outlet");
+    const wantOutlet = parseInt(String(outletParam), 10) || DEFAULT_OUTLET_ID;
     const db = bbDb();
-    const snap = await db.collection(BB.orders).orderBy("ticket", "desc").limit(120).get();
+    const snap = await db.collection(BB.orders).orderBy("ticket", "desc").limit(200).get();
     let orders: Record<string, unknown>[] = snap.docs.map((d) => ({ ...d.data(), id: d.id }));
+    // scope to the outlet (orders with no outlet field belong to the original/default outlet)
+    orders = orders.filter((o) => (Number(o.outlet) || DEFAULT_OUTLET_ID) === wantOutlet);
     if (statusParam && statusParam !== "all") {
       const wanted =
         statusParam === "active" ? ["new", "preparing", "ready"] : statusParam.split(",").map((x) => x.trim());

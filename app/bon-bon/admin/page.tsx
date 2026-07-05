@@ -161,8 +161,10 @@ export default function AdminPage() {
                     {os.map((o) => (
                       <div key={o.id} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, flexWrap: "wrap", background: "#faf2f1", border: `1px solid ${C.line}`, borderRadius: 10, padding: "9px 12px" }}>
                         <div style={{ fontWeight: 700, color: C.ink, fontSize: 14 }}>{o.name}</div>
-                        <div style={{ display: "flex", gap: 6 }}>
-                          <a href={`/bon-bon/manage?outlet=${o.id}`} style={{ ...outBtn, background: C.maroon, color: "#fff", border: 0 }}>Edit menu →</a>
+                        <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                          <a href={`/bon-bon/manage?outlet=${o.id}`} style={{ ...outBtn, background: C.maroon, color: "#fff", border: 0 }}>Menu</a>
+                          <a href={`/bon-bon/kitchen?outlet=${o.id}`} style={outBtn}>Kitchen</a>
+                          <a href={`/bon-bon/waiter?outlet=${o.id}`} style={outBtn}>Waiter</a>
                         </div>
                       </div>
                     ))}

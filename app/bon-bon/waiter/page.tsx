@@ -18,9 +18,22 @@ export default function WaiterPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loaded, setLoaded] = useState(false);
   const seen = useRef<Set<number>>(new Set());
+  const [outlet, setOutlet] = useState<string>("");
+  const [outletName, setOutletName] = useState<string>("");
+
+  useEffect(() => {
+    const o = new URLSearchParams(window.location.search).get("outlet") || "";
+    setOutlet(o);
+    if (o) {
+      fetch("/api/bonbon/outlets")
+        .then((r) => (r.ok ? r.json() : { outlets: [] }))
+        .then((d) => { const f = (d.outlets || []).find((x: { id: number }) => String(x.id) === o); if (f) setOutletName(f.name); })
+        .catch(() => {});
+    }
+  }, []);
 
   const load = useCallback(async () => {
-    const r = await fetch("/api/bonbon/orders?status=ready");
+    const r = await fetch(`/api/bonbon/orders?status=ready${outlet ? `&outlet=${outlet}` : ""}`);
     if (r.ok) {
       const list: Order[] = (await r.json()).orders || [];
       const fresh = list.filter((o) => !seen.current.has(o.ticket));
@@ -29,7 +42,7 @@ export default function WaiterPage() {
       setOrders(list);
       setLoaded(true);
     }
-  }, []);
+  }, [outlet]);
 
   useEffect(() => {
     if (!ready) return;
@@ -51,7 +64,7 @@ export default function WaiterPage() {
 
   return (
     <Shell
-      title="Waiter"
+      title={outletName ? `Waiter — ${outletName}` : "Waiter"}
       role={me.role}
       name={me.name}
       nav={
