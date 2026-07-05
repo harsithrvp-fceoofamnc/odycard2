@@ -922,7 +922,7 @@ function renderOutlets(){chat.innerHTML="";document.getElementById("phone").clas
  block("outlet",OUTLETS.map(o=>`<button onclick="chooseOutlet('${o}')">${IC.pin}${o}</button>`).join(""));
  block("wmark",`<img src="${LOGO}"><div class="cap">${T("pureVeg")}</div>`);}
 function setUrl(path){try{if(window.parent&&window.parent!==window)window.parent.history.replaceState(null,"",path);}catch(e){}}
-function chooseOutlet(o){document.getElementById("phone").classList.remove("outletview");document.getElementById("bar").style.display="";document.getElementById("wm").style.display="";document.getElementById("back").style.display="";document.getElementById("inp").placeholder=T("ask");outlet=o;document.getElementById("hname").textContent="Odysra · "+o;document.getElementById("hsub").textContent="AI Waiter — powered by Odysra";setUrl("/restaurant/"+slugify(o));showGreeting();}
+function chooseOutlet(o,defer){document.getElementById("phone").classList.remove("outletview");document.getElementById("bar").style.display="";document.getElementById("wm").style.display="";document.getElementById("back").style.display="";document.getElementById("inp").placeholder=T("ask");outlet=o;document.getElementById("hname").textContent="Odysra · "+o;document.getElementById("hsub").textContent="AI Waiter — powered by Odysra";setUrl("/restaurant/"+slugify(o));if(defer){chat.innerHTML="";typingBubble();return;}showGreeting();}
 function goOutlets(){cart={};notes={};upsold=false;outlet=null;refreshCart();closeModal();setUrl("/restaurant");renderOutlets();}
 
 /* ---------- dishes ---------- */

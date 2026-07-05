@@ -85,7 +85,7 @@ function bbApplyLiveMenu(items){
 h = h.replace("/* init */", LIVE_FN + "\n/* init */");
 // init: fetch the live menu, then open the (single) outlet directly
 h = h.replace("if(o)chooseOutlet(o);else renderOutlets();",
-  "fetch('/api/bonbon/menu').then(function(r){return r.json();}).then(function(d){if(d&&d.items&&d.items.length)bbApplyLiveMenu(d.items);}).catch(function(){}).then(function(){chooseOutlet(o||OUTLETS[0]);});");
+  "chooseOutlet(o||OUTLETS[0],true);fetch('/api/bonbon/menu').then(function(r){return r.json();}).then(function(d){if(d&&d.items&&d.items.length)bbApplyLiveMenu(d.items);}).catch(function(){}).then(function(){showGreeting();});");
 
 // ---- REAL ORDERS: on successful payment, send the order to the kitchen board ----
 h = h.replace(
