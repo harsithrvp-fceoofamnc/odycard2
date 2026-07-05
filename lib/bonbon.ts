@@ -6,7 +6,7 @@ import { getDb } from "@/lib/firebase";
 // Kept separate from the multi-tenant platform (lib/auth.ts) so the Bon Bon demo is
 // simple and can't collide with owner/hotel sessions. Its own cookie: bb_session.
 
-export type BBRole = "admin" | "supervisor" | "waiter";
+export type BBRole = "admin" | "supervisor" | "waiter" | "kitchen";
 
 export interface BBSession {
   sub: string; // "admin" for the owner, or the staff doc id
@@ -21,7 +21,8 @@ export const BB_TTL_SUPERVISOR = 8 * 60 * 60; // 8h
 export const BB_TTL_WAITER = 12 * 60 * 60; // 12h
 
 export function bbTtl(role: BBRole): number {
-  return role === "waiter" ? BB_TTL_WAITER : BB_TTL_ADMIN;
+  // floor roles (waiter, kitchen) get a longer session so staff aren't re-typing passwords mid-shift
+  return role === "waiter" || role === "kitchen" ? BB_TTL_WAITER : BB_TTL_ADMIN;
 }
 
 function secret(): string {

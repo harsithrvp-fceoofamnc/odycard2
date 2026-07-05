@@ -29,7 +29,7 @@ export async function POST(req: NextRequest) {
   try {
     const db = bbDb();
     const b = await req.json();
-    const role = b.role === "supervisor" ? "supervisor" : "waiter";
+    const role = ["supervisor", "waiter", "kitchen"].includes(b.role) ? b.role : "waiter";
     const name = String(b.name || "").trim();
     const username = cleanUsername(b.username || "");
     const password = String(b.password || "");
@@ -37,8 +37,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Name, username and password are required" }, { status: 400 });
     if (role === "supervisor" && password.length < 8)
       return NextResponse.json({ error: "Supervisor passwords need at least 8 characters" }, { status: 400 });
-    if (role === "waiter" && password.length < 4)
-      return NextResponse.json({ error: "Waiter password needs at least 4 characters" }, { status: 400 });
+    if (role !== "supervisor" && password.length < 4)
+      return NextResponse.json({ error: "Password needs at least 4 characters" }, { status: 400 });
     if (username === "admin") return NextResponse.json({ error: "That username is reserved" }, { status: 409 });
 
     const ex = await db.collection(BB.staff).where("username", "==", username).limit(1).get();

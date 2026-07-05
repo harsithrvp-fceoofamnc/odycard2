@@ -23,7 +23,13 @@ export default function BonBonLogin() {
   }, []);
 
   function dest(role: string) {
-    return role === "admin" ? "/bon-bon/admin" : role === "supervisor" ? "/bon-bon/manage" : "/bon-bon/waiter";
+    return role === "admin"
+      ? "/bon-bon/admin"
+      : role === "supervisor"
+      ? "/bon-bon/manage"
+      : role === "kitchen"
+      ? "/bon-bon/kitchen"
+      : "/bon-bon/waiter";
   }
 
   async function submit(e: React.FormEvent) {

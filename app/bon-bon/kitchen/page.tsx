@@ -28,7 +28,7 @@ function ago(iso: string) {
 }
 
 export default function KitchenPage() {
-  const { me, ready } = useBBSession(["admin", "supervisor"]);
+  const { me, ready } = useBBSession(["admin", "supervisor", "kitchen"]);
   const [orders, setOrders] = useState<Order[]>([]);
   const [loaded, setLoaded] = useState(false);
   const seen = useRef<Set<number>>(new Set());
@@ -91,11 +91,11 @@ export default function KitchenPage() {
       nav={
         <>
           {me.role === "admin" && <NavLink href="/bon-bon/admin">Dashboard</NavLink>}
-          <NavLink href="/bon-bon/manage">Menu</NavLink>
+          {(me.role === "admin" || me.role === "supervisor") && <NavLink href="/bon-bon/manage">Menu</NavLink>}
           <NavLink href="/bon-bon/kitchen" active>
             Kitchen
           </NavLink>
-          <NavLink href="/bon-bon/waiter">Waiter</NavLink>
+          {(me.role === "admin" || me.role === "supervisor") && <NavLink href="/bon-bon/waiter">Waiter</NavLink>}
         </>
       }
     >

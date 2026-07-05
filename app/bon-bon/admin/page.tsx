@@ -222,6 +222,9 @@ export default function AdminPage() {
                   <button type="button" onClick={() => setRole("supervisor")} style={roleBtn(role === "supervisor")}>
                     Supervisor
                   </button>
+                  <button type="button" onClick={() => setRole("kitchen")} style={roleBtn(role === "kitchen")}>
+                    Kitchen
+                  </button>
                   <button type="button" onClick={() => setRole("waiter")} style={roleBtn(role === "waiter")}>
                     Waiter
                   </button>
@@ -291,7 +294,7 @@ const miniBtn: React.CSSProperties = { padding: "6px 11px", borderRadius: 9, bor
 const outBtn: React.CSSProperties = { padding: "7px 12px", borderRadius: 9, border: `1.5px solid ${C.line}`, background: "#fff", color: C.maroon, fontWeight: 700, fontSize: 12.5, cursor: "pointer", textDecoration: "none", whiteSpace: "nowrap", display: "inline-block" };
 const tag = (role: string): React.CSSProperties => ({
   fontSize: 10, fontWeight: 800, textTransform: "uppercase", letterSpacing: 0.4, padding: "2px 7px", borderRadius: 8, marginLeft: 6,
-  background: role === "supervisor" ? "#f7e3e8" : role === "waiter" ? "#eaf3de" : "#eee",
-  color: role === "supervisor" ? C.maroon : role === "waiter" ? "#3b6d11" : "#777",
+  background: role === "supervisor" ? "#f7e3e8" : role === "waiter" ? "#eaf3de" : role === "kitchen" ? "#fdeccf" : "#eee",
+  color: role === "supervisor" ? C.maroon : role === "waiter" ? "#3b6d11" : role === "kitchen" ? "#9a6b00" : "#777",
 });
 const roleBtn = (on: boolean): React.CSSProperties => ({ flex: 1, padding: "9px", borderRadius: 10, border: `1.5px solid ${on ? C.maroon : C.line}`, background: on ? C.maroon : "#fff", color: on ? "#fff" : C.ink, fontWeight: 700, fontSize: 13.5, cursor: "pointer" });
