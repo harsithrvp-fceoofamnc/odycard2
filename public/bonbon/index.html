@@ -96,10 +96,16 @@
   .mic{position:relative;background:#fffdf7;border:1px solid var(--line);color:var(--blue);width:46px;height:46px;border-radius:50%;font-size:18px;cursor:pointer}
   .mic.on{background:linear-gradient(135deg,#a83048,#811226);color:#fff;border-color:#811226}
   .inputrow{position:relative}
-  .wform{position:absolute;inset:0;display:none;align-items:center;justify-content:center;gap:3px;padding:0 52px 0 18px;background:#fff;border:1.5px solid var(--blue);border-radius:22px;cursor:pointer;overflow:hidden}
+  #bar.recording .microw{display:none}
+  .wform{position:absolute;inset:0;display:none;align-items:center;gap:9px;padding:0 7px 0 16px;background:#fff;border:1.5px solid var(--line);border-radius:24px;overflow:hidden}
   .wform.show{display:flex}
-  .wform .wbar{width:4px;flex:0 0 4px;height:12%;background:var(--blue);border-radius:3px;transition:height .07s linear}
-  .wtime{position:absolute;right:16px;font-size:12.5px;font-weight:700;color:var(--mut);font-variant-numeric:tabular-nums}
+  .wbars{flex:1;height:32px;display:flex;align-items:center;justify-content:flex-end;gap:2px;overflow:hidden}
+  .wbars .wbar{width:2px;flex:0 0 2px;height:3px;background:var(--blue);border-radius:2px;opacity:.9}
+  .wbtn{flex:0 0 auto;width:34px;height:34px;border-radius:50%;border:0;display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0}
+  .wbtn svg{width:18px;height:18px;fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+  .wx{background:#efe3e3}.wx svg{stroke:var(--ink)}
+  .wok{background:var(--blue)}.wok svg{stroke:#fff}
+  .wbtn:active{transform:scale(.92)}
   .mic.on::before,.mic.on::after{content:"";position:absolute;inset:-1px;border-radius:50%;border:2px solid rgba(129,18,38,.5);animation:ripple 1.9s cubic-bezier(.22,1,.36,1) infinite;pointer-events:none}
   .mic.on::after{animation-delay:.95s}
   @keyframes ripple{0%{transform:scale(1);opacity:.65}70%{opacity:.18}100%{transform:scale(2.3);opacity:0}}
@@ -323,7 +329,11 @@
     <div class="inputrow">
       <textarea id="inp" rows="1" placeholder="Ask me anything…" oninput="autoGrow()" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendText();}"></textarea>
       <button class="send" onclick="sendText()"><svg class='icbtn' viewBox='0 0 24 24'><path d='M4 12l16-8-6 16-3-7z'/><path d='M11 13l9-9'/></svg></button>
-      <div class="wform" id="wform" onclick="recordVoice()" title="Tap to stop"><span class="wtime" id="wtime">0:00</span></div>
+      <div class="wform" id="wform">
+        <div class="wbars" id="wbars"></div>
+        <button class="wbtn wx" onclick="cancelVoice()" title="Cancel" aria-label="Cancel recording"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+        <button class="wbtn wok" onclick="stopVoice()" title="Done" aria-label="Stop and transcribe"><svg viewBox="0 0 24 24"><path d="M5 12.5l5 5L20 6.5"/></svg></button>
+      </div>
     </div>
     <div class="foot">Demo prototype · simulated AI &amp; payment · © Odysra</div>
   </div>
@@ -973,28 +983,47 @@ function startRecording(){
    var blob=chunks.length?new Blob(chunks,{type:mediaRec.mimeType||'audio/webm'}):null;
    if(blob){transcribe(blob);}else if(el){el.placeholder=T("ask");}
   };
-  listening=true;setMic(true);showListening(true);
+  listening=true;setMic(true);
+  var bw=document.getElementById("bar");if(bw)bw.classList.add("recording");
   try{mediaRec.start();}catch(e){}
-  startWave(stream); // sound-wave reacts to the voice while recording
+  startWave(stream); // sound-wave scrolls with the voice while recording
  }).catch(function(){listening=false;setMic(false);bot("🎙️ Please allow microphone access to use voice.");});
 }
-// Sound-wave: bars driven by the mic's live frequency data + a running timer.
-var waveRAF=null,waveTimer=null,waveCtx=null;
+// Cancel: stop recording and throw the audio away (the ✕ button).
+function cancelVoice(){
+ voiceLocked=true; // tells onstop to discard, not transcribe
+ var el=document.getElementById("inp");if(el){el.value=voiceBase.trim();autoGrow();el.placeholder=T("ask");}
+ if(mediaRec&&mediaRec.state&&mediaRec.state!=="inactive"){listening=false;setMic(false);try{mediaRec.stop();}catch(e){}return;}
+ listening=false;setMic(false);stopWave();
+}
+// Sound-wave (ChatGPT-style): a scrolling amplitude meter. Each tick we measure the mic's actual
+// loudness (RMS) with a noise floor, so bars stay as flat dots in silence and only rise when the
+// guest really speaks. Newest sample enters on the right and scrolls left.
+var waveRAF=null,waveCtx=null,waveData=null,waveLast=0;
+var WAVE_N=64;
 function startWave(stream){
- var wf=document.getElementById("wform");if(!wf)return;
- if(!wf.querySelector(".wbar")){var b="";for(var i=0;i<32;i++)b+='<span class="wbar"></span>';wf.insertAdjacentHTML("afterbegin",b);}
+ var host=document.getElementById("wbars"),wf=document.getElementById("wform");if(!host||!wf)return;
+ if(!host.querySelector(".wbar")){var b="";for(var i=0;i<WAVE_N;i++)b+='<span class="wbar"></span>';host.innerHTML=b;}
+ waveData=new Array(WAVE_N).fill(0);
  wf.classList.add("show");
- var tEl=document.getElementById("wtime");recStart=Date.now();
- if(tEl){tEl.textContent="0:00";waveTimer=setInterval(function(){var s=Math.floor((Date.now()-recStart)/1000);tEl.textContent=Math.floor(s/60)+":"+("0"+(s%60)).slice(-2);},250);}
  try{
   var AC=window.AudioContext||window.webkitAudioContext;waveCtx=new AC();
-  var src=waveCtx.createMediaStreamSource(stream),an=waveCtx.createAnalyser();an.fftSize=64;src.connect(an);
-  var buf=new Uint8Array(an.frequencyBinCount);
-  var bars=wf.querySelectorAll(".wbar");
+  var src=waveCtx.createMediaStreamSource(stream),an=waveCtx.createAnalyser();an.fftSize=512;src.connect(an);
+  var tbuf=new Uint8Array(an.fftSize);
+  var bars=host.querySelectorAll(".wbar");
   var loop=function(){
    if(!listening){return;}
-   an.getByteFrequencyData(buf);
-   for(var i=0;i<bars.length;i++){var v=(buf[i]||0)/255;var h=Math.max(9,Math.min(100,v*150));bars[i].style.height=h+"%";}
+   var now=performance.now();
+   if(now-waveLast>=55){ // ~18 fps scroll
+    waveLast=now;
+    an.getByteTimeDomainData(tbuf);
+    var sum=0;for(var i=0;i<tbuf.length;i++){var v=(tbuf[i]-128)/128;sum+=v*v;}
+    var rms=Math.sqrt(sum/tbuf.length);
+    var level=Math.max(0,rms-0.018); // noise floor -> silence reads as flat dots
+    var amp=Math.min(1,level/0.22);
+    waveData.push(amp);waveData.shift();
+    for(var j=0;j<bars.length;j++){bars[j].style.height=(3+waveData[j]*23).toFixed(1)+"px";}
+   }
    waveRAF=requestAnimationFrame(loop);
   };
   loop();
@@ -1002,9 +1031,9 @@ function startWave(stream){
 }
 function stopWave(){
  if(waveRAF){cancelAnimationFrame(waveRAF);waveRAF=null;}
- if(waveTimer){clearInterval(waveTimer);waveTimer=null;}
  if(waveCtx){try{waveCtx.close();}catch(e){}waveCtx=null;}
  var wf=document.getElementById("wform");if(wf)wf.classList.remove("show");
+ var bw=document.getElementById("bar");if(bw)bw.classList.remove("recording");
 }
 // FALLBACK: record audio and send it to Sarvam (good Indian-language accuracy) for transcription.
 function startSarvamRecording(){
