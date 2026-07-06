@@ -85,6 +85,7 @@ export default function BonBonLogin() {
         padding: 20,
       }}
     >
+      <style>{`html::-webkit-scrollbar,body::-webkit-scrollbar{width:0;display:none}html,body{scrollbar-width:none;-ms-overflow-style:none}`}</style>
       <div
         style={{
           width: "100%",

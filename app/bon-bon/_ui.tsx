@@ -71,6 +71,21 @@ export function Shell({
   }
   return (
     <div style={{ minHeight: "100vh", background: C.bg, fontFamily: font, color: C.ink }}>
+      {/* hide every scrollbar while a dashboard is open */}
+      <style>{`
+        html::-webkit-scrollbar, body::-webkit-scrollbar, .bbcol *::-webkit-scrollbar { width: 0 !important; height: 0 !important; display: none !important; }
+        html, body, .bbcol, .bbcol * { scrollbar-width: none !important; -ms-overflow-style: none !important; }
+      `}</style>
+      <div
+        className="bbcol"
+        style={{
+          maxWidth: 520,
+          margin: "0 auto",
+          minHeight: "100vh",
+          background: C.bg,
+          boxShadow: "0 0 44px rgba(0,0,0,.07)",
+        }}
+      >
       <header
         style={{
           display: "flex",
@@ -129,7 +144,8 @@ export function Shell({
           {nav}
         </nav>
       )}
-      <main style={{ maxWidth: 1040, margin: "0 auto", padding: "18px 16px 60px" }}>{children}</main>
+      <main style={{ padding: "16px 14px 64px" }}>{children}</main>
+      </div>
     </div>
   );
 }
