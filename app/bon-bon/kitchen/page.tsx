@@ -63,11 +63,17 @@ export default function KitchenPage() {
   useEffect(() => {
     if (!ready) return;
     load();
-    const a = setInterval(load, 5000);
+    const a = setInterval(load, 3000);
     const b = setInterval(() => setTick((t) => t + 1), 15000);
+    // browsers throttle background tabs — refresh instantly when this screen is focused again
+    const onVis = () => { if (!document.hidden) load(); };
+    document.addEventListener("visibilitychange", onVis);
+    window.addEventListener("focus", onVis);
     return () => {
       clearInterval(a);
       clearInterval(b);
+      document.removeEventListener("visibilitychange", onVis);
+      window.removeEventListener("focus", onVis);
     };
   }, [ready, load]);
 
@@ -101,7 +107,7 @@ export default function KitchenPage() {
     >
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
         <p style={{ margin: 0, fontSize: 13, color: C.mut }}>
-          Live order tickets from the chatbot · refreshes every 5s
+          Live order tickets from the chatbot · updates automatically
         </p>
         <span style={{ fontSize: 11.5, color: C.mut }} key={tick}>
           {orders.length} active

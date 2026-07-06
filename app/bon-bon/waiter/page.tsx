@@ -47,8 +47,16 @@ export default function WaiterPage() {
   useEffect(() => {
     if (!ready) return;
     load();
-    const t = setInterval(load, 4000);
-    return () => clearInterval(t);
+    const t = setInterval(load, 3000);
+    // browsers throttle background tabs — so refresh the moment this screen is looked at again
+    const onVis = () => { if (!document.hidden) load(); };
+    document.addEventListener("visibilitychange", onVis);
+    window.addEventListener("focus", onVis);
+    return () => {
+      clearInterval(t);
+      document.removeEventListener("visibilitychange", onVis);
+      window.removeEventListener("focus", onVis);
+    };
   }, [ready, load]);
 
   async function serve(o: Order) {
