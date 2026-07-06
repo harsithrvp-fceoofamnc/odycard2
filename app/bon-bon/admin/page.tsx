@@ -149,33 +149,50 @@ export default function AdminPage() {
           <section style={{ ...card, marginBottom: 16 }}>
             <h2 style={h2}>Restaurants &amp; outlets</h2>
             <p style={hint}>
-              Add a restaurant, then give it one or more outlets (branches). Each outlet has its <b>own menu</b> — open
-              it to edit that branch&apos;s items independently.
+              Add a restaurant, then give it one or more outlets (branches). Each outlet has its <b>own menu</b>.
             </p>
             {restaurants.map((r) => {
               const os = outlets.filter((o) => o.restaurant_id === r.id);
               return (
-                <div key={r.id} style={{ borderTop: `1px solid ${C.line}`, paddingTop: 12, marginTop: 12 }}>
-                  <div style={{ fontWeight: 800, color: C.ink, fontSize: 15 }}>{r.name}</div>
-                  <div style={{ display: "grid", gap: 8, margin: "8px 0 4px" }}>
+                <div key={r.id} style={{ marginTop: 18 }}>
+                  {/* restaurant header */}
+                  <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
+                    <span style={iconWrap}><StoreIcon /></span>
+                    <div style={{ fontWeight: 800, color: C.ink, fontSize: 15.5 }}>{r.name}</div>
+                    <span style={{ fontSize: 12, color: C.mut, fontWeight: 600 }}>
+                      {os.length} outlet{os.length === 1 ? "" : "s"}
+                    </span>
+                  </div>
+                  {/* outlets list */}
+                  <div style={{ paddingLeft: 6 }}>
                     {os.map((o) => (
-                      <div key={o.id} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, flexWrap: "wrap", background: "#faf2f1", border: `1px solid ${C.line}`, borderRadius: 10, padding: "9px 12px" }}>
-                        <div style={{ fontWeight: 700, color: C.ink, fontSize: 14 }}>{o.name}</div>
+                      <div
+                        key={o.id}
+                        style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, flexWrap: "wrap", padding: "11px 4px", borderTop: `1px solid ${C.line}` }}
+                      >
+                        <div style={{ display: "flex", alignItems: "center", gap: 9, minWidth: 0 }}>
+                          <PinIcon />
+                          <span style={{ fontWeight: 700, color: C.ink, fontSize: 14 }}>{o.name}</span>
+                        </div>
                         <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-                          <a href={`/bon-bon/manage?outlet=${o.id}`} style={{ ...outBtn, background: C.maroon, color: "#fff", border: 0 }}>Menu</a>
+                          <a href={`/bon-bon/manage?outlet=${o.id}`} style={outBtn}>Menu</a>
                           <a href={`/bon-bon/kitchen?outlet=${o.id}`} style={outBtn}>Kitchen</a>
                           <a href={`/bon-bon/waiter?outlet=${o.id}`} style={outBtn}>Waiter</a>
                         </div>
                       </div>
                     ))}
-                    {os.length === 0 && <div style={{ fontSize: 12.5, color: C.mut }}>No outlets yet.</div>}
+                    {os.length === 0 && (
+                      <div style={{ fontSize: 12.5, color: C.mut, padding: "8px 4px", borderTop: `1px solid ${C.line}` }}>No outlets yet.</div>
+                    )}
+                    <div style={{ borderTop: `1px solid ${C.line}`, paddingTop: 10, marginTop: 2 }}>
+                      <AddOutlet onAdd={(name) => addOutlet(r.id, name)} />
+                    </div>
                   </div>
-                  <AddOutlet onAdd={(name) => addOutlet(r.id, name)} />
                 </div>
               );
             })}
-            <form onSubmit={addRestaurant} style={{ borderTop: `1px solid ${C.line}`, paddingTop: 12, marginTop: 12 }}>
-              <div style={{ fontWeight: 700, fontSize: 13, color: C.mut, marginBottom: 6 }}>Add a restaurant</div>
+            <form onSubmit={addRestaurant} style={{ marginTop: 20, background: "#faf2f1", border: `1px solid ${C.line}`, borderRadius: 12, padding: "12px 13px" }}>
+              <div style={{ fontWeight: 700, fontSize: 12.5, color: C.mut, textTransform: "uppercase", letterSpacing: 0.4, marginBottom: 8 }}>Add a restaurant</div>
               <div style={{ display: "flex", gap: 8 }}>
                 <input style={{ ...inp, flex: 1 }} value={rName} onChange={(e) => setRName(e.target.value)} placeholder="Restaurant name" />
                 <button style={primaryBtn}>Add</button>
@@ -275,6 +292,24 @@ function AddOutlet({ onAdd }: { onAdd: (name: string) => void }) {
   );
 }
 
+function StoreIcon() {
+  return (
+    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke={C.maroon} strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M4 9.5V20a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1V9.5" />
+      <path d="M3 9l1.6-4.4A1 1 0 0 1 5.5 4h13a1 1 0 0 1 .9.6L21 9a3 3 0 0 1-6 0 3 3 0 0 1-6 0 3 3 0 0 1-6 0z" />
+      <path d="M9.5 21v-5h5v5" />
+    </svg>
+  );
+}
+function PinIcon() {
+  return (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke={C.mut} strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" style={{ flex: "0 0 15px" }}>
+      <path d="M12 21s-6-5.4-6-10a6 6 0 1 1 12 0c0 4.6-6 10-6 10z" />
+      <circle cx="12" cy="11" r="2.2" />
+    </svg>
+  );
+}
+
 function Stat({ label, value, accent }: { label: string; value: string; accent?: boolean }) {
   return (
     <div style={{ background: accent ? `linear-gradient(135deg,${C.maroon},${C.dark})` : C.card, border: `1px solid ${C.line}`, borderRadius: 14, padding: "14px 16px" }}>
@@ -292,6 +327,7 @@ const inp: React.CSSProperties = { width: "100%", boxSizing: "border-box", paddi
 const primaryBtn: React.CSSProperties = { padding: "11px 16px", border: 0, borderRadius: 11, background: `linear-gradient(135deg,${C.maroon},${C.dark})`, color: "#fff", fontSize: 14.5, fontWeight: 800, cursor: "pointer" };
 const miniBtn: React.CSSProperties = { padding: "6px 11px", borderRadius: 9, border: `1.5px solid ${C.line}`, background: "#fff", color: C.ink, fontWeight: 700, fontSize: 12.5, cursor: "pointer" };
 const outBtn: React.CSSProperties = { padding: "7px 12px", borderRadius: 9, border: `1.5px solid ${C.line}`, background: "#fff", color: C.maroon, fontWeight: 700, fontSize: 12.5, cursor: "pointer", textDecoration: "none", whiteSpace: "nowrap", display: "inline-block" };
+const iconWrap: React.CSSProperties = { display: "inline-flex", alignItems: "center", justifyContent: "center", width: 30, height: 30, borderRadius: 9, background: "#f7e3e8", flex: "0 0 30px" };
 const tag = (role: string): React.CSSProperties => ({
   fontSize: 10, fontWeight: 800, textTransform: "uppercase", letterSpacing: 0.4, padding: "2px 7px", borderRadius: 8, marginLeft: 6,
   background: role === "supervisor" ? "#f7e3e8" : role === "waiter" ? "#eaf3de" : role === "kitchen" ? "#fdeccf" : "#eee",
