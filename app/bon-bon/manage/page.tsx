@@ -193,7 +193,7 @@ function ItemRow({
           <div style={{ fontWeight: 700, color: C.ink, fontSize: 15 }}>
             {it.name}
             {soldOut && <span style={{ ...pill, background: "#fbe9e7", color: C.warn }}>Sold out</span>}
-            {it.hidden && <span style={{ ...pill, background: "#eee", color: "#777" }}>Hidden</span>}
+            {!!it.hidden && <span style={{ ...pill, background: "#eee", color: "#777" }}>Hidden</span>}
           </div>
           <div style={{ fontSize: 13, color: C.mut, marginTop: 2 }}>
             ₹{it.price}
