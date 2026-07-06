@@ -8,11 +8,11 @@
   :root{--blue:#811226;--ink:#2a1212;--mut:#9a8585;--line:#ecdcdc;--cream:#faf2f1;--gold:#811226;--card:#fffdfc;--brandtop:#811226;--brandbot:#5a0c1a;}
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   html{height:100%;overscroll-behavior:none}
-  body{margin:0;background:#efe4e2;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;display:flex;justify-content:center;align-items:center;min-height:100vh;min-height:100dvh;height:100dvh;overflow:hidden;overscroll-behavior:none}
-  #phone{width:100%;max-width:440px;height:100vh;height:100dvh;background:var(--cream);overflow:hidden;display:flex;flex-direction:column;position:relative}
+  body{margin:0;background:#000;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;display:flex;justify-content:center;align-items:center;min-height:100vh;min-height:100dvh;height:100dvh;overflow:hidden;overscroll-behavior:none}
+  #phone{width:100%;max-width:520px;height:100vh;height:100dvh;background:var(--cream);overflow:hidden;display:flex;flex-direction:column;position:relative}
   @media(min-width:480px){
-    body{padding:16px;box-sizing:border-box}
-    #phone{height:calc(100dvh - 32px);max-height:820px;border-radius:24px;box-shadow:0 18px 50px rgba(0,0,0,.45)}
+    body{padding:0}
+    #phone{height:100dvh;box-shadow:0 0 44px rgba(0,0,0,.5)}
   }
   header{background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'%3E%3Cg fill='none' stroke='%23ffffff' stroke-width='1' stroke-opacity='0.07'%3E%3Ccircle cx='0' cy='0' r='20'/%3E%3Ccircle cx='40' cy='0' r='20'/%3E%3Ccircle cx='0' cy='40' r='20'/%3E%3Ccircle cx='40' cy='40' r='20'/%3E%3Ccircle cx='20' cy='20' r='20'/%3E%3C/g%3E%3C/svg%3E"),linear-gradient(135deg,var(--brandtop),var(--brandbot));background-size:40px 40px,cover;color:#fff;padding:12px 16px 10px;display:flex;align-items:center;gap:10px;box-shadow:0 2px 14px rgba(62,39,19,.35);border-bottom:2px solid var(--gold);position:relative;z-index:2;overflow:hidden}
   header .logo{width:38px;height:38px;border-radius:9px;background:#fff8ec;color:var(--brandbot);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:19px;box-shadow:0 0 0 1.5px var(--gold),0 2px 6px rgba(0,0,0,.18)}
@@ -311,7 +311,7 @@
 </head>
 <body>
 <div id="phone">
-  <header><button id="back" class="hback" onclick="goOutlets()" title="Change outlet">←</button><div class="logo">B</div><div><h1 id="hname">Bon Bon</h1><div class="sub" id="hsub">Choose your outlet — AI Waiter by Odysra</div></div></header>
+  <header><button id="back" class="hback" onclick="goOutlets()" title="Change outlet">←</button><div class="logo"><img src="/bon_bon_logo.png" alt="Bon Bon" style="width:100%;height:100%;object-fit:cover;border-radius:9px;display:block"></div><div><h1 id="hname">Bon Bon</h1><div class="sub" id="hsub">Choose your outlet — AI Waiter by Odysra</div></div></header>
   <div class="langbar" id="langbar"></div>
   <div id="wm"></div>
   <div id="chat"></div>

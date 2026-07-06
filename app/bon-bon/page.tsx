@@ -5,9 +5,9 @@
 export default function BonBon() {
   return (
     <>
-      <style>{`html,body{height:100%;overflow:hidden;overscroll-behavior:none;background:#f4e6ec}`}</style>
+      <style>{`html,body{height:100%;overflow:hidden;overscroll-behavior:none;background:#000}`}</style>
       <iframe
-        src="/bonbon/index.html?v=19"
+        src="/bonbon/index.html?v=20"
         allow="microphone"
         style={{ position: "fixed", inset: 0, width: "100%", height: "100%", border: "none" }}
       />

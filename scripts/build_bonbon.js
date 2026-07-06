@@ -98,7 +98,7 @@ h = h.replace('document.getElementById("hname").textContent="Annapoorna · "+o;'
 
 // ---- branding ----
 h = h.replace(/const LOGO="data:image\/png;base64,[^"]*";/, 'const LOGO="/bon_bon_logo.png";');
-h = h.replace('<div class="logo">A</div>', '<div class="logo">B</div>');
+h = h.replace('<div class="logo">A</div>', '<div class="logo"><img src="/bon_bon_logo.png" alt="Bon Bon" style="width:100%;height:100%;object-fit:cover;border-radius:9px;display:block"></div>');
 h = h.replace(/<title>[^<]*<\/title>/, "<title>Bon Bon — AI Ice Cream Menu</title>");
 h = h.split("Sree Annapoorna").join("Bon Bon");
 h = h.split("Annapoorna").join("Bon Bon");
@@ -114,8 +114,16 @@ h = h.replace(/\.langbar\{display:flex;gap:6px;overflow-x:auto;padding:8px 12px;
   ".langbar{display:flex;gap:6px;overflow-x:auto;padding:8px 12px;background:#5a0c1a;");
 // dish cards: show the image block with the logo centred (like the original chatbot)
 h = h.replace("const LOGO_PICS=false;", "const LOGO_PICS=true;");
-// page frame behind the phone -> warm neutral
-h = h.replace("background:#0e1116;", "background:#efe4e2;");
+// page frame behind the phone -> black (matches the staff dashboards' look on desktop)
+h = h.replace("background:#0e1116;", "background:#000;");
+// widen the phone a touch and make it FILL the screen height on desktop (no floating rounded card),
+// so the chatbot looks like the mobile-column dashboards
+h = h.replace("max-width:440px", "max-width:520px");
+h = h.replace("body{padding:16px;box-sizing:border-box}", "body{padding:0}");
+h = h.replace(
+  "#phone{height:calc(100dvh - 32px);max-height:820px;border-radius:24px;box-shadow:0 18px 50px rgba(0,0,0,.45)}",
+  "#phone{height:100dvh;box-shadow:0 0 44px rgba(0,0,0,.5)}"
+);
 // chat wallpaper -> clean neutral surface
 h = h.replace(/background-image:linear-gradient\(rgba\(246,238,221[^)]*\),rgba\([^)]*\)\),url\('chat-bg\.jpg'\);/,
   "background:#faf2f1;");
