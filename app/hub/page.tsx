@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 
-type Item = { title: string; sub: string; href: string; blank?: boolean };
+type Item = { title: string; sub: string; href: string; blank?: boolean; staff?: boolean };
 type Group = { label: string; accent: string; items: Item[] };
 
 const GROUPS: Group[] = [
@@ -29,10 +29,10 @@ const GROUPS: Group[] = [
     label: "Bon Bon — staff logins",
     accent: "#811226",
     items: [
-      { title: "Owner", sub: "Sign in → sales, staff, outlets", href: "/bon-bon/admin" },
-      { title: "Supervisor", sub: "Sign in → menu · kitchen · waiter", href: "/bon-bon/manage" },
-      { title: "Kitchen", sub: "Sign in → live order board", href: "/bon-bon/kitchen" },
-      { title: "Waiter", sub: "Sign in → ready orders to serve", href: "/bon-bon/waiter" },
+      { title: "Owner", sub: "Sign in → sales, staff, outlets", href: "/bon-bon/admin", staff: true },
+      { title: "Supervisor", sub: "Sign in → menu · kitchen · waiter", href: "/bon-bon/manage", staff: true },
+      { title: "Kitchen", sub: "Sign in → live order board", href: "/bon-bon/kitchen", staff: true },
+      { title: "Waiter", sub: "Sign in → ready orders to serve", href: "/bon-bon/waiter", staff: true },
     ],
   },
   {
@@ -77,6 +77,19 @@ export default function Hub() {
                     href={it.href}
                     target={it.blank ? "_blank" : undefined}
                     rel={it.blank ? "noopener noreferrer" : undefined}
+                    onClick={
+                      it.staff
+                        ? (e) => {
+                            // Each staff card = a fresh sign-in for that role: drop any existing
+                            // session, then open its login (which lands on that role's dashboard).
+                            e.preventDefault();
+                            const go = `/bon-bon/login?next=${encodeURIComponent(it.href)}`;
+                            fetch("/api/bonbon/auth/logout", { method: "POST" })
+                              .catch(() => {})
+                              .finally(() => { window.location.href = go; });
+                          }
+                        : undefined
+                    }
                     className={"card" + (mounted ? " in" : "")}
                     style={{ "--c": g.accent, animationDelay: `${d * 45}ms` } as React.CSSProperties}
                   >
