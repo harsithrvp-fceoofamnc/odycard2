@@ -235,6 +235,51 @@ export function PasswordField({
   );
 }
 
+/** Dropdown to switch which outlet's data the current dashboard shows (menu/kitchen/waiter).
+ *  Reloads the same page with ?outlet=<id>. Only appears once there's an outlet to pick. */
+export function OutletSwitcher() {
+  const [outlets, setOutlets] = useState<{ id: number; name: string }[]>([]);
+  const [cur, setCur] = useState("");
+  useEffect(() => {
+    setCur(new URLSearchParams(window.location.search).get("outlet") || "");
+    fetch("/api/bonbon/outlets")
+      .then((r) => (r.ok ? r.json() : { outlets: [] }))
+      .then((d) => setOutlets(d.outlets || []))
+      .catch(() => {});
+  }, []);
+  if (outlets.length === 0) return null;
+  const path = typeof window !== "undefined" ? window.location.pathname : "";
+  const curId = cur || String(outlets[0].id);
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14 }}>
+      <span style={{ fontSize: 12.5, color: C.mut, fontWeight: 700 }}>Outlet</span>
+      <select
+        value={curId}
+        onChange={(e) => {
+          window.location.href = `${path}?outlet=${e.target.value}`;
+        }}
+        style={{
+          flex: 1,
+          padding: "8px 11px",
+          borderRadius: 10,
+          border: `1.5px solid ${C.line}`,
+          background: "#fff",
+          color: C.ink,
+          fontSize: 14,
+          fontWeight: 600,
+          outline: "none",
+        }}
+      >
+        {outlets.map((o) => (
+          <option key={o.id} value={o.id}>
+            {o.name}
+          </option>
+        ))}
+      </select>
+    </div>
+  );
+}
+
 export function Spinner({ label = "Loading…" }: { label?: string }) {
   return (
     <div style={{ padding: 50, textAlign: "center", color: C.mut, fontFamily: font }}>

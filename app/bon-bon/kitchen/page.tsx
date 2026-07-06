@@ -1,6 +1,6 @@
 "use client";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { C, Shell, NavLink, Spinner, useBBSession } from "../_ui";
+import { C, Shell, NavLink, Spinner, OutletSwitcher, useBBSession } from "../_ui";
 
 type Order = {
   id: string;
@@ -105,6 +105,7 @@ export default function KitchenPage() {
         </>
       }
     >
+      <OutletSwitcher />
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
         <p style={{ margin: 0, fontSize: 13, color: C.mut }}>
           Live order tickets from the chatbot · updates automatically

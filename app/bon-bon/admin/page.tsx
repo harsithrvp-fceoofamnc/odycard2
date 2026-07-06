@@ -158,10 +158,15 @@ export default function AdminPage() {
                   {/* restaurant header */}
                   <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
                     <span style={iconWrap}><StoreIcon /></span>
-                    <div style={{ fontWeight: 800, color: C.ink, fontSize: 15.5 }}>{r.name}</div>
-                    <span style={{ fontSize: 12, color: C.mut, fontWeight: 600 }}>
-                      {os.length} outlet{os.length === 1 ? "" : "s"}
-                    </span>
+                    <div style={{ minWidth: 0 }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
+                        <span style={{ fontWeight: 800, color: C.ink, fontSize: 15.5 }}>{r.name}</span>
+                        <span style={{ fontSize: 9.5, fontWeight: 800, letterSpacing: 0.5, textTransform: "uppercase", color: C.maroon, background: "#f7e3e8", padding: "2px 7px", borderRadius: 7 }}>Restaurant</span>
+                      </div>
+                      <div style={{ fontSize: 11.5, color: C.mut, marginTop: 1 }}>
+                        {os.length} outlet{os.length === 1 ? "" : "s"}
+                      </div>
+                    </div>
                   </div>
                   {/* outlets list */}
                   <div style={{ paddingLeft: 6 }}>

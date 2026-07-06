@@ -13,7 +13,8 @@ function slugify(s: string): string {
 // real Bon Bon menu (seeded into its subcollection), which the supervisor can then edit freely.
 
 export async function GET(req: NextRequest) {
-  const s = await requireBB(["admin"]);
+  // any signed-in staff may LIST outlets (needed for the dashboard switcher); only admin can create
+  const s = await requireBB(["admin", "supervisor", "waiter", "kitchen"]);
   if (!s) return NextResponse.json({ error: "Not authorised" }, { status: 401 });
   await ensureDefaultTenant();
   const db = bbDb();

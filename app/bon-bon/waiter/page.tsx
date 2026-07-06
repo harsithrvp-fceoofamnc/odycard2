@@ -1,6 +1,6 @@
 "use client";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { C, Shell, NavLink, Spinner, useBBSession } from "../_ui";
+import { C, Shell, NavLink, Spinner, OutletSwitcher, useBBSession } from "../_ui";
 
 type Order = {
   id: string;
@@ -88,6 +88,7 @@ export default function WaiterPage() {
         )
       }
     >
+      <OutletSwitcher />
       <p style={{ margin: "0 0 14px", fontSize: 13, color: C.mut }}>
         Orders the kitchen has marked <b style={{ color: C.good }}>ready</b> show up here. Deliver them, then tap{" "}
         <b>Served</b>.
