@@ -5,7 +5,7 @@ import { C, Shell, NavLink, Spinner, PasswordField, useBBSession } from "../_ui"
 type Staff = { id: string; name: string; username: string; role: string; active: boolean };
 type Order = { id: string; total: number; status: string; created_at: string };
 type Restaurant = { id: number; name: string };
-type Outlet = { id: number; restaurant_id: number; name: string; slug: string };
+type Outlet = { id: number; restaurant_id: number; name: string; slug: string; tables: number };
 
 export default function AdminPage() {
   const { me, ready } = useBBSession(["admin"]);
@@ -171,20 +171,7 @@ export default function AdminPage() {
                   {/* outlets list */}
                   <div style={{ paddingLeft: 6 }}>
                     {os.map((o) => (
-                      <div
-                        key={o.id}
-                        style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, flexWrap: "wrap", padding: "11px 4px", borderTop: `1px solid ${C.line}` }}
-                      >
-                        <div style={{ display: "flex", alignItems: "center", gap: 9, minWidth: 0 }}>
-                          <PinIcon />
-                          <span style={{ fontWeight: 700, color: C.ink, fontSize: 14 }}>{o.name}</span>
-                        </div>
-                        <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-                          <a href={`/bon-bon/manage?outlet=${o.id}`} style={outBtn}>Menu</a>
-                          <a href={`/bon-bon/kitchen?outlet=${o.id}`} style={outBtn}>Kitchen</a>
-                          <a href={`/bon-bon/waiter?outlet=${o.id}`} style={outBtn}>Waiter</a>
-                        </div>
-                      </div>
+                      <OutletRow key={o.id} o={o} onSaved={load} />
                     ))}
                     {os.length === 0 && (
                       <div style={{ fontSize: 12.5, color: C.mut, padding: "8px 4px", borderTop: `1px solid ${C.line}` }}>No outlets yet.</div>
@@ -297,6 +284,60 @@ function AddOutlet({ onAdd }: { onAdd: (name: string) => void }) {
   );
 }
 
+function OutletRow({ o, onSaved }: { o: Outlet; onSaved: () => void }) {
+  const [open, setOpen] = useState(false);
+  const [name, setName] = useState(o.name);
+  const [tables, setTables] = useState(String(o.tables || ""));
+  const [busy, setBusy] = useState(false);
+  async function save() {
+    setBusy(true);
+    const r = await fetch(`/api/bonbon/outlets/${o.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name, tables: Number(tables) || 0 }),
+    });
+    setBusy(false);
+    if (r.ok) { setOpen(false); onSaved(); }
+    else alert((await r.json()).error || "Could not save");
+  }
+  return (
+    <div style={{ borderTop: `1px solid ${C.line}` }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, flexWrap: "wrap", padding: "11px 4px" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 9, minWidth: 0 }}>
+          <PinIcon />
+          <div style={{ minWidth: 0 }}>
+            <div style={{ fontWeight: 700, color: C.ink, fontSize: 14 }}>{o.name}</div>
+            {o.tables > 0 && <div style={{ fontSize: 11.5, color: C.mut }}>{o.tables} tables</div>}
+          </div>
+        </div>
+        <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+          <a href={`/bon-bon/manage?outlet=${o.id}`} style={outBtn}>Menu</a>
+          <a href={`/bon-bon/kitchen?outlet=${o.id}`} style={outBtn}>Kitchen</a>
+          <a href={`/bon-bon/waiter?outlet=${o.id}`} style={outBtn}>Waiter</a>
+          <button onClick={() => setOpen(!open)} style={outBtn}>{open ? "Close" : "Details"}</button>
+        </div>
+      </div>
+      {open && (
+        <div style={{ padding: "2px 4px 14px", display: "grid", gap: 8 }}>
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+            <div style={{ flex: "1 1 150px" }}>
+              <label style={lbl}>Outlet name</label>
+              <input style={inp} value={name} onChange={(e) => setName(e.target.value)} />
+            </div>
+            <div style={{ width: 120 }}>
+              <label style={lbl}>No. of tables</label>
+              <input style={inp} type="number" value={tables} onChange={(e) => setTables(e.target.value)} placeholder="e.g. 12" />
+            </div>
+          </div>
+          <div style={{ display: "flex", justifyContent: "flex-end" }}>
+            <button onClick={save} disabled={busy} style={{ ...primaryBtn, opacity: busy ? 0.7 : 1 }}>{busy ? "Saving…" : "Save details"}</button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function StoreIcon() {
   return (
     <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke={C.maroon} strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round">
@@ -333,6 +374,7 @@ const primaryBtn: React.CSSProperties = { padding: "11px 16px", border: 0, borde
 const miniBtn: React.CSSProperties = { padding: "6px 11px", borderRadius: 9, border: `1.5px solid ${C.line}`, background: "#fff", color: C.ink, fontWeight: 700, fontSize: 12.5, cursor: "pointer" };
 const outBtn: React.CSSProperties = { padding: "7px 12px", borderRadius: 9, border: `1.5px solid ${C.line}`, background: "#fff", color: C.maroon, fontWeight: 700, fontSize: 12.5, cursor: "pointer", textDecoration: "none", whiteSpace: "nowrap", display: "inline-block" };
 const iconWrap: React.CSSProperties = { display: "inline-flex", alignItems: "center", justifyContent: "center", width: 30, height: 30, borderRadius: 9, background: "#f7e3e8", flex: "0 0 30px" };
+const lbl: React.CSSProperties = { display: "block", fontSize: 11, fontWeight: 700, color: C.mut, textTransform: "uppercase", letterSpacing: 0.4, marginBottom: 4 };
 const tag = (role: string): React.CSSProperties => ({
   fontSize: 10, fontWeight: 800, textTransform: "uppercase", letterSpacing: 0.4, padding: "2px 7px", borderRadius: 8, marginLeft: 6,
   background: role === "supervisor" ? "#f7e3e8" : role === "waiter" ? "#eaf3de" : role === "kitchen" ? "#fdeccf" : "#eee",

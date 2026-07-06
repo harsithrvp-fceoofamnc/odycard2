@@ -25,7 +25,7 @@ export async function GET(req: NextRequest) {
   const outlets = snap.docs
     .map((d) => {
       const x = d.data();
-      return { id: parseInt(d.id, 10), restaurant_id: x.restaurant_id, name: x.name, slug: x.slug, created_at: x.created_at ?? null };
+      return { id: parseInt(d.id, 10), restaurant_id: x.restaurant_id, name: x.name, slug: x.slug, tables: x.tables ?? 0, created_at: x.created_at ?? null };
     })
     .sort((a, b) => a.id - b.id);
   return NextResponse.json({ outlets });
