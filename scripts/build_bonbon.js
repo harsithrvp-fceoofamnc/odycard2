@@ -149,6 +149,9 @@ h = h.split("199,146,51").join("129,18,38");
 // any remaining gold hexes -> maroon shades
 h = h.split("#c79233").join("#811226");
 h = h.split("#c8972f").join("#811226"); // typing-indicator dots
+// dark icon/text (#3a2a05) sits on gold in Annapoorna, but on MAROON in Bon Bon -> make it white
+// (cart icon, "Checkout" button, primary .btn.g, taste-quiz buttons, etc.)
+h = h.split("#3a2a05").join("#fff");
 
 h = h.split("#e3b956").join("#a83048");
 h = h.split("#a8752a").join("#8a3a4c");

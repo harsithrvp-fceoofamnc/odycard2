@@ -917,7 +917,7 @@ function cancelVoice(){
 // loudness (RMS) with a noise floor, so bars stay as flat dots in silence and only rise when the
 // guest really speaks. Newest sample enters on the right and scrolls left.
 var waveRAF=null,waveCtx=null,waveData=null,waveLast=0;
-var WAVE_N=64;
+var WAVE_N=110;
 function startWave(stream){
  var host=document.getElementById("wbars"),wf=document.getElementById("wform");if(!host||!wf)return;
  if(!host.querySelector(".wbar")){var b="";for(var i=0;i<WAVE_N;i++)b+='<span class="wbar"></span>';host.innerHTML=b;}

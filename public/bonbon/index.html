@@ -71,7 +71,7 @@
   .pair .pi .e{font-size:27px}.pair .pi .n{font-size:12.5px;font-weight:700;margin:2px 0}
   .barwrap{position:absolute;left:0;right:0;bottom:0;z-index:5;background:transparent;padding:8px 10px 10px}
   #cartbar{display:none;margin-right:auto;width:46px;height:46px;border-radius:50%;align-items:center;justify-content:center;background:linear-gradient(135deg,#a83048,#811226);border:0;cursor:pointer;box-shadow:0 3px 11px rgba(129,18,38,.55);-webkit-tap-highlight-color:transparent}
-  #cartbar .carticon{width:23px;height:23px;fill:none;stroke:#3a2a05;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+  #cartbar .carticon{width:23px;height:23px;fill:none;stroke:#fff;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
   .cartbadge{position:absolute;top:-4px;right:-4px;min-width:19px;height:19px;padding:0 5px;border-radius:10px;background:var(--brandbot);color:var(--cream);font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;box-sizing:border-box;box-shadow:0 1px 4px rgba(0,0,0,.3);border:1.5px solid #a83048}
   .inputrow{display:flex;gap:7px;align-items:flex-end;position:relative}
   .microw{display:flex;justify-content:flex-end;align-items:center;margin-bottom:9px}
@@ -132,7 +132,7 @@
   .tot{display:flex;justify-content:space-between;font-size:15.5px;padding:5px 0;color:var(--ink)}
   .tot.big{font-size:18px;font-weight:800;border-top:2px solid var(--line);margin-top:6px;padding-top:9px}
   .btn{display:block;width:100%;background:var(--blue);color:#fff;border:0;font-weight:700;font-size:16.5px;padding:12px;border-radius:12px;cursor:pointer;margin-top:12px}
-  .btn.g{background:var(--gold);color:#3a2a05}
+  .btn.g{background:var(--gold);color:#fff}
   .opt{display:flex;gap:10px;margin:6px 0 2px}
   .opt button{flex:1;border:1.5px solid var(--blue);background:#fff;color:var(--blue);font-weight:700;padding:14px;border-radius:12px;cursor:pointer;font-size:15.5px}
   .opt button.on{background:var(--blue);color:#fff}
@@ -179,9 +179,9 @@
   .toflames{display:flex;align-items:center;justify-content:center;gap:3px;height:48px}
   .toflames svg{width:20px;height:20px;fill:#e8702f;stroke:none}
   .topts2.txt .to{flex-direction:row;justify-content:center;min-height:56px;padding:16px 12px;font-size:15px;gap:0}
-  .topts2.txt .to.on{background:var(--gold);color:#3a2a05;border-color:var(--gold)}
+  .topts2.txt .to.on{background:var(--gold);color:#fff;border-color:var(--gold)}
   .tfoot{padding:12px 22px 18px}
-  .tnext{display:block;width:100%;background:var(--gold);color:#3a2a05;border:0;font-weight:800;font-size:16.5px;padding:14px;border-radius:13px;cursor:pointer;box-shadow:0 4px 14px rgba(129,18,38,.4)}
+  .tnext{display:block;width:100%;background:var(--gold);color:#fff;border:0;font-weight:800;font-size:16.5px;padding:14px;border-radius:13px;cursor:pointer;box-shadow:0 4px 14px rgba(129,18,38,.4)}
   .tnext:active{transform:scale(.98)}
   .tback{background:none;border:0;color:var(--mut);font-weight:700;font-size:14px;cursor:pointer;padding:9px;margin-top:4px;width:100%}
   /* processing screen — glowing gradient orb */
@@ -1000,7 +1000,7 @@ function cancelVoice(){
 // loudness (RMS) with a noise floor, so bars stay as flat dots in silence and only rise when the
 // guest really speaks. Newest sample enters on the right and scrolls left.
 var waveRAF=null,waveCtx=null,waveData=null,waveLast=0;
-var WAVE_N=64;
+var WAVE_N=110;
 function startWave(stream){
  var host=document.getElementById("wbars"),wf=document.getElementById("wform");if(!host||!wf)return;
  if(!host.querySelector(".wbar")){var b="";for(var i=0;i<WAVE_N;i++)b+='<span class="wbar"></span>';host.innerHTML=b;}
