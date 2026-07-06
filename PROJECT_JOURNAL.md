@@ -292,3 +292,25 @@ A full de-branded copy of the whole app at **/restaurant**, for pitching to any 
 - Payment receipt lists drinks marked for the end ("☕ Served at the end: Filter Coffee").
 - Translated (serveLabel/serveNow/serveEnd/serveEndNote) in all 6 languages. Carries to white-label automatically.
 - Cache busters annapoorna ?v=40, restaurant ?v=25. Note: this captures the preference + shows it; actually *holding the KOT* until fired happens once the real order backend + kitchen screen exist.
+
+## 2026-07 — Bon Bon: full chatbot + live back-office platform
+
+### New restaurant: Bon Bon (ice-cream parlour)
+- Built `scripts/build_bonbon.js` from the shared template → `public/bonbon/index.html` + `app/api/bonbon/route.ts`. White/maroon theme (#811226), real logo, no outlet picker (straight to chat), served at clean URL `odysra.com/bon-bon`. 106-item menu from the real Bon Bon card (9 categories). Extra-ice-cream add-on on thick shakes; Best Seller / Must Try tags on cards. Disambiguated clashing item names (Litchi Shake, Belgian Chocolate Falooda, …). Removed made-up quantities (kept only Sundae 250 ml).
+
+### Live back-office (Firestore-backed, no mock data)
+- `lib/bonbon.ts` — self-contained staff auth (`bb_session` cookie) + Firestore helpers; roles admin / supervisor / **kitchen** / waiter.
+- APIs under `app/api/bonbon/`: auth (login/logout/me), menu CRUD, staff CRUD, orders (create/list/advance), restaurants, outlets.
+- Dashboards under `app/bon-bon/` (shared UI in `_ui.tsx`): **admin** (live sales/staff/outlets), **manage** (menu editor), **kitchen** (KDS), **waiter**. Rendered as a centred phone-width column on a black backdrop; scrollbars hidden.
+- The loop is real: chatbot payment POSTs an order → kitchen board → mark ready → waiter serves. Kitchen/waiter poll every 3 s + refresh on tab focus (fixes background-tab throttling).
+- Chatbot reads the **live** supervisor-managed menu; supervisor edits (price, sold-out, hide, best/must, new items, **photos** via Cloudinary) show to customers.
+
+### Voice input (ChatGPT-style)
+- Root-caused why live text failed on Brave: browsers block the Web Speech engine and Sarvam needs a *complete* WAV (mid-stream clips can't convert). Reworked to: tap-to-record with a live scrolling waveform (real RMS amplitude, flat when silent), then transcribe the whole clip on stop via Sarvam. One consistent flow on every browser. ✕ cancel / ✓ done buttons.
+
+### Multi-restaurant / multi-outlet (in progress)
+- `bonbon_restaurants` + `bonbon_outlets`; each outlet has its **own menu** (default outlet keeps the top-level menu so the live bot is untouched; new outlets seed a copy). Owner dashboard: add restaurants/outlets, per-outlet Menu/Kitchen/Waiter, per-outlet **Details** editor (rename + number of tables). Orders + kitchen/waiter scoped per outlet. Outlet switcher on the dashboards.
+- Still to do: waiter table-assignment + order routing; branch identity fields (area/address); customer-side outlet picker; Razorpay per-outlet billing.
+
+### Housekeeping
+- Moved throwaway design mockups into `prototypes/`. Rewrote `README.md` as a repo map. This journal brought current.
