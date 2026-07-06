@@ -173,9 +173,36 @@ function ItemRow({
   onDelete: () => void;
 }) {
   const [f, setF] = useState({ name: it.name, price: it.price, price500: it.price500 || 0, q: it.q, pt: it.pt, desc: it.desc });
+  const [upBusy, setUpBusy] = useState(false);
   useEffect(() => {
     setF({ name: it.name, price: it.price, price500: it.price500 || 0, q: it.q, pt: it.pt, desc: it.desc });
   }, [it, editing]);
+
+  async function onPhoto(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+    setUpBusy(true);
+    try {
+      const b64: string = await new Promise((res, rej) => {
+        const rd = new FileReader();
+        rd.onload = () => res(rd.result as string);
+        rd.onerror = rej;
+        rd.readAsDataURL(file);
+      });
+      const r = await fetch("/api/upload", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ data: b64, folder: "bonbon" }),
+      });
+      const d = await r.json();
+      if (r.ok && d.url) onPatch({ ph: d.url });
+      else alert(d.error || "Upload failed");
+    } catch {
+      alert("Upload failed — please try again.");
+    }
+    setUpBusy(false);
+  }
 
   const soldOut = !it.available;
   return (
@@ -237,6 +264,26 @@ function ItemRow({
           </div>
           <label style={lbl}>Description</label>
           <textarea style={{ ...inp, minHeight: 54, resize: "vertical" }} value={f.desc} onChange={(e) => setF({ ...f, desc: e.target.value })} />
+
+          <label style={lbl}>Photo</label>
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            {it.ph ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={it.ph} alt={it.name} style={{ width: 56, height: 56, borderRadius: 9, objectFit: "cover", border: `1px solid ${C.line}`, flex: "0 0 56px" }} />
+            ) : (
+              <div style={{ width: 56, height: 56, borderRadius: 9, background: "#f3e7e6", border: `1px solid ${C.line}`, display: "flex", alignItems: "center", justifyContent: "center", color: C.mut, fontSize: 10.5, textAlign: "center", flex: "0 0 56px" }}>No photo</div>
+            )}
+            <label style={{ ...smallBtn, cursor: upBusy ? "default" : "pointer", opacity: upBusy ? 0.6 : 1 }}>
+              {upBusy ? "Uploading…" : it.ph ? "Change photo" : "Upload photo"}
+              <input type="file" accept="image/*" disabled={upBusy} style={{ display: "none" }} onChange={onPhoto} />
+            </label>
+            {it.ph && !upBusy && (
+              <button onClick={() => onPatch({ ph: "" })} style={{ ...smallBtn, color: C.warn, borderColor: "#f2c9c4" }}>
+                Remove
+              </button>
+            )}
+          </div>
+
           <div style={{ display: "flex", justifyContent: "space-between", marginTop: 4 }}>
             <button onClick={onDelete} style={{ ...smallBtn, color: C.warn, borderColor: "#f2c9c4" }}>
               Delete

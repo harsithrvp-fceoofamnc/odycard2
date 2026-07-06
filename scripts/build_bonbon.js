@@ -69,7 +69,7 @@ function bbApplyLiveMenu(items){
       // ordinary items only appear when they're not hidden and not sold out.
       var isAddon=it.cat==="addon";
       if(!isAddon && (it.hidden || it.available===0)) return;
-      MENU[it.key]={n:it.name,p:it.price,e:"\\uD83C\\uDF68",h:[[8,23]],q:it.q||"",pt:it.pt||0,ph:"",d:it.desc||"",veg:1};
+      MENU[it.key]={n:it.name,p:it.price,e:"\\uD83C\\uDF68",h:[[8,23]],q:it.q||"",pt:it.pt||0,ph:it.ph||"",d:it.desc||"",veg:1};
       if(it.best)MENU[it.key].best=1;
       if(it.must)MENU[it.key].must=1;
       if(it.ao)MENU[it.key].ao=it.ao;

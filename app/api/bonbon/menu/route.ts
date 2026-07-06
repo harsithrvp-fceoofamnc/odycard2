@@ -66,6 +66,7 @@ export async function POST(req: NextRequest) {
       q: String(b.q || ""),
       pt: b.pt ? parseInt(String(b.pt), 10) : 5,
       desc: String(b.desc || ""),
+      ph: String(b.ph || ""),
       veg: 1,
       best: b.best ? 1 : 0,
       must: b.must ? 1 : 0,

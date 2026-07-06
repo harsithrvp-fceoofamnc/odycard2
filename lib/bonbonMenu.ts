@@ -45,4 +45,5 @@ export type BBMenuItem = {
   hidden: number;
   sort: number;
   ao?: string;
+  ph?: string; // dish photo URL (Cloudinary); empty = show the logo block
 };
