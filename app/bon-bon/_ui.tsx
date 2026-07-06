@@ -70,9 +70,10 @@ export function Shell({
     router.replace("/bon-bon/login");
   }
   return (
-    <div style={{ minHeight: "100vh", background: C.bg, fontFamily: font, color: C.ink }}>
-      {/* hide every scrollbar while a dashboard is open */}
+    <div style={{ minHeight: "100vh", background: "#000", fontFamily: font, color: C.ink }}>
+      {/* black behind the phone-width column on desktop; hide every scrollbar while a dashboard is open */}
       <style>{`
+        html, body { background: #000 !important; }
         html::-webkit-scrollbar, body::-webkit-scrollbar, .bbcol *::-webkit-scrollbar { width: 0 !important; height: 0 !important; display: none !important; }
         html, body, .bbcol, .bbcol * { scrollbar-width: none !important; -ms-overflow-style: none !important; }
       `}</style>
@@ -83,7 +84,7 @@ export function Shell({
           margin: "0 auto",
           minHeight: "100vh",
           background: C.bg,
-          boxShadow: "0 0 44px rgba(0,0,0,.07)",
+          boxShadow: "0 0 44px rgba(0,0,0,.5)",
         }}
       >
       <header

@@ -76,14 +76,16 @@ export default function WaiterPage() {
       role={me.role}
       name={me.name}
       nav={
-        <>
-          {me.role === "admin" && <NavLink href="/bon-bon/admin">Dashboard</NavLink>}
-          {me.role !== "waiter" && <NavLink href="/bon-bon/manage">Menu</NavLink>}
-          {me.role !== "waiter" && <NavLink href="/bon-bon/kitchen">Kitchen</NavLink>}
-          <NavLink href="/bon-bon/waiter" active>
-            Waiter
-          </NavLink>
-        </>
+        me.role === "waiter" ? undefined : (
+          <>
+            {me.role === "admin" && <NavLink href="/bon-bon/admin">Dashboard</NavLink>}
+            <NavLink href="/bon-bon/manage">Menu</NavLink>
+            <NavLink href="/bon-bon/kitchen">Kitchen</NavLink>
+            <NavLink href="/bon-bon/waiter" active>
+              Waiter
+            </NavLink>
+          </>
+        )
       }
     >
       <p style={{ margin: "0 0 14px", fontSize: 13, color: C.mut }}>
