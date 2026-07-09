@@ -267,6 +267,7 @@ const uid=()=>Math.random().toString(36).slice(2,9);
 const todayStr=()=>new Date().toISOString().slice(0,10);
 const esc=s=>(s||'').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 const fmt=n=>(n>=0?'+':'')+n.toFixed(3)+'%';
+const indiaNow=()=>{try{return new Intl.DateTimeFormat('en-IN',{timeZone:'Asia/Kolkata',weekday:'long',day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit',hour12:true}).format(new Date());}catch(e){return new Date().toString();}};
 const daysBetween=(a,b)=>Math.round((new Date(b)-new Date(a))/86400000);
 function daily(){if(!S.daily||S.daily.date!==todayStr())S.daily={date:todayStr(),completed:0,added:0,logs:0,chats:0,move:0};return S.daily;}
 function bump(d,silent){S.progress=Math.max(-CAP,Math.min(CAP,+(S.progress+d).toFixed(3)));const y=daily();y.move=+(y.move+d).toFixed(3);save();if(!silent){renderPill();if(S.tab==='progress')render();}}
@@ -451,7 +452,7 @@ UNDERSTAND TANGLISH: he often types Tamil in English letters (e.g. "enakku puriy
 WHO HE IS (known — never ask): ${p.name}, ${p.age}, ${p.branch}, ${p.college}, Sem ${p.semester}.
 Long-term: ${p.goalsLongTerm.join('; ')}. Vision — Legacy: ${p.visionLegacy.join('; ')}. Mission: ${p.visionMission.join('; ')}. Wealth: ${p.visionWealth.join('; ')}.
 Academic: ${p.academic.join('; ')}. Career: ${p.career.join('; ')}. Strengths: ${p.strengths.join('; ')}. Weaknesses to coach: ${p.weaknesses.join('; ')}.
-CURRENT: Progress index ${fmt(S.progress)} (0=start,+100=goal,neg=behind). Subjects: ${S.subjects.map(s=>s.name).join(', ')||'(none)'}. Deadlines flagged: ${S.deadlines||'(none)'}. Pending tasks: ${S.tasks.filter(t=>!t.done).map(t=>`${t.title} [${t.subject}, ${t.when}${t.priority!=null?', ★'+t.priority:''}]`).join(' | ')||'(none)'}. Recent logs: ${S.logs.slice(-6).map(l=>`${l.subject}: taught="${l.taught}", struggled="${l.didnt}", doubt="${l.doubts}"`).join(' | ')||'(none)'}.`;}
+CURRENT: Right now in India (IST) it is ${indiaNow()} — use this to be time-aware (morning=plan the day, late night=tell him to rest, before an exam=focus mode). Progress index ${fmt(S.progress)} (0=start,+100=goal,neg=behind). Subjects: ${S.subjects.map(s=>s.name).join(', ')||'(none)'}. Deadlines flagged: ${S.deadlines||'(none)'}. Pending tasks: ${S.tasks.filter(t=>!t.done).map(t=>`${t.title} [${t.subject}, ${t.when}${t.priority!=null?', ★'+t.priority:''}]`).join(' | ')||'(none)'}. Recent logs: ${S.logs.slice(-6).map(l=>`${l.subject}: taught="${l.taught}", struggled="${l.didnt}", doubt="${l.doubts}"`).join(' | ')||'(none)'}.`;}
 async function geminiChat(contents,jsonMode){
   if(!S.settings.apiKey){openSettings();throw new Error('Add your Gemini key in Settings first.');}
   const url=`https://generativelanguage.googleapis.com/v1beta/models/${S.settings.model}:generateContent?key=${S.settings.apiKey}`;
