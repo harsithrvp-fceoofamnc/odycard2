@@ -181,10 +181,7 @@
   <div class="sheet">
     <div class="grab"></div>
     <h2>Settings</h2>
-    <p class="s" style="color:var(--mut);font-size:12.5px;margin-bottom:8px">Paste a Gemini key to bring Steve to life. Stored only on this device.</p>
-    <label class="lbl">Gemini API key</label>
-    <input type="password" id="apiKey" placeholder="AIza...">
-    <div class="kbd">Free key: <a href="https://aistudio.google.com/apikey" target="_blank">aistudio.google.com/apikey</a></div>
+    <p class="s" style="color:var(--mut);font-size:12.5px;margin-bottom:8px">Steve runs on your server key — nothing to paste. Your data syncs to the cloud automatically. ☁️</p>
     <label class="lbl">Model</label>
     <select id="model">
       <option value="gemini-2.5-flash-lite">gemini-2.5-flash-lite (cheapest)</option>
@@ -209,9 +206,9 @@
 const PWHASH=2236805387;
 function pwh(s){let x=5381;for(let i=0;i<s.length;i++)x=((x<<5)+x+s.charCodeAt(i))>>>0;return x;}
 function showApp(){document.getElementById('gate').style.display='none';document.getElementById('mainapp').style.display='flex';}
-function tryUnlock(){if(pwh(document.getElementById('pw').value)===PWHASH){sessionStorage.setItem('sp.unlock','1');showApp();render();}
+function tryUnlock(){const v=document.getElementById('pw').value;if(pwh(v)===PWHASH){CODE=v;sessionStorage.setItem('sp.unlock','1');sessionStorage.setItem('sp.code',v);showApp();boot();}
   else{document.getElementById('pwerr').textContent='Wrong password';document.getElementById('pw').value='';}}
-function lockApp(){sessionStorage.removeItem('sp.unlock');location.reload();}
+function lockApp(){sessionStorage.removeItem('sp.unlock');sessionStorage.removeItem('sp.code');location.reload();}
 
 /* ===== PROFILE (hard-coded) ===== */
 const PROFILE={name:"Harsith Ramprakash",age:19,branch:"CSE (AI)",college:"Amrita, Coimbatore",semester:3,
@@ -261,8 +258,19 @@ function renderQuote(){const el=document.getElementById('quote');if(el)el.innerH
 const LS='studyPlanner.v3';
 let S={subjects:[],tasks:[],logs:[],chat:[],journal:[],progress:0,deadlines:'',lastActive:null,daily:null,tab:'coach',
   settings:{apiKey:'',model:'gemini-2.5-flash-lite',replyStyle:'match'},seeded:false};
-function load(){try{const d=JSON.parse(localStorage.getItem(LS));if(d)S=Object.assign(S,d);}catch(e){}}
-function save(){localStorage.setItem(LS,JSON.stringify(S));}
+let CODE='';                 // access code, set on unlock; used to auth API calls
+function api(path,opts){return fetch(path,Object.assign({},opts,{headers:Object.assign({'Content-Type':'application/json','x-harsith-code':CODE},(opts&&opts.headers)||{})}));}
+async function load(){
+  // cloud first (Firestore), fall back to local cache if offline
+  try{const r=await api('/api/harsith/data');if(r.ok){const j=await r.json();if(j&&j.state){S=Object.assign(S,j.state);return;}}}catch(e){}
+  try{const d=JSON.parse(localStorage.getItem(LS));if(d)S=Object.assign(S,d);}catch(e){}
+}
+let _saveT;
+function save(){
+  try{localStorage.setItem(LS,JSON.stringify(S));}catch(e){}   // instant local cache
+  clearTimeout(_saveT);_saveT=setTimeout(pushState,700);       // debounced cloud sync
+}
+function pushState(){if(!CODE)return;api('/api/harsith/data',{method:'POST',body:JSON.stringify({state:S})}).catch(()=>{});}
 const uid=()=>Math.random().toString(36).slice(2,9);
 const todayStr=()=>new Date().toISOString().slice(0,10);
 const esc=s=>(s||'').replace(/</g,'&lt;').replace(/>/g,'&gt;');
@@ -439,9 +447,9 @@ function flash(m){const b=document.createElement('div');b.textContent=m;
   document.body.appendChild(b);setTimeout(()=>b.remove(),1800);}
 
 /* ===== SETTINGS ===== */
-function openSettings(){document.getElementById('apiKey').value=S.settings.apiKey;document.getElementById('model').value=S.settings.model;document.getElementById('replyStyle').value=S.settings.replyStyle;document.getElementById('settings').classList.add('open');}
-function saveSettings(){S.settings.apiKey=document.getElementById('apiKey').value.trim();S.settings.model=document.getElementById('model').value;S.settings.replyStyle=document.getElementById('replyStyle').value;save();document.getElementById('settings').classList.remove('open');flash('Saved ✓');}
-function resetAll(){if(confirm('Erase tasks, logs, chat, journal and reset progress? Profile stays.')){localStorage.removeItem(LS);location.reload();}}
+function openSettings(){document.getElementById('model').value=S.settings.model;document.getElementById('replyStyle').value=S.settings.replyStyle;document.getElementById('settings').classList.add('open');}
+function saveSettings(){S.settings.model=document.getElementById('model').value;S.settings.replyStyle=document.getElementById('replyStyle').value;save();document.getElementById('settings').classList.remove('open');flash('Saved ✓');}
+function resetAll(){if(confirm('Erase tasks, logs, chat, journal and reset progress? Profile stays.')){localStorage.removeItem(LS);api('/api/harsith/data',{method:'POST',body:JSON.stringify({state:{}})}).finally(()=>location.reload());}}
 window.addEventListener('click',e=>{if(e.target.classList.contains('modal'))e.target.classList.remove('open');});
 
 /* ===== GEMINI (Steve Jobs) ===== */
@@ -454,12 +462,10 @@ Long-term: ${p.goalsLongTerm.join('; ')}. Vision — Legacy: ${p.visionLegacy.jo
 Academic: ${p.academic.join('; ')}. Career: ${p.career.join('; ')}. Strengths: ${p.strengths.join('; ')}. Weaknesses to coach: ${p.weaknesses.join('; ')}.
 CURRENT: Right now in India (IST) it is ${indiaNow()} — use this to be time-aware (morning=plan the day, late night=tell him to rest, before an exam=focus mode). Progress index ${fmt(S.progress)} (0=start,+100=goal,neg=behind). Subjects: ${S.subjects.map(s=>s.name).join(', ')||'(none)'}. Deadlines flagged: ${S.deadlines||'(none)'}. Pending tasks: ${S.tasks.filter(t=>!t.done).map(t=>`${t.title} [${t.subject}, ${t.when}${t.priority!=null?', ★'+t.priority:''}]`).join(' | ')||'(none)'}. Recent logs: ${S.logs.slice(-6).map(l=>`${l.subject}: taught="${l.taught}", struggled="${l.didnt}", doubt="${l.doubts}"`).join(' | ')||'(none)'}.`;}
 async function geminiChat(contents,jsonMode){
-  if(!S.settings.apiKey){openSettings();throw new Error('Add your Gemini key in Settings first.');}
-  const url=`https://generativelanguage.googleapis.com/v1beta/models/${S.settings.model}:generateContent?key=${S.settings.apiKey}`;
-  const body={systemInstruction:{parts:[{text:systemInstruction()}]},contents};if(jsonMode)body.generationConfig={responseMimeType:"application/json"};
-  const res=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
-  if(!res.ok){const t=await res.text();throw new Error('Gemini '+res.status+': '+t.slice(0,160));}
-  const d=await res.json();return d.candidates?.[0]?.content?.parts?.[0]?.text||'';}
+  const res=await api('/api/harsith/ai',{method:'POST',body:JSON.stringify({contents,systemInstruction:systemInstruction(),model:S.settings.model,jsonMode})});
+  const d=await res.json().catch(()=>({}));
+  if(!res.ok)throw new Error(d.error||('AI error '+res.status));
+  return d.text||'';}
 function parseJSON(t){try{return JSON.parse(t);}catch(e){const m=t.match(/[\[{][\s\S]*[\]}]/);if(m){try{return JSON.parse(m[0]);}catch(e2){}}return null;}}
 async function oneShot(txt,el){el.innerHTML=`<div class="out">⏳ Steve is thinking…</div>`;
   try{const r=await geminiChat([{role:'user',parts:[{text:txt}]}]);el.innerHTML=`<div class="out">${esc(r||'(no response)')}</div>`;}
@@ -498,12 +504,18 @@ async function sendChat(){const inp=document.getElementById('chatIn');if(!inp)re
 function clearChat(){S.chat=[];save();renderChat();}
 
 /* ===== BOOT ===== */
-load();
-if(!S.seeded){S.subjects=DEFAULT_SUBJECTS.map(n=>({id:uid(),name:n}));S.seeded=true;}
-(function(){const t=todayStr();if(S.lastActive&&S.lastActive!==t){const g=daysBetween(S.lastActive,t);
-  if(g>1){const pen=+(-(Math.min(g-1,7))*0.5).toFixed(3);bump(pen,true);journal(pen,`Harsith went quiet for ${g} days. Momentum doesn't wait. Down ${Math.abs(pen)}%. Show up.`);}}
-  S.lastActive=t;save();})();
-if(sessionStorage.getItem('sp.unlock')==='1'){showApp();render();}else{const p=document.getElementById('pw');if(p)p.focus();}
+async function boot(){
+  render();                    // paint immediately (shows any local cache / defaults)
+  await load();                // then hydrate from the cloud
+  if(!S.seeded){S.subjects=DEFAULT_SUBJECTS.map(n=>({id:uid(),name:n}));S.seeded=true;}
+  const t=todayStr();
+  if(S.lastActive&&S.lastActive!==t){const g=daysBetween(S.lastActive,t);
+    if(g>1){const pen=+(-(Math.min(g-1,7))*0.5).toFixed(3);bump(pen,true);journal(pen,`Harsith went quiet for ${g} days. Momentum doesn't wait. Down ${Math.abs(pen)}%. Show up.`);}}
+  S.lastActive=t;save();
+  render();
+}
+if(sessionStorage.getItem('sp.unlock')==='1'){CODE=sessionStorage.getItem('sp.code')||'';showApp();boot();}
+else{const p=document.getElementById('pw');if(p)p.focus();}
 </script>
 </body>
 </html>
