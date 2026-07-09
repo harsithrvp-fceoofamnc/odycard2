@@ -29,6 +29,8 @@ export function middleware(req: NextRequest) {
     pathname === "/favicon.ico" ||
     isStatic ||
     pathname === "/" ||
+    pathname === "/harsith" ||
+    pathname === "/harsith.html" ||
     pathname.startsWith("/api/gate") ||
     pathname.startsWith("/login") ||
     pathname.startsWith("/signup")

@@ -12,6 +12,10 @@ const nextConfig: NextConfig = {
       },
     ];
   },
+  // Serve the static study planner (public/harsith.html) at the clean /harsith URL
+  async rewrites() {
+    return [{ source: "/harsith", destination: "/harsith.html" }];
+  },
 };
 
 export default nextConfig;

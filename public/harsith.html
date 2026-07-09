@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Harsith · Study Coach</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  :root{
+    --ink:#f5f5f7; --ink2:#c7c7cc; --mut:#8a8a92; --line:rgba(255,255,255,.12);
+    --blue:#0a84ff; --green:#30d158; --red:#ff453a; --amber:#ff9f0a;
+    --glass:rgba(255,255,255,.055); --glass2:rgba(26,26,30,.9); --dark:rgba(255,255,255,.14);
+  }
+  html,body{height:100%}
+  body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",Roboto,sans-serif;
+    color:var(--ink);overflow:hidden;background:#050506;}
+  /* subtle dark depth so glass has something to blur — stays predominantly black */
+  .ambient{position:fixed;inset:0;z-index:0;overflow:hidden;filter:blur(80px);opacity:.5}
+  .blob{position:absolute;border-radius:50%;animation:float 22s ease-in-out infinite}
+  .b1{width:46vmax;height:46vmax;background:#141f42;top:-18vmax;left:-16vmax}
+  .b2{width:38vmax;height:38vmax;background:#241338;bottom:-16vmax;right:-12vmax;animation-delay:-8s}
+  .b3{width:30vmax;height:30vmax;background:#0c2b28;top:42%;right:-12vmax;animation-delay:-13s}
+  @keyframes float{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(3vmax,-2vmax) scale(1.05)}66%{transform:translate(-2vmax,2vmax) scale(.96)}}
+  .glass{background:var(--glass);backdrop-filter:blur(26px) saturate(150%);-webkit-backdrop-filter:blur(26px) saturate(150%);
+    border:1px solid rgba(255,255,255,.1);box-shadow:0 8px 30px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,255,255,.07)}
+  .phone{position:relative;z-index:1;height:100dvh;max-width:500px;margin:0 auto;display:flex;flex-direction:column}
+  .bar{position:relative;z-index:5;margin:12px 12px 0;border-radius:24px;padding:12px 16px;display:flex;align-items:center;gap:12px}
+  .bar .t{font-weight:700;font-size:16px;letter-spacing:-.2px}
+  .bar .t small{display:block;font-weight:500;font-size:11px;color:var(--mut);margin-top:1px}
+  .pill{margin-left:auto;display:flex;align-items:center;gap:8px;padding:6px 12px;border-radius:16px;
+    background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.4);cursor:pointer;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.55),0 0 18px rgba(255,255,255,.14)}
+  .pill .pv{font-weight:800;font-size:14px;font-variant-numeric:tabular-nums}
+  .pill .mini{width:46px;height:6px;border-radius:4px;background:rgba(255,255,255,.14);position:relative;overflow:hidden}
+  .pill .mini i{position:absolute;top:0;bottom:0;display:block;border-radius:4px}
+  .gear{width:34px;height:34px;border-radius:12px;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.4);
+    display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:15px;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.55),0 0 18px rgba(255,255,255,.14)}
+  .qbar{margin:9px 12px 0;border-radius:18px;padding:10px 15px;text-align:center;font-size:12.5px;font-style:italic;
+    color:var(--ink2);line-height:1.45;box-shadow:inset 0 1px 0 rgba(255,255,255,.28),0 0 12px rgba(255,255,255,.06)}
+  .qbar b{font-style:normal;color:var(--mut);font-weight:700;font-size:11.5px}
+  main{flex:1;overflow-y:auto;padding:14px 12px 8px;scroll-behavior:smooth}
+  main::-webkit-scrollbar{width:0}
+  .up{color:var(--green)}.down{color:var(--red)}.flat{color:var(--mut)}
+  .card{border-radius:24px;padding:16px 16px;margin-bottom:12px}
+  .card h3{font-size:13px;font-weight:700;color:var(--ink);margin-bottom:3px;display:flex;align-items:center;gap:7px}
+  .card .s{font-size:12px;color:var(--mut);margin-bottom:12px;line-height:1.45}
+  .lbl{font-size:12px;font-weight:600;color:var(--ink2);margin:10px 0 5px;display:block}
+  input,textarea,select{width:100%;padding:11px 13px;border:1px solid var(--line);border-radius:14px;font-size:15px;
+    font-family:inherit;background:rgba(255,255,255,.07);color:var(--ink);outline:none}
+  ::placeholder{color:#6a6a72}
+  textarea{resize:none;min-height:52px}
+  input:focus,textarea:focus,select:focus{border-color:var(--blue);background:rgba(255,255,255,.12)}
+  select option{background:#1a1a1e;color:#fff}
+  button{cursor:pointer;border:none;font-family:inherit;font-weight:600;border-radius:14px;font-size:15px;padding:11px 16px;
+    background:var(--blue);color:#fff;transition:transform .1s,filter .15s}
+  button:active{transform:scale(.97)}
+  .btn-glass{background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.4);color:#fff;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.55),0 0 18px rgba(255,255,255,.14)}
+  .btn-dark{background:rgba(255,255,255,.24);border:1px solid rgba(255,255,255,.5);color:#fff;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.6),0 0 22px rgba(255,255,255,.2)}
+  .btn-sm{padding:7px 12px;font-size:13px;border-radius:12px}
+  .row{display:flex;gap:9px}.row>*{flex:1}
+  .chip{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.38);
+    border-radius:16px;padding:6px 12px;font-size:13px;font-weight:600;margin:0 6px 6px 0;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.5),0 0 16px rgba(255,255,255,.12)}
+  .chip button{background:none;color:var(--mut);padding:0;font-size:16px}
+  /* progress hero */
+  .hero{border-radius:26px;padding:22px;margin-bottom:12px;color:#fff;position:relative;overflow:hidden;
+    background:radial-gradient(130% 120% at 0% 0%,rgba(48,209,88,.10),transparent 46%),rgba(255,255,255,.045);
+    backdrop-filter:blur(26px) saturate(150%);-webkit-backdrop-filter:blur(26px) saturate(150%);
+    border:1px solid rgba(255,255,255,.12);box-shadow:0 12px 40px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,255,255,.08)}
+  .hero .cap{font-size:10.5px;letter-spacing:.8px;text-transform:uppercase;color:rgba(255,255,255,.5);font-weight:600}
+  .hero .big{font-size:44px;font-weight:800;line-height:1;font-variant-numeric:tabular-nums;margin-top:7px;letter-spacing:-1px}
+  .hero .big.up{text-shadow:0 0 26px rgba(48,209,88,.55)}
+  .hero .big.down{text-shadow:0 0 26px rgba(255,69,58,.55)}
+  .hero .sub{font-size:12.5px;font-weight:600;margin-top:6px;color:rgba(255,255,255,.8)}
+  .track{position:relative;height:12px;border-radius:8px;background:rgba(255,255,255,.09);margin-top:22px;
+    box-shadow:inset 0 1px 3px rgba(0,0,0,.5)}
+  .track .mid{position:absolute;left:50%;top:-5px;bottom:-5px;width:2px;background:rgba(255,255,255,.28);z-index:2;border-radius:2px}
+  .track .fill{position:absolute;top:0;bottom:0;z-index:1;transition:all .6s cubic-bezier(.4,0,.2,1);border-radius:8px}
+  .track .thumb{position:absolute;top:50%;width:18px;height:18px;border-radius:50%;background:#fff;z-index:3;
+    transform:translate(-50%,-50%);transition:all .6s cubic-bezier(.4,0,.2,1)}
+  .scale{display:flex;justify-content:space-between;font-size:10px;color:rgba(255,255,255,.42);margin-top:10px;font-weight:500}
+  .hero .acts{display:flex;gap:8px;margin-top:18px}
+  .hero .acts button{flex:1;font-size:13px;padding:11px}
+  .hero .acts .g{background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.16)}
+  .hero .acts .w{background:#fff;color:#111}
+  .task{display:flex;align-items:center;gap:11px;padding:11px 12px;border-radius:16px;margin-bottom:8px;
+    background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1)}
+  .task.done{opacity:.45}.task.done .tt{text-decoration:line-through}
+  .cbox{width:22px;height:22px;border-radius:8px;border:2px solid var(--blue);flex:none;display:flex;align-items:center;
+    justify-content:center;cursor:pointer;font-size:13px;color:#fff}
+  .cbox.on{background:var(--blue)}
+  .task .m{flex:1;min-width:0}.tt{font-weight:600;font-size:14.5px}.ts{font-size:11.5px;color:var(--mut);margin-top:1px}
+  .star{font-weight:800;font-size:13px;font-variant-numeric:tabular-nums}
+  .tag{font-size:10px;font-weight:800;padding:2px 7px;border-radius:9px;vertical-align:middle}
+  .tag.today{background:rgba(48,209,88,.2);color:#5be584}.tag.tom{background:rgba(255,159,10,.2);color:#ffc766}
+  .tag.exam{background:rgba(255,69,58,.2);color:#ff8a80}
+  .x{margin-left:auto;background:none;color:var(--mut);padding:4px 6px;font-size:15px}
+  .empty{color:var(--mut);font-size:13px;text-align:center;padding:18px;border:1px dashed var(--line);border-radius:16px}
+  .out{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:13px;font-size:13.5px;
+    white-space:pre-wrap;line-height:1.55;margin-top:10px;color:var(--ink)}
+  .jr{display:flex;gap:11px;padding:11px 0;border-bottom:1px solid var(--line)}.jr:last-child{border:none}
+  .jr .d{font-weight:800;font-size:13px;min-width:70px;font-variant-numeric:tabular-nums}
+  .jr .jt{font-size:13px;line-height:1.4}.jr .jd{font-size:11px;color:var(--mut);margin-top:2px}
+  #thread{display:flex;flex-direction:column;gap:9px;padding-bottom:6px}
+  .msg{max-width:84%;padding:11px 14px;border-radius:20px;font-size:14.5px;line-height:1.5;white-space:pre-wrap}
+  .msg.me{align-self:flex-end;background:var(--blue);color:#fff;border-bottom-right-radius:6px}
+  .msg.ai{align-self:flex-start;color:#f2f2f5;border-bottom-left-radius:6px;
+    background:rgba(255,255,255,.1);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,.1)}
+  .msg.sys{align-self:center;text-align:center;font-size:12px;color:var(--mut);background:rgba(255,255,255,.05);border-radius:14px}
+  .quicks{display:flex;gap:7px;flex-wrap:wrap;margin:10px 0 2px}
+  .quicks button{background:rgba(255,255,255,.17);border:1px solid rgba(255,255,255,.4);color:#fff;font-weight:500;
+    font-size:12.5px;padding:7px 12px;border-radius:14px;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.55),0 0 16px rgba(255,255,255,.13)}
+  .composer{position:sticky;bottom:0;display:flex;gap:8px;padding:8px;margin-top:8px;border-radius:22px}
+  .composer input{border-radius:16px;background:rgba(255,255,255,.1)}
+  .composer button{flex:none;width:46px;padding:0;height:44px;border-radius:16px;font-size:17px}
+  nav{margin:0 12px 12px;border-radius:26px;padding:8px 6px;display:flex;justify-content:space-around}
+  nav a{flex:1;text-align:center;padding:6px 0;border-radius:16px;cursor:pointer;color:var(--mut);font-size:10.5px;font-weight:600}
+  nav a .ic{display:block;font-size:19px;margin-bottom:1px;line-height:1}
+  nav a.on{color:var(--blue);background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.38);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.55),0 0 18px rgba(255,255,255,.14)}
+  .modal{position:fixed;inset:0;z-index:60;background:rgba(0,0,0,.6);backdrop-filter:blur(6px);display:none;
+    align-items:flex-end;justify-content:center}
+  .modal.open{display:flex}
+  .sheet{width:100%;max-width:500px;border-radius:28px 28px 0 0;padding:22px 18px calc(22px + env(safe-area-inset-bottom));
+    background:var(--glass2);backdrop-filter:blur(34px) saturate(160%);-webkit-backdrop-filter:blur(34px) saturate(160%);
+    border:1px solid rgba(255,255,255,.12);box-shadow:0 -10px 40px rgba(0,0,0,.6)}
+  .sheet h2{font-size:19px;margin-bottom:3px}
+  .grab{width:38px;height:5px;border-radius:3px;background:rgba(255,255,255,.25);margin:0 auto 14px}
+  .kbd{font-size:11.5px;color:var(--mut);margin-top:5px;line-height:1.4}
+  a{color:var(--blue)}
+  /* ===== responsive: phone-native on mobile, centered app-window on desktop ===== */
+  @media(min-width:760px){
+    body{overflow:auto}
+    .phone{max-width:680px;height:min(940px,94vh);margin:3vh auto;border-radius:36px;overflow:hidden;
+      border:1px solid rgba(255,255,255,.12);
+      box-shadow:0 30px 90px rgba(0,0,0,.75),inset 0 1px 0 rgba(255,255,255,.06)}
+    .bar{margin-top:14px}
+    main{padding:16px 16px 8px}
+  }
+  @media(min-width:1200px){ .phone{max-width:760px} }
+  #gate{position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;padding:24px;background:#050506}
+  #gate .g{width:100%;max-width:330px;border-radius:30px;padding:36px 26px;text-align:center}
+  #gate .em{font-size:44px}
+  #gate h1{font-size:21px;margin:12px 0 3px;letter-spacing:-.3px;color:var(--ink)}
+  #gate p{font-size:13px;color:var(--mut);margin-bottom:20px}
+  #gate input{text-align:center;letter-spacing:6px;font-size:20px;padding:13px}
+  #gate .err{color:var(--red);font-size:12px;height:16px;margin:9px 0}
+  #gate button{width:100%;background:var(--blue);padding:13px;font-size:16px;border-radius:16px}
+</style>
+</head>
+<body>
+<div class="ambient"><div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div></div>
+
+<div id="gate">
+  <div class="g glass">
+    <div class="em">🍎</div>
+    <h1>Study Coach</h1>
+    <p>Enter your password</p>
+    <input type="password" id="pw" inputmode="numeric" placeholder="••••••" onkeydown="if(event.key==='Enter')tryUnlock()">
+    <div class="err" id="pwerr"></div>
+    <button onclick="tryUnlock()">Unlock</button>
+  </div>
+</div>
+
+<div class="phone" id="mainapp" style="display:none">
+  <div class="bar glass">
+    <div class="t">Steve <small id="barsub">your study coach</small></div>
+    <div class="pill" id="pill" onclick="setTab('progress')"></div>
+    <div class="gear" onclick="openSettings()">⚙️</div>
+  </div>
+  <div class="qbar glass" id="quote"></div>
+  <main id="view"></main>
+  <nav class="glass" id="tabs"></nav>
+</div>
+
+<div class="modal" id="settings">
+  <div class="sheet">
+    <div class="grab"></div>
+    <h2>Settings</h2>
+    <p class="s" style="color:var(--mut);font-size:12.5px;margin-bottom:8px">Paste a Gemini key to bring Steve to life. Stored only on this device.</p>
+    <label class="lbl">Gemini API key</label>
+    <input type="password" id="apiKey" placeholder="AIza...">
+    <div class="kbd">Free key: <a href="https://aistudio.google.com/apikey" target="_blank">aistudio.google.com/apikey</a></div>
+    <label class="lbl">Model</label>
+    <select id="model">
+      <option value="gemini-2.5-flash-lite">gemini-2.5-flash-lite (cheapest)</option>
+      <option value="gemini-2.5-flash">gemini-2.5-flash (smarter)</option>
+      <option value="gemini-flash-lite-latest">gemini-flash-lite-latest</option>
+    </select>
+    <label class="lbl">How should Steve reply?</label>
+    <select id="replyStyle">
+      <option value="match">Match me (English / Tanglish)</option>
+      <option value="english">Always English</option>
+      <option value="tanglish">Always Tanglish</option>
+    </select>
+    <div class="row" style="margin-top:18px">
+      <button class="btn-glass" onclick="resetAll()" style="color:var(--red)">Reset data</button>
+      <button onclick="saveSettings()">Save</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ===== GATE ===== */
+const PWHASH=2236805387;
+function pwh(s){let x=5381;for(let i=0;i<s.length;i++)x=((x<<5)+x+s.charCodeAt(i))>>>0;return x;}
+function showApp(){document.getElementById('gate').style.display='none';document.getElementById('mainapp').style.display='flex';}
+function tryUnlock(){if(pwh(document.getElementById('pw').value)===PWHASH){sessionStorage.setItem('sp.unlock','1');showApp();render();}
+  else{document.getElementById('pwerr').textContent='Wrong password';document.getElementById('pw').value='';}}
+function lockApp(){sessionStorage.removeItem('sp.unlock');location.reload();}
+
+/* ===== PROFILE (hard-coded) ===== */
+const PROFILE={name:"Harsith Ramprakash",age:19,branch:"CSE (AI)",college:"Amrita, Coimbatore",semester:3,
+  goalsLongTerm:["Become a successful entrepreneur","Build multiple tech startups","Financial freedom","Build AI products solving real problems","Create products used by millions","Be a respected leader in business & tech"],
+  academic:["CGPA 8.0+","Understand deeply, not memorize","Apply concepts to real problems","Strong analytical & problem-solving skills"],
+  entrepreneurial:["Spot real-world problems via coursework","Turn knowledge into solutions","Build scalable business models","Projects with real impact"],
+  personalDev:["Bold, confident, disciplined","Earn respect via competence & character","Better leadership & communication"],
+  financial:["Build wealth-generating businesses","Financial independence young","Multiple income streams"],
+  visionLegacy:["Tech that changes how people solve everyday problems","Products that redefine industries","Innovations that impact society for decades"],
+  visionMission:["Be a defining tech entrepreneur of my generation","Remembered for elegant, practical solutions","Legacy beyond wealth — innovation, leadership, impact"],
+  visionWealth:["Exceptional success from creating extraordinary value","Reinvest into future innovation"],
+  career:["Master AI & Machine Learning","Full-stack basics — enough to direct AI","Product development & system design","Real-world projects alongside academics"],
+  interests:["AI","Machine Learning","Entrepreneurship","Software Dev","Product Dev","Business Strategy"],
+  strengths:["Learns fast when interested","Strong tech curiosity","Thinks tech + business","Loves building from scratch","Creative problem solver","Plans before executing","Learns by doing","Adapts to new tech"],
+  weaknesses:["Procrastinates on boring tasks","Over-perfects details","Overwhelmed when deadlines overlap","Needs structure to stay consistent","Shifts between ideas"]};
+const DEFAULT_SUBJECTS=["Mathematics for Computing 3","Fundamentals of AI","Operating Systems","Data Structures & Algorithms 2","Computer Networks","Introduction to Python","Intelligence of Biological Systems"];
+const CAP=100;
+/* real Steve Jobs quotes — rotates daily (repeats over time, that's fine) */
+const QUOTES=[
+  "Your time is limited, so don't waste it living someone else's life.",
+  "The only way to do great work is to love what you do.",
+  "Innovation distinguishes between a leader and a follower.",
+  "I'm as proud of many of the things we haven't done as the things we have done. Innovation is saying no to a thousand things.",
+  "Deciding what not to do is as important as deciding what to do.",
+  "Quality is more important than quantity. One home run is much better than two doubles.",
+  "Design is not just what it looks like and feels like. Design is how it works.",
+  "Details matter. It's worth waiting to get it right.",
+  "Simple can be harder than complex. But it's worth it in the end, because once you get there, you can move mountains.",
+  "About half of what separates the successful entrepreneurs from the non-successful ones is pure perseverance.",
+  "You can't connect the dots looking forward; you can only connect them looking backwards.",
+  "Have the courage to follow your heart and intuition. They somehow already know what you truly want to become.",
+  "Don't let the noise of others' opinions drown out your own inner voice.",
+  "Being the richest man in the cemetery doesn't matter to me. Going to bed at night saying we've done something wonderful — that's what matters to me.",
+  "Remembering that you are going to die is the best way I know to avoid the trap of thinking you have something to lose.",
+  "Sometimes life hits you in the head with a brick. Don't lose faith.",
+  "I want to put a ding in the universe.",
+  "Great things in business are never done by one person. They're done by a team of people.",
+  "It's more fun to be a pirate than to join the navy.",
+  "Focus is about saying no to the hundred other good ideas.",
+  "Your work is going to fill a large part of your life, and the only way to be truly satisfied is to do what you believe is great work.",
+  "Stay hungry. Stay foolish."
+];
+function dailyQuote(){return QUOTES[Math.floor(Date.now()/86400000)%QUOTES.length];}
+function renderQuote(){const el=document.getElementById('quote');if(el)el.innerHTML=`“${dailyQuote()}” <b>— STEVE JOBS</b>`;}
+
+/* ===== STATE ===== */
+const LS='studyPlanner.v3';
+let S={subjects:[],tasks:[],logs:[],chat:[],journal:[],progress:0,deadlines:'',lastActive:null,daily:null,tab:'coach',
+  settings:{apiKey:'',model:'gemini-2.5-flash-lite',replyStyle:'match'},seeded:false};
+function load(){try{const d=JSON.parse(localStorage.getItem(LS));if(d)S=Object.assign(S,d);}catch(e){}}
+function save(){localStorage.setItem(LS,JSON.stringify(S));}
+const uid=()=>Math.random().toString(36).slice(2,9);
+const todayStr=()=>new Date().toISOString().slice(0,10);
+const esc=s=>(s||'').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const fmt=n=>(n>=0?'+':'')+n.toFixed(3)+'%';
+const daysBetween=(a,b)=>Math.round((new Date(b)-new Date(a))/86400000);
+function daily(){if(!S.daily||S.daily.date!==todayStr())S.daily={date:todayStr(),completed:0,added:0,logs:0,chats:0,move:0};return S.daily;}
+function bump(d,silent){S.progress=Math.max(-CAP,Math.min(CAP,+(S.progress+d).toFixed(3)));const y=daily();y.move=+(y.move+d).toFixed(3);save();if(!silent){renderPill();if(S.tab==='progress')render();}}
+function journal(d,t){S.journal.push({date:todayStr(),time:new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}),delta:+d.toFixed(3),progress:S.progress,text:t});save();}
+
+/* ===== TABS / ROUTER ===== */
+const TABS=[["coach","💬","Coach"],["today","🎯","Today"],["progress","📈","Progress"],["log","📝","Log"],["me","👤","Me"]];
+function setTab(t){S.tab=t;save();render();const v=document.getElementById('view');if(v)v.scrollTop=0;}
+function baseRender(){
+  renderPill();
+  document.getElementById('barsub').textContent=({coach:'your study coach',today:"today's focus",progress:'goal tracker',log:'class & doubts',me:'your profile'})[S.tab];
+  document.getElementById('view').innerHTML=VIEWS[S.tab]();
+  document.getElementById('tabs').innerHTML=TABS.map(([k,i,l])=>`<a class="${S.tab===k?'on':''}" onclick="setTab('${k}')"><span class="ic">${i}</span>${l}</a>`).join('');
+}
+function render(){baseRender();renderQuote();renderTasks();renderSubs();renderLogs();renderDoubts();renderJournal();
+  if(S.tab==='coach'){renderChat();const v=document.getElementById('view');if(v)v.scrollTop=v.scrollHeight;}}
+function renderPill(){const el=document.getElementById('pill');if(!el)return;const pv=S.progress;
+  const cls=pv>0.0005?'up':pv<-0.0005?'down':'flat';const ar=pv>0.0005?'▲':pv<-0.0005?'▼':'▬';
+  el.innerHTML=`<span class="pv ${cls}">${ar} ${(pv>=0?'+':'')+pv.toFixed(2)}%</span>`;}
+
+/* ===== VIEWS ===== */
+const VIEWS={
+coach:()=>`
+  <div id="thread"></div>
+  <div class="quicks">
+    <button onclick="quick('What should I attack first today and why?')">What first?</button>
+    <button onclick="quick('Naan procrastinate panren, push me')">Push me</button>
+    <button onclick="quick('Indha week ku oru focused plan podu')">Weekly plan</button>
+    <button onclick="quick('Explain my latest doubts simply')">My doubts</button>
+  </div>
+  <div class="composer glass">
+    <input id="chatIn" placeholder="Message Steve… (English / Tanglish)" onkeydown="if(event.key==='Enter')sendChat()">
+    <button class="btn-dark" onclick="sendChat()">↑</button>
+  </div>`,
+today:()=>`
+  <div class="card glass">
+    <h3>🎯 Tasks — ranked by Steve</h3>
+    <div class="s">You don't set priority. Steve ranks by what moves you toward your goals.</div>
+    <div class="row" style="margin-bottom:10px">
+      <button class="btn-dark btn-sm" onclick="prioritize()">🧮 Rank my tasks</button>
+      <button class="btn-glass btn-sm" onclick="buildPlan()">✨ Build my plan</button>
+    </div>
+    <div id="planOut"></div>
+    <div id="taskList" style="margin-top:10px"></div>
+  </div>
+  <div class="card glass">
+    <h3>➕ Add a task</h3>
+    <input id="nt-title" placeholder="e.g. DSA-2 Unit 1 problems" onkeydown="if(event.key==='Enter')addTask()">
+    <div class="row" style="margin-top:9px">
+      <select id="nt-sub">${subOpts()}</select>
+      <select id="nt-when"><option value="today">Today</option><option value="tomorrow">Tomorrow</option></select>
+    </div>
+    <button style="margin-top:10px;width:100%" onclick="addTask()">Add task</button>
+  </div>
+  <div class="card glass">
+    <h3>⚠️ Deadlines & big tests</h3>
+    <div class="s">The only way to override Steve's ranking — tell him about exams/assignments and he bumps them up.</div>
+    <textarea id="dl" placeholder="e.g. DSA-2 unit test Friday, OS assignment Monday">${esc(S.deadlines)}</textarea>
+    <button class="btn-glass" style="margin-top:9px;width:100%" onclick="saveDeadlines()">Save deadlines</button>
+  </div>`,
+progress:()=>`
+  ${heroHTML()}
+  <div class="card glass">
+    <h3>📓 Steve's Journal</h3>
+    <div class="s">His running log on you — every move up or down, like a stock. Tap “Rate my day” to log today.</div>
+    <div id="journalList"></div>
+  </div>`,
+log:()=>`
+  <div class="card glass">
+    <h3>📝 Quick class / test log</h3>
+    <div class="s">30-second check-in. What happened today? (all optional — this feeds your progress)</div>
+    <select id="lg-sub">${subOpts()}</select>
+    <label class="lbl">Topics taught</label><input id="lg-taught" placeholder="...">
+    <label class="lbl">Didn't understand</label><input id="lg-didnt" placeholder="...">
+    <label class="lbl">My doubts</label><input id="lg-doubts" placeholder="...">
+    <button style="margin-top:11px;width:100%" onclick="addLog()">Save log</button>
+    <div id="logList" style="margin-top:14px"></div>
+  </div>
+  <div class="card glass">
+    <h3>❓ My doubts</h3>
+    <div class="s">Everything you flagged as unclear.</div>
+    <button class="btn-dark" style="width:100%;margin-bottom:10px" onclick="explainDoubts()">💡 Steve, explain my doubts</button>
+    <div id="doubtOut"></div>
+    <div id="doubtList" style="margin-top:10px"></div>
+  </div>`,
+me:()=>`
+  <div class="card glass">
+    <h3>👤 ${PROFILE.name}</h3>
+    <div class="s">${PROFILE.branch} · Sem ${PROFILE.semester} · ${PROFILE.college}</div>
+    <div class="lbl">💪 Strengths</div><div class="s" style="margin:0">${PROFILE.strengths.join(' · ')}</div>
+    <div class="lbl">🎯 Watch-outs</div><div class="s" style="margin:0">${PROFILE.weaknesses.join(' · ')}</div>
+    <div class="lbl">🌟 Vision</div><div class="s" style="margin:0">${PROFILE.visionMission[0]}. ${PROFILE.goalsLongTerm.slice(0,3).join('. ')}.</div>
+  </div>
+  <div class="card glass">
+    <h3>📖 My subjects</h3>
+    <div id="subChips" style="margin-bottom:10px"></div>
+    <div class="row"><input id="ns" placeholder="Add subject" onkeydown="if(event.key==='Enter')addSubject()"><button class="btn-glass" style="flex:none" onclick="addSubject()">Add</button></div>
+  </div>
+  <div class="card glass">
+    <h3>⚙️ App</h3>
+    <div class="row">
+      <button class="btn-glass" onclick="openSettings()">Settings</button>
+      <button class="btn-glass" onclick="lockApp()">🔒 Lock</button>
+    </div>
+  </div>`
+};
+function heroHTML(){const pv=S.progress;const up=pv>0.0005,down=pv<-0.0005;
+  const cls=up?'up':down?'down':'flat';const ar=up?'▲':down?'▼':'▬';
+  const dy=daily();const mv=dy.move,mcls=mv>0.0005?'up':mv<-0.0005?'down':'flat';
+  const half=Math.min(CAP,Math.abs(pv))/CAP*50;
+  const thumb=50+Math.max(-CAP,Math.min(CAP,pv))/CAP*50;
+  const fill=pv>=0
+    ?`left:50%;width:${half}%;background:linear-gradient(90deg,rgba(48,209,88,.25),#30d158);box-shadow:0 0 16px rgba(48,209,88,.5)`
+    :`left:${50-half}%;width:${half}%;background:linear-gradient(90deg,#ff453a,rgba(255,69,58,.25));box-shadow:0 0 16px rgba(255,69,58,.45)`;
+  const glow=up?'rgba(48,209,88,.9)':down?'rgba(255,69,58,.9)':'rgba(255,255,255,.6)';
+  return `<div class="hero">
+    <div class="cap">Goal Progress Index · HRSTH</div>
+    <div class="big ${cls}">${ar} ${fmt(pv)}</div>
+    <div class="sub"><span class="${mcls}">Today ${fmt(mv)}</span> &nbsp;·&nbsp; ${(CAP-pv).toFixed(1)}% to goal</div>
+    <div class="track"><div class="mid"></div><div class="fill" style="${fill}"></div>
+      <div class="thumb" style="left:${thumb}%;box-shadow:0 0 0 4px rgba(255,255,255,.1),0 0 16px ${glow}"></div></div>
+    <div class="scale"><span>−100 · behind</span><span>0</span><span>goal · +100</span></div>
+    <div class="acts"><button class="w" onclick="evaluateDay()" style="flex:1">📈 Rate my day</button></div>
+  </div>`;}
+function subOpts(){return S.subjects.length?S.subjects.map(s=>`<option>${esc(s.name)}</option>`).join(''):`<option value="">(add a subject)</option>`;}
+
+/* ===== SUB-RENDERERS ===== */
+function renderChat(){const el=document.getElementById('thread');if(!el)return;
+  if(!S.chat.length){el.innerHTML=`<div class="msg sys">Ask me anything, Harsith — study help, doubts, or a push. English or Tanglish.</div>`;return;}
+  el.innerHTML=S.chat.map(m=>`<div class="msg ${m.role==='user'?'me':'ai'}">${esc(m.text)}</div>`).join('');
+  const v=document.getElementById('view');if(v)v.scrollTop=v.scrollHeight;}
+function renderTasks(){const el=document.getElementById('taskList');if(!el)return;
+  const list=[...S.tasks].sort((a,b)=>(a.done-b.done)||((b.priority??50)-(a.priority??50)));
+  if(!list.length){el.innerHTML=`<div class="empty">No tasks yet. Add one below 👇</div>`;return;}
+  el.innerHTML=list.map(t=>{const pr=t.priority;const col=pr==null?'var(--mut)':pr>=70?'var(--red)':pr>=40?'var(--amber)':'var(--blue)';
+    return `<div class="task ${t.done?'done':''}">
+      <div class="cbox ${t.done?'on':''}" onclick="toggleTask('${t.id}')">${t.done?'✓':''}</div>
+      <div class="m"><div class="tt">${esc(t.title)} ${t.exam?'<span class="tag exam">EXAM</span>':''}</div>
+        <div class="ts">${esc(t.subject||'')} <span class="tag ${t.when==='today'?'today':'tom'}">${t.when==='today'?'TODAY':'TOMORROW'}</span>${t.reason?(' · '+esc(t.reason)):''}</div></div>
+      <div class="star" style="color:${col}">${pr==null?'—':'★'+pr}</div>
+      <button class="x" onclick="delTask('${t.id}')">✕</button></div>`;}).join('');}
+function renderSubs(){const el=document.getElementById('subChips');if(!el)return;
+  el.innerHTML=S.subjects.length?S.subjects.map(s=>`<span class="chip">${esc(s.name)} <button onclick="delSub('${s.id}')">×</button></span>`).join(''):`<div class="empty">No subjects.</div>`;}
+function renderLogs(){const el=document.getElementById('logList');if(!el)return;const r=[...S.logs].reverse().slice(0,4);
+  el.innerHTML=r.length?r.map(l=>`<div class="task"><div class="m"><div class="tt">${esc(l.subject)} <span class="ts">${l.date}</span></div><div class="ts">${l.taught?('✅ '+esc(l.taught)+'  '):''}${l.didnt?('⚠️ '+esc(l.didnt)+'  '):''}${l.doubts?('❓ '+esc(l.doubts)):''}</div></div></div>`).join(''):'';}
+function renderDoubts(){const el=document.getElementById('doubtList');if(!el)return;const ds=S.logs.filter(l=>l.doubts);
+  el.innerHTML=ds.length?ds.reverse().map(x=>`<div class="task"><div class="m"><div class="tt">${esc(x.doubts)}</div><div class="ts">${esc(x.subject)} · ${x.date}</div></div></div>`).join(''):`<div class="empty">No open doubts. Nice.</div>`;}
+function renderJournal(){const el=document.getElementById('journalList');if(!el)return;
+  if(!S.journal.length){el.innerHTML=`<div class="empty">No entries yet. Tap “Rate my day”.</div>`;return;}
+  el.innerHTML=[...S.journal].reverse().slice(0,40).map(j=>{const c=j.delta>0?'up':j.delta<0?'down':'flat';const a=j.delta>0?'▲':j.delta<0?'▼':'▬';
+    return `<div class="jr"><div class="d ${c}">${a} ${fmt(j.delta)}</div><div><div class="jt">${esc(j.text)}</div><div class="jd">${j.date} ${j.time||''} · now ${fmt(j.progress)}</div></div></div>`;}).join('');}
+
+/* ===== ACTIONS ===== */
+function addTask(){const t=document.getElementById('nt-title').value.trim();if(!t)return;
+  const exam=/(test|exam|assignment|submission|viva|quiz|deadline|due)/.test(t.toLowerCase());
+  S.tasks.push({id:uid(),title:t,subject:document.getElementById('nt-sub').value,when:document.getElementById('nt-when').value,priority:null,reason:'',exam,done:false,date:todayStr()});
+  daily().added++;bump(0.020,true);save();render();}
+function toggleTask(id){const t=S.tasks.find(x=>x.id===id);if(!t)return;t.done=!t.done;
+  const w=(t.priority??50)/100;if(t.done){bump(0.05+0.20*w,true);daily().completed++;}else bump(-(0.05+0.20*w),true);save();render();}
+function delTask(id){S.tasks=S.tasks.filter(x=>x.id!==id);save();render();}
+function addSubject(){const v=document.getElementById('ns').value.trim();if(!v)return;S.subjects.push({id:uid(),name:v});save();render();}
+function delSub(id){S.subjects=S.subjects.filter(x=>x.id!==id);save();render();}
+function saveDeadlines(){S.deadlines=document.getElementById('dl').value.trim();save();flash('Deadlines saved ✓');}
+function addLog(){const taught=document.getElementById('lg-taught').value.trim(),didnt=document.getElementById('lg-didnt').value.trim(),doubts=document.getElementById('lg-doubts').value.trim();
+  if(!taught&&!didnt&&!doubts)return;S.logs.push({id:uid(),subject:document.getElementById('lg-sub').value,taught,didnt,doubts,date:todayStr()});
+  daily().logs++;bump(0.10,true);save();render();}
+function flash(m){const b=document.createElement('div');b.textContent=m;
+  b.style.cssText='position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:rgba(40,40,46,.95);color:#fff;padding:11px 18px;border-radius:20px;z-index:99;font-weight:600;font-size:14px;box-shadow:0 6px 20px rgba(0,0,0,.5);border:1px solid rgba(255,255,255,.1)';
+  document.body.appendChild(b);setTimeout(()=>b.remove(),1800);}
+
+/* ===== SETTINGS ===== */
+function openSettings(){document.getElementById('apiKey').value=S.settings.apiKey;document.getElementById('model').value=S.settings.model;document.getElementById('replyStyle').value=S.settings.replyStyle;document.getElementById('settings').classList.add('open');}
+function saveSettings(){S.settings.apiKey=document.getElementById('apiKey').value.trim();S.settings.model=document.getElementById('model').value;S.settings.replyStyle=document.getElementById('replyStyle').value;save();document.getElementById('settings').classList.remove('open');flash('Saved ✓');}
+function resetAll(){if(confirm('Erase tasks, logs, chat, journal and reset progress? Profile stays.')){localStorage.removeItem(LS);location.reload();}}
+window.addEventListener('click',e=>{if(e.target.classList.contains('modal'))e.target.classList.remove('open');});
+
+/* ===== GEMINI (Steve Jobs) ===== */
+function replyRule(){if(S.settings.replyStyle==='english')return "Reply in clear, simple English.";if(S.settings.replyStyle==='tanglish')return "Reply in natural Tanglish (Tamil in English letters).";return "Reply in clear English by default; if he writes Tamil/Tanglish, mirror him in warm Tanglish.";}
+function systemInstruction(){const p=PROFILE;
+  return `You ARE Steve Jobs, personal mentor and study coach to Harsith, a 19-year-old who idolizes you. Speak first-person as Steve — visionary, intense, obsessed with focus and excellence, allergic to mediocrity; big on "insanely great", simplicity, saying no to a thousand things, taste, and shipping. Be demanding and honest but you believe in this kid — push, don't crush. Keep replies punchy and quotable.
+UNDERSTAND TANGLISH: he often types Tamil in English letters (e.g. "enakku puriyala", "week plan podu"). Always understand it. ${replyRule()}
+WHO HE IS (known — never ask): ${p.name}, ${p.age}, ${p.branch}, ${p.college}, Sem ${p.semester}.
+Long-term: ${p.goalsLongTerm.join('; ')}. Vision — Legacy: ${p.visionLegacy.join('; ')}. Mission: ${p.visionMission.join('; ')}. Wealth: ${p.visionWealth.join('; ')}.
+Academic: ${p.academic.join('; ')}. Career: ${p.career.join('; ')}. Strengths: ${p.strengths.join('; ')}. Weaknesses to coach: ${p.weaknesses.join('; ')}.
+CURRENT: Progress index ${fmt(S.progress)} (0=start,+100=goal,neg=behind). Subjects: ${S.subjects.map(s=>s.name).join(', ')||'(none)'}. Deadlines flagged: ${S.deadlines||'(none)'}. Pending tasks: ${S.tasks.filter(t=>!t.done).map(t=>`${t.title} [${t.subject}, ${t.when}${t.priority!=null?', ★'+t.priority:''}]`).join(' | ')||'(none)'}. Recent logs: ${S.logs.slice(-6).map(l=>`${l.subject}: taught="${l.taught}", struggled="${l.didnt}", doubt="${l.doubts}"`).join(' | ')||'(none)'}.`;}
+async function geminiChat(contents,jsonMode){
+  if(!S.settings.apiKey){openSettings();throw new Error('Add your Gemini key in Settings first.');}
+  const url=`https://generativelanguage.googleapis.com/v1beta/models/${S.settings.model}:generateContent?key=${S.settings.apiKey}`;
+  const body={systemInstruction:{parts:[{text:systemInstruction()}]},contents};if(jsonMode)body.generationConfig={responseMimeType:"application/json"};
+  const res=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  if(!res.ok){const t=await res.text();throw new Error('Gemini '+res.status+': '+t.slice(0,160));}
+  const d=await res.json();return d.candidates?.[0]?.content?.parts?.[0]?.text||'';}
+function parseJSON(t){try{return JSON.parse(t);}catch(e){const m=t.match(/[\[{][\s\S]*[\]}]/);if(m){try{return JSON.parse(m[0]);}catch(e2){}}return null;}}
+async function oneShot(txt,el){el.innerHTML=`<div class="out">⏳ Steve is thinking…</div>`;
+  try{const r=await geminiChat([{role:'user',parts:[{text:txt}]}]);el.innerHTML=`<div class="out">${esc(r||'(no response)')}</div>`;}
+  catch(e){el.innerHTML=`<div class="out" style="border-color:#ff6961">⚠️ ${esc(e.message)}</div>`;}}
+function buildPlan(){oneShot("Build me a short, sharp study plan for TODAY. Rank by what moves me toward my goals; respect flagged deadlines. Ordered list, rough time blocks, under 160 words. End with one Steve-style line to fire me up.",document.getElementById('planOut'));}
+function explainDoubts(){const ds=S.logs.filter(l=>l.doubts);const out=document.getElementById('doubtOut');if(!ds.length){out.innerHTML=`<div class="out">No doubts logged yet.</div>`;return;}
+  oneShot("Explain each of my doubts simply, one by one, tiny example where useful, 2-4 sentences each.\n"+ds.map(l=>`- [${l.subject}] ${l.doubts}`).join('\n'),out);}
+async function prioritize(){const pend=S.tasks.filter(t=>!t.done);const out=document.getElementById('planOut');
+  if(!pend.length){out.innerHTML=`<div class="out">No pending tasks to rank.</div>`;return;}
+  out.innerHTML=`<div class="out">🧮 Ranking…</div>`;
+  try{const listing=pend.map((t,i)=>`${i}: "${t.title}" [${t.subject}, ${t.when}]`).join('\n');
+    const prompt=`Rank these tasks by how much finishing each ACCELERATES Harsith toward his goals (deep understanding, CGPA 8+, AI/ML, real projects, entrepreneurial edge). Priority 0-100. EXCEPTION: if the flagged deadlines name a test/assignment relevant to a task, push it to 85-100 and set "exam":true.\nDeadlines: ${S.deadlines||'(none)'}\nTasks:\n${listing}\nReturn ONLY JSON array: [{"i":0,"priority":85,"exam":true,"reason":"<=8 words"}]`;
+    const r=await geminiChat([{role:'user',parts:[{text:prompt}]}],true);const arr=parseJSON(r);
+    if(!Array.isArray(arr))throw new Error('Could not read ranking. Try again.');
+    arr.forEach(o=>{const t=pend[o.i];if(t){t.priority=Math.max(0,Math.min(100,+o.priority||0));t.reason=(o.reason||'').slice(0,60);if(o.exam)t.exam=true;}});
+    bump(0.03,true);save();render();const po=document.getElementById('planOut');if(po)po.innerHTML=`<div class="out">✅ Ranked. Highest-impact work is on top.</div>`;
+  }catch(e){const po=document.getElementById('planOut');if(po)po.innerHTML=`<div class="out" style="border-color:#ff6961">⚠️ ${esc(e.message)}</div>`;}}
+async function evaluateDay(){const dy=daily();const pendHigh=S.tasks.filter(t=>!t.done&&(t.priority??50)>=70).length;
+  flash('📈 Steve is rating your day…');
+  try{const stats=`Today: completed ${dy.completed}, logs ${dy.logs}, chat Qs ${dy.chats}, added ${dy.added}, high-priority pending ${pendHigh}, micro-move ${fmt(dy.move)}, index ${fmt(S.progress)}`;
+    const prompt=`Act like a tough stock analyst rating Harsith's day as a "stock". Decide a delta between -3.000 and +3.000 percent (fractions allowed). Reward focus, completing high-impact work, logging class, good questions, consistency. Penalize idleness, dodging hard tasks. If almost nothing happened, go clearly negative.\n${stats}\nReturn ONLY JSON: {"delta": <number>, "note": "<one punchy journal line, Steve Jobs voice, THIRD PERSON about Harsith, mention the movement>"}`;
+    const r=await geminiChat([{role:'user',parts:[{text:prompt}]}],true);const o=parseJSON(r);
+    if(!o||typeof o.delta!=='number')throw new Error('Rating failed, try again.');
+    const delta=Math.max(-3,Math.min(3,o.delta));bump(delta,true);journal(delta,o.note||('Day rated '+fmt(delta)));save();render();flash('Steve rated your day: '+fmt(delta));
+  }catch(e){flash('⚠️ '+e.message);}}
+
+/* ===== CHAT ===== */
+function quick(t){const el=document.getElementById('chatIn');if(el)el.value=t;sendChat();}
+async function sendChat(){const inp=document.getElementById('chatIn');if(!inp)return;const text=inp.value.trim();if(!text)return;
+  inp.value='';S.chat.push({role:'user',text});daily().chats++;bump(0.03,true);save();renderChat();
+  const el=document.getElementById('thread');const typ=document.createElement('div');typ.className='msg ai';typ.textContent='…';if(el)el.appendChild(typ);
+  const v=document.getElementById('view');if(v)v.scrollTop=v.scrollHeight;
+  try{const contents=S.chat.slice(-12).map(m=>({role:m.role==='user'?'user':'model',parts:[{text:m.text}]}));
+    const r=await geminiChat(contents);S.chat.push({role:'model',text:r||'(no response)'});save();renderChat();}
+  catch(e){typ.remove();S.chat.push({role:'model',text:'⚠️ '+e.message});save();renderChat();}}
+function clearChat(){S.chat=[];save();renderChat();}
+
+/* ===== BOOT ===== */
+load();
+if(!S.seeded){S.subjects=DEFAULT_SUBJECTS.map(n=>({id:uid(),name:n}));S.seeded=true;}
+(function(){const t=todayStr();if(S.lastActive&&S.lastActive!==t){const g=daysBetween(S.lastActive,t);
+  if(g>1){const pen=+(-(Math.min(g-1,7))*0.5).toFixed(3);bump(pen,true);journal(pen,`Harsith went quiet for ${g} days. Momentum doesn't wait. Down ${Math.abs(pen)}%. Show up.`);}}
+  S.lastActive=t;save();})();
+if(sessionStorage.getItem('sp.unlock')==='1'){showApp();render();}else{const p=document.getElementById('pw');if(p)p.focus();}
+</script>
+</body>
+</html>
