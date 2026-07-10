@@ -278,8 +278,13 @@ const fmt=n=>(n>=0?'+':'')+n.toFixed(3)+'%';
 const indiaNow=()=>{try{return new Intl.DateTimeFormat('en-IN',{timeZone:'Asia/Kolkata',weekday:'long',day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit',hour12:true}).format(new Date());}catch(e){return new Date().toString();}};
 const daysBetween=(a,b)=>Math.round((new Date(b)-new Date(a))/86400000);
 function daily(){if(!S.daily||S.daily.date!==todayStr())S.daily={date:todayStr(),completed:0,added:0,logs:0,chats:0,move:0};return S.daily;}
-function bump(d,silent){S.progress=Math.max(-CAP,Math.min(CAP,+(S.progress+d).toFixed(3)));const y=daily();y.move=+(y.move+d).toFixed(3);save();if(!silent){renderPill();if(S.tab==='progress')render();}}
-function journal(d,t){S.journal.push({date:todayStr(),time:new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}),delta:+d.toFixed(3),progress:S.progress,text:t});save();}
+function bump(){}   /* progress is now DERIVED from today's task completion — not from events like chatting */
+const sleepC=ms=>new Promise(r=>setTimeout(r,ms));
+/* today's goal completion: how much of TODAY's planned work is done (0-100%), weighted by priority */
+function goalPct(){const t=S.tasks.filter(x=>x.when==='today');if(!t.length)return 0;
+  const w=x=>(x.priority==null?50:x.priority);
+  const total=t.reduce((a,x)=>a+w(x),0),done=t.filter(x=>x.done).reduce((a,x)=>a+w(x),0);
+  return total?Math.round(done/total*100):0;}
 
 /* ===== TABS / ROUTER ===== */
 const TABS=[["coach","💬","Coach"],["today","🎯","Today"],["progress","📈","Progress"],["journal","📔","Journal"],["log","📝","Log"],["me","👤","Me"]];
@@ -292,9 +297,8 @@ function baseRender(){
 }
 function render(){baseRender();renderQuote();renderTasks();renderSubs();renderLogs();renderDoubts();renderJournal();renderDiary();
   if(S.tab==='coach'){renderChat();const v=document.getElementById('view');if(v)v.scrollTop=v.scrollHeight;}}
-function renderPill(){const el=document.getElementById('pill');if(!el)return;const pv=S.progress;
-  const cls=pv>0.0005?'up':pv<-0.0005?'down':'flat';const ar=pv>0.0005?'▲':pv<-0.0005?'▼':'▬';
-  el.innerHTML=`<span class="pv ${cls}">${ar} ${(pv>=0?'+':'')+pv.toFixed(2)}%</span>`;}
+function renderPill(){const el=document.getElementById('pill');if(!el)return;const pv=goalPct();
+  el.innerHTML=`<span class="pv ${pv>=70?'up':pv>0?'':'flat'}">${pv}%</span>`;}
 
 /* ===== VIEWS ===== */
 const VIEWS={
@@ -389,22 +393,17 @@ me:()=>`
     </div>
   </div>`
 };
-function heroHTML(){const pv=S.progress;const up=pv>0.0005,down=pv<-0.0005;
-  const cls=up?'up':down?'down':'flat';const ar=up?'▲':down?'▼':'▬';
-  const dy=daily();const mv=dy.move,mcls=mv>0.0005?'up':mv<-0.0005?'down':'flat';
-  const half=Math.min(CAP,Math.abs(pv))/CAP*50;
-  const thumb=50+Math.max(-CAP,Math.min(CAP,pv))/CAP*50;
-  const fill=pv>=0
-    ?`left:50%;width:${half}%;background:linear-gradient(90deg,rgba(48,209,88,.25),#30d158);box-shadow:0 0 16px rgba(48,209,88,.5)`
-    :`left:${50-half}%;width:${half}%;background:linear-gradient(90deg,#ff453a,rgba(255,69,58,.25));box-shadow:0 0 16px rgba(255,69,58,.45)`;
-  const glow=up?'rgba(48,209,88,.9)':down?'rgba(255,69,58,.9)':'rgba(255,255,255,.6)';
+function heroHTML(){const pv=goalPct();
+  const t=S.tasks.filter(x=>x.when==='today');const done=t.filter(x=>x.done).length;
+  const col=pv>=70?'#30d158':pv>=40?'#ffd60a':'#ff9f0a';
+  const fill=`left:0;width:${pv}%;background:linear-gradient(90deg,${col}aa,${col});box-shadow:0 0 16px ${col}88`;
+  const mood=!t.length?'Add today’s tasks to set your goal':pv>=100?'Goal smashed 🔥':pv>=50?'Halfway — keep running':pv>0?'Barely moving — push':'Not started — go';
   return `<div class="hero">
-    <div class="cap">Goal Progress Index · HRSTH</div>
-    <div class="big ${cls}">${ar} ${fmt(pv)}</div>
-    <div class="sub"><span class="${mcls}">Today ${fmt(mv)}</span> &nbsp;·&nbsp; ${(CAP-pv).toFixed(1)}% to goal</div>
-    <div class="track"><div class="mid"></div><div class="fill" style="${fill}"></div>
-      <div class="thumb" style="left:${thumb}%;box-shadow:0 0 0 4px rgba(255,255,255,.1),0 0 16px ${glow}"></div></div>
-    <div class="scale"><span>−100 · behind</span><span>0</span><span>goal · +100</span></div>
+    <div class="cap">Today’s Goal · ${todayStr()}</div>
+    <div class="big" style="color:${pv>0?col:'#fff'}">${pv}%</div>
+    <div class="sub">${done}/${t.length} of today’s tasks done · ${mood}</div>
+    <div class="track"><div class="fill" style="${fill}"></div></div>
+    <div class="scale"><span>0%</span><span>today’s goal · 100%</span></div>
     <div class="acts"><button class="w" onclick="evaluateDay()" style="flex:1">📈 Rate my day</button></div>
   </div>`;}
 function subOpts(){return S.subjects.length?S.subjects.map(s=>`<option>${esc(s.name)}</option>`).join(''):`<option value="">(add a subject)</option>`;}
@@ -448,9 +447,9 @@ async function rolloverChat(){
     S.diary.unshift({date:day,summary});save();
   }else{S.chatDay=today;save();}}
 function renderJournal(){const el=document.getElementById('journalList');if(!el)return;
-  if(!S.journal.length){el.innerHTML=`<div class="empty">No entries yet. Tap “Rate my day”.</div>`;return;}
-  el.innerHTML=[...S.journal].reverse().slice(0,40).map(j=>{const c=j.delta>0?'up':j.delta<0?'down':'flat';const a=j.delta>0?'▲':j.delta<0?'▼':'▬';
-    return `<div class="jr"><div class="d ${c}">${a} ${fmt(j.delta)}</div><div><div class="jt">${esc(j.text)}</div><div class="jd">${j.date} ${j.time||''} · now ${fmt(j.progress)}</div></div></div>`;}).join('');}
+  if(!S.journal.length){el.innerHTML=`<div class="empty">No days logged yet. Tap “Rate my day”.</div>`;return;}
+  el.innerHTML=[...S.journal].reverse().slice(0,40).map(j=>{const p=j.pct==null?0:j.pct;const c=p>=70?'up':p>=40?'flat':'down';
+    return `<div class="jr"><div class="d ${c}">${p}%</div><div><div class="jt">${esc(j.note||'')}</div><div class="jd">${j.date}</div></div></div>`;}).join('');}
 
 /* ===== ACTIONS ===== */
 function addTask(){const t=document.getElementById('nt-title').value.trim();if(!t)return;
@@ -479,7 +478,7 @@ window.addEventListener('click',e=>{if(e.target.classList.contains('modal'))e.ta
 /* ===== GEMINI (Steve Jobs) ===== */
 function replyRule(){if(S.settings.replyStyle==='english')return "Reply in clear, simple English.";if(S.settings.replyStyle==='tanglish')return "Reply in natural Tanglish (Tamil in English letters).";return "Reply in clear English by default; if he writes Tamil/Tanglish, mirror him in warm Tanglish.";}
 function systemInstruction(){const p=PROFILE;
-  return `You ARE Steve Jobs, personal mentor and study coach to Harsith, a 19-year-old who idolizes you. Speak first-person as Steve — visionary, intense, obsessed with focus and excellence, allergic to mediocrity; big on "insanely great", simplicity, saying no to a thousand things, taste, and shipping. Be demanding and honest but you believe in this kid — push, don't crush. Keep replies punchy and quotable.
+  return `You ARE Steve Jobs, personal mentor and study coach to Harsith, a 19-year-old who idolizes you. Speak first-person as Steve — visionary, intense, obsessed with focus and excellence, allergic to mediocrity; big on "insanely great", simplicity, saying no to a thousand things, taste, and shipping. Be demanding and honest but you believe in this kid — push, don't crush. CRUCIAL: keep EVERY reply SHORT — 1 to 3 sentences, punchy, no fluff, no long paragraphs, no filler. When he asks for a study plan, give a tight numbered list with rough time blocks and nothing else. Precise over wordy, always.
 UNDERSTAND TANGLISH: he often types Tamil in English letters (e.g. "enakku puriyala", "week plan podu"). Always understand it. ${replyRule()}
 WHO HE IS (known — never ask): ${p.name}, ${p.age}, ${p.branch}, ${p.college}, Sem ${p.semester}.
 Long-term: ${p.goalsLongTerm.join('; ')}. Vision — Legacy: ${p.visionLegacy.join('; ')}. Mission: ${p.visionMission.join('; ')}. Wealth: ${p.visionWealth.join('; ')}.
@@ -494,7 +493,7 @@ function parseJSON(t){try{return JSON.parse(t);}catch(e){const m=t.match(/[\[{][
 async function oneShot(txt,el){el.innerHTML=`<div class="out">⏳ Steve is thinking…</div>`;
   try{const r=await geminiChat([{role:'user',parts:[{text:txt}]}]);el.innerHTML=`<div class="out">${esc(r||'(no response)')}</div>`;}
   catch(e){el.innerHTML=`<div class="out" style="border-color:#ff6961">⚠️ ${esc(e.message)}</div>`;}}
-function buildPlan(){oneShot("Build me a short, sharp study plan for TODAY. Rank by what moves me toward my goals; respect flagged deadlines. Ordered list, rough time blocks, under 160 words. End with one Steve-style line to fire me up.",document.getElementById('planOut'));}
+function buildPlan(){oneShot("Give me a tight study plan for TODAY: a short numbered list with rough time blocks, prioritised by what moves me toward my goals, respecting my flagged deadlines. Under 80 words total. One short Steve line at the end.",document.getElementById('planOut'));}
 function explainDoubts(){const ds=S.logs.filter(l=>l.doubts);const out=document.getElementById('doubtOut');if(!ds.length){out.innerHTML=`<div class="out">No doubts logged yet.</div>`;return;}
   oneShot("Explain each of my doubts simply, one by one, tiny example where useful, 2-4 sentences each.\n"+ds.map(l=>`- [${l.subject}] ${l.doubts}`).join('\n'),out);}
 async function prioritize(){const pend=S.tasks.filter(t=>!t.done);const out=document.getElementById('planOut');
@@ -507,33 +506,36 @@ async function prioritize(){const pend=S.tasks.filter(t=>!t.done);const out=docu
     arr.forEach(o=>{const t=pend[o.i];if(t){t.priority=Math.max(0,Math.min(100,+o.priority||0));t.reason=(o.reason||'').slice(0,60);if(o.exam)t.exam=true;}});
     bump(0.03,true);save();render();const po=document.getElementById('planOut');if(po)po.innerHTML=`<div class="out">✅ Ranked. Highest-impact work is on top.</div>`;
   }catch(e){const po=document.getElementById('planOut');if(po)po.innerHTML=`<div class="out" style="border-color:#ff6961">⚠️ ${esc(e.message)}</div>`;}}
-async function evaluateDay(){const dy=daily();const pendHigh=S.tasks.filter(t=>!t.done&&(t.priority??50)>=70).length;
-  flash('📈 Steve is rating your day…');
-  try{const stats=`Today: completed ${dy.completed}, logs ${dy.logs}, chat Qs ${dy.chats}, added ${dy.added}, high-priority pending ${pendHigh}, micro-move ${fmt(dy.move)}, index ${fmt(S.progress)}`;
-    const prompt=`Act like a tough stock analyst rating Harsith's day as a "stock". Decide a delta between -3.000 and +3.000 percent (fractions allowed). Reward focus, completing high-impact work, logging class, good questions, consistency. Penalize idleness, dodging hard tasks. If almost nothing happened, go clearly negative.\n${stats}\nReturn ONLY JSON: {"delta": <number>, "note": "<one punchy journal line, Steve Jobs voice, THIRD PERSON about Harsith, mention the movement>"}`;
-    const r=await geminiChat([{role:'user',parts:[{text:prompt}]}],true);const o=parseJSON(r);
-    if(!o||typeof o.delta!=='number')throw new Error('Rating failed, try again.');
-    const delta=Math.max(-3,Math.min(3,o.delta));bump(delta,true);journal(delta,o.note||('Day rated '+fmt(delta)));save();render();flash('Steve rated your day: '+fmt(delta));
-  }catch(e){flash('⚠️ '+e.message);}}
+async function evaluateDay(){
+  const pct=goalPct();const t=S.tasks.filter(x=>x.when==='today');const done=t.filter(x=>x.done).length;
+  flash('📈 Steve is checking your day…');
+  let note='';
+  try{const prompt=`Today Harsith did ${done}/${t.length} of today's tasks — ${pct}% of today's goal. In ONE short punchy sentence (Steve Jobs voice, third person), react: praise if high, push hard if low. Max 15 words.`;
+    note=await geminiChat([{role:'user',parts:[{text:prompt}]}]);}catch(e){}
+  if(!note||!note.trim())note=pct>=70?`Harsith crushed ${pct}% of today's goal. Momentum.`:pct>0?`Only ${pct}% today. Not enough. Push.`:`Zero today. Wake up and run.`;
+  S.journal=S.journal.filter(j=>j.date!==todayStr());          // one entry per day
+  S.journal.push({date:todayStr(),pct,note:note.trim()});
+  save();render();flash(`Logged: ${pct}% of today's goal`);}
 
 /* ===== CHAT ===== */
 function quick(t){const el=document.getElementById('chatIn');if(el)el.value=t;sendChat();}
 async function sendChat(){const inp=document.getElementById('chatIn');if(!inp)return;const text=inp.value.trim();if(!text)return;
-  inp.value='';S.chatDay=todayStr();S.chat.push({role:'user',text});daily().chats++;S.chatBump=+(((S.chatBump||0)+0.03).toFixed(3));bump(0.03);save();renderChat();
+  inp.value='';S.chatDay=todayStr();S.chat.push({role:'user',text});daily().chats++;save();renderChat();
   const el=document.getElementById('thread');const typ=document.createElement('div');typ.className='msg ai';typ.textContent='…';if(el)el.appendChild(typ);
   const v=document.getElementById('view');if(v)v.scrollTop=v.scrollHeight;
   try{const contents=S.chat.slice(-12).map(m=>({role:m.role==='user'?'user':'model',parts:[{text:m.text}]}));
-    const r=await geminiChat(contents);S.chat.push({role:'model',text:r||'(no response)'});save();renderChat();}
+    const r=await geminiChat(contents);typ.remove();await typeReply(r||'(no response)');}
   catch(e){typ.remove();S.chat.push({role:'model',text:'⚠️ '+e.message});save();renderChat();}}
+async function typeReply(full){
+  S.chat.push({role:'model',text:''});const idx=S.chat.length-1;
+  const parts=full.split(/(\s+)/);let acc='';
+  for(let i=0;i<parts.length;i++){acc+=parts[i];S.chat[idx].text=acc;renderChat();await sleepC(22);}
+  S.chat[idx].text=full;save();renderChat();}
 function clearChat(){S.chat=[];save();renderChat();}
 function trashChat(){
   if(!S.chat||!S.chat.length){flash('Nothing to trash');return;}
   if(!confirm("Trash this conversation? It won't be saved, journaled, or remembered by Steve."))return;
-  const n=S.chat.filter(m=>m.role==='user').length;
-  if(S.chatBump)bump(-(S.chatBump),true);          // undo the progress this chat added
-  S.chatBump=0;
-  const dy=daily();dy.chats=Math.max(0,dy.chats-n);
-  S.chat=[];save();render();flash('Conversation trashed 🗑');
+  S.chat=[];S.chatBump=0;save();render();flash('Conversation trashed 🗑');
 }
 
 /* ===== BOOT ===== */
@@ -545,10 +547,7 @@ async function boot(){
   if(RETIRE.includes(S.settings.model)||!VALID.includes(S.settings.model))S.settings.model='gemini-flash-lite-latest';
   await rolloverChat();        // clear yesterday's chat -> archive its summary to Journal
   if(!S.seeded){S.subjects=DEFAULT_SUBJECTS.map(n=>({id:uid(),name:n}));S.seeded=true;}
-  const t=todayStr();
-  if(S.lastActive&&S.lastActive!==t){const g=daysBetween(S.lastActive,t);
-    if(g>1){const pen=+(-(Math.min(g-1,7))*0.5).toFixed(3);bump(pen,true);journal(pen,`Harsith went quiet for ${g} days. Momentum doesn't wait. Down ${Math.abs(pen)}%. Show up.`);}}
-  S.lastActive=t;save();
+  S.lastActive=todayStr();save();
   render();
 }
 if(sessionStorage.getItem('sp.unlock')==='1'){CODE=sessionStorage.getItem('sp.code')||'';showApp();boot();}
