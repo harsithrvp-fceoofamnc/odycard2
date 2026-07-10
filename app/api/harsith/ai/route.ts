@@ -24,8 +24,12 @@ export async function POST(req: NextRequest) {
     if (jsonMode) gbody.generationConfig = { responseMimeType: "application/json" };
 
     // Retry transient overloads (429/503) a couple of times before giving up.
+    type GeminiResp = {
+      candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }>;
+      error?: { message?: string };
+    };
     let r: Response | null = null;
-    let d: Record<string, unknown> = {};
+    let d: GeminiResp = {};
     for (let attempt = 0; attempt < 3; attempt++) {
       r = await fetch(url, {
         method: "POST",
@@ -37,7 +41,7 @@ export async function POST(req: NextRequest) {
       if (attempt < 2) await new Promise((res) => setTimeout(res, 700 * (attempt + 1)));
     }
     if (!r || !r.ok) {
-      const err = (d as { error?: { message?: string } })?.error?.message;
+      const err = d?.error?.message;
       return NextResponse.json({ error: err || `Gemini ${r?.status || "error"}` }, { status: r?.status || 502 });
     }
 
