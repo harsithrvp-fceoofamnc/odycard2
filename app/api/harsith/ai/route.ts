@@ -16,7 +16,7 @@ export async function POST(req: NextRequest) {
 
   try {
     const { contents, systemInstruction, model, jsonMode } = await req.json();
-    const m = model || "gemini-flash-latest";
+    const m = model || "gemini-2.5-flash";
     const url = `https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent?key=${key}`;
 
     const gbody: Record<string, unknown> = { contents };
