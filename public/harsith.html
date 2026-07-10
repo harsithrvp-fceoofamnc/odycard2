@@ -256,7 +256,7 @@ function renderQuote(){const el=document.getElementById('quote');if(el)el.innerH
 
 /* ===== STATE ===== */
 const LS='studyPlanner.v3';
-let S={subjects:[],tasks:[],logs:[],chat:[],journal:[],progress:0,deadlines:'',lastActive:null,daily:null,tab:'coach',
+let S={subjects:[],tasks:[],logs:[],chat:[],chatDay:null,diary:[],journal:[],progress:0,deadlines:'',lastActive:null,daily:null,tab:'coach',
   settings:{apiKey:'',model:'gemini-flash-latest',replyStyle:'match'},seeded:false};
 let CODE='';                 // access code, set on unlock; used to auth API calls
 function api(path,opts){return fetch(path,Object.assign({},opts,{headers:Object.assign({'Content-Type':'application/json','x-harsith-code':CODE},(opts&&opts.headers)||{})}));}
@@ -282,15 +282,15 @@ function bump(d,silent){S.progress=Math.max(-CAP,Math.min(CAP,+(S.progress+d).to
 function journal(d,t){S.journal.push({date:todayStr(),time:new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}),delta:+d.toFixed(3),progress:S.progress,text:t});save();}
 
 /* ===== TABS / ROUTER ===== */
-const TABS=[["coach","💬","Coach"],["today","🎯","Today"],["progress","📈","Progress"],["log","📝","Log"],["me","👤","Me"]];
+const TABS=[["coach","💬","Coach"],["today","🎯","Today"],["progress","📈","Progress"],["journal","📔","Journal"],["log","📝","Log"],["me","👤","Me"]];
 function setTab(t){S.tab=t;save();render();const v=document.getElementById('view');if(v)v.scrollTop=0;}
 function baseRender(){
   renderPill();
-  document.getElementById('barsub').textContent=({coach:'your study coach',today:"today's focus",progress:'goal tracker',log:'class & doubts',me:'your profile'})[S.tab];
+  document.getElementById('barsub').textContent=({coach:'your study coach',today:"today's focus",progress:'goal tracker',journal:'daily journal',log:'class & doubts',me:'your profile'})[S.tab];
   document.getElementById('view').innerHTML=VIEWS[S.tab]();
   document.getElementById('tabs').innerHTML=TABS.map(([k,i,l])=>`<a class="${S.tab===k?'on':''}" onclick="setTab('${k}')"><span class="ic">${i}</span>${l}</a>`).join('');
 }
-function render(){baseRender();renderQuote();renderTasks();renderSubs();renderLogs();renderDoubts();renderJournal();
+function render(){baseRender();renderQuote();renderTasks();renderSubs();renderLogs();renderDoubts();renderJournal();renderDiary();
   if(S.tab==='coach'){renderChat();const v=document.getElementById('view');if(v)v.scrollTop=v.scrollHeight;}}
 function renderPill(){const el=document.getElementById('pill');if(!el)return;const pv=S.progress;
   const cls=pv>0.0005?'up':pv<-0.0005?'down':'flat';const ar=pv>0.0005?'▲':pv<-0.0005?'▼':'▬';
@@ -339,9 +339,15 @@ today:()=>`
 progress:()=>`
   ${heroHTML()}
   <div class="card glass">
-    <h3>📓 Steve's Journal</h3>
-    <div class="s">His running log on you — every move up or down, like a stock. Tap “Rate my day” to log today.</div>
+    <h3>📊 Track record</h3>
+    <div class="s">Every move up or down, like a stock. Tap “Rate my day” to log today.</div>
     <div id="journalList"></div>
+  </div>`,
+journal:()=>`
+  <div class="card glass">
+    <h3>📔 Daily Journal</h3>
+    <div class="s">Each past day's conversation with Steve, summarized. Today's live chat is in the Coach tab — it archives here tomorrow.</div>
+    <div id="diaryList"></div>
   </div>`,
 log:()=>`
   <div class="card glass">
@@ -423,6 +429,23 @@ function renderLogs(){const el=document.getElementById('logList');if(!el)return;
   el.innerHTML=r.length?r.map(l=>`<div class="task"><div class="m"><div class="tt">${esc(l.subject)} <span class="ts">${l.date}</span></div><div class="ts">${l.taught?('✅ '+esc(l.taught)+'  '):''}${l.didnt?('⚠️ '+esc(l.didnt)+'  '):''}${l.doubts?('❓ '+esc(l.doubts)):''}</div></div></div>`).join(''):'';}
 function renderDoubts(){const el=document.getElementById('doubtList');if(!el)return;const ds=S.logs.filter(l=>l.doubts);
   el.innerHTML=ds.length?ds.reverse().map(x=>`<div class="task"><div class="m"><div class="tt">${esc(x.doubts)}</div><div class="ts">${esc(x.subject)} · ${x.date}</div></div></div>`).join(''):`<div class="empty">No open doubts. Nice.</div>`;}
+function renderDiary(){const el=document.getElementById('diaryList');if(!el)return;
+  if(!S.diary||!S.diary.length){el.innerHTML=`<div class="empty">No past days yet. Today's chat archives here tomorrow.</div>`;return;}
+  el.innerHTML=S.diary.map(x=>`<div class="jr"><div><div class="jt" style="font-weight:700;margin-bottom:3px">${x.date}</div><div class="jt" style="color:var(--ink2)">${esc(x.summary)}</div></div></div>`).join('');}
+async function summarizeChat(msgs){
+  const convo=msgs.map(m=>(m.role==='user'?'Harsith':'Steve')+': '+m.text).join('\n');
+  try{const r=await geminiChat([{role:'user',parts:[{text:"Summarize this day's coaching chat in 2-3 short sentences: what Harsith asked about or worked on, the key advice you gave, and his mood. Third person, warm.\n\n"+convo}]}]);
+    if(r&&r.trim())return r.trim();}catch(e){}
+  const qs=msgs.filter(m=>m.role==='user').map(m=>m.text);
+  return 'Talked about: '+(qs.slice(0,6).join('; ')||'general chat');}
+async function rolloverChat(){
+  const today=todayStr();
+  if(S.chat&&S.chat.length&&S.chatDay&&S.chatDay!==today){
+    const day=S.chatDay,msgs=S.chat.slice();
+    S.chat=[];S.chatDay=today;save();
+    const summary=await summarizeChat(msgs);
+    S.diary.unshift({date:day,summary});save();
+  }else{S.chatDay=today;save();}}
 function renderJournal(){const el=document.getElementById('journalList');if(!el)return;
   if(!S.journal.length){el.innerHTML=`<div class="empty">No entries yet. Tap “Rate my day”.</div>`;return;}
   el.innerHTML=[...S.journal].reverse().slice(0,40).map(j=>{const c=j.delta>0?'up':j.delta<0?'down':'flat';const a=j.delta>0?'▲':j.delta<0?'▼':'▬';
@@ -495,7 +518,7 @@ async function evaluateDay(){const dy=daily();const pendHigh=S.tasks.filter(t=>!
 /* ===== CHAT ===== */
 function quick(t){const el=document.getElementById('chatIn');if(el)el.value=t;sendChat();}
 async function sendChat(){const inp=document.getElementById('chatIn');if(!inp)return;const text=inp.value.trim();if(!text)return;
-  inp.value='';S.chat.push({role:'user',text});daily().chats++;bump(0.03,true);save();renderChat();
+  inp.value='';S.chatDay=todayStr();S.chat.push({role:'user',text});daily().chats++;bump(0.03,true);save();renderChat();
   const el=document.getElementById('thread');const typ=document.createElement('div');typ.className='msg ai';typ.textContent='…';if(el)el.appendChild(typ);
   const v=document.getElementById('view');if(v)v.scrollTop=v.scrollHeight;
   try{const contents=S.chat.slice(-12).map(m=>({role:m.role==='user'?'user':'model',parts:[{text:m.text}]}));
@@ -509,6 +532,7 @@ async function boot(){
   await load();                // then hydrate from the cloud
   const VALID=['gemini-flash-latest','gemini-3.1-flash-lite','gemini-flash-lite-latest','gemini-3-flash-preview'];
   if(!VALID.includes(S.settings.model))S.settings.model='gemini-flash-latest';  // auto-fix retired models
+  await rolloverChat();        // clear yesterday's chat -> archive its summary to Journal
   if(!S.seeded){S.subjects=DEFAULT_SUBJECTS.map(n=>({id:uid(),name:n}));S.seeded=true;}
   const t=todayStr();
   if(S.lastActive&&S.lastActive!==t){const g=daysBetween(S.lastActive,t);

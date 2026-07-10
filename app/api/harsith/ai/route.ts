@@ -23,14 +23,23 @@ export async function POST(req: NextRequest) {
     if (systemInstruction) gbody.systemInstruction = { parts: [{ text: systemInstruction }] };
     if (jsonMode) gbody.generationConfig = { responseMimeType: "application/json" };
 
-    const r = await fetch(url, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(gbody),
-    });
-    const d = await r.json();
-    if (!r.ok)
-      return NextResponse.json({ error: d?.error?.message || `Gemini ${r.status}` }, { status: r.status });
+    // Retry transient overloads (429/503) a couple of times before giving up.
+    let r: Response | null = null;
+    let d: Record<string, unknown> = {};
+    for (let attempt = 0; attempt < 3; attempt++) {
+      r = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(gbody),
+      });
+      d = await r.json();
+      if (r.ok || (r.status !== 429 && r.status !== 503)) break;
+      if (attempt < 2) await new Promise((res) => setTimeout(res, 700 * (attempt + 1)));
+    }
+    if (!r || !r.ok) {
+      const err = (d as { error?: { message?: string } })?.error?.message;
+      return NextResponse.json({ error: err || `Gemini ${r?.status || "error"}` }, { status: r?.status || 502 });
+    }
 
     const text = d?.candidates?.[0]?.content?.parts?.[0]?.text || "";
     return NextResponse.json({ text });
