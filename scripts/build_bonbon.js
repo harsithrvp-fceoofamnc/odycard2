@@ -118,6 +118,11 @@ h = h.replace('</style>', `
   #langbar .lang{flex:0 0 auto;font-size:14px;color:var(--ink);background:transparent;border:0;padding:8px 12px;border-radius:8px;cursor:pointer;text-align:left;width:100%}
   #langbar .lang:hover{background:#f3e7e6}
   #langbar .lang.on{background:var(--blue);color:#fff;font-weight:700}
+  /* boot loading veil: frosted blur over the phone while the header assets load */
+  #bootveil{position:absolute;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;background:rgba(250,242,241,.5);-webkit-backdrop-filter:blur(22px) saturate(1.1);backdrop-filter:blur(22px) saturate(1.1);transition:opacity .6s ease;opacity:1}
+  #bootveil.gone{opacity:0;pointer-events:none}
+  .bootspin{width:34px;height:34px;border-radius:50%;border:3px solid rgba(129,18,38,.22);border-top-color:#811226;animation:bootspin .8s linear infinite}
+  @keyframes bootspin{to{transform:rotate(360deg)}}
 </style>`);
 // header interactions: globe toggles the language dropdown; picking a language closes it.
 // Defined inside the main script (via the /* init */ anchor) so we never inject a stray
@@ -125,7 +130,25 @@ h = h.replace('</style>', `
 h = h.replace('/* init */', `function toggleLang(){var e=document.getElementById("langbar");if(e)e.classList.toggle("open");}
 function closeLang(){var e=document.getElementById("langbar");if(e)e.classList.remove("open");}
 document.addEventListener("click",function(ev){var lb=document.getElementById("langbar"),tg=document.querySelector(".langtoggle");if(lb&&lb.classList.contains("open")&&!lb.contains(ev.target)&&(!tg||!tg.contains(ev.target)))lb.classList.remove("open");});
+// boot: keep the frosted veil up until the wood/logo/awning images have loaded,
+// then fade it out and only THEN play the welcome greeting.
+function bbBoot(){
+  var veil=document.getElementById("bootveil");
+  var start=Date.now(),MIN=650,done=false;
+  var imgs=["/wood_web.jpg","/logo_web.png","/awning_web.png"],left=imgs.length;
+  function fade(){ if(done)return; done=true;
+    if(veil)veil.classList.add("gone");
+    setTimeout(function(){ if(veil&&veil.parentNode)veil.parentNode.removeChild(veil); showGreeting(); },640);
+  }
+  function ready(){ setTimeout(fade, Math.max(0, MIN-(Date.now()-start))); }
+  imgs.forEach(function(src){ var im=new Image(); im.onload=im.onerror=function(){ if(--left<=0)ready(); }; im.src=src; });
+  setTimeout(function(){ if(!done)ready(); }, 2600);
+}
 /* init */`);
+// boot veil markup: first child of the phone so it covers everything while loading
+h = h.replace('<div id="phone">', '<div id="phone"><div id="bootveil"><div class="bootspin"></div></div>');
+// defer the welcome greeting until the veil fades (bbBoot handles it)
+h = h.replace(".catch(function(){}).then(function(){showGreeting();});", ".catch(function(){}).then(function(){bbBoot();});");
 h = h.split("onclick=\"setLang('${l[0]}',this)\"").join("onclick=\"setLang('${l[0]}',this);closeLang()\"");
 
 // ---- branding ----
