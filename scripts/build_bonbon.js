@@ -96,6 +96,37 @@ h = h.replace(
 // header shows just the brand (single outlet)
 h = h.replace('document.getElementById("hname").textContent="Annapoorna · "+o;', 'document.getElementById("hname").textContent="Bon Bon";');
 
+// ---- NEW wooden-shopfront header (Bon Bon only) : wood bg + centred logo (neon glow) +
+//      glass globe language dropdown + scalloped awning. Everything BELOW the awning is untouched.
+h = h.replace(
+  '<header><button id="back" class="hback" onclick="goOutlets()" title="Change outlet">←</button><div class="logo">A</div><div><h1 id="hname">Sree Annapoorna</h1><div class="sub" id="hsub">Choose your outlet — AI Waiter by Odysra</div></div></header>',
+  '<header class="woodhdr"><button id="back"></button><h1 id="hname"></h1><div id="hsub"></div><img class="woodlogo" src="/logo_web.png" alt="Bon Bon"><button class="langtoggle" onclick="toggleLang()" aria-label="Language"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.3"/><path d="M2.7 12h18.6"/><path d="M12 2.7a14 14 0 0 1 3.7 9.3 14 14 0 0 1-3.7 9.3 14 14 0 0 1-3.7-9.3A14 14 0 0 1 12 2.7Z"/></svg></button></header>\n  <div class="awnbar"><img src="/awning_web.png" alt=""></div>'
+);
+// header styles (appended so they override the base header/langbar rules)
+h = h.replace('</style>', `
+  header.woodhdr{background:linear-gradient(rgba(0,0,0,.30),rgba(0,0,0,.30)),url('/wood_web.jpg') center/cover;padding:12px 12px 20px;min-height:118px;display:flex;align-items:center;justify-content:center;gap:0;border-bottom:0;box-shadow:inset 0 -10px 20px rgba(0,0,0,.38);overflow:visible}
+  .woodhdr #back,.woodhdr #hname,.woodhdr #hsub{display:none}
+  .woodhdr .woodlogo{width:50%;max-width:215px;display:block;animation:hglow 3.8s ease-in-out infinite}
+  @keyframes hglow{0%,100%{filter:drop-shadow(0 0 3px rgba(255,255,255,.28)) drop-shadow(0 0 9px rgba(255,225,235,.12)) drop-shadow(0 3px 5px rgba(0,0,0,.45))}50%{filter:drop-shadow(0 0 6px rgba(255,255,255,.45)) drop-shadow(0 0 15px rgba(255,205,225,.22)) drop-shadow(0 3px 5px rgba(0,0,0,.45))}}
+  .woodhdr .langtoggle{position:absolute;right:12px;top:12px;width:42px;height:42px;border-radius:50%;background:rgba(255,255,255,.15);-webkit-backdrop-filter:blur(10px) saturate(1.3);backdrop-filter:blur(10px) saturate(1.3);color:#fff;border:1px solid rgba(255,255,255,.42);cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 3px 10px rgba(0,0,0,.22),inset 0 1px 0 rgba(255,255,255,.3)}
+  .woodhdr .langtoggle svg{width:20px;height:20px;fill:none;stroke:#fff;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+  .awnbar{position:relative;z-index:3;width:130%;margin:-14px 0 0 -15%;line-height:0}
+  .awnbar img{width:100%;display:block}
+  #langbar{position:absolute;top:54px;right:10px;z-index:30;display:none;flex-direction:column;gap:3px;padding:6px;background:#fff;border-radius:12px;box-shadow:0 10px 26px rgba(0,0,0,.28);min-width:134px;border:1px solid var(--line)}
+  #langbar.open{display:flex}
+  #langbar .lang{flex:0 0 auto;font-size:14px;color:var(--ink);background:transparent;border:0;padding:8px 12px;border-radius:8px;cursor:pointer;text-align:left;width:100%}
+  #langbar .lang:hover{background:#f3e7e6}
+  #langbar .lang.on{background:var(--blue);color:#fff;font-weight:700}
+</style>`);
+// header interactions: globe toggles the language dropdown; picking a language closes it.
+// Defined inside the main script (via the /* init */ anchor) so we never inject a stray
+// </script>/</body> that could collide with the receipt-HTML string elsewhere in the file.
+h = h.replace('/* init */', `function toggleLang(){var e=document.getElementById("langbar");if(e)e.classList.toggle("open");}
+function closeLang(){var e=document.getElementById("langbar");if(e)e.classList.remove("open");}
+document.addEventListener("click",function(ev){var lb=document.getElementById("langbar"),tg=document.querySelector(".langtoggle");if(lb&&lb.classList.contains("open")&&!lb.contains(ev.target)&&(!tg||!tg.contains(ev.target)))lb.classList.remove("open");});
+/* init */`);
+h = h.split("onclick=\"setLang('${l[0]}',this)\"").join("onclick=\"setLang('${l[0]}',this);closeLang()\"");
+
 // ---- branding ----
 h = h.replace(/const LOGO="data:image\/png;base64,[^"]*";/, 'const LOGO="/bon_bon_logo.png";');
 h = h.replace('<div class="logo">A</div>', '<div class="logo"><img src="/bon_bon_logo.png" alt="Bon Bon" style="width:100%;height:100%;object-fit:cover;border-radius:9px;display:block"></div>');
