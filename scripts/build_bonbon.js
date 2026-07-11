@@ -118,11 +118,11 @@ h = h.replace('</style>', `
   #langbar .lang{flex:0 0 auto;font-size:14px;color:var(--ink);background:transparent;border:0;padding:8px 12px;border-radius:8px;cursor:pointer;text-align:left;width:100%}
   #langbar .lang:hover{background:#f3e7e6}
   #langbar .lang.on{background:var(--blue);color:#fff;font-weight:700}
-  /* boot loading veil: frosted blur over the phone while the header assets load */
-  #bootveil{position:absolute;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;background:rgba(250,242,241,.5);-webkit-backdrop-filter:blur(22px) saturate(1.1);backdrop-filter:blur(22px) saturate(1.1);transition:opacity .6s ease;opacity:1}
+  /* boot screen: plain white; the Bon Bon logo fades in, then fades out just before the screen lifts (Apple-style) */
+  #bootveil{position:absolute;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;background:#fff;transition:opacity .5s ease;opacity:1}
   #bootveil.gone{opacity:0;pointer-events:none}
-  .bootlogo{width:66px;height:66px;object-fit:contain;animation:bootspin 1.1s linear infinite;filter:drop-shadow(0 3px 8px rgba(0,0,0,.18))}
-  @keyframes bootspin{to{transform:rotate(360deg)}}
+  #bootveil .bootlogo{width:160px;max-width:56%;height:auto;opacity:0;transform:scale(.92);transition:opacity .6s ease,transform .6s ease}
+  #bootveil.show .bootlogo{opacity:1;transform:scale(1)}
 </style>`);
 // header interactions: globe toggles the language dropdown; picking a language closes it.
 // Defined inside the main script (via the /* init */ anchor) so we never inject a stray
@@ -130,23 +130,25 @@ h = h.replace('</style>', `
 h = h.replace('/* init */', `function toggleLang(){var e=document.getElementById("langbar");if(e)e.classList.toggle("open");}
 function closeLang(){var e=document.getElementById("langbar");if(e)e.classList.remove("open");}
 document.addEventListener("click",function(ev){var lb=document.getElementById("langbar"),tg=document.querySelector(".langtoggle");if(lb&&lb.classList.contains("open")&&!lb.contains(ev.target)&&(!tg||!tg.contains(ev.target)))lb.classList.remove("open");});
-// boot: keep the frosted veil up until the wood/logo/awning images have loaded,
-// then fade it out and only THEN play the welcome greeting.
+// boot: white screen with the Bon Bon logo fading in; once the header assets are loaded
+// the logo fades OUT, then the white screen lifts, and only THEN the welcome greeting plays.
 function bbBoot(){
   var veil=document.getElementById("bootveil");
-  var start=Date.now(),MIN=650,done=false;
+  if(veil)requestAnimationFrame(function(){veil.classList.add("show");}); // fade the logo in
+  var start=Date.now(),MIN=1000,done=false;
   var imgs=["/wood_web.jpg","/logo_web.png","/awning_web.png"],left=imgs.length;
-  function fade(){ if(done)return; done=true;
-    if(veil)veil.classList.add("gone");
-    setTimeout(function(){ if(veil&&veil.parentNode)veil.parentNode.removeChild(veil); showGreeting(); },640);
+  function finish(){ if(done)return; done=true;
+    if(veil)veil.classList.remove("show");                                   // logo fades out first
+    setTimeout(function(){ if(veil)veil.classList.add("gone"); }, 540);       // then the white screen lifts
+    setTimeout(function(){ if(veil&&veil.parentNode)veil.parentNode.removeChild(veil); showGreeting(); }, 1080);
   }
-  function ready(){ setTimeout(fade, Math.max(0, MIN-(Date.now()-start))); }
+  function ready(){ setTimeout(finish, Math.max(0, MIN-(Date.now()-start))); }
   imgs.forEach(function(src){ var im=new Image(); im.onload=im.onerror=function(){ if(--left<=0)ready(); }; im.src=src; });
-  setTimeout(function(){ if(!done)ready(); }, 2600);
+  setTimeout(function(){ if(!done)ready(); }, 2800);
 }
 /* init */`);
 // boot veil markup: first child of the phone so it covers everything while loading
-h = h.replace('<div id="phone">', '<div id="phone"><div id="bootveil"><img class="bootlogo" src="/buffer_logo.png" alt="loading"></div>');
+h = h.replace('<div id="phone">', '<div id="phone"><div id="bootveil"><img class="bootlogo" src="/logo_web.png" alt="Bon Bon"></div>');
 // defer the welcome greeting until the veil fades (bbBoot handles it)
 h = h.replace(".catch(function(){}).then(function(){showGreeting();});", ".catch(function(){}).then(function(){bbBoot();});");
 h = h.split("onclick=\"setLang('${l[0]}',this)\"").join("onclick=\"setLang('${l[0]}',this);closeLang()\"");
