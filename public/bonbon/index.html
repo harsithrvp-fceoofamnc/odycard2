@@ -838,22 +838,23 @@ const avail=id=>!TIME_FILTER||!OPEN||(HOUR>=MENU[id].h[0]&&HOUR<MENU[id].h[1]);
 const SHOW_TIMING=TIME_FILTER; // the "timed" build shows serving times on dishes; the all-time build hides them
 const LOGO_PICS=true; // when true, dishes without a real photo show an image block with the logo centred
 const chat=document.getElementById("chat");
-function bot(html){const d=document.createElement("div");d.className="msg bot";d.innerHTML=html;chat.appendChild(d);toBottom();return d;}
-// ChatGPT-style typewriter: reveals a plain-text reply one character at a time.
-// Falls back to instant render if the reply contains HTML markup (so tags never leak).
-function typeReply(text){return new Promise(function(res){
+// ChatGPT-style bot bubble: plain-text messages reveal one character at a time.
+// Anything containing HTML markup (tags) renders instantly so markup never leaks.
+// Returns the bubble element immediately; the typing runs in the background.
+function bot(html){
   var d=document.createElement("div");d.className="msg bot";chat.appendChild(d);
-  var s=String(text==null?"":text);
-  if(/<[a-z!\/][\s\S]*>/i.test(s)){d.innerHTML=s;toBottom();return res(d);}
+  var s=String(html==null?"":html);
+  if(/<[a-z!\/][\s\S]*>/i.test(s)){d.innerHTML=s;toBottom();return d;}
   var i=0;
   (function step(){
     i++;d.textContent=s.slice(0,i);toBottom();
-    if(i>=s.length){return res(d);}
-    var c=s[i-1],dl=18;
-    if(c===" ")dl=10;else if(c===","||c===";"||c===":")dl=60;else if(c==="."||c==="!"||c==="?"||c==="\n")dl=110;
+    if(i>=s.length)return;
+    var c=s[i-1],dl=16;
+    if(c===" ")dl=8;else if(c===","||c===";"||c===":")dl=55;else if(c==="."||c==="!"||c==="?"||c==="\n")dl=95;
     setTimeout(step,dl);
   })();
-});}
+  return d;
+}
 function me(t){const d=document.createElement("div");d.className="msg me";d.textContent=t;chat.appendChild(d);toBottom();}
 function block(cls,html){const d=document.createElement("div");d.className=cls;d.innerHTML=html;chat.appendChild(d);toBottom();return d;}
 let _bt=null,_bigTarget=null;
@@ -1370,7 +1371,7 @@ function setBusy(on){var b=document.getElementById("bar");if(b)b.classList.toggl
 async function askOdy(q){busy=true;setBusy(true);const typing=typingBubble();
  try{const res=await fetch('/api/bonbon',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:q,lang,cart:Object.keys(cart),taste:tasteStr(),restaurant:"Bon Bon, an ice cream parlour"})});
   if(!res.ok)throw 0;const data=await res.json();typing.remove();
-  let rb=null;if(data.reply)rb=await typeReply(data.reply);const added=runActions(data.actions);
+  let rb=null;if(data.reply)rb=bot(data.reply);const added=runActions(data.actions);
   if(added){const cc=confirmOrder();anchorReply(cc||rb);}else{exploreBar();anchorReply(rb);}
  }catch(e){typing.remove();ai(q.toLowerCase());}
  finally{busy=false;setBusy(false);}}
