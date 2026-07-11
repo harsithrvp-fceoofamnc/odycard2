@@ -7,7 +7,7 @@ export default function BonBon() {
     <>
       <style>{`html,body{height:100%;overflow:hidden;overscroll-behavior:none;background:#000}`}</style>
       <iframe
-        src="/bonbon/index.html?v=26"
+        src="/bonbon/index.html?v=27"
         allow="microphone"
         style={{ position: "fixed", inset: 0, width: "100%", height: "100%", border: "none" }}
       />
