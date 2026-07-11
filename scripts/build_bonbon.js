@@ -112,7 +112,8 @@ h = h.replace('</style>', `
   .woodhdr .langtoggle svg{width:20px;height:20px;fill:none;stroke:#fff;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
   .awnbar{position:relative;z-index:3;width:130%;margin:-3px 0 0 -15%;line-height:0}
   .awnbar img{width:100%;display:block}
-  #wm{top:58%}
+  #wm{top:50%}
+  #wm img{width:270px;max-width:72%}
   #langbar{position:absolute;top:54px;right:10px;z-index:30;display:none;flex-direction:column;gap:3px;padding:6px;background:#fff;border-radius:12px;box-shadow:0 10px 26px rgba(0,0,0,.28);min-width:134px;border:1px solid var(--line)}
   #langbar.open{display:flex}
   #langbar .lang{flex:0 0 auto;font-size:14px;color:var(--ink);background:transparent;border:0;padding:8px 12px;border-radius:8px;cursor:pointer;text-align:left;width:100%}
@@ -121,7 +122,7 @@ h = h.replace('</style>', `
   /* boot screen: plain white; the Bon Bon logo fades in, then fades out just before the screen lifts (Apple-style) */
   #bootveil{position:absolute;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;background:#fff;transition:opacity .5s ease;opacity:1}
   #bootveil.gone{opacity:0;pointer-events:none}
-  #bootveil .bootlogo{width:250px;max-width:72%;height:auto;animation:bootlogoin .55s ease both}
+  #bootveil .bootlogo{width:270px;max-width:72%;height:auto;animation:bootlogoin .55s ease both}
   @keyframes bootlogoin{from{opacity:0;transform:scale(.93)}to{opacity:1;transform:scale(1)}}
 </style>`);
 // header interactions: globe toggles the language dropdown; picking a language closes it.
@@ -148,6 +149,9 @@ function bbBoot(){
 /* init */`);
 // boot veil markup: first child of the phone so it covers everything while loading
 h = h.replace('<div id="phone">', '<div id="phone"><div id="bootveil"><img class="bootlogo" src="/logo_web.png" alt="Bon Bon"></div>');
+// watermark uses the SAME logo as the boot screen, so the boot logo appears to settle
+// into the watermark when the white screen lifts.
+h = h.replace(`document.getElementById("wm").innerHTML='<img src="'+LOGO+'">';`, `document.getElementById("wm").innerHTML='<img src="/logo_web.png">';`);
 // defer the welcome greeting until the veil fades (bbBoot handles it)
 h = h.replace(".catch(function(){}).then(function(){showGreeting();});", ".catch(function(){}).then(function(){bbBoot();});");
 h = h.split("onclick=\"setLang('${l[0]}',this)\"").join("onclick=\"setLang('${l[0]}',this);closeLang()\"");
