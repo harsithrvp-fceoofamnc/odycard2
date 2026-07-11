@@ -325,8 +325,8 @@
   /* boot screen: plain white; the Bon Bon logo fades in, then fades out just before the screen lifts (Apple-style) */
   #bootveil{position:absolute;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;background:#fff;transition:opacity .5s ease;opacity:1}
   #bootveil.gone{opacity:0;pointer-events:none}
-  #bootveil .bootlogo{width:160px;max-width:56%;height:auto;opacity:0;transform:scale(.92);transition:opacity .6s ease,transform .6s ease}
-  #bootveil.show .bootlogo{opacity:1;transform:scale(1)}
+  #bootveil .bootlogo{width:250px;max-width:72%;height:auto;animation:bootlogoin .55s ease both}
+  @keyframes bootlogoin{from{opacity:0;transform:scale(.93)}to{opacity:1;transform:scale(1)}}
 </style>
 </head>
 <body>
@@ -1528,17 +1528,16 @@ function bbApplyLiveMenu(items){
 function toggleLang(){var e=document.getElementById("langbar");if(e)e.classList.toggle("open");}
 function closeLang(){var e=document.getElementById("langbar");if(e)e.classList.remove("open");}
 document.addEventListener("click",function(ev){var lb=document.getElementById("langbar"),tg=document.querySelector(".langtoggle");if(lb&&lb.classList.contains("open")&&!lb.contains(ev.target)&&(!tg||!tg.contains(ev.target)))lb.classList.remove("open");});
-// boot: white screen with the Bon Bon logo fading in; once the header assets are loaded
-// the logo fades OUT, then the white screen lifts, and only THEN the welcome greeting plays.
+// boot: the white screen + logo fade-in happen instantly via CSS (see #bootveil .bootlogo).
+// Here we just wait for the header assets, then fade the whole white screen out (logo fades
+// with it = fade-out at exit), and only THEN play the welcome greeting.
 function bbBoot(){
   var veil=document.getElementById("bootveil");
-  if(veil)requestAnimationFrame(function(){veil.classList.add("show");}); // fade the logo in
-  var start=Date.now(),MIN=1000,done=false;
+  var start=Date.now(),MIN=1150,done=false;
   var imgs=["/wood_web.jpg","/logo_web.png","/awning_web.png"],left=imgs.length;
   function finish(){ if(done)return; done=true;
-    if(veil)veil.classList.remove("show");                                   // logo fades out first
-    setTimeout(function(){ if(veil)veil.classList.add("gone"); }, 540);       // then the white screen lifts
-    setTimeout(function(){ if(veil&&veil.parentNode)veil.parentNode.removeChild(veil); showGreeting(); }, 1080);
+    if(veil)veil.classList.add("gone");                                       // fade out at exit
+    setTimeout(function(){ if(veil&&veil.parentNode)veil.parentNode.removeChild(veil); showGreeting(); }, 560);
   }
   function ready(){ setTimeout(finish, Math.max(0, MIN-(Date.now()-start))); }
   imgs.forEach(function(src){ var im=new Image(); im.onload=im.onerror=function(){ if(--left<=0)ready(); }; im.src=src; });
