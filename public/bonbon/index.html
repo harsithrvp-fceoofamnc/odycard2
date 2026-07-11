@@ -325,12 +325,12 @@
   /* boot loading veil: frosted blur over the phone while the header assets load */
   #bootveil{position:absolute;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;background:rgba(250,242,241,.5);-webkit-backdrop-filter:blur(22px) saturate(1.1);backdrop-filter:blur(22px) saturate(1.1);transition:opacity .6s ease;opacity:1}
   #bootveil.gone{opacity:0;pointer-events:none}
-  .bootspin{width:34px;height:34px;border-radius:50%;border:3px solid rgba(129,18,38,.22);border-top-color:#811226;animation:bootspin .8s linear infinite}
+  .bootlogo{width:66px;height:66px;object-fit:contain;animation:bootspin 1.1s linear infinite;filter:drop-shadow(0 3px 8px rgba(0,0,0,.18))}
   @keyframes bootspin{to{transform:rotate(360deg)}}
 </style>
 </head>
 <body>
-<div id="phone"><div id="bootveil"><div class="bootspin"></div></div>
+<div id="phone"><div id="bootveil"><img class="bootlogo" src="/buffer_logo.png" alt="loading"></div>
   <header class="woodhdr"><button id="back"></button><h1 id="hname"></h1><div id="hsub"></div><img class="woodlogo" src="/logo_web.png" alt="Bon Bon"><button class="langtoggle" onclick="toggleLang()" aria-label="Language"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.3"/><path d="M2.7 12h18.6"/><path d="M12 2.7a14 14 0 0 1 3.7 9.3 14 14 0 0 1-3.7 9.3 14 14 0 0 1-3.7-9.3A14 14 0 0 1 12 2.7Z"/></svg></button></header>
   <div class="awnbar"><img src="/awning_web.png" alt=""></div>
   <div class="langbar" id="langbar"></div>

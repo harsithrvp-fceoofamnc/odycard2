@@ -121,7 +121,7 @@ h = h.replace('</style>', `
   /* boot loading veil: frosted blur over the phone while the header assets load */
   #bootveil{position:absolute;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;background:rgba(250,242,241,.5);-webkit-backdrop-filter:blur(22px) saturate(1.1);backdrop-filter:blur(22px) saturate(1.1);transition:opacity .6s ease;opacity:1}
   #bootveil.gone{opacity:0;pointer-events:none}
-  .bootspin{width:34px;height:34px;border-radius:50%;border:3px solid rgba(129,18,38,.22);border-top-color:#811226;animation:bootspin .8s linear infinite}
+  .bootlogo{width:66px;height:66px;object-fit:contain;animation:bootspin 1.1s linear infinite;filter:drop-shadow(0 3px 8px rgba(0,0,0,.18))}
   @keyframes bootspin{to{transform:rotate(360deg)}}
 </style>`);
 // header interactions: globe toggles the language dropdown; picking a language closes it.
@@ -146,7 +146,7 @@ function bbBoot(){
 }
 /* init */`);
 // boot veil markup: first child of the phone so it covers everything while loading
-h = h.replace('<div id="phone">', '<div id="phone"><div id="bootveil"><div class="bootspin"></div></div>');
+h = h.replace('<div id="phone">', '<div id="phone"><div id="bootveil"><img class="bootlogo" src="/buffer_logo.png" alt="loading"></div>');
 // defer the welcome greeting until the veil fades (bbBoot handles it)
 h = h.replace(".catch(function(){}).then(function(){showGreeting();});", ".catch(function(){}).then(function(){bbBoot();});");
 h = h.split("onclick=\"setLang('${l[0]}',this)\"").join("onclick=\"setLang('${l[0]}',this);closeLang()\"");
