@@ -112,7 +112,7 @@ h = h.replace('</style>', `
   .woodhdr .langtoggle svg{width:20px;height:20px;fill:none;stroke:#fff;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
   .awnbar{position:relative;z-index:3;width:130%;margin:-3px 0 0 -15%;line-height:0}
   .awnbar img{width:100%;display:block}
-  #wm{top:50%}
+  #wm{top:56%}
   #wm img{width:270px;max-width:72%}
   #langbar{position:absolute;top:54px;right:10px;z-index:30;display:none;flex-direction:column;gap:3px;padding:6px;background:#fff;border-radius:12px;box-shadow:0 10px 26px rgba(0,0,0,.28);min-width:134px;border:1px solid var(--line)}
   #langbar.open{display:flex}
@@ -120,10 +120,10 @@ h = h.replace('</style>', `
   #langbar .lang:hover{background:#f3e7e6}
   #langbar .lang.on{background:var(--blue);color:#fff;font-weight:700}
   /* boot screen: plain white; the Bon Bon logo fades in, then fades out just before the screen lifts (Apple-style) */
-  #bootveil{position:absolute;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;background:#fff;transition:opacity .5s ease;opacity:1}
+  #bootveil{position:absolute;inset:0;z-index:50;background:#fff;transition:opacity 1.1s ease;opacity:1}
   #bootveil.gone{opacity:0;pointer-events:none}
-  #bootveil .bootlogo{width:270px;max-width:72%;height:auto;animation:bootlogoin .55s ease both}
-  @keyframes bootlogoin{from{opacity:0;transform:scale(.93)}to{opacity:1;transform:scale(1)}}
+  #bootveil .bootlogo{position:absolute;left:50%;top:56%;width:270px;max-width:72%;height:auto;transform:translate(-50%,-50%);animation:bootlogoin 1.4s ease both}
+  @keyframes bootlogoin{from{opacity:0;transform:translate(-50%,-50%) scale(.94)}to{opacity:1;transform:translate(-50%,-50%) scale(1)}}
 </style>`);
 // header interactions: globe toggles the language dropdown; picking a language closes it.
 // Defined inside the main script (via the /* init */ anchor) so we never inject a stray
@@ -136,15 +136,15 @@ document.addEventListener("click",function(ev){var lb=document.getElementById("l
 // with it = fade-out at exit), and only THEN play the welcome greeting.
 function bbBoot(){
   var veil=document.getElementById("bootveil");
-  var start=Date.now(),MIN=1150,done=false;
+  var start=Date.now(),MIN=1900,done=false;   // hold long enough for the slow fade-in + a beat
   var imgs=["/wood_web.jpg","/logo_web.png","/awning_web.png"],left=imgs.length;
   function finish(){ if(done)return; done=true;
-    if(veil)veil.classList.add("gone");                                       // fade out at exit
-    setTimeout(function(){ if(veil&&veil.parentNode)veil.parentNode.removeChild(veil); showGreeting(); }, 560);
+    if(veil)veil.classList.add("gone");                                       // slow fade out at exit (1.1s)
+    setTimeout(function(){ if(veil&&veil.parentNode)veil.parentNode.removeChild(veil); showGreeting(); }, 1160);
   }
   function ready(){ setTimeout(finish, Math.max(0, MIN-(Date.now()-start))); }
   imgs.forEach(function(src){ var im=new Image(); im.onload=im.onerror=function(){ if(--left<=0)ready(); }; im.src=src; });
-  setTimeout(function(){ if(!done)ready(); }, 2800);
+  setTimeout(function(){ if(!done)ready(); }, 3200);
 }
 /* init */`);
 // boot veil markup: first child of the phone so it covers everything while loading
@@ -257,6 +257,25 @@ h = h.replace("Recommend 5-6 dishes they'll enjoy, MIXED across different catego
 h = h.replace('<button class="chip alt" onclick="banquet()">${IC.hall}${lbl("banquet")}</button><button class="chip alt" onclick="goOutlets()">${IC.pin}${lbl("changeOutlet")}</button>', "");
 h = h.split("AI Waiter — powered by Odysra").join("AI Menu — powered by Odysra");
 h = h.split("Restaurant info").join("Store info");
+
+// ---- category picker as Swiggy-style image tiles (Bon Bon only) ----
+h = h.replace('</style>', `
+  .catgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:4px 0 2px}
+  .catcard{display:flex;flex-direction:column;align-items:center;gap:6px;background:transparent;border:0;padding:0;cursor:pointer;-webkit-tap-highlight-color:transparent}
+  .catpic{width:100%;aspect-ratio:1/1;border-radius:16px;overflow:hidden;background:linear-gradient(135deg,#f7e8e7,#eed7d6);display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(122,17,33,.14);transition:transform .15s ease}
+  .catcard:active .catpic{transform:scale(.95)}
+  .catpic img.ph{width:100%;height:100%;object-fit:cover;display:block}
+  .catpic img.lg{width:58%;height:58%;object-fit:contain;opacity:.5}
+  .catpic.lg2{font-size:27px}
+  .catlabel{font-size:12.5px;font-weight:700;color:var(--ink);text-align:center;line-height:1.15}
+</style>`);
+// representative image for a category: first available dish photo, else the logo
+h = h.replace('function explore(){', 'function catImg(c){var ids=(c.ids||(c.subs||[]).flatMap(function(s){return s.ids;})).filter(avail);for(var k=0;k<ids.length;k++){if(MENU[ids[k]]&&MENU[ids[k]].ph)return MENU[ids[k]].ph;}return "/cat_default.jpg";}\nfunction explore(){');
+// swap the category text chips for Swiggy-style image tiles
+h = h.replace(
+  'block("chips",cs.map((c)=>`<button class="chip" onclick="openCat(${CATS.indexOf(c)})">${cn(c.name)}</button>`).join("")+`<button class="chip alt" onclick="mainChips()">${IC.home}${lbl("home")}</button>`);',
+  'block("catgrid",cs.map((c)=>`<button class="catcard" onclick="openCat(${CATS.indexOf(c)})"><span class="catpic"><img class="${catImg(c)===LOGO?"lg":"ph"}" src="${catImg(c)}" loading="lazy" onerror="this.style.opacity=0"></span><span class="catlabel">${cn(c.name)}</span></button>`).join("")+`<button class="catcard" onclick="mainChips()"><span class="catpic lg2">🏠</span><span class="catlabel">${lbl("home")}</span></button>`);'
+);
 
 fs.mkdirSync(ROOT + "/public/bonbon", { recursive: true });
 fs.writeFileSync(ROOT + "/public/bonbon/index.html", h);
