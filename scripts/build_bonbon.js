@@ -194,7 +194,7 @@ h = h.replace(/pureVeg:\{[^}]*\}/, 'pureVeg:{en:"Ice cream parlour",ta:"ஐஸ�
 
 // ---- ice-cream-parlour theme: white + maroon (#811226), neutral surfaces ----
 h = h.replace(/:root\{[^}]*\}/,
-  ":root{--blue:#811226;--ink:#2a1212;--mut:#9a8585;--line:#ecdcdc;--cream:#faf2f1;--gold:#811226;--card:#fffdfc;--brandtop:#811226;--brandbot:#5a0c1a;}");
+  ":root{--blue:#811226;--ink:#2a1212;--mut:#9a8585;--line:#ecdcdc;--cream:#f2e0de;--gold:#811226;--card:#fffdfc;--brandtop:#811226;--brandbot:#5a0c1a;}");
 // language bar -> dark maroon
 h = h.replace(/\.langbar\{display:flex;gap:6px;overflow-x:auto;padding:8px 12px;background:#4d3017;/,
   ".langbar{display:flex;gap:6px;overflow-x:auto;padding:8px 12px;background:#5a0c1a;");
@@ -212,7 +212,7 @@ h = h.replace(
 );
 // chat wallpaper -> clean neutral surface
 h = h.replace(/background-image:linear-gradient\(rgba\(246,238,221[^)]*\),rgba\([^)]*\)\),url\('chat-bg\.jpg'\);/,
-  "background:#faf2f1;");
+  "background:#f2e0de;");
 // dish-card image placeholder tint
 h = h.replace("linear-gradient(135deg,#f3e9d2,#e9dcbf)", "linear-gradient(135deg,#f3e7e6,#ead9d7)");
 // hide dish timings on the cards (prep "~X min" + availability window) — Bon Bon only, for now
