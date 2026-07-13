@@ -106,7 +106,7 @@ h = h.replace(
 h = h.replace('</style>', `
   header.woodhdr{background:linear-gradient(rgba(0,0,0,.30),rgba(0,0,0,.30)),url('/wood_web.jpg') center/cover;padding:12px 12px 20px;min-height:118px;display:flex;align-items:center;justify-content:center;gap:0;border-bottom:0;box-shadow:inset 0 -10px 20px rgba(0,0,0,.38);overflow:visible}
   .woodhdr #back,.woodhdr #hname,.woodhdr #hsub{display:none}
-  .woodhdr .woodlogo{width:60%;max-width:258px;display:block;animation:hglow 3.8s ease-in-out infinite}
+  .woodhdr .woodlogo{width:60%;max-width:258px;display:block;filter:drop-shadow(0 2px 4px rgba(0,0,0,.4))}
   @keyframes hglow{0%,100%{filter:drop-shadow(0 0 3px rgba(255,255,255,.28)) drop-shadow(0 0 9px rgba(255,225,235,.12)) drop-shadow(0 3px 5px rgba(0,0,0,.45))}50%{filter:drop-shadow(0 0 6px rgba(255,255,255,.45)) drop-shadow(0 0 15px rgba(255,205,225,.22)) drop-shadow(0 3px 5px rgba(0,0,0,.45))}}
   .woodhdr .langtoggle{position:absolute;right:12px;top:12px;width:42px;height:42px;border-radius:50%;background:rgba(255,255,255,.15);-webkit-backdrop-filter:blur(10px) saturate(1.3);backdrop-filter:blur(10px) saturate(1.3);color:#fff;border:1px solid rgba(255,255,255,.42);cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 3px 10px rgba(0,0,0,.22),inset 0 1px 0 rgba(255,255,255,.3)}
   .woodhdr .langtoggle svg{width:20px;height:20px;fill:none;stroke:#fff;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
@@ -115,7 +115,7 @@ h = h.replace('</style>', `
   /* pull the chat up behind the awning so dish cards show through the see-through scallop gaps */
   #chat{padding-top:52px}
   #wm{top:54%}
-  #wm img{width:360px;max-width:88%}
+  #wm img{width:440px;max-width:94%}
   #langbar{position:absolute;top:54px;right:10px;z-index:30;display:none;flex-direction:column;gap:3px;padding:6px;background:#fff;border-radius:12px;box-shadow:0 10px 26px rgba(0,0,0,.28);min-width:134px;border:1px solid var(--line)}
   #langbar.open{display:flex}
   #langbar .lang{flex:0 0 auto;font-size:14px;color:var(--ink);background:transparent;border:0;padding:8px 12px;border-radius:8px;cursor:pointer;text-align:left;width:100%}
