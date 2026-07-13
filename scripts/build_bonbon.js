@@ -100,7 +100,7 @@ h = h.replace('document.getElementById("hname").textContent="Annapoorna · "+o;'
 //      glass globe language dropdown + scalloped awning. Everything BELOW the awning is untouched.
 h = h.replace(
   '<header><button id="back" class="hback" onclick="goOutlets()" title="Change outlet">←</button><div class="logo">A</div><div><h1 id="hname">Sree Annapoorna</h1><div class="sub" id="hsub">Choose your outlet — AI Waiter by Odysra</div></div></header>',
-  '<header class="woodhdr"><button id="back"></button><h1 id="hname"></h1><div id="hsub"></div><img class="woodlogo" src="/logo_web.png" alt="Bon Bon"><button class="langtoggle" onclick="toggleLang()" aria-label="Language"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.3"/><path d="M2.7 12h18.6"/><path d="M12 2.7a14 14 0 0 1 3.7 9.3 14 14 0 0 1-3.7 9.3 14 14 0 0 1-3.7-9.3A14 14 0 0 1 12 2.7Z"/></svg></button></header>\n  <div class="awnbar"><img src="/awning_web.png" alt=""></div>'
+  '<header class="woodhdr"><button id="back"></button><h1 id="hname"></h1><div id="hsub"></div><img class="woodlogo" src="/logo_web.png" alt="Bon Bon"><button class="langtoggle" onclick="toggleLang()" aria-label="Language"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.3"/><path d="M2.7 12h18.6"/><path d="M12 2.7a14 14 0 0 1 3.7 9.3 14 14 0 0 1-3.7 9.3 14 14 0 0 1-3.7-9.3A14 14 0 0 1 12 2.7Z"/></svg></button></header>\n  <div class="awnbar"><img src="/awning_web.png?v=3" alt=""></div>'
 );
 // header styles (appended so they override the base header/langbar rules)
 h = h.replace('</style>', `
@@ -139,7 +139,7 @@ function bbBoot(){
   var frame=document.getElementById("shutterframe");
   var sh=document.getElementById("shutter");
   var start=Date.now(),MIN=1900,done=false;   // hold long enough for the slow fade-in + a beat
-  var imgs=["/wood_web.jpg","/logo_web.png","/awning_web.png","/shutter_web.jpg"],left=imgs.length;
+  var imgs=["/wood_web.jpg","/logo_web.png","/awning_web.png?v=3","/shutter_web.jpg"],left=imgs.length;
   function showShutter(){ if(!frame)return;
     var aw=document.querySelector(".awnbar"),ph=document.getElementById("phone");
     if(aw&&ph)frame.style.top=Math.max(0,(aw.getBoundingClientRect().bottom-ph.getBoundingClientRect().top)-1)+"px";
