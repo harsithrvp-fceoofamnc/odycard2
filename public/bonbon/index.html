@@ -347,7 +347,7 @@
 <body>
 <div id="phone"><div id="bootveil"><img class="bootlogo" src="/logo_web.png" alt="Bon Bon"></div>
   <header class="woodhdr"><button id="back"></button><h1 id="hname"></h1><div id="hsub"></div><img class="woodlogo" src="/logo_web.png" alt="Bon Bon"><button class="langtoggle" onclick="toggleLang()" aria-label="Language"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.3"/><path d="M2.7 12h18.6"/><path d="M12 2.7a14 14 0 0 1 3.7 9.3 14 14 0 0 1-3.7 9.3 14 14 0 0 1-3.7-9.3A14 14 0 0 1 12 2.7Z"/></svg></button></header>
-  <div class="awnbar"><img src="/awning_web.png" alt=""></div>
+  <div class="awnbar"><img src="/awning_web.png?v=2" alt=""></div>
   <div class="langbar" id="langbar"></div>
   <div id="shutterframe"><div id="shutter"></div></div><div id="wm"></div>
   <div id="chat"></div>
@@ -1552,7 +1552,7 @@ function bbBoot(){
   var frame=document.getElementById("shutterframe");
   var sh=document.getElementById("shutter");
   var start=Date.now(),MIN=1900,done=false;   // hold long enough for the slow fade-in + a beat
-  var imgs=["/wood_web.jpg","/logo_web.png","/awning_web.png","/shutter_web.jpg"],left=imgs.length;
+  var imgs=["/wood_web.jpg","/logo_web.png","/awning_web.png?v=2","/shutter_web.jpg"],left=imgs.length;
   function showShutter(){ if(!frame)return;
     var aw=document.querySelector(".awnbar"),ph=document.getElementById("phone");
     if(aw&&ph)frame.style.top=Math.max(0,(aw.getBoundingClientRect().bottom-ph.getBoundingClientRect().top)-1)+"px";
