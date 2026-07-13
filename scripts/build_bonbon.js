@@ -110,8 +110,10 @@ h = h.replace('</style>', `
   @keyframes hglow{0%,100%{filter:drop-shadow(0 0 3px rgba(255,255,255,.28)) drop-shadow(0 0 9px rgba(255,225,235,.12)) drop-shadow(0 3px 5px rgba(0,0,0,.45))}50%{filter:drop-shadow(0 0 6px rgba(255,255,255,.45)) drop-shadow(0 0 15px rgba(255,205,225,.22)) drop-shadow(0 3px 5px rgba(0,0,0,.45))}}
   .woodhdr .langtoggle{position:absolute;right:12px;top:12px;width:42px;height:42px;border-radius:50%;background:rgba(255,255,255,.15);-webkit-backdrop-filter:blur(10px) saturate(1.3);backdrop-filter:blur(10px) saturate(1.3);color:#fff;border:1px solid rgba(255,255,255,.42);cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 3px 10px rgba(0,0,0,.22),inset 0 1px 0 rgba(255,255,255,.3)}
   .woodhdr .langtoggle svg{width:20px;height:20px;fill:none;stroke:#fff;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-  .awnbar{position:relative;z-index:3;width:130%;margin:-3px 0 0 -15%;line-height:0}
+  .awnbar{position:relative;z-index:3;width:130%;margin:-3px 0 -42px -15%;line-height:0;pointer-events:none}
   .awnbar img{width:100%;display:block}
+  /* pull the chat up behind the awning so dish cards show through the see-through scallop gaps */
+  #chat{padding-top:52px}
   #wm{top:56%}
   #wm img{width:270px;max-width:72%}
   #langbar{position:absolute;top:54px;right:10px;z-index:30;display:none;flex-direction:column;gap:3px;padding:6px;background:#fff;border-radius:12px;box-shadow:0 10px 26px rgba(0,0,0,.28);min-width:134px;border:1px solid var(--line)}
