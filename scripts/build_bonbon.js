@@ -114,8 +114,8 @@ h = h.replace('</style>', `
   .awnbar img{width:100%;display:block}
   /* pull the chat up behind the awning so dish cards show through the see-through scallop gaps */
   #chat{padding-top:52px}
-  #wm{top:56%}
-  #wm img{width:270px;max-width:72%}
+  #wm{top:54%}
+  #wm img{width:360px;max-width:88%}
   #langbar{position:absolute;top:54px;right:10px;z-index:30;display:none;flex-direction:column;gap:3px;padding:6px;background:#fff;border-radius:12px;box-shadow:0 10px 26px rgba(0,0,0,.28);min-width:134px;border:1px solid var(--line)}
   #langbar.open{display:flex}
   #langbar .lang{flex:0 0 auto;font-size:14px;color:var(--ink);background:transparent;border:0;padding:8px 12px;border-radius:8px;cursor:pointer;text-align:left;width:100%}
