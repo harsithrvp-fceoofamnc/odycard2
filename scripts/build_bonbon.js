@@ -136,19 +136,38 @@ document.addEventListener("click",function(ev){var lb=document.getElementById("l
 // with it = fade-out at exit), and only THEN play the welcome greeting.
 function bbBoot(){
   var veil=document.getElementById("bootveil");
+  var frame=document.getElementById("shutterframe");
+  var sh=document.getElementById("shutter");
   var start=Date.now(),MIN=1900,done=false;   // hold long enough for the slow fade-in + a beat
-  var imgs=["/wood_web.jpg","/logo_web.png","/awning_web.png"],left=imgs.length;
+  var imgs=["/wood_web.jpg","/logo_web.png","/awning_web.png","/shutter_web.jpg"],left=imgs.length;
+  function showShutter(){ if(!frame)return;
+    var aw=document.querySelector(".awnbar"),ph=document.getElementById("phone");
+    if(aw&&ph)frame.style.top=Math.max(0,(aw.getBoundingClientRect().bottom-ph.getBoundingClientRect().top)-1)+"px";
+    frame.classList.add("on");                                                // closed shutter over the chat
+  }
   function finish(){ if(done)return; done=true;
-    if(veil)veil.classList.add("gone");                                       // slow fade out at exit (1.1s)
-    setTimeout(function(){ if(veil&&veil.parentNode)veil.parentNode.removeChild(veil); showGreeting(); }, 1160);
+    showShutter();                                                            // put the shutter up (still hidden behind the white veil)
+    if(veil)veil.classList.add("gone");                                       // lift the white boot screen -> shutter revealed
+    setTimeout(function(){ if(veil&&veil.parentNode)veil.parentNode.removeChild(veil); }, 1160);
+    setTimeout(function(){ if(sh)sh.classList.add("up"); }, 1520);            // roll the shutter straight up
+    setTimeout(function(){ if(frame&&frame.parentNode)frame.parentNode.removeChild(frame); showGreeting(); }, 2780); // chat revealed -> welcome
   }
   function ready(){ setTimeout(finish, Math.max(0, MIN-(Date.now()-start))); }
   imgs.forEach(function(src){ var im=new Image(); im.onload=im.onerror=function(){ if(--left<=0)ready(); }; im.src=src; });
-  setTimeout(function(){ if(!done)ready(); }, 3200);
+  setTimeout(function(){ if(!done)ready(); }, 3600);
 }
 /* init */`);
 // boot veil markup: first child of the phone so it covers everything while loading
 h = h.replace('<div id="phone">', '<div id="phone"><div id="bootveil"><img class="bootlogo" src="/logo_web.png" alt="Bon Bon"></div>');
+// shutter over the chat area (rolls up after the boot screen lifts)
+h = h.replace('<div id="wm"></div>', '<div id="shutterframe"><div id="shutter"></div></div><div id="wm"></div>');
+// shutter styles
+h = h.replace('</style>', `
+  #shutterframe{position:absolute;left:0;right:0;bottom:0;top:150px;z-index:6;overflow:hidden;display:none}
+  #shutterframe.on{display:block}
+  #shutter{position:absolute;left:0;right:0;top:0;height:100%;background:#5a0c1a url('/shutter_web.jpg') center/cover no-repeat;box-shadow:0 7px 16px rgba(0,0,0,.30);transform:translateY(0);transition:transform 1.15s cubic-bezier(.5,.05,.2,1);will-change:transform}
+  #shutter.up{transform:translateY(-100%)}
+</style>`);
 // watermark uses the SAME logo as the boot screen, so the boot logo appears to settle
 // into the watermark when the white screen lifts.
 h = h.replace(`document.getElementById("wm").innerHTML='<img src="'+LOGO+'">';`, `document.getElementById("wm").innerHTML='<img src="/logo_web.png">';`);
