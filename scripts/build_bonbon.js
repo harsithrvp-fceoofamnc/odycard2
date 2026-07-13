@@ -124,7 +124,7 @@ h = h.replace('</style>', `
   /* boot screen: plain white; the Bon Bon logo fades in, then fades out just before the screen lifts (Apple-style) */
   #bootveil{position:absolute;inset:0;z-index:50;background:#fff;transition:opacity 1.1s ease;opacity:1}
   #bootveil.gone{opacity:0;pointer-events:none}
-  #bootveil .bootlogo{position:absolute;left:50%;top:56%;width:270px;max-width:72%;height:auto;transform:translate(-50%,-50%);animation:bootlogoin 1.4s ease both}
+  #bootveil .bootlogo{position:absolute;left:50%;top:48%;width:360px;max-width:88%;height:auto;transform:translate(-50%,-50%);animation:bootlogoin 1.4s ease both}
   @keyframes bootlogoin{from{opacity:0;transform:translate(-50%,-50%) scale(.94)}to{opacity:1;transform:translate(-50%,-50%) scale(1)}}
 </style>`);
 // header interactions: globe toggles the language dropdown; picking a language closes it.
