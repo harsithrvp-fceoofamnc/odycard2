@@ -104,7 +104,7 @@ h = h.replace(
 );
 // header styles (appended so they override the base header/langbar rules)
 h = h.replace('</style>', `
-  header.woodhdr{background:linear-gradient(rgba(0,0,0,.30),rgba(0,0,0,.30)),url('/wood_web.jpg') center/cover;padding:12px 12px 20px;min-height:118px;display:flex;align-items:center;justify-content:center;gap:0;border-bottom:0;box-shadow:inset 0 -10px 20px rgba(0,0,0,.38);overflow:visible}
+  header.woodhdr{background:linear-gradient(rgba(0,0,0,.30),rgba(0,0,0,.30)),url('/wood_web.jpg') center/cover;padding:12px 12px 20px;min-height:118px;display:flex;align-items:center;justify-content:center;gap:0;border-bottom:0;box-shadow:inset 0 -10px 20px rgba(0,0,0,.38);overflow:visible;transition:margin-top .34s ease,opacity .3s ease}
   .woodhdr #back,.woodhdr #hname,.woodhdr #hsub{display:none}
   .woodhdr .woodlogo{width:60%;max-width:258px;display:block;animation:hglow 4s ease-in-out infinite}
   header.woodhdr::after{display:none!important;content:none!important}
@@ -178,6 +178,10 @@ h = h.replace('</style>', `
 // watermark uses the SAME logo as the boot screen, so the boot logo appears to settle
 // into the watermark when the white screen lifts.
 h = h.replace(`document.getElementById("wm").innerHTML='<img src="'+LOGO+'">';`, `document.getElementById("wm").innerHTML='<img src="/logo_web.png">';`);
+// collapsing wood header: scrolling the chat DOWN slides the wood+logo up out of view
+// (the awning/scallops stay pinned at the top); scrolling UP a little brings it back.
+h = h.replace('/* init */', `(function(){var ce=document.getElementById("chat"),wd=document.querySelector("header.woodhdr");if(!ce||!wd)return;var lastY=0,col=false;ce.addEventListener("scroll",function(){var y=ce.scrollTop;if(y>70&&y>lastY+2){if(!col){wd.style.marginTop=(-wd.offsetHeight)+"px";wd.style.opacity="0";col=true;}}else if(y<lastY-3||y<12){if(col){wd.style.marginTop="";wd.style.opacity="";col=false;}}lastY=y;},{passive:true});})();
+/* init */`);
 // defer the welcome greeting until the veil fades (bbBoot handles it)
 h = h.replace(".catch(function(){}).then(function(){showGreeting();});", ".catch(function(){}).then(function(){bbBoot();});");
 h = h.split("onclick=\"setLang('${l[0]}',this)\"").join("onclick=\"setLang('${l[0]}',this);closeLang()\"");
