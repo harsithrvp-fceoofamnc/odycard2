@@ -104,7 +104,7 @@ h = h.replace(
 );
 // header styles (appended so they override the base header/langbar rules)
 h = h.replace('</style>', `
-  header.woodhdr{background:linear-gradient(rgba(0,0,0,.30),rgba(0,0,0,.30)),url('/wood_web.jpg') center/cover;padding:12px 12px 20px;min-height:118px;display:flex;align-items:center;justify-content:center;gap:0;border-bottom:0;box-shadow:inset 0 -10px 20px rgba(0,0,0,.38);overflow:visible;transition:margin-top .34s ease,opacity .3s ease}
+  header.woodhdr{background:linear-gradient(rgba(0,0,0,.30),rgba(0,0,0,.30)),url('/wood_web.jpg') center/cover;padding:12px 12px 20px;min-height:118px;display:flex;align-items:center;justify-content:center;gap:0;border-bottom:0;box-shadow:inset 0 -10px 20px rgba(0,0,0,.38);overflow:visible;transition:margin-top .34s ease}
   .woodhdr #back,.woodhdr #hname,.woodhdr #hsub{display:none}
   .woodhdr .woodlogo{width:60%;max-width:258px;display:block;animation:hglow 4s ease-in-out infinite}
   header.woodhdr::after{display:none!important;content:none!important}
@@ -180,7 +180,27 @@ h = h.replace('</style>', `
 h = h.replace(`document.getElementById("wm").innerHTML='<img src="'+LOGO+'">';`, `document.getElementById("wm").innerHTML='<img src="/logo_web.png">';`);
 // collapsing wood header: scrolling the chat DOWN slides the wood+logo up out of view
 // (the awning/scallops stay pinned at the top); scrolling UP a little brings it back.
-h = h.replace('/* init */', `(function(){var ce=document.getElementById("chat"),wd=document.querySelector("header.woodhdr");if(!ce||!wd)return;var lastY=0,col=false;ce.addEventListener("scroll",function(){var y=ce.scrollTop;if(y>70&&y>lastY+2){if(!col){wd.style.marginTop=(-wd.offsetHeight)+"px";wd.style.opacity="0";col=true;}}else if(y<lastY-3||y<12){if(col){wd.style.marginTop="";wd.style.opacity="";col=false;}}lastY=y;},{passive:true});})();
+h = h.replace('/* init */', `(function(){
+  var ce=document.getElementById("chat"),wd=document.querySelector("header.woodhdr");
+  if(!ce||!wd)return;
+  var lastY=0,col=false,lock=false;
+  function setCol(v){
+    if(col===v||lock)return;
+    col=v;lock=true;
+    wd.style.marginTop = v ? (-wd.offsetHeight)+"px" : "";
+    // ignore scroll events caused by our own reflow, then resync the baseline
+    setTimeout(function(){lock=false;lastY=ce.scrollTop;},420);
+  }
+  ce.addEventListener("scroll",function(){
+    if(lock)return;                       // don't react while the header is animating/reflowing
+    var y=ce.scrollTop,d=y-lastY;
+    if(y<12){setCol(false);lastY=y;return;}
+    if(Math.abs(d)<6)return;              // ignore jitter
+    if(d>0&&y>90)setCol(true);            // scrolling down past the threshold -> hide wood header
+    else if(d<0)setCol(false);            // scrolling up -> bring it back
+    lastY=y;
+  },{passive:true});
+})();
 /* init */`);
 // defer the welcome greeting until the veil fades (bbBoot handles it)
 h = h.replace(".catch(function(){}).then(function(){showGreeting();});", ".catch(function(){}).then(function(){bbBoot();});");
