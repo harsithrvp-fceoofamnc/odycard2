@@ -305,7 +305,7 @@ h = h.replace('function explore(){', 'function catImg(c){var ids=(c.ids||(c.subs
 // swap the category text chips for Swiggy-style image tiles
 h = h.replace(
   'block("chips",cs.map((c)=>`<button class="chip" onclick="openCat(${CATS.indexOf(c)})">${cn(c.name)}</button>`).join("")+`<button class="chip alt" onclick="mainChips()">${IC.home}${lbl("home")}</button>`);',
-  'block("catgrid",cs.map((c)=>`<button class="catcard" onclick="openCat(${CATS.indexOf(c)})"><span class="catpic"><img class="${catImg(c)===LOGO?"lg":"ph"}" src="${catImg(c)}" loading="lazy" onerror="this.style.opacity=0"></span><span class="catlabel">${cn(c.name)}</span></button>`).join("")+`<button class="catcard" onclick="mainChips()"><span class="catpic lg2">🏠</span><span class="catlabel">${lbl("home")}</span></button>`);'
+  'var _cg=block("catgrid",cs.map((c)=>`<button class="catcard" onclick="openCat(${CATS.indexOf(c)})"><span class="catpic"><img class="${catImg(c)===LOGO?"lg":"ph"}" src="${catImg(c)}" loading="lazy" onerror="this.style.opacity=0"></span><span class="catlabel">${cn(c.name)}</span></button>`).join(""));_bigTarget=_cg;block("chips",`<button class="chip alt" onclick="mainChips()">${IC.home}${lbl("home")}</button>`);'
 );
 
 fs.mkdirSync(ROOT + "/public/bonbon", { recursive: true });
