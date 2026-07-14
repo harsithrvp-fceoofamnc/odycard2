@@ -7,11 +7,29 @@ import type { NextRequest } from "next/server";
 //  2. The PLATFORM session (ody_session cookie) protects the SaaS dashboards
 //     (/admin, /supervisor, /waiter). Full role verification happens server-side in
 //     each area's layout; here we only do a cheap "is there a session at all?" check.
+// The bb_session token is "<base64url(json)>.<hmac>". The signature is verified server-side
+// (requireBB); here we only decode the payload to check it hasn't EXPIRED. Without this, an
+// expired cookie still "exists", so staff got let into the dashboard and then every API call
+// came back "Not authorised". Now they're sent to the login instead.
+function bbSessionAlive(token?: string): boolean {
+  if (!token || !token.includes(".")) return false;
+  try {
+    let b = token.split(".")[0].replace(/-/g, "+").replace(/_/g, "/");
+    while (b.length % 4) b += "=";
+    const bin = atob(b);
+    const json = new TextDecoder().decode(Uint8Array.from(bin, (c) => c.charCodeAt(0)));
+    const p = JSON.parse(json) as { exp?: number };
+    return !!p.exp && p.exp > Math.floor(Date.now() / 1000);
+  } catch {
+    return false;
+  }
+}
+
 export function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
   const gated = req.cookies.get("ody_gate")?.value === "ok";
   const hasSession = !!req.cookies.get("ody_session")?.value;
-  const hasBB = !!req.cookies.get("bb_session")?.value;
+  const hasBB = bbSessionAlive(req.cookies.get("bb_session")?.value);
 
   // Bon Bon back-of-house pages (owner/supervisor/waiter/kitchen) require a Bon Bon staff
   // session. They still sit behind the demo gate below; role is verified in-page.

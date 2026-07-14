@@ -15,6 +15,8 @@ export default function AdminPage() {
   const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
   const [outlets, setOutlets] = useState<Outlet[]>([]);
   const [loading, setLoading] = useState(true);
+  // freshly reset passwords, shown once so the owner can hand them over (never stored in plaintext)
+  const [newPwd, setNewPwd] = useState<Record<string, string>>({});
 
   const load = useCallback(async () => {
     const [s, m, o, r, ou] = await Promise.all([
@@ -101,6 +103,23 @@ export default function AdminPage() {
     if (!confirm(`Delete ${m.name}'s login?`)) return;
     setStaff((p) => p.filter((x) => x.id !== m.id));
     await fetch(`/api/bonbon/staff/${m.id}`, { method: "DELETE" });
+  }
+  // Existing passwords are bcrypt-hashed and can never be read back, so we reset to a new one
+  // and reveal it once here for the owner to pass on.
+  async function resetPwd(m: Staff) {
+    if (!confirm(`Reset ${m.name}'s password?\n\nTheir current password stops working immediately.`)) return;
+    setMsg("");
+    const r = await fetch(`/api/bonbon/staff/${m.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ resetPassword: true }),
+    });
+    const d = await r.json().catch(() => ({}));
+    if (!r.ok) {
+      setMsg(d.error || "Could not reset password");
+      return;
+    }
+    setNewPwd((p) => ({ ...p, [m.id]: d.password as string }));
   }
 
   if (!ready || !me) return <Spinner label="Checking access…" />;
@@ -203,22 +222,63 @@ export default function AdminPage() {
               </p>
               {staff.length === 0 && <div style={{ color: C.mut, fontSize: 13.5, padding: "8px 0" }}>No staff yet — create one below.</div>}
               {staff.map((m) => (
-                <div key={m.id} style={row}>
-                  <div style={{ minWidth: 0 }}>
-                    <div style={{ fontWeight: 700, color: C.ink }}>
-                      {m.name} <span style={tag(m.role)}>{m.role}</span>
-                      {!m.active && <span style={{ ...tag("off"), background: "#eee", color: "#777" }}>disabled</span>}
+                <div key={m.id}>
+                  <div style={row}>
+                    <div style={{ minWidth: 0 }}>
+                      <div style={{ fontWeight: 700, color: C.ink }}>
+                        {m.name} <span style={tag(m.role)}>{m.role}</span>
+                        {!m.active && <span style={{ ...tag("off"), background: "#eee", color: "#777" }}>disabled</span>}
+                      </div>
+                      <div style={{ fontSize: 12.5, color: C.mut }}>@{m.username}</div>
                     </div>
-                    <div style={{ fontSize: 12.5, color: C.mut }}>@{m.username}</div>
+                    <div style={{ display: "flex", gap: 6, flexWrap: "wrap", justifyContent: "flex-end" }}>
+                      <button onClick={() => resetPwd(m)} style={miniBtn}>
+                        Reset password
+                      </button>
+                      <button onClick={() => toggleActive(m)} style={miniBtn}>
+                        {m.active ? "Disable" : "Enable"}
+                      </button>
+                      <button onClick={() => removeStaff(m)} style={{ ...miniBtn, color: C.warn, borderColor: "#f2c9c4" }}>
+                        Delete
+                      </button>
+                    </div>
                   </div>
-                  <div style={{ display: "flex", gap: 6 }}>
-                    <button onClick={() => toggleActive(m)} style={miniBtn}>
-                      {m.active ? "Disable" : "Enable"}
-                    </button>
-                    <button onClick={() => removeStaff(m)} style={{ ...miniBtn, color: C.warn, borderColor: "#f2c9c4" }}>
-                      Delete
-                    </button>
-                  </div>
+                  {newPwd[m.id] && (
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 8,
+                        flexWrap: "wrap",
+                        margin: "-2px 0 12px",
+                        padding: "10px 12px",
+                        background: "#fff8e8",
+                        border: "1px solid #eedcb0",
+                        borderRadius: 10,
+                      }}
+                    >
+                      <span style={{ fontSize: 12.5, color: C.mut }}>New password for @{m.username}:</span>
+                      <code style={{ fontSize: 15, fontWeight: 800, color: C.ink, letterSpacing: 1 }}>{newPwd[m.id]}</code>
+                      <button onClick={() => navigator.clipboard?.writeText(newPwd[m.id])} style={miniBtn}>
+                        Copy
+                      </button>
+                      <button
+                        onClick={() =>
+                          setNewPwd((p) => {
+                            const n = { ...p };
+                            delete n[m.id];
+                            return n;
+                          })
+                        }
+                        style={miniBtn}
+                      >
+                        Hide
+                      </button>
+                      <span style={{ fontSize: 11.5, color: C.mut, width: "100%" }}>
+                        Shown once — copy it now. It&apos;s stored hashed, so it can&apos;t be shown again.
+                      </span>
+                    </div>
+                  )}
                 </div>
               ))}
             </section>
