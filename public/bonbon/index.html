@@ -859,7 +859,7 @@ const TIME_FILTER=false; // DEMO: false = show ALL dishes/categories. Set to tru
 const OPEN=Object.keys(MENU).some(id=>HOUR>=MENU[id].h[0]&&HOUR<MENU[id].h[1]);
 const avail=id=>!TIME_FILTER||!OPEN||(HOUR>=MENU[id].h[0]&&HOUR<MENU[id].h[1]);
 const SHOW_TIMING=TIME_FILTER; // the "timed" build shows serving times on dishes; the all-time build hides them
-const LOGO_PICS=true; // when true, dishes without a real photo show an image block with the logo centred
+const LOGO_PICS=false; // when true, dishes without a real photo show an image block with the logo centred
 const chat=document.getElementById("chat");
 // ChatGPT-style bot bubble: plain-text messages reveal one character at a time.
 // Anything containing HTML markup (tags) renders instantly so markup never leaks.

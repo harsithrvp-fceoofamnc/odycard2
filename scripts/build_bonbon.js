@@ -202,8 +202,9 @@ h = h.replace(/:root\{[^}]*\}/,
 // language bar -> dark maroon
 h = h.replace(/\.langbar\{display:flex;gap:6px;overflow-x:auto;padding:8px 12px;background:#4d3017;/,
   ".langbar{display:flex;gap:6px;overflow-x:auto;padding:8px 12px;background:#5a0c1a;");
-// dish cards: show the image block with the logo centred (like the original chatbot)
-h = h.replace("const LOGO_PICS=false;", "const LOGO_PICS=true;");
+// dish cards: LOGO_PICS stays FALSE so dishes with NO photo render as clean text-only cards
+// (no logo placeholder block). As soon as a photo is uploaded from the admin / menu-manager
+// dashboard, that dish automatically renders the full photo card instead.
 // page frame behind the phone -> black (matches the staff dashboards' look on desktop)
 h = h.replace("background:#0e1116;", "background:#000;");
 // widen the phone a touch and make it FILL the screen height on desktop (no floating rounded card),
