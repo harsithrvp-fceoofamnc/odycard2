@@ -9,10 +9,21 @@ type MenuDoc = Record<string, unknown> & { key: string };
 // original top-level menu, so the live customer bot keeps working with no param.
 async function ensureSeeded(outletId?: string | null) {
   const col = bbMenuCol(outletId);
-  const snap = await col.limit(1).get();
-  if (!snap.empty) return;
+  const snap = await col.get();
+  if (snap.empty) {
+    const batch = bbDb().batch();
+    for (const item of seed as MenuDoc[]) batch.set(col.doc(item.key), item);
+    await batch.commit();
+    return;
+  }
+  // Already seeded. Back-fill only items that don't exist yet (e.g. a new category like Roll
+  // Ice Cream). Existing docs are never overwritten, so supervisor edits — price, photo,
+  // sold-out, hidden — are preserved.
+  const have = new Set(snap.docs.map((d) => d.id));
+  const missing = (seed as MenuDoc[]).filter((i) => !have.has(i.key));
+  if (!missing.length) return;
   const batch = bbDb().batch();
-  for (const item of seed as MenuDoc[]) batch.set(col.doc(item.key), item);
+  for (const item of missing) batch.set(col.doc(item.key), item);
   await batch.commit();
 }
 

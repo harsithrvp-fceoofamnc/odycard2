@@ -40,6 +40,7 @@ const CATS = `const CATS=[
  {name:"Ice Cream Specials",ids:${JSON.stringify(ids("icecream"))}},
  {name:"Sundae",ids:${JSON.stringify(ids("sundae"))}},
  {name:"Mini Sundae",ids:${JSON.stringify(ids("mini"))}},
+ {name:"Roll Ice Cream",ids:${JSON.stringify(ids("rolls"))}},
  {name:"Falooda",ids:${JSON.stringify(ids("falooda"))}},
  {name:"Thick Shakes",ids:${JSON.stringify(ids("shakes"))}},
  {name:"Snacks",ids:${JSON.stringify(ids("snacks"))}}
@@ -60,8 +61,8 @@ h = h.replace(/const OUTLETS=\[[^\]]*\]/, 'const OUTLETS=["Bon Bon"]');
 const LIVE_FN = `
 function bbApplyLiveMenu(items){
   try{
-    var order=["scoops","softy","waffle","icecream","sundae","mini","falooda","shakes","snacks"];
-    var labels={scoops:"Scoops",softy:"Softy",waffle:"Waffle",icecream:"Ice Cream Specials",sundae:"Sundae",mini:"Mini Sundae",falooda:"Falooda",shakes:"Thick Shakes",snacks:"Snacks"};
+    var order=["scoops","softy","waffle","icecream","sundae","mini","rolls","falooda","shakes","snacks"];
+    var labels={scoops:"Scoops",softy:"Softy",waffle:"Waffle",icecream:"Ice Cream Specials",sundae:"Sundae",mini:"Mini Sundae",rolls:"Roll Ice Cream",falooda:"Falooda",shakes:"Thick Shakes",snacks:"Snacks"};
     Object.keys(MENU).forEach(function(k){delete MENU[k];});
     var byCat={};
     items.forEach(function(it){
@@ -321,11 +322,11 @@ h = h.replace('</style>', `
   .catlabel{font-size:14px;font-weight:700;color:var(--ink);text-align:center;line-height:1.15}
 </style>`);
 // representative image for a category: first available dish photo, else the logo
-h = h.replace('function explore(){', 'function catImg(c){var ids=(c.ids||(c.subs||[]).flatMap(function(s){return s.ids;})).filter(avail);for(var k=0;k<ids.length;k++){if(MENU[ids[k]]&&MENU[ids[k]].ph)return MENU[ids[k]].ph;}return "/cat_default.jpg";}\nfunction explore(){');
+h = h.replace('function explore(){', 'var CATPIC={"Scoops":"/cat_scoops.jpg","Softy":"/cat_softy.jpg","Waffle":"/cat_waffle.jpg","Ice Cream Specials":"/cat_icecream.jpg","Sundae":"/cat_sundae.jpg","Mini Sundae":"/cat_mini.jpg","Roll Ice Cream":"/cat_rolls.jpg","Falooda":"/cat_falooda.jpg","Thick Shakes":"/cat_shakes.jpg","Snacks":"/cat_snacks.jpg"};\nfunction catFallback(el){el.onerror=null;el.src="/cat_default.jpg";}\nfunction catImg(c){if(CATPIC[c.name])return CATPIC[c.name];var ids=(c.ids||(c.subs||[]).flatMap(function(s){return s.ids;})).filter(avail);for(var k=0;k<ids.length;k++){if(MENU[ids[k]]&&MENU[ids[k]].ph)return MENU[ids[k]].ph;}return "/cat_default.jpg";}\nfunction explore(){');
 // swap the category text chips for Swiggy-style image tiles
 h = h.replace(
   'block("chips",cs.map((c)=>`<button class="chip" onclick="openCat(${CATS.indexOf(c)})">${cn(c.name)}</button>`).join("")+`<button class="chip alt" onclick="mainChips()">${IC.home}${lbl("home")}</button>`);',
-  'var _cg=block("catgrid",cs.map((c)=>`<button class="catcard" onclick="openCat(${CATS.indexOf(c)})"><span class="catpic"><img class="${catImg(c)===LOGO?"lg":"ph"}" src="${catImg(c)}" loading="lazy" onerror="this.style.opacity=0"></span><span class="catlabel">${cn(c.name)}</span></button>`).join(""));_bigTarget=_cg;block("chips",`<button class="chip alt" onclick="mainChips()">${IC.home}${lbl("home")}</button>`);'
+  'var _cg=block("catgrid",cs.map((c)=>`<button class="catcard" onclick="openCat(${CATS.indexOf(c)})"><span class="catpic"><img class="${catImg(c)===LOGO?"lg":"ph"}" src="${catImg(c)}" loading="lazy" onerror="catFallback(this)"></span><span class="catlabel">${cn(c.name)}</span></button>`).join(""));_bigTarget=_cg;block("chips",`<button class="chip alt" onclick="mainChips()">${IC.home}${lbl("home")}</button>`);'
 );
 
 fs.mkdirSync(ROOT + "/public/bonbon", { recursive: true });
@@ -333,7 +334,7 @@ fs.writeFileSync(ROOT + "/public/bonbon/index.html", h);
 console.log("WROTE public/bonbon/index.html — items:", entries.length, "— remaining 'annapoorna':", (h.match(/annapoorna/gi) || []).length);
 
 // ---- AI route for Bon Bon ----
-const catLabel = { scoops: "Scoops", softy: "Softy", waffle: "Waffle", icecream: "Ice Cream Specials", sundae: "Sundae", mini: "Mini Sundae", falooda: "Falooda", shakes: "Thick Shakes", snacks: "Snacks" };
+const catLabel = { scoops: "Scoops", softy: "Softy", waffle: "Waffle", icecream: "Ice Cream Specials", sundae: "Sundae", mini: "Mini Sundae", rolls: "Roll Ice Cream", falooda: "Falooda", shakes: "Thick Shakes", snacks: "Snacks" };
 let lines = [];
 for (const g in groups) for (const it of groups[g]) lines.push(`${it[0]} | ${it[1]} | Rs.${it[2]} | ${catLabel[g]}`);
 lines.push("extraicecream | Extra Ice Cream (add-on) | Rs.30 | Add-ons");
@@ -343,7 +344,7 @@ const route = `import { NextRequest, NextResponse } from "next/server";
 
 // Auto-generated from the Bon Bon menu. Server-side only (the API key never reaches the browser).
 const MENU = \`${menuTxt}\`;
-const CATEGORIES = "Scoops, Softy, Waffle, Ice Cream Specials, Sundae, Mini Sundae, Falooda, Thick Shakes, Snacks";
+const CATEGORIES = "Scoops, Softy, Waffle, Ice Cream Specials, Sundae, Mini Sundae, Roll Ice Cream, Falooda, Thick Shakes, Snacks";
 
 function systemPrompt(lang: string, rest?: string) {
   return [

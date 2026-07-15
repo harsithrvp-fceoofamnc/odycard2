@@ -13,13 +13,14 @@ const CM = {
   icecream: { label: "Ice Cream Specials", q: "",       pt: 6, d: "A loaded ice-cream sundae — our best sellers." },
   sundae:   { label: "Sundae",             q: "250 ml", pt: 5, d: "A layered ice-cream sundae." },
   mini:     { label: "Mini Sundae",        q: "",       pt: 5, d: "A bite-sized Bon Bon sundae cup." },
+  rolls:    { label: "Roll Ice Cream",     q: "",       pt: 7, d: "Instant ice cream blended on a -30° frozen pan and rolled fresh to order." },
   falooda:  { label: "Falooda",            q: "",       pt: 6, d: "Classic falooda with vermicelli, jelly & ice cream." },
   shakes:   { label: "Thick Shakes",       q: "",       pt: 5, d: "Thick, creamy blended shake." },
   snacks:   { label: "Snacks",             q: "",       pt: 8, d: "A hot, crispy savoury bite." },
 };
 
 // order the browse tabs appear in
-const catOrder = ["scoops", "softy", "waffle", "icecream", "sundae", "mini", "falooda", "shakes", "snacks"];
+const catOrder = ["scoops", "softy", "waffle", "icecream", "sundae", "mini", "rolls", "falooda", "shakes", "snacks"];
 
 // ---- menu (id, name, price, flags). flags: "best" | "must"; sundae has 5th = 500ml price ----
 const groups = {
@@ -108,6 +109,14 @@ const groups = {
     ["licheechocostraw", "Lichee Choco Strawberry Bon", 130],
     ["alphonsomangobon", "Alphonso Mango Bon", 130],
   ],
+  rolls: [ // rolled on a -30° frozen pan. NOTE: the printed menu lists "Chocolate Brownie" twice — kept once.
+    ["fruitsroll", "Fruits", 150, "must"],
+    ["chocobrownieroll", "Chocolate Brownie", 150],
+    ["oreoroll", "Oreo", 150],
+    ["blackforestroll", "Black Forest", 150],
+    ["hazelnutroll", "Hazelnut Roll", 180, "best"],
+    ["customroll", "Customise Your Flavour", 180],
+  ],
   falooda: [
     ["royaldryfruits", "Royal Dry Fruits", 170, "best"],
     ["realalphonso", "Real Alphonso Mango", 150, "best"],
@@ -154,6 +163,7 @@ groups.shakes.forEach((it) => { if (!/Cold Coffee/i.test(it[1])) it[1] += " Shak
 groups.falooda.forEach((it) => { if (!/Falooda/i.test(it[1])) it[1] += " Falooda"; });
 groups.sundae.forEach((it) => { if (!/(Jelly|Cassata|Sundae)/i.test(it[1])) it[1] += " Sundae"; });
 groups.mini.forEach((it) => { if (!/(Bon|Sundae)/i.test(it[1])) it[1] += " Bon"; });
+groups.rolls.forEach((it) => { if (!/Roll/i.test(it[1])) it[1] += " Roll"; });
 
 // ---- flat seed documents for Firestore (the live dashboards read/write these) ----
 // This is the REAL menu, not mock data. Snacks are the only non-veg-capable items (paneer/veg

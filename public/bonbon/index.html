@@ -455,6 +455,12 @@ const MENU={
  chocolatebon:{n:"Chocolate Bon",p:130,e:"🍨",h:[[8,23]],q:"",pt:5,ph:"",d:"A bite-sized Bon Bon sundae cup.",veg:1},
  licheechocostraw:{n:"Lichee Choco Strawberry Bon",p:130,e:"🍨",h:[[8,23]],q:"",pt:5,ph:"",d:"A bite-sized Bon Bon sundae cup.",veg:1},
  alphonsomangobon:{n:"Alphonso Mango Bon",p:130,e:"🍨",h:[[8,23]],q:"",pt:5,ph:"",d:"A bite-sized Bon Bon sundae cup.",veg:1},
+ fruitsroll:{n:"Fruits Roll",p:150,e:"🍨",h:[[8,23]],q:"",pt:7,ph:"",d:"Instant ice cream blended on a -30° frozen pan and rolled fresh to order.",veg:1,must:1},
+ chocobrownieroll:{n:"Chocolate Brownie Roll",p:150,e:"🍨",h:[[8,23]],q:"",pt:7,ph:"",d:"Instant ice cream blended on a -30° frozen pan and rolled fresh to order.",veg:1},
+ oreoroll:{n:"Oreo Roll",p:150,e:"🍨",h:[[8,23]],q:"",pt:7,ph:"",d:"Instant ice cream blended on a -30° frozen pan and rolled fresh to order.",veg:1},
+ blackforestroll:{n:"Black Forest Roll",p:150,e:"🍨",h:[[8,23]],q:"",pt:7,ph:"",d:"Instant ice cream blended on a -30° frozen pan and rolled fresh to order.",veg:1},
+ hazelnutroll:{n:"Hazelnut Roll",p:180,e:"🍨",h:[[8,23]],q:"",pt:7,ph:"",d:"Instant ice cream blended on a -30° frozen pan and rolled fresh to order.",veg:1,best:1},
+ customroll:{n:"Customise Your Flavour Roll",p:180,e:"🍨",h:[[8,23]],q:"",pt:7,ph:"",d:"Instant ice cream blended on a -30° frozen pan and rolled fresh to order.",veg:1},
  royaldryfruits:{n:"Royal Dry Fruits Falooda",p:170,e:"🍨",h:[[8,23]],q:"",pt:6,ph:"",d:"Classic falooda with vermicelli, jelly & ice cream.",veg:1,best:1},
  realalphonso:{n:"Real Alphonso Mango Falooda",p:150,e:"🍨",h:[[8,23]],q:"",pt:6,ph:"",d:"Classic falooda with vermicelli, jelly & ice cream.",veg:1,best:1},
  ogrose:{n:"Og Rose Falooda",p:150,e:"🍨",h:[[8,23]],q:"",pt:6,ph:"",d:"Classic falooda with vermicelli, jelly & ice cream.",veg:1},
@@ -495,6 +501,7 @@ const CATS=[
  {name:"Ice Cream Specials",ids:["belgianwaffleic2","deathbychocolate","mississippimud","sizzlinghotbrownie","gudbud","tiramisu","belgiandarkchoc","browniebomb","specialdryfruits_ic","hotfudge","titanicboat","tallbeauty","naughtynutella_ic","blackforest_ic","chocomania","blackbeauty","mixedfruitcaramel"]},
  {name:"Sundae",ids:["butterscotchproline","chocobutterchips","lovelichee","fruitsalad","proteinblast_su","getsmart","blackcurrant_su","blackforestdream","pistachio","mixfruitjelly","dryfruitjelly","rainbowcassata","specialdryfruits_su"]},
  {name:"Mini Sundae",ids:["hotfudgenut","nutbutterscotch_mi","chocobutterchips_mi","strawberrybanana","litchibon","proteinblastbon","chococherrybon","blackcurrantbon","blackforestbon","chocolatebon","licheechocostraw","alphonsomangobon"]},
+ {name:"Roll Ice Cream",ids:["fruitsroll","chocobrownieroll","oreoroll","blackforestroll","hazelnutroll","customroll"]},
  {name:"Falooda",ids:["royaldryfruits","realalphonso","ogrose","belgianchoc_fa","cottoncandy_fa"]},
  {name:"Thick Shakes",ids:["frenchvanilla","belgianchoc_ts","classiccoldcoffee","caramelcoldcoffee","royalkesarbadam","litchi_ts","blackcurrant_ts","ogoreo","chocolateoreo","naughtynutella_ts","oghazelnut","coffeehazelnut","snickerscaramel","exoticalphonso","chocobrownie_ts","tresleches","proteinblast_ts"]},
  {name:"Snacks",ids:["frenchfriessmall","frenchfrieslarge","loadedfries","comboplatter","cheeseball","smileyssmall","smileyslarge","vegsandwich","paneersandwich","cheeseballsandwich"]}
@@ -978,10 +985,12 @@ function submitFeedback(custom){const ta=document.getElementById("fbtext");const
  if(!custom&&!fbRating&&!txt){const e=document.getElementById("fbstars");if(e)e.style.outline="2px solid #c0392b";return;}
  closeModal();bot(T("fbThanks"));
  const rb=bot("Would you like to share feedback on anything else?");block("chips",FBTOPICS.map(a=>`<button class="chip" onclick="fbTopic('${a}')">${a}</button>`).join("")+`<button class="chip alt" onclick="fbCustom()">${IC.note}Something else</button><button class="chip alt" onclick="mainChips()">${IC.back}Done</button>`);}
-function catImg(c){var ids=(c.ids||(c.subs||[]).flatMap(function(s){return s.ids;})).filter(avail);for(var k=0;k<ids.length;k++){if(MENU[ids[k]]&&MENU[ids[k]].ph)return MENU[ids[k]].ph;}return "/cat_default.jpg";}
+var CATPIC={"Scoops":"/cat_scoops.jpg","Softy":"/cat_softy.jpg","Waffle":"/cat_waffle.jpg","Ice Cream Specials":"/cat_icecream.jpg","Sundae":"/cat_sundae.jpg","Mini Sundae":"/cat_mini.jpg","Roll Ice Cream":"/cat_rolls.jpg","Falooda":"/cat_falooda.jpg","Thick Shakes":"/cat_shakes.jpg","Snacks":"/cat_snacks.jpg"};
+function catFallback(el){el.onerror=null;el.src="/cat_default.jpg";}
+function catImg(c){if(CATPIC[c.name])return CATPIC[c.name];var ids=(c.ids||(c.subs||[]).flatMap(function(s){return s.ids;})).filter(avail);for(var k=0;k<ids.length;k++){if(MENU[ids[k]]&&MENU[ids[k]].ph)return MENU[ids[k]].ph;}return "/cat_default.jpg";}
 function explore(){me(T("exploreMore"));const cs=CATS.filter(c=>(c.ids||(c.subs||[]).flatMap(s=>s.ids)).some(avail));
  bot(`${T("whatExplore")} <span style='color:#7b8190'>${T("timeNote")}</span>`);
- var _cg=block("catgrid",cs.map((c)=>`<button class="catcard" onclick="openCat(${CATS.indexOf(c)})"><span class="catpic"><img class="${catImg(c)===LOGO?"lg":"ph"}" src="${catImg(c)}" loading="lazy" onerror="this.style.opacity=0"></span><span class="catlabel">${cn(c.name)}</span></button>`).join(""));_bigTarget=_cg;block("chips",`<button class="chip alt" onclick="mainChips()">${IC.home}${lbl("home")}</button>`);}
+ var _cg=block("catgrid",cs.map((c)=>`<button class="catcard" onclick="openCat(${CATS.indexOf(c)})"><span class="catpic"><img class="${catImg(c)===LOGO?"lg":"ph"}" src="${catImg(c)}" loading="lazy" onerror="catFallback(this)"></span><span class="catlabel">${cn(c.name)}</span></button>`).join(""));_bigTarget=_cg;block("chips",`<button class="chip alt" onclick="mainChips()">${IC.home}${lbl("home")}</button>`);}
 function openCat(i){const c=CATS[i];me(cn(c.name));if(c.subs){const ss=c.subs.filter(s=>s.ids.some(avail));bot(`<b>${cn(c.name)}</b> — ${T("pickType")}:`);
   block("chips",ss.map((s)=>`<button class="chip" onclick="openSub(${i},${c.subs.indexOf(s)})">${cn(s.name)}</button>`).join("")+`<button class="chip alt" onclick="explore()">${IC.back}${lbl("back")}</button>`);
  }else{bot(`<b>${cn(c.name)}</b> — ${T("tapAdd")}:`);grid(c.ids);}}
@@ -1522,8 +1531,8 @@ async function findAsk(moodText){var _typing=typingBubble();
 
 function bbApplyLiveMenu(items){
   try{
-    var order=["scoops","softy","waffle","icecream","sundae","mini","falooda","shakes","snacks"];
-    var labels={scoops:"Scoops",softy:"Softy",waffle:"Waffle",icecream:"Ice Cream Specials",sundae:"Sundae",mini:"Mini Sundae",falooda:"Falooda",shakes:"Thick Shakes",snacks:"Snacks"};
+    var order=["scoops","softy","waffle","icecream","sundae","mini","rolls","falooda","shakes","snacks"];
+    var labels={scoops:"Scoops",softy:"Softy",waffle:"Waffle",icecream:"Ice Cream Specials",sundae:"Sundae",mini:"Mini Sundae",rolls:"Roll Ice Cream",falooda:"Falooda",shakes:"Thick Shakes",snacks:"Snacks"};
     Object.keys(MENU).forEach(function(k){delete MENU[k];});
     var byCat={};
     items.forEach(function(it){
