@@ -307,6 +307,8 @@ h = h.replace("Recommend 5-6 dishes they'll enjoy, MIXED across different catego
 
 // ---- chips: drop banquet + change-outlet (not relevant), relabel header + info ----
 h = h.replace('<button class="chip alt" onclick="banquet()">${IC.hall}${lbl("banquet")}</button><button class="chip alt" onclick="goOutlets()">${IC.pin}${lbl("changeOutlet")}</button>', "");
+// drop the "Store info" chip (Bon Bon doesn't need it)
+h = h.replace('<button class="chip alt" onclick="info()">${IC.info}${lbl("info")}</button>', "");
 h = h.split("AI Waiter — powered by Odysra").join("AI Menu — powered by Odysra");
 h = h.split("Restaurant info").join("Store info");
 
