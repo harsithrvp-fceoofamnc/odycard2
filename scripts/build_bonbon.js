@@ -312,6 +312,20 @@ h = h.replace('<button class="chip alt" onclick="info()">${IC.info}${lbl("info")
 h = h.split("AI Waiter — powered by Odysra").join("AI Menu — powered by Odysra");
 h = h.split("Restaurant info").join("Store info");
 
+// ---- DINE-IN ONLY (Bon Bon): no takeaway, no AC/Non-AC halls — just ask the table number ----
+// Skip the "How are you dining?" step entirely and go straight to the table-number prompt.
+h = h.replace(
+  'function checkout(){order={mode:null,table:null,room:null};openSheet(`<h2>How are you dining?</h2><div class="opt"><button id="din" onclick="setMode(\'dine\')">${IC.menu}Dine-in</button><button id="tak" onclick="setMode(\'take\')">${IC.bag}Takeaway</button></div><div id="ckbody"></div>`);}',
+  'function checkout(){order={mode:"dine",table:null,room:""};openSheet(`<h2>Which table are you at?</h2><div class="fld"><label>Table number</label><input id="tbl" inputmode="numeric" oninput="roomFromTable()" placeholder="Enter your table number"></div><div id="roomline"></div><div id="contbtn"></div>`);}'
+);
+// table validation: drop the 1–24 cap and the AC/Non-AC hall logic
+h = h.replace('if(!v||v<1||v>24){rl.innerHTML="";cb.innerHTML="";return;}order.table=v;order.room=v<=12?"Non-AC":"AC";',
+  'if(!v||v<1){rl.innerHTML="";cb.innerHTML="";return;}order.table=v;order.room="";');
+h = h.replace('rl.innerHTML=`<div class="note">Table ${v} → <b>${order.room} hall</b> ${order.room==="AC"?"❄️":""}</div>`;', 'rl.innerHTML="";');
+// order-type labels: no "Takeaway" branch, no empty room text
+h = h.replace('${order.mode==="dine"?`Dine-in · ${order.room} · T${order.table}`:"Takeaway"}', 'Dine-in · Table ${order.table}');
+h = h.replace('type:(order.mode==="dine"?"Dine-in · Table "+order.table+" ("+order.room+")":"Takeaway"),', 'type:("Dine-in · Table "+order.table),');
+
 // ---- category picker as Swiggy-style image tiles (Bon Bon only) ----
 h = h.replace('</style>', `
   .catgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:4px 0 2px}

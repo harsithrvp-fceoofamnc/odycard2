@@ -2,7 +2,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { C, Shell, NavLink, Spinner, PasswordField, useBBSession } from "../_ui";
 
-type Staff = { id: string; name: string; username: string; role: string; active: boolean };
+type Staff = { id: string; name: string; username: string; role: string; active: boolean; tables?: number[] };
 type Order = { id: string; total: number; status: string; created_at: string };
 type Restaurant = { id: number; name: string };
 type Outlet = { id: number; restaurant_id: number; name: string; slug: string; tables: number };
@@ -69,8 +69,48 @@ export default function AdminPage() {
   const [name, setName] = useState("");
   const [user, setUser] = useState("");
   const [pass, setPass] = useState("");
+  const [newTables, setNewTables] = useState("");
   const [msg, setMsg] = useState("");
   const [busy, setBusy] = useState(false);
+  // per-waiter inline table-assignment edits (keyed by staff id)
+  const [tblEdit, setTblEdit] = useState<Record<string, string>>({});
+
+  // [1,2,3,4,5,8] -> "1-5, 8" for compact display / editing
+  function fmtTables(arr?: number[]): string {
+    if (!arr || !arr.length) return "";
+    const s = [...arr].sort((a, b) => a - b);
+    const out: string[] = [];
+    let a = s[0];
+    let p = s[0];
+    for (let i = 1; i <= s.length; i++) {
+      if (i < s.length && s[i] === p + 1) {
+        p = s[i];
+        continue;
+      }
+      out.push(a === p ? `${a}` : `${a}-${p}`);
+      if (i < s.length) {
+        a = s[i];
+        p = s[i];
+      }
+    }
+    return out.join(", ");
+  }
+  async function saveTables(m: Staff) {
+    const val = tblEdit[m.id] ?? fmtTables(m.tables);
+    const r = await fetch(`/api/bonbon/staff/${m.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ tables: val }),
+    });
+    if (r.ok) {
+      setTblEdit((p) => {
+        const n = { ...p };
+        delete n[m.id];
+        return n;
+      });
+      load();
+    } else alert((await r.json()).error || "Could not save tables");
+  }
 
   async function addStaff(e: React.FormEvent) {
     e.preventDefault();
@@ -79,7 +119,7 @@ export default function AdminPage() {
     const r = await fetch("/api/bonbon/staff", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ role, name, username: user, password: pass }),
+      body: JSON.stringify({ role, name, username: user, password: pass, tables: role === "waiter" ? newTables : undefined }),
     });
     const d = await r.json();
     setBusy(false);
@@ -87,6 +127,7 @@ export default function AdminPage() {
     setName("");
     setUser("");
     setPass("");
+    setNewTables("");
     setMsg(`Created ${d.role} "${d.name}" — username: ${d.username}`);
     load();
   }
@@ -243,6 +284,22 @@ export default function AdminPage() {
                       </button>
                     </div>
                   </div>
+                  {m.role === "waiter" && (
+                    <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", margin: "-2px 0 12px" }}>
+                      <span style={{ fontSize: 12.5, color: C.mut, fontWeight: 600 }}>Tables:</span>
+                      <input
+                        value={tblEdit[m.id] ?? fmtTables(m.tables)}
+                        onChange={(e) => setTblEdit((p) => ({ ...p, [m.id]: e.target.value }))}
+                        placeholder="e.g. 1-5, 8"
+                        inputMode="numeric"
+                        style={{ ...inp, flex: "1 1 120px", minWidth: 100, padding: "6px 10px", fontSize: 13.5, marginTop: 0 }}
+                      />
+                      <button onClick={() => saveTables(m)} style={miniBtn}>
+                        Save
+                      </button>
+                      {!(tblEdit[m.id] ?? fmtTables(m.tables)) && <span style={{ fontSize: 11.5, color: C.warn }}>none assigned</span>}
+                    </div>
+                  )}
                   {newPwd[m.id] && (
                     <div
                       style={{
@@ -307,6 +364,15 @@ export default function AdminPage() {
                   placeholder={role === "supervisor" ? "Password (8+ characters)" : "Password (4+ characters)"}
                   style={{ ...inp, marginTop: 8 }}
                 />
+                {role === "waiter" && (
+                  <input
+                    style={{ ...inp, marginTop: 8 }}
+                    value={newTables}
+                    onChange={(e) => setNewTables(e.target.value)}
+                    placeholder="Tables for this waiter (e.g. 1-5, 8)"
+                    inputMode="numeric"
+                  />
+                )}
                 {msg && <div style={{ marginTop: 10, fontSize: 13, color: msg.startsWith("Created") ? C.good : C.warn }}>{msg}</div>}
                 <button style={{ ...primaryBtn, marginTop: 12, width: "100%" }} disabled={busy}>
                   {busy ? "Creating…" : "Create login"}

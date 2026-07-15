@@ -21,7 +21,7 @@ export const C = {
 export const font =
   "-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial,sans-serif";
 
-type Me = { role: "admin" | "supervisor" | "waiter" | "kitchen"; name: string; sub: string } | null;
+type Me = { role: "admin" | "supervisor" | "waiter" | "kitchen"; name: string; sub: string; tables?: number[] } | null;
 
 /** Client-side guard: loads the session, redirects to login if the role isn't allowed. */
 export function useBBSession(allowed: Array<"admin" | "supervisor" | "waiter" | "kitchen">) {

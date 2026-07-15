@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { randomBytes } from "crypto";
 import bcrypt from "bcryptjs";
-import { BB, bbDb, requireBB } from "@/lib/bonbon";
+import { BB, bbDb, requireBB, parseTables } from "@/lib/bonbon";
 
 // Passwords are bcrypt-hashed, so an existing one can never be read back. Instead the owner
 // RESETS it: we generate (or accept) a new password, store only its hash, and return the
@@ -27,6 +27,7 @@ export async function PATCH(req: NextRequest, ctx: { params: Promise<{ id: strin
 
     const patch: Record<string, unknown> = {};
     if (b.active !== undefined) patch.active = !!b.active;
+    if (b.tables !== undefined) patch.tables = parseTables(b.tables);
 
     let newPassword: string | null = null;
     if (b.resetPassword || typeof b.password === "string") {

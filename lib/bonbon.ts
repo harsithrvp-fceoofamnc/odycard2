@@ -111,6 +111,40 @@ export function bbDb() {
   return getDb();
 }
 
+/** Parse a waiter's table assignment. Accepts a string like "1-5, 8, 10-12" (or an array of
+ *  numbers) and returns a clean, de-duplicated, sorted list of table numbers (1..500). */
+export function parseTables(input: unknown): number[] {
+  const set = new Set<number>();
+  const add = (n: number) => {
+    if (Number.isInteger(n) && n > 0 && n <= 500) set.add(n);
+  };
+  if (Array.isArray(input)) {
+    for (const v of input) add(Number(v));
+  } else {
+    for (const raw of String(input ?? "").split(",")) {
+      const part = raw.trim();
+      if (!part) continue;
+      const m = part.match(/^(\d+)\s*-\s*(\d+)$/);
+      if (m) {
+        let a = Number(m[1]);
+        let b = Number(m[2]);
+        if (a > b) [a, b] = [b, a];
+        for (let i = a; i <= b && i - a < 500; i++) add(i);
+      } else {
+        add(Number(part));
+      }
+    }
+  }
+  return [...set].sort((a, b) => a - b);
+}
+
+/** Does an order's free-text table string ("Table 5", "Table 12 (AC)") fall in a waiter's set? */
+export function tableInSet(orderTable: unknown, tables: number[]): boolean {
+  const m = String(orderTable ?? "").match(/\d+/);
+  if (!m) return false;
+  return tables.includes(Number(m[0]));
+}
+
 export function isDefaultOutlet(outletId: unknown): boolean {
   return outletId == null || outletId === "" || String(outletId) === String(DEFAULT_OUTLET_ID);
 }

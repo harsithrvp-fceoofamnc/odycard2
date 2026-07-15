@@ -14,17 +14,20 @@ type Order = {
   created_at: string;
 };
 
-const COLS: { key: string; label: string; next?: string; nextLabel?: string; color: string }[] = [
-  { key: "new", label: "New", next: "preparing", nextLabel: "Start making", color: C.maroon },
-  { key: "preparing", label: "Preparing", next: "ready", nextLabel: "Mark ready", color: "#b26a00" },
-  { key: "ready", label: "Ready to serve", color: C.good },
-];
-
-function ago(iso: string) {
-  const s = Math.floor((Date.now() - new Date(iso).getTime()) / 1000);
-  if (s < 60) return `${s}s ago`;
-  const m = Math.floor(s / 60);
-  return m < 60 ? `${m}m ago` : `${Math.floor(m / 60)}h ago`;
+// Kitchen is a READ-ONLY board: every order placed today (pending + served), no controls.
+// It's for making the orders and cross-checking the day's sales.
+function isToday(iso: string) {
+  const d = new Date(iso);
+  const n = new Date();
+  return d.getFullYear() === n.getFullYear() && d.getMonth() === n.getMonth() && d.getDate() === n.getDate();
+}
+function clock(iso: string) {
+  return new Date(iso).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+}
+function statusOf(s: string): { label: string; bg: string; fg: string } {
+  if (s === "served") return { label: "Served", bg: "#e6f4ea", fg: C.good };
+  if (s === "cancelled") return { label: "Cancelled", bg: "#eee", fg: "#888" };
+  return { label: "Pending", bg: "#fff3e0", fg: "#b26a00" };
 }
 
 export default function KitchenPage() {
@@ -32,7 +35,6 @@ export default function KitchenPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loaded, setLoaded] = useState(false);
   const seen = useRef<Set<number>>(new Set());
-  const [tick, setTick] = useState(0); // re-render for the "x ago" timers
   const [outlet, setOutlet] = useState<string>("");
   const [outletName, setOutletName] = useState<string>("");
 
@@ -48,13 +50,13 @@ export default function KitchenPage() {
   }, []);
 
   const load = useCallback(async () => {
-    const r = await fetch(`/api/bonbon/orders?status=active${outlet ? `&outlet=${outlet}` : ""}`);
+    const r = await fetch(`/api/bonbon/orders?status=all${outlet ? `&outlet=${outlet}` : ""}`);
     if (r.ok) {
-      const list: Order[] = (await r.json()).orders || [];
+      const list: Order[] = ((await r.json()).orders || []).filter((o: Order) => isToday(o.created_at));
       setOrders(list);
       setLoaded(true);
-      // chime when a genuinely new ticket appears
-      const fresh = list.filter((o) => o.status === "new" && !seen.current.has(o.ticket));
+      // chime when a genuinely new (pending) ticket appears
+      const fresh = list.filter((o) => o.status !== "served" && o.status !== "cancelled" && !seen.current.has(o.ticket));
       if (fresh.length && seen.current.size) beep();
       list.forEach((o) => seen.current.add(o.ticket));
     }
@@ -64,30 +66,22 @@ export default function KitchenPage() {
     if (!ready) return;
     load();
     const a = setInterval(load, 3000);
-    const b = setInterval(() => setTick((t) => t + 1), 15000);
-    // browsers throttle background tabs — refresh instantly when this screen is focused again
     const onVis = () => { if (!document.hidden) load(); };
     document.addEventListener("visibilitychange", onVis);
     window.addEventListener("focus", onVis);
     return () => {
       clearInterval(a);
-      clearInterval(b);
       document.removeEventListener("visibilitychange", onVis);
       window.removeEventListener("focus", onVis);
     };
   }, [ready, load]);
 
-  async function advance(o: Order, status: string) {
-    setOrders((p) => (status === "ready" ? p : p).map((x) => (x.id === o.id ? { ...x, status } : x)));
-    await fetch(`/api/bonbon/orders/${o.id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status }),
-    });
-    load();
-  }
-
   if (!ready || !me) return <Spinner label="Checking access…" />;
+
+  const live = orders.filter((o) => o.status !== "cancelled");
+  const sales = live.reduce((s, o) => s + (Number(o.total) || 0), 0);
+  const pending = orders.filter((o) => o.status !== "served" && o.status !== "cancelled").length;
+  const served = orders.filter((o) => o.status === "served").length;
 
   return (
     <Shell
@@ -106,67 +100,47 @@ export default function KitchenPage() {
       }
     >
       <OutletSwitcher />
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
-        <p style={{ margin: 0, fontSize: 13, color: C.mut }}>
-          Live order tickets from the chatbot · updates automatically
-        </p>
-        <span style={{ fontSize: 11.5, color: C.mut }} key={tick}>
-          {orders.length} active
-        </span>
+
+      {/* today's summary */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 8, margin: "0 0 14px" }}>
+        <Stat label="Orders" value={String(live.length)} />
+        <Stat label="Pending" value={String(pending)} color="#b26a00" />
+        <Stat label="Served" value={String(served)} color={C.good} />
+        <Stat label="Sales" value={`₹${sales}`} color={C.maroon} />
       </div>
+      <p style={{ margin: "0 0 14px", fontSize: 12.5, color: C.mut }}>
+        Every order placed today — pending &amp; served. Display only; the waiter marks orders served.
+      </p>
 
       {!loaded ? (
         <Spinner />
       ) : orders.length === 0 ? (
         <Empty />
       ) : (
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(270px,1fr))", gap: 14 }}>
-          {COLS.map((col) => {
-            const list = orders.filter((o) => o.status === col.key);
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(260px,1fr))", gap: 12 }}>
+          {orders.map((o) => {
+            const st = statusOf(o.status);
+            const cancelled = o.status === "cancelled";
             return (
-              <div key={col.key}>
-                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
-                  <span style={{ width: 10, height: 10, borderRadius: 3, background: col.color }} />
-                  <span style={{ fontWeight: 800, color: C.ink, fontSize: 14 }}>{col.label}</span>
-                  <span style={{ fontSize: 12, color: C.mut }}>{list.length}</span>
+              <div key={o.id} style={{ ...ticket, borderTop: `3px solid ${st.fg}`, opacity: cancelled ? 0.6 : 1 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <div style={{ fontWeight: 800, color: C.ink }}>
+                    #{o.ticket}
+                    {o.table && <span style={{ marginLeft: 8, fontSize: 12, fontWeight: 800, color: "#fff", background: C.maroon, padding: "2px 8px", borderRadius: 7 }}>{o.table}</span>}
+                  </div>
+                  <span style={{ fontSize: 11, fontWeight: 800, color: st.fg, background: st.bg, padding: "3px 8px", borderRadius: 8 }}>{st.label}</span>
                 </div>
-                <div style={{ display: "grid", gap: 10 }}>
-                  {list.map((o) => (
-                    <div key={o.id} style={{ ...ticket, borderTop: `3px solid ${col.color}` }}>
-                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
-                        <div style={{ fontWeight: 800, color: C.ink }}>#{o.ticket}</div>
-                        <div style={{ fontSize: 11, color: C.mut }}>{ago(o.created_at)}</div>
-                      </div>
-                      <div style={{ fontSize: 11.5, color: C.mut, marginBottom: 8 }}>
-                        {o.mode === "dine" ? `Dine-in${o.table ? " · " + o.table : ""}` : "Takeaway"} · {o.customer}
-                      </div>
-                      <div style={{ display: "grid", gap: 3, marginBottom: 10 }}>
-                        {o.items.map((it, i) => (
-                          <div key={i} style={{ display: "flex", justifyContent: "space-between", fontSize: 13.5 }}>
-                            <span style={{ color: C.ink }}>
-                              <b style={{ color: col.color }}>{it.qty}×</b> {it.name}
-                            </span>
-                          </div>
-                        ))}
-                      </div>
-                      {col.next ? (
-                        <button onClick={() => advance(o, col.next!)} style={{ ...advBtn, background: col.color }}>
-                          {col.nextLabel}
-                        </button>
-                      ) : (
-                        <div style={{ fontSize: 12, color: C.good, fontWeight: 700, textAlign: "center", padding: "6px 0" }}>
-                          Waiting for waiter to serve
-                        </div>
-                      )}
-                      {(o.status === "new" || o.status === "preparing") && (
-                        <button onClick={() => advance(o, "cancelled")} style={cancelBtn}>
-                          Cancel
-                        </button>
-                      )}
+                <div style={{ fontSize: 11.5, color: C.mut, margin: "4px 0 8px" }}>
+                  {clock(o.created_at)} · {o.customer}
+                </div>
+                <div style={{ display: "grid", gap: 3, marginBottom: 8 }}>
+                  {o.items.map((it, i) => (
+                    <div key={i} style={{ fontSize: 13.5, color: C.ink, textDecoration: cancelled ? "line-through" : "none" }}>
+                      <b style={{ color: st.fg }}>{it.qty}×</b> {it.name}
                     </div>
                   ))}
-                  {list.length === 0 && <div style={{ fontSize: 12.5, color: C.mut, padding: "6px 2px" }}>—</div>}
                 </div>
+                <div style={{ textAlign: "right", fontWeight: 800, color: C.ink, fontSize: 14 }}>₹{o.total}</div>
               </div>
             );
           })}
@@ -176,12 +150,21 @@ export default function KitchenPage() {
   );
 }
 
+function Stat({ label, value, color }: { label: string; value: string; color?: string }) {
+  return (
+    <div style={{ background: C.card, border: `1px solid ${C.line}`, borderRadius: 11, padding: "9px 10px", textAlign: "center" }}>
+      <div style={{ fontSize: 17, fontWeight: 800, color: color || C.ink }}>{value}</div>
+      <div style={{ fontSize: 11, color: C.mut, marginTop: 1 }}>{label}</div>
+    </div>
+  );
+}
+
 function Empty() {
   return (
     <div style={{ textAlign: "center", padding: "60px 20px", color: C.mut }}>
       <div style={{ fontSize: 40, marginBottom: 8 }}>🍦</div>
-      <div style={{ fontWeight: 700, color: C.ink }}>No orders yet</div>
-      <div style={{ fontSize: 13, marginTop: 4 }}>New tickets appear here the moment a customer pays in the chatbot.</div>
+      <div style={{ fontWeight: 700, color: C.ink }}>No orders today yet</div>
+      <div style={{ fontSize: 13, marginTop: 4 }}>Tickets appear here the moment a customer pays in the chatbot.</div>
     </div>
   );
 }
@@ -204,5 +187,3 @@ function beep() {
 }
 
 const ticket: React.CSSProperties = { background: C.card, border: `1px solid ${C.line}`, borderRadius: 12, padding: "11px 13px" };
-const advBtn: React.CSSProperties = { width: "100%", padding: "9px", border: 0, borderRadius: 9, color: "#fff", fontWeight: 800, fontSize: 13.5, cursor: "pointer" };
-const cancelBtn: React.CSSProperties = { width: "100%", marginTop: 6, padding: "6px", border: "none", borderRadius: 8, background: "transparent", color: C.mut, fontWeight: 600, fontSize: 12, cursor: "pointer" };

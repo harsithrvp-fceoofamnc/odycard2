@@ -15,6 +15,8 @@ type Order = {
 
 export default function WaiterPage() {
   const { me, ready } = useBBSession(["admin", "supervisor", "waiter"]);
+  const meRef = useRef(me);
+  meRef.current = me;
   const [orders, setOrders] = useState<Order[]>([]);
   const [loaded, setLoaded] = useState(false);
   const seen = useRef<Set<number>>(new Set());
@@ -33,9 +35,12 @@ export default function WaiterPage() {
   }, []);
 
   const load = useCallback(async () => {
-    const r = await fetch(`/api/bonbon/orders?status=ready${outlet ? `&outlet=${outlet}` : ""}`);
+    // pending orders (new/preparing/ready). Waiters see only their assigned tables; admin/supervisor see all.
+    const r = await fetch(`/api/bonbon/orders?status=active${outlet ? `&outlet=${outlet}` : ""}`);
     if (r.ok) {
-      const list: Order[] = (await r.json()).orders || [];
+      let list: Order[] = (await r.json()).orders || [];
+      const m = meRef.current;
+      if (m && m.role === "waiter") list = list.filter((o) => matchTable(o.table, m.tables || []));
       const fresh = list.filter((o) => !seen.current.has(o.ticket));
       if (fresh.length && seen.current.size) chime();
       list.forEach((o) => seen.current.add(o.ticket));
@@ -90,9 +95,20 @@ export default function WaiterPage() {
     >
       <OutletSwitcher />
       <p style={{ margin: "0 0 14px", fontSize: 13, color: C.mut }}>
-        Orders the kitchen has marked <b style={{ color: C.good }}>ready</b> show up here. Deliver them, then tap{" "}
-        <b>Served</b>.
+        {me.role === "waiter" ? (
+          <>
+            New orders for <b style={{ color: C.ink }}>your tables{me.tables && me.tables.length ? ` (${me.tables.join(", ")})` : ""}</b> show up here.
+            Collect from the kitchen, serve, then tap <b>Served</b>.
+          </>
+        ) : (
+          <>Live orders across all tables. Waiters see only the tables assigned to them.</>
+        )}
       </p>
+      {me.role === "waiter" && (!me.tables || me.tables.length === 0) && (
+        <div style={{ margin: "0 0 14px", padding: "10px 12px", background: "#fff8e8", border: "1px solid #eedcb0", borderRadius: 10, fontSize: 12.5, color: C.ink }}>
+          No tables are assigned to you yet — ask the owner to assign your tables from the dashboard.
+        </div>
+      )}
 
       {!loaded ? (
         <Spinner />
@@ -100,7 +116,7 @@ export default function WaiterPage() {
         <div style={{ textAlign: "center", padding: "60px 20px", color: C.mut }}>
           <div style={{ fontSize: 40, marginBottom: 8 }}>✅</div>
           <div style={{ fontWeight: 700, color: C.ink }}>All caught up</div>
-          <div style={{ fontSize: 13, marginTop: 4 }}>You&apos;ll get a chime when the kitchen has something ready.</div>
+          <div style={{ fontSize: 13, marginTop: 4 }}>You&apos;ll get a chime when a new order comes in for your tables.</div>
         </div>
       ) : (
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(260px,1fr))", gap: 14 }}>
@@ -108,11 +124,11 @@ export default function WaiterPage() {
             <div key={o.id} style={{ background: C.card, border: `1px solid ${C.line}`, borderTop: `3px solid ${C.good}`, borderRadius: 13, padding: "13px 15px" }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
                 <div style={{ fontWeight: 800, color: C.ink, fontSize: 16 }}>#{o.ticket}</div>
-                <span style={{ fontSize: 11, fontWeight: 800, color: C.good, background: "#e6f4ea", padding: "3px 8px", borderRadius: 8 }}>READY</span>
+                {o.table && (
+                  <span style={{ fontSize: 12, fontWeight: 800, color: "#fff", background: C.maroon, padding: "3px 9px", borderRadius: 8 }}>{o.table}</span>
+                )}
               </div>
-              <div style={{ fontSize: 12, color: C.mut, margin: "3px 0 9px" }}>
-                {o.mode === "dine" ? `Dine-in${o.table ? " · " + o.table : ""}` : "Takeaway"} · {o.customer}
-              </div>
+              <div style={{ fontSize: 12, color: C.mut, margin: "3px 0 9px" }}>{o.customer}</div>
               <div style={{ display: "grid", gap: 3, marginBottom: 11 }}>
                 {o.items.map((it, i) => (
                   <div key={i} style={{ fontSize: 13.5, color: C.ink }}>
@@ -129,6 +145,12 @@ export default function WaiterPage() {
       )}
     </Shell>
   );
+}
+
+// does an order's free-text table ("Table 5") fall within this waiter's assigned numbers?
+function matchTable(table: string, tables: number[]): boolean {
+  const m = String(table || "").match(/\d+/);
+  return m ? tables.includes(Number(m[0])) : false;
 }
 
 function chime() {

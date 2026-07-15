@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
-import { BB, bbDb, requireBB } from "@/lib/bonbon";
+import { BB, bbDb, requireBB, parseTables } from "@/lib/bonbon";
 import { getNextId } from "@/lib/firebase";
 
 // Bon Bon staff = supervisors + waiters. Admin-only: list, create, enable/disable, delete.
@@ -17,7 +17,7 @@ export async function GET() {
   const staff = snap.docs
     .map((d) => {
       const x = d.data();
-      return { id: d.id, name: x.name, username: x.username, role: x.role, active: x.active !== false, created_at: x.created_at ?? null };
+      return { id: d.id, name: x.name, username: x.username, role: x.role, active: x.active !== false, tables: Array.isArray(x.tables) ? x.tables : [], created_at: x.created_at ?? null };
     })
     .sort((a, b) => Number(a.id) - Number(b.id));
   return NextResponse.json({ staff });
@@ -46,9 +46,10 @@ export async function POST(req: NextRequest) {
 
     const password_hash = await bcrypt.hash(password, role === "supervisor" ? 12 : 10);
     const id = await getNextId(BB.staff);
-    const doc = { role, name, username, password_hash, active: true, created_at: new Date().toISOString() };
+    const tables = role === "waiter" ? parseTables(b.tables) : [];
+    const doc = { role, name, username, password_hash, active: true, tables, created_at: new Date().toISOString() };
     await db.collection(BB.staff).doc(String(id)).set(doc);
-    return NextResponse.json({ id: String(id), name, username, role }, { status: 201 });
+    return NextResponse.json({ id: String(id), name, username, role, tables }, { status: 201 });
   } catch (e) {
     console.error("POST /api/bonbon/staff:", e);
     return NextResponse.json({ error: "Server error" }, { status: 500 });
