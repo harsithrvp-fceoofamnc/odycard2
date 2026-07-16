@@ -109,13 +109,11 @@ const groups = {
     ["licheechocostraw", "Lichee Choco Strawberry Bon", 130],
     ["alphonsomangobon", "Alphonso Mango Bon", 130],
   ],
-  rolls: [ // rolled on a -30° frozen pan. NOTE: the printed menu lists "Chocolate Brownie" twice — kept once.
-    ["fruitsroll", "Fruits", 150, "must"],
+  rolls: [ // rolled on a -30° frozen pan
     ["chocobrownieroll", "Chocolate Brownie", 150],
-    ["oreoroll", "Oreo", 150],
+    ["oreoroll", "Oreo", 150, "best"],
     ["blackforestroll", "Black Forest", 150],
     ["hazelnutroll", "Hazelnut Roll", 180, "best"],
-    ["customroll", "Customise Your Flavour", 180],
   ],
   falooda: [
     ["royaldryfruits", "Royal Dry Fruits", 170, "best"],

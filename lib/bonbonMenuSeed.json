@@ -1254,23 +1254,6 @@
     "sort": 72
   },
   {
-    "key": "fruitsroll",
-    "name": "Fruits Roll",
-    "price": 150,
-    "cat": "rolls",
-    "cat_label": "Roll Ice Cream",
-    "q": "",
-    "pt": 7,
-    "desc": "Instant ice cream blended on a -30° frozen pan and rolled fresh to order.",
-    "veg": 1,
-    "best": 0,
-    "must": 1,
-    "promoted": 0,
-    "available": 1,
-    "hidden": 0,
-    "sort": 73
-  },
-  {
     "key": "chocobrownieroll",
     "name": "Chocolate Brownie Roll",
     "price": 150,
@@ -1285,7 +1268,7 @@
     "promoted": 0,
     "available": 1,
     "hidden": 0,
-    "sort": 74
+    "sort": 73
   },
   {
     "key": "oreoroll",
@@ -1297,12 +1280,12 @@
     "pt": 7,
     "desc": "Instant ice cream blended on a -30° frozen pan and rolled fresh to order.",
     "veg": 1,
-    "best": 0,
+    "best": 1,
     "must": 0,
     "promoted": 0,
     "available": 1,
     "hidden": 0,
-    "sort": 75
+    "sort": 74
   },
   {
     "key": "blackforestroll",
@@ -1319,7 +1302,7 @@
     "promoted": 0,
     "available": 1,
     "hidden": 0,
-    "sort": 76
+    "sort": 75
   },
   {
     "key": "hazelnutroll",
@@ -1336,24 +1319,7 @@
     "promoted": 0,
     "available": 1,
     "hidden": 0,
-    "sort": 77
-  },
-  {
-    "key": "customroll",
-    "name": "Customise Your Flavour Roll",
-    "price": 180,
-    "cat": "rolls",
-    "cat_label": "Roll Ice Cream",
-    "q": "",
-    "pt": 7,
-    "desc": "Instant ice cream blended on a -30° frozen pan and rolled fresh to order.",
-    "veg": 1,
-    "best": 0,
-    "must": 0,
-    "promoted": 0,
-    "available": 1,
-    "hidden": 0,
-    "sort": 78
+    "sort": 76
   },
   {
     "key": "royaldryfruits",
@@ -1370,7 +1336,7 @@
     "promoted": 0,
     "available": 1,
     "hidden": 0,
-    "sort": 79
+    "sort": 77
   },
   {
     "key": "realalphonso",
@@ -1387,7 +1353,7 @@
     "promoted": 0,
     "available": 1,
     "hidden": 0,
-    "sort": 80
+    "sort": 78
   },
   {
     "key": "ogrose",
@@ -1404,7 +1370,7 @@
     "promoted": 0,
     "available": 1,
     "hidden": 0,
-    "sort": 81
+    "sort": 79
   },
   {
     "key": "belgianchoc_fa",
@@ -1421,7 +1387,7 @@
     "promoted": 0,
     "available": 1,
     "hidden": 0,
-    "sort": 82
+    "sort": 80
   },
   {
     "key": "cottoncandy_fa",
@@ -1438,7 +1404,7 @@
     "promoted": 0,
     "available": 1,
     "hidden": 0,
-    "sort": 83
+    "sort": 81
   },
   {
     "key": "frenchvanilla",
@@ -1455,7 +1421,7 @@
     "promoted": 0,
     "available": 1,
     "hidden": 0,
-    "sort": 84,
+    "sort": 82,
     "ao": "extraicecream"
   },
   {
@@ -1473,7 +1439,7 @@
     "promoted": 0,
     "available": 1,
     "hidden": 0,
-    "sort": 85,
+    "sort": 83,
     "ao": "extraicecream"
   },
   {
@@ -1491,7 +1457,7 @@
     "promoted": 0,
     "available": 1,
     "hidden": 0,
-    "sort": 86,
+    "sort": 84,
     "ao": "extraicecream"
   },
   {
@@ -1509,7 +1475,7 @@
     "promoted": 0,
     "available": 1,
     "hidden": 0,
-    "sort": 87,
+    "sort": 85,
     "ao": "extraicecream"
   },
   {
@@ -1527,7 +1493,7 @@
     "promoted": 0,
     "available": 1,
     "hidden": 0,
-    "sort": 88,
+    "sort": 86,
     "ao": "extraicecream"
   },
   {
@@ -1545,7 +1511,7 @@
     "promoted": 0,
     "available": 1,
     "hidden": 0,
-    "sort": 89,
+    "sort": 87,
     "ao": "extraicecream"
   },
   {
@@ -1563,7 +1529,7 @@
     "promoted": 0,
     "available": 1,
     "hidden": 0,
-    "sort": 90,
+    "sort": 88,
     "ao": "extraicecream"
   },
   {
@@ -1581,7 +1547,7 @@
     "promoted": 0,
     "available": 1,
     "hidden": 0,
-    "sort": 91,
+    "sort": 89,
     "ao": "extraicecream"
   },
   {
@@ -1599,7 +1565,7 @@
     "promoted": 0,
     "available": 1,
     "hidden": 0,
-    "sort": 92,
+    "sort": 90,
     "ao": "extraicecream"
   },
   {
@@ -1617,7 +1583,7 @@
     "promoted": 0,
     "available": 1,
     "hidden": 0,
-    "sort": 93,
+    "sort": 91,
     "ao": "extraicecream"
   },
   {
@@ -1635,7 +1601,7 @@
     "promoted": 0,
     "available": 1,
     "hidden": 0,
-    "sort": 94,
+    "sort": 92,
     "ao": "extraicecream"
   },
   {
@@ -1653,7 +1619,7 @@
     "promoted": 0,
     "available": 1,
     "hidden": 0,
-    "sort": 95,
+    "sort": 93,
     "ao": "extraicecream"
   },
   {
@@ -1671,7 +1637,7 @@
     "promoted": 0,
     "available": 1,
     "hidden": 0,
-    "sort": 96,
+    "sort": 94,
     "ao": "extraicecream"
   },
   {
@@ -1689,7 +1655,7 @@
     "promoted": 0,
     "available": 1,
     "hidden": 0,
-    "sort": 97,
+    "sort": 95,
     "ao": "extraicecream"
   },
   {
@@ -1707,7 +1673,7 @@
     "promoted": 0,
     "available": 1,
     "hidden": 0,
-    "sort": 98,
+    "sort": 96,
     "ao": "extraicecream"
   },
   {
@@ -1725,7 +1691,7 @@
     "promoted": 0,
     "available": 1,
     "hidden": 0,
-    "sort": 99,
+    "sort": 97,
     "ao": "extraicecream"
   },
   {
@@ -1743,7 +1709,7 @@
     "promoted": 0,
     "available": 1,
     "hidden": 0,
-    "sort": 100,
+    "sort": 98,
     "ao": "extraicecream"
   },
   {
@@ -1761,7 +1727,7 @@
     "promoted": 0,
     "available": 1,
     "hidden": 0,
-    "sort": 101
+    "sort": 99
   },
   {
     "key": "frenchfrieslarge",
@@ -1778,7 +1744,7 @@
     "promoted": 0,
     "available": 1,
     "hidden": 0,
-    "sort": 102
+    "sort": 100
   },
   {
     "key": "loadedfries",
@@ -1795,7 +1761,7 @@
     "promoted": 0,
     "available": 1,
     "hidden": 0,
-    "sort": 103
+    "sort": 101
   },
   {
     "key": "comboplatter",
@@ -1812,7 +1778,7 @@
     "promoted": 0,
     "available": 1,
     "hidden": 0,
-    "sort": 104
+    "sort": 102
   },
   {
     "key": "cheeseball",
@@ -1829,7 +1795,7 @@
     "promoted": 0,
     "available": 1,
     "hidden": 0,
-    "sort": 105
+    "sort": 103
   },
   {
     "key": "smileyssmall",
@@ -1846,7 +1812,7 @@
     "promoted": 0,
     "available": 1,
     "hidden": 0,
-    "sort": 106
+    "sort": 104
   },
   {
     "key": "smileyslarge",
@@ -1863,7 +1829,7 @@
     "promoted": 0,
     "available": 1,
     "hidden": 0,
-    "sort": 107
+    "sort": 105
   },
   {
     "key": "vegsandwich",
@@ -1880,7 +1846,7 @@
     "promoted": 0,
     "available": 1,
     "hidden": 0,
-    "sort": 108
+    "sort": 106
   },
   {
     "key": "paneersandwich",
@@ -1897,7 +1863,7 @@
     "promoted": 0,
     "available": 1,
     "hidden": 0,
-    "sort": 109
+    "sort": 107
   },
   {
     "key": "cheeseballsandwich",
@@ -1914,7 +1880,7 @@
     "promoted": 0,
     "available": 1,
     "hidden": 0,
-    "sort": 110
+    "sort": 108
   },
   {
     "key": "extraicecream",
@@ -1930,6 +1896,6 @@
     "must": 0,
     "available": 1,
     "hidden": 1,
-    "sort": 111
+    "sort": 109
   }
 ]

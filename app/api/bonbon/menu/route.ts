@@ -5,6 +5,9 @@ import seed from "@/lib/bonbonMenuSeed.json";
 
 type MenuDoc = Record<string, unknown> & { key: string };
 
+// Items pulled from the menu for good — deleted from Firestore on load so they vanish everywhere.
+const RETIRED = ["fruitsroll", "customroll"];
+
 // The chatbot / dashboards can pass ?outlet=<id> (or JSON { outlet }); default outlet uses the
 // original top-level menu, so the live customer bot keeps working with no param.
 async function ensureSeeded(outletId?: string | null) {
@@ -21,9 +24,11 @@ async function ensureSeeded(outletId?: string | null) {
   // sold-out, hidden — are preserved.
   const have = new Set(snap.docs.map((d) => d.id));
   const missing = (seed as MenuDoc[]).filter((i) => !have.has(i.key));
-  if (!missing.length) return;
+  const retire = RETIRED.filter((k) => have.has(k));
+  if (!missing.length && !retire.length) return;
   const batch = bbDb().batch();
   for (const item of missing) batch.set(col.doc(item.key), item);
+  for (const k of retire) batch.delete(col.doc(k));
   await batch.commit();
 }
 

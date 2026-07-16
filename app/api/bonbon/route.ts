@@ -74,12 +74,10 @@ blackforestbon | Black Forest Bon | Rs.130 | Mini Sundae
 chocolatebon | Chocolate Bon | Rs.130 | Mini Sundae
 licheechocostraw | Lichee Choco Strawberry Bon | Rs.130 | Mini Sundae
 alphonsomangobon | Alphonso Mango Bon | Rs.130 | Mini Sundae
-fruitsroll | Fruits Roll | Rs.150 | Roll Ice Cream
 chocobrownieroll | Chocolate Brownie Roll | Rs.150 | Roll Ice Cream
 oreoroll | Oreo Roll | Rs.150 | Roll Ice Cream
 blackforestroll | Black Forest Roll | Rs.150 | Roll Ice Cream
 hazelnutroll | Hazelnut Roll | Rs.180 | Roll Ice Cream
-customroll | Customise Your Flavour Roll | Rs.180 | Roll Ice Cream
 royaldryfruits | Royal Dry Fruits Falooda | Rs.170 | Falooda
 realalphonso | Real Alphonso Mango Falooda | Rs.150 | Falooda
 ogrose | Og Rose Falooda | Rs.150 | Falooda
