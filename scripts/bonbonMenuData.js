@@ -187,6 +187,8 @@ function seedDocs() {
         veg: 1,
         best: /best/.test(flags || "") ? 1 : 0,
         must: /must/.test(flags || "") ? 1 : 0,
+        promoted: 0, // supervisor toggles this to feature a dish on the welcome screen
+
         available: 1, // sold-out toggle (supervisor)
         hidden: 0, // hide from menu (supervisor)
         sort: sort++,

@@ -818,7 +818,8 @@ function upsell(){if(upsold)return;const ids=Object.keys(cart);if(!ids.length||i
 function exploreBar(){block("chips",`<button class="chip go" onclick="explore()">${IC.menu}${lbl("exploreMore")}</button><button class="chip" onclick="findForMe()">${IC.star}${lbl("findForMe")}</button><button class="chip alt" onclick="showSpecials()">${IC.star}${lbl("specials")}</button>${Object.keys(cart).length?`<button class="chip alt" onclick="openCart()">${IC.cart}${lbl("viewCart")}</button>`:''}`);}
 function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
 function typingBubble(){const d=document.createElement("div");d.className="msg bot typing";d.innerHTML='<span class="dot"></span><span class="dot"></span><span class="dot"></span>';chat.appendChild(d);toBottom();return d;}
-function topDishes(){let b=Object.keys(MENU).filter(i=>MENU[i].best&&avail(i));
+function topDishes(){var pr=Object.keys(MENU).filter(i=>MENU[i].promoted&&avail(i));if(pr.length)return pr.slice(0,6);
+ let b=Object.keys(MENU).filter(i=>MENU[i].best&&avail(i));
  if(b.length<4)b=b.concat(Object.keys(MENU).filter(i=>avail(i)&&!b.includes(i)));
  if(!b.length)b=Object.keys(MENU).filter(i=>MENU[i].best);
  return b.slice(0,4);}

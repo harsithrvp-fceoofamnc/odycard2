@@ -221,6 +221,7 @@ function ItemRow({
           <div style={{ fontWeight: 700, color: C.ink, fontSize: 15 }}>
             {it.name}
             {soldOut && <span style={{ ...pill, background: "#fbe9e7", color: C.warn }}>Sold out</span>}
+            {!!it.promoted && <span style={{ ...pill, background: "#e3f5ec", color: "#0a7d55" }}>Promoted</span>}
             {!!it.hidden && <span style={{ ...pill, background: "#eee", color: "#777" }}>Hidden</span>}
           </div>
           <div style={{ fontSize: 13, color: C.mut, marginTop: 2 }}>
@@ -240,6 +241,7 @@ function ItemRow({
         <Toggle on={!soldOut} label={soldOut ? "Mark available" : "In stock"} color={C.good} onClick={() => onPatch({ available: (soldOut ? 1 : 0) as 0 | 1 })} />
         <Toggle on={!!it.best} label="Best seller" color={C.maroon} onClick={() => onPatch({ best: (it.best ? 0 : 1) as 0 | 1 })} />
         <Toggle on={!!it.must} label="Must try" color="#a83048" onClick={() => onPatch({ must: (it.must ? 0 : 1) as 0 | 1 })} />
+        <Toggle on={!!it.promoted} label="Promote" color="#0a7d55" onClick={() => onPatch({ promoted: (it.promoted ? 0 : 1) as 0 | 1 })} />
         <Toggle on={!!it.hidden} label={it.hidden ? "Hidden" : "Hide"} color="#555" onClick={() => onPatch({ hidden: (it.hidden ? 0 : 1) as 0 | 1 })} />
       </div>
 

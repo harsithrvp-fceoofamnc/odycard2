@@ -43,6 +43,7 @@ export type BBMenuItem = {
   veg: number;
   best: number;
   must: number;
+  promoted?: number; // show on the welcome screen when a customer arrives
   available: number;
   hidden: number;
   sort: number;

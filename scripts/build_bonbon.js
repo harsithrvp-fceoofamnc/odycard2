@@ -73,6 +73,7 @@ function bbApplyLiveMenu(items){
       MENU[it.key]={n:it.name,p:it.price,e:"\\uD83C\\uDF68",h:[[8,23]],q:it.q||"",pt:it.pt||0,ph:it.ph||"",d:it.desc||"",veg:1};
       if(it.best)MENU[it.key].best=1;
       if(it.must)MENU[it.key].must=1;
+      if(it.promoted)MENU[it.key].promoted=1;
       if(it.ao)MENU[it.key].ao=it.ao;
       if(!isAddon)(byCat[it.cat]=byCat[it.cat]||[]).push(it);
     });
@@ -202,6 +203,10 @@ h = h.replace('/* init */', `(function(){
   ce.addEventListener("scroll",update,{passive:true});
   window.__bbHdrUpdate=update;   // let me() nudge it the moment the customer first chats
 })();
+/* init */`);
+// warm the category-cover cache IN ORDER (scoops, softy, ...) shortly after boot, so the Explore
+// tiles all appear together in category order instead of popping in as each finishes downloading.
+h = h.replace('/* init */', `setTimeout(function(){["/cat_scoops.jpg","/cat_softy.jpg","/cat_waffle.jpg","/cat_icecream.jpg","/cat_sundae.jpg","/cat_mini.jpg","/cat_rolls.jpg","/cat_falooda.jpg","/cat_shakes.jpg","/cat_snacks.jpg"].forEach(function(s){var im=new Image();im.src=s;});},1400);
 /* init */`);
 // the customer's first message flips the header into top-only mode
 h = h.replace('function me(t){const d=document.createElement("div");d.className="msg me";',

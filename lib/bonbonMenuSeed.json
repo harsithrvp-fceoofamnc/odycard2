@@ -11,6 +11,7 @@
     "veg": 1,
     "best": 0,
     "must": 0,
+    "promoted": 0,
     "available": 1,
     "hidden": 0,
     "sort": 0
@@ -27,6 +28,7 @@
     "veg": 1,
     "best": 1,
     "must": 0,
+    "promoted": 0,
     "available": 1,
     "hidden": 0,
     "sort": 1
@@ -43,6 +45,7 @@
     "veg": 1,
     "best": 0,
     "must": 0,
+    "promoted": 0,
     "available": 1,
     "hidden": 0,
     "sort": 2
@@ -59,6 +62,7 @@
     "veg": 1,
     "best": 0,
     "must": 0,
+    "promoted": 0,
     "available": 1,
     "hidden": 0,
     "sort": 3
@@ -75,6 +79,7 @@
     "veg": 1,
     "best": 0,
     "must": 1,
+    "promoted": 0,
     "available": 1,
     "hidden": 0,
     "sort": 4
@@ -91,6 +96,7 @@
     "veg": 1,
     "best": 1,
     "must": 0,
+    "promoted": 0,
     "available": 1,
     "hidden": 0,
     "sort": 5
@@ -107,6 +113,7 @@
     "veg": 1,
     "best": 0,
     "must": 0,
+    "promoted": 0,
     "available": 1,
     "hidden": 0,
     "sort": 6
@@ -123,6 +130,7 @@
     "veg": 1,
     "best": 0,
     "must": 1,
+    "promoted": 0,
     "available": 1,
     "hidden": 0,
     "sort": 7
@@ -139,6 +147,7 @@
     "veg": 1,
     "best": 0,
     "must": 0,
+    "promoted": 0,
     "available": 1,
     "hidden": 0,
     "sort": 8
@@ -155,6 +164,7 @@
     "veg": 1,
     "best": 1,
     "must": 0,
+    "promoted": 0,
     "available": 1,
     "hidden": 0,
     "sort": 9
@@ -171,6 +181,7 @@
     "veg": 1,
     "best": 0,
     "must": 0,
+    "promoted": 0,
     "available": 1,
     "hidden": 0,
     "sort": 10
@@ -187,6 +198,7 @@
     "veg": 1,
     "best": 0,
     "must": 0,
+    "promoted": 0,
     "available": 1,
     "hidden": 0,
     "sort": 11
@@ -203,6 +215,7 @@
     "veg": 1,
     "best": 1,
     "must": 0,
+    "promoted": 0,
     "available": 1,
     "hidden": 0,
     "sort": 12
@@ -219,6 +232,7 @@
     "veg": 1,
     "best": 0,
     "must": 0,
+    "promoted": 0,
     "available": 1,
     "hidden": 0,
     "sort": 13
@@ -235,6 +249,7 @@
     "veg": 1,
     "best": 0,
     "must": 0,
+    "promoted": 0,
     "available": 1,
     "hidden": 0,
     "sort": 14
@@ -251,6 +266,7 @@
     "veg": 1,
     "best": 1,
     "must": 0,
+    "promoted": 0,
     "available": 1,
     "hidden": 0,
     "sort": 15
@@ -267,6 +283,7 @@
     "veg": 1,
     "best": 0,
     "must": 1,
+    "promoted": 0,
     "available": 1,
     "hidden": 0,
     "sort": 16
@@ -283,6 +300,7 @@
     "veg": 1,
     "best": 0,
     "must": 1,
+    "promoted": 0,
     "available": 1,
     "hidden": 0,
     "sort": 17
@@ -299,6 +317,7 @@
     "veg": 1,
     "best": 0,
     "must": 0,
+    "promoted": 0,
     "available": 1,
     "hidden": 0,
     "sort": 18
@@ -315,6 +334,7 @@
     "veg": 1,
     "best": 0,
     "must": 0,
+    "promoted": 0,
     "available": 1,
     "hidden": 0,
     "sort": 19
@@ -331,6 +351,7 @@
     "veg": 1,
     "best": 0,
     "must": 0,
+    "promoted": 0,
     "available": 1,
     "hidden": 0,
     "sort": 20
@@ -347,6 +368,7 @@
     "veg": 1,
     "best": 0,
     "must": 0,
+    "promoted": 0,
     "available": 1,
     "hidden": 0,
     "sort": 21
@@ -363,6 +385,7 @@
     "veg": 1,
     "best": 0,
     "must": 0,
+    "promoted": 0,
     "available": 1,
     "hidden": 0,
     "sort": 22
@@ -379,6 +402,7 @@
     "veg": 1,
     "best": 0,
     "must": 0,
+    "promoted": 0,
     "available": 1,
     "hidden": 0,
     "sort": 23
@@ -395,6 +419,7 @@
     "veg": 1,
     "best": 0,
     "must": 0,
+    "promoted": 0,
     "available": 1,
     "hidden": 0,
     "sort": 24
@@ -411,6 +436,7 @@
     "veg": 1,
     "best": 0,
     "must": 0,
+    "promoted": 0,
     "available": 1,
     "hidden": 0,
     "sort": 25
@@ -427,6 +453,7 @@
     "veg": 1,
     "best": 0,
     "must": 0,
+    "promoted": 0,
     "available": 1,
     "hidden": 0,
     "sort": 26
@@ -443,6 +470,7 @@
     "veg": 1,
     "best": 0,
     "must": 0,
+    "promoted": 0,
     "available": 1,
     "hidden": 0,
     "sort": 27
@@ -459,6 +487,7 @@
     "veg": 1,
     "best": 0,
     "must": 0,
+    "promoted": 0,
     "available": 1,
     "hidden": 0,
     "sort": 28
@@ -475,6 +504,7 @@
     "veg": 1,
     "best": 0,
     "must": 1,
+    "promoted": 0,
     "available": 1,
     "hidden": 0,
     "sort": 29
@@ -491,6 +521,7 @@
     "veg": 1,
     "best": 1,
     "must": 0,
+    "promoted": 0,
     "available": 1,
     "hidden": 0,
     "sort": 30
@@ -507,6 +538,7 @@
     "veg": 1,
     "best": 0,
     "must": 0,
+    "promoted": 0,
     "available": 1,
     "hidden": 0,
     "sort": 31
@@ -523,6 +555,7 @@
     "veg": 1,
     "best": 1,
     "must": 0,
+    "promoted": 0,
     "available": 1,
     "hidden": 0,
     "sort": 32
@@ -539,6 +572,7 @@
     "veg": 1,
     "best": 0,
     "must": 0,
+    "promoted": 0,
     "available": 1,
     "hidden": 0,
     "sort": 33
@@ -555,6 +589,7 @@
     "veg": 1,
     "best": 1,
     "must": 0,
+    "promoted": 0,
     "available": 1,
     "hidden": 0,
     "sort": 34
@@ -571,6 +606,7 @@
     "veg": 1,
     "best": 0,
     "must": 0,
+    "promoted": 0,
     "available": 1,
     "hidden": 0,
     "sort": 35
@@ -587,6 +623,7 @@
     "veg": 1,
     "best": 0,
     "must": 0,
+    "promoted": 0,
     "available": 1,
     "hidden": 0,
     "sort": 36
@@ -603,6 +640,7 @@
     "veg": 1,
     "best": 0,
     "must": 0,
+    "promoted": 0,
     "available": 1,
     "hidden": 0,
     "sort": 37
@@ -619,6 +657,7 @@
     "veg": 1,
     "best": 0,
     "must": 1,
+    "promoted": 0,
     "available": 1,
     "hidden": 0,
     "sort": 38
@@ -635,6 +674,7 @@
     "veg": 1,
     "best": 0,
     "must": 0,
+    "promoted": 0,
     "available": 1,
     "hidden": 0,
     "sort": 39
@@ -651,6 +691,7 @@
     "veg": 1,
     "best": 0,
     "must": 0,
+    "promoted": 0,
     "available": 1,
     "hidden": 0,
     "sort": 40
@@ -667,6 +708,7 @@
     "veg": 1,
     "best": 1,
     "must": 0,
+    "promoted": 0,
     "available": 1,
     "hidden": 0,
     "sort": 41
@@ -683,6 +725,7 @@
     "veg": 1,
     "best": 0,
     "must": 0,
+    "promoted": 0,
     "available": 1,
     "hidden": 0,
     "sort": 42
@@ -699,6 +742,7 @@
     "veg": 1,
     "best": 0,
     "must": 1,
+    "promoted": 0,
     "available": 1,
     "hidden": 0,
     "sort": 43
@@ -715,6 +759,7 @@
     "veg": 1,
     "best": 0,
     "must": 0,
+    "promoted": 0,
     "available": 1,
     "hidden": 0,
     "sort": 44
@@ -731,6 +776,7 @@
     "veg": 1,
     "best": 0,
     "must": 0,
+    "promoted": 0,
     "available": 1,
     "hidden": 0,
     "sort": 45
@@ -747,6 +793,7 @@
     "veg": 1,
     "best": 0,
     "must": 0,
+    "promoted": 0,
     "available": 1,
     "hidden": 0,
     "sort": 46
@@ -763,6 +810,7 @@
     "veg": 1,
     "best": 0,
     "must": 0,
+    "promoted": 0,
     "available": 1,
     "hidden": 0,
     "sort": 47
@@ -779,6 +827,7 @@
     "veg": 1,
     "best": 0,
     "must": 0,
+    "promoted": 0,
     "available": 1,
     "hidden": 0,
     "sort": 48,
@@ -796,6 +845,7 @@
     "veg": 1,
     "best": 0,
     "must": 0,
+    "promoted": 0,
     "available": 1,
     "hidden": 0,
     "sort": 49,
@@ -813,6 +863,7 @@
     "veg": 1,
     "best": 0,
     "must": 0,
+    "promoted": 0,
     "available": 1,
     "hidden": 0,
     "sort": 50,
@@ -830,6 +881,7 @@
     "veg": 1,
     "best": 0,
     "must": 0,
+    "promoted": 0,
     "available": 1,
     "hidden": 0,
     "sort": 51,
@@ -847,6 +899,7 @@
     "veg": 1,
     "best": 0,
     "must": 0,
+    "promoted": 0,
     "available": 1,
     "hidden": 0,
     "sort": 52,
@@ -864,6 +917,7 @@
     "veg": 1,
     "best": 0,
     "must": 0,
+    "promoted": 0,
     "available": 1,
     "hidden": 0,
     "sort": 53,
@@ -881,6 +935,7 @@
     "veg": 1,
     "best": 0,
     "must": 0,
+    "promoted": 0,
     "available": 1,
     "hidden": 0,
     "sort": 54,
@@ -898,6 +953,7 @@
     "veg": 1,
     "best": 0,
     "must": 0,
+    "promoted": 0,
     "available": 1,
     "hidden": 0,
     "sort": 55,
@@ -915,6 +971,7 @@
     "veg": 1,
     "best": 0,
     "must": 0,
+    "promoted": 0,
     "available": 1,
     "hidden": 0,
     "sort": 56,
@@ -932,6 +989,7 @@
     "veg": 1,
     "best": 0,
     "must": 0,
+    "promoted": 0,
     "available": 1,
     "hidden": 0,
     "sort": 57,
@@ -949,6 +1007,7 @@
     "veg": 1,
     "best": 0,
     "must": 0,
+    "promoted": 0,
     "available": 1,
     "hidden": 0,
     "sort": 58,
@@ -966,6 +1025,7 @@
     "veg": 1,
     "best": 0,
     "must": 1,
+    "promoted": 0,
     "available": 1,
     "hidden": 0,
     "sort": 59,
@@ -983,6 +1043,7 @@
     "veg": 1,
     "best": 1,
     "must": 0,
+    "promoted": 0,
     "available": 1,
     "hidden": 0,
     "sort": 60,
@@ -1000,6 +1061,7 @@
     "veg": 1,
     "best": 0,
     "must": 0,
+    "promoted": 0,
     "available": 1,
     "hidden": 0,
     "sort": 61
@@ -1016,6 +1078,7 @@
     "veg": 1,
     "best": 0,
     "must": 0,
+    "promoted": 0,
     "available": 1,
     "hidden": 0,
     "sort": 62
@@ -1032,6 +1095,7 @@
     "veg": 1,
     "best": 0,
     "must": 0,
+    "promoted": 0,
     "available": 1,
     "hidden": 0,
     "sort": 63
@@ -1048,6 +1112,7 @@
     "veg": 1,
     "best": 0,
     "must": 0,
+    "promoted": 0,
     "available": 1,
     "hidden": 0,
     "sort": 64
@@ -1064,6 +1129,7 @@
     "veg": 1,
     "best": 0,
     "must": 0,
+    "promoted": 0,
     "available": 1,
     "hidden": 0,
     "sort": 65
@@ -1080,6 +1146,7 @@
     "veg": 1,
     "best": 0,
     "must": 0,
+    "promoted": 0,
     "available": 1,
     "hidden": 0,
     "sort": 66
@@ -1096,6 +1163,7 @@
     "veg": 1,
     "best": 0,
     "must": 0,
+    "promoted": 0,
     "available": 1,
     "hidden": 0,
     "sort": 67
@@ -1112,6 +1180,7 @@
     "veg": 1,
     "best": 0,
     "must": 0,
+    "promoted": 0,
     "available": 1,
     "hidden": 0,
     "sort": 68
@@ -1128,6 +1197,7 @@
     "veg": 1,
     "best": 0,
     "must": 0,
+    "promoted": 0,
     "available": 1,
     "hidden": 0,
     "sort": 69
@@ -1144,6 +1214,7 @@
     "veg": 1,
     "best": 0,
     "must": 0,
+    "promoted": 0,
     "available": 1,
     "hidden": 0,
     "sort": 70
@@ -1160,6 +1231,7 @@
     "veg": 1,
     "best": 0,
     "must": 0,
+    "promoted": 0,
     "available": 1,
     "hidden": 0,
     "sort": 71
@@ -1176,6 +1248,7 @@
     "veg": 1,
     "best": 0,
     "must": 0,
+    "promoted": 0,
     "available": 1,
     "hidden": 0,
     "sort": 72
@@ -1192,6 +1265,7 @@
     "veg": 1,
     "best": 0,
     "must": 1,
+    "promoted": 0,
     "available": 1,
     "hidden": 0,
     "sort": 73
@@ -1208,6 +1282,7 @@
     "veg": 1,
     "best": 0,
     "must": 0,
+    "promoted": 0,
     "available": 1,
     "hidden": 0,
     "sort": 74
@@ -1224,6 +1299,7 @@
     "veg": 1,
     "best": 0,
     "must": 0,
+    "promoted": 0,
     "available": 1,
     "hidden": 0,
     "sort": 75
@@ -1240,6 +1316,7 @@
     "veg": 1,
     "best": 0,
     "must": 0,
+    "promoted": 0,
     "available": 1,
     "hidden": 0,
     "sort": 76
@@ -1256,6 +1333,7 @@
     "veg": 1,
     "best": 1,
     "must": 0,
+    "promoted": 0,
     "available": 1,
     "hidden": 0,
     "sort": 77
@@ -1272,6 +1350,7 @@
     "veg": 1,
     "best": 0,
     "must": 0,
+    "promoted": 0,
     "available": 1,
     "hidden": 0,
     "sort": 78
@@ -1288,6 +1367,7 @@
     "veg": 1,
     "best": 1,
     "must": 0,
+    "promoted": 0,
     "available": 1,
     "hidden": 0,
     "sort": 79
@@ -1304,6 +1384,7 @@
     "veg": 1,
     "best": 1,
     "must": 0,
+    "promoted": 0,
     "available": 1,
     "hidden": 0,
     "sort": 80
@@ -1320,6 +1401,7 @@
     "veg": 1,
     "best": 0,
     "must": 0,
+    "promoted": 0,
     "available": 1,
     "hidden": 0,
     "sort": 81
@@ -1336,6 +1418,7 @@
     "veg": 1,
     "best": 0,
     "must": 0,
+    "promoted": 0,
     "available": 1,
     "hidden": 0,
     "sort": 82
@@ -1352,6 +1435,7 @@
     "veg": 1,
     "best": 0,
     "must": 1,
+    "promoted": 0,
     "available": 1,
     "hidden": 0,
     "sort": 83
@@ -1368,6 +1452,7 @@
     "veg": 1,
     "best": 0,
     "must": 0,
+    "promoted": 0,
     "available": 1,
     "hidden": 0,
     "sort": 84,
@@ -1385,6 +1470,7 @@
     "veg": 1,
     "best": 0,
     "must": 0,
+    "promoted": 0,
     "available": 1,
     "hidden": 0,
     "sort": 85,
@@ -1402,6 +1488,7 @@
     "veg": 1,
     "best": 1,
     "must": 0,
+    "promoted": 0,
     "available": 1,
     "hidden": 0,
     "sort": 86,
@@ -1419,6 +1506,7 @@
     "veg": 1,
     "best": 0,
     "must": 1,
+    "promoted": 0,
     "available": 1,
     "hidden": 0,
     "sort": 87,
@@ -1436,6 +1524,7 @@
     "veg": 1,
     "best": 0,
     "must": 0,
+    "promoted": 0,
     "available": 1,
     "hidden": 0,
     "sort": 88,
@@ -1453,6 +1542,7 @@
     "veg": 1,
     "best": 1,
     "must": 0,
+    "promoted": 0,
     "available": 1,
     "hidden": 0,
     "sort": 89,
@@ -1470,6 +1560,7 @@
     "veg": 1,
     "best": 0,
     "must": 0,
+    "promoted": 0,
     "available": 1,
     "hidden": 0,
     "sort": 90,
@@ -1487,6 +1578,7 @@
     "veg": 1,
     "best": 1,
     "must": 0,
+    "promoted": 0,
     "available": 1,
     "hidden": 0,
     "sort": 91,
@@ -1504,6 +1596,7 @@
     "veg": 1,
     "best": 0,
     "must": 0,
+    "promoted": 0,
     "available": 1,
     "hidden": 0,
     "sort": 92,
@@ -1521,6 +1614,7 @@
     "veg": 1,
     "best": 0,
     "must": 1,
+    "promoted": 0,
     "available": 1,
     "hidden": 0,
     "sort": 93,
@@ -1538,6 +1632,7 @@
     "veg": 1,
     "best": 0,
     "must": 0,
+    "promoted": 0,
     "available": 1,
     "hidden": 0,
     "sort": 94,
@@ -1555,6 +1650,7 @@
     "veg": 1,
     "best": 1,
     "must": 0,
+    "promoted": 0,
     "available": 1,
     "hidden": 0,
     "sort": 95,
@@ -1572,6 +1668,7 @@
     "veg": 1,
     "best": 0,
     "must": 0,
+    "promoted": 0,
     "available": 1,
     "hidden": 0,
     "sort": 96,
@@ -1589,6 +1686,7 @@
     "veg": 1,
     "best": 1,
     "must": 0,
+    "promoted": 0,
     "available": 1,
     "hidden": 0,
     "sort": 97,
@@ -1606,6 +1704,7 @@
     "veg": 1,
     "best": 0,
     "must": 0,
+    "promoted": 0,
     "available": 1,
     "hidden": 0,
     "sort": 98,
@@ -1623,6 +1722,7 @@
     "veg": 1,
     "best": 0,
     "must": 1,
+    "promoted": 0,
     "available": 1,
     "hidden": 0,
     "sort": 99,
@@ -1640,6 +1740,7 @@
     "veg": 1,
     "best": 0,
     "must": 0,
+    "promoted": 0,
     "available": 1,
     "hidden": 0,
     "sort": 100,
@@ -1657,6 +1758,7 @@
     "veg": 1,
     "best": 0,
     "must": 0,
+    "promoted": 0,
     "available": 1,
     "hidden": 0,
     "sort": 101
@@ -1673,6 +1775,7 @@
     "veg": 1,
     "best": 0,
     "must": 0,
+    "promoted": 0,
     "available": 1,
     "hidden": 0,
     "sort": 102
@@ -1689,6 +1792,7 @@
     "veg": 1,
     "best": 0,
     "must": 0,
+    "promoted": 0,
     "available": 1,
     "hidden": 0,
     "sort": 103
@@ -1705,6 +1809,7 @@
     "veg": 1,
     "best": 0,
     "must": 0,
+    "promoted": 0,
     "available": 1,
     "hidden": 0,
     "sort": 104
@@ -1721,6 +1826,7 @@
     "veg": 1,
     "best": 0,
     "must": 0,
+    "promoted": 0,
     "available": 1,
     "hidden": 0,
     "sort": 105
@@ -1737,6 +1843,7 @@
     "veg": 1,
     "best": 0,
     "must": 0,
+    "promoted": 0,
     "available": 1,
     "hidden": 0,
     "sort": 106
@@ -1753,6 +1860,7 @@
     "veg": 1,
     "best": 0,
     "must": 0,
+    "promoted": 0,
     "available": 1,
     "hidden": 0,
     "sort": 107
@@ -1769,6 +1877,7 @@
     "veg": 1,
     "best": 0,
     "must": 0,
+    "promoted": 0,
     "available": 1,
     "hidden": 0,
     "sort": 108
@@ -1785,6 +1894,7 @@
     "veg": 1,
     "best": 0,
     "must": 0,
+    "promoted": 0,
     "available": 1,
     "hidden": 0,
     "sort": 109
@@ -1801,6 +1911,7 @@
     "veg": 1,
     "best": 0,
     "must": 0,
+    "promoted": 0,
     "available": 1,
     "hidden": 0,
     "sort": 110

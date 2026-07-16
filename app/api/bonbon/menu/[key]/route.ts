@@ -23,6 +23,7 @@ export async function PATCH(req: NextRequest, ctx: { params: Promise<{ key: stri
     if (b.desc !== undefined) patch.desc = String(b.desc);
     if (b.best !== undefined) patch.best = b.best ? 1 : 0;
     if (b.must !== undefined) patch.must = b.must ? 1 : 0;
+    if (b.promoted !== undefined) patch.promoted = b.promoted ? 1 : 0;
     if (b.available !== undefined) patch.available = b.available ? 1 : 0;
     if (b.hidden !== undefined) patch.hidden = b.hidden ? 1 : 0;
     if (b.ph !== undefined) patch.ph = String(b.ph);
