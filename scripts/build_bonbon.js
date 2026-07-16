@@ -217,6 +217,11 @@ h = h.replace('function me(t){const d=document.createElement("div");d.className=
 h = h.replace('function toBottom(){clearTimeout(_bt);', 'function toBottom(){if(window.__bbHold)return;clearTimeout(_bt);');
 h = h.replace('async function showGreeting(instant){var pre=', 'async function showGreeting(instant){window.__bbHold=true;var pre=');
 h = h.replace('window.__bbHdrUpdate=update;', 'window.__bbHdrUpdate=update;ce.addEventListener("click",function(){window.__bbHold=false;});document.addEventListener("keydown",function(){window.__bbHold=false;});');
+
+// ---- slower, eased auto-scroll (premium feel) instead of the browser's quick default ----
+h = h.replace('let _bt=null,_bigTarget=null;',
+  'let _bt=null,_bigTarget=null,_sc=null;\nfunction bbScrollTo(el,to,dur){if(_sc)cancelAnimationFrame(_sc);var s=el.scrollTop,dif=to-s;if(Math.abs(dif)<2){el.scrollTop=to;return;}var t0=null;function st(ts){if(t0===null)t0=ts;var p=Math.min(1,(ts-t0)/dur);var e=p<.5?2*p*p:1-Math.pow(-2*p+2,2)/2;el.scrollTop=s+dif*e;if(p<1)_sc=requestAnimationFrame(st);}_sc=requestAnimationFrame(st);}');
+h = h.replace('chat.scrollTo({top,behavior:"smooth"})', 'bbScrollTo(chat,top,650)');
 // defer the welcome greeting until the veil fades (bbBoot handles it)
 h = h.replace(".catch(function(){}).then(function(){showGreeting();});", ".catch(function(){}).then(function(){bbBoot();});");
 h = h.split("onclick=\"setLang('${l[0]}',this)\"").join("onclick=\"setLang('${l[0]}',this);closeLang()\"");

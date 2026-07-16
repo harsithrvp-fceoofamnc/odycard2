@@ -887,8 +887,9 @@ function bot(html){
 }
 function me(t){window.__started=true;if(window.__bbHdrUpdate)setTimeout(window.__bbHdrUpdate,60);const d=document.createElement("div");d.className="msg me";d.textContent=t;chat.appendChild(d);toBottom();}
 function block(cls,html){const d=document.createElement("div");d.className=cls;d.innerHTML=html;chat.appendChild(d);toBottom();return d;}
-let _bt=null,_bigTarget=null;
-function toBottom(){if(window.__bbHold)return;clearTimeout(_bt);_bt=setTimeout(()=>{const top=_bigTarget?Math.max(0,_bigTarget.offsetTop-82):chat.scrollHeight;_bigTarget=null;try{chat.scrollTo({top,behavior:"smooth"});}catch(e){chat.scrollTop=top;}},80);}
+let _bt=null,_bigTarget=null,_sc=null;
+function bbScrollTo(el,to,dur){if(_sc)cancelAnimationFrame(_sc);var s=el.scrollTop,dif=to-s;if(Math.abs(dif)<2){el.scrollTop=to;return;}var t0=null;function st(ts){if(t0===null)t0=ts;var p=Math.min(1,(ts-t0)/dur);var e=p<.5?2*p*p:1-Math.pow(-2*p+2,2)/2;el.scrollTop=s+dif*e;if(p<1)_sc=requestAnimationFrame(st);}_sc=requestAnimationFrame(st);}
+function toBottom(){if(window.__bbHold)return;clearTimeout(_bt);_bt=setTimeout(()=>{const top=_bigTarget?Math.max(0,_bigTarget.offsetTop-82):chat.scrollHeight;_bigTarget=null;try{bbScrollTo(chat,top,650);}catch(e){chat.scrollTop=top;}},80);}
 function renderGrid(ids){const el=block("grid",ids.map(dishCard).join(""));if(ids.length>2)_bigTarget=el;return el;}
 function anchorTop(){}
 function anchorReply(){}
