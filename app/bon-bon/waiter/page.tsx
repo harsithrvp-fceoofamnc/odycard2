@@ -22,6 +22,25 @@ export default function WaiterPage() {
   const seen = useRef<Set<number>>(new Set());
   const [outlet, setOutlet] = useState<string>("");
   const [outletName, setOutletName] = useState<string>("");
+  const [soundOn, setSoundOn] = useState(false);
+
+  // unlock audio on the first interaction anywhere on the page (browser autoplay rule)
+  useEffect(() => {
+    const unlock = () => {
+      const ctx = audio();
+      if (ctx && ctx.state === "running") {
+        setSoundOn(true);
+        window.removeEventListener("pointerdown", unlock);
+        window.removeEventListener("keydown", unlock);
+      }
+    };
+    window.addEventListener("pointerdown", unlock);
+    window.addEventListener("keydown", unlock);
+    return () => {
+      window.removeEventListener("pointerdown", unlock);
+      window.removeEventListener("keydown", unlock);
+    };
+  }, []);
 
   useEffect(() => {
     const o = new URLSearchParams(window.location.search).get("outlet") || "";
@@ -94,6 +113,17 @@ export default function WaiterPage() {
       }
     >
       {me.role === "admin" && <OutletSwitcher />}
+      {!soundOn && (
+        <button
+          onClick={() => { audio(); chime(); setSoundOn(true); }}
+          style={{ width: "100%", marginBottom: 12, padding: "11px", border: `1px solid #eedcb0`, borderRadius: 10, background: "#fff8e8", color: C.ink, fontWeight: 700, fontSize: 13.5, cursor: "pointer" }}
+        >
+          🔊 Tap to turn on new-order sound
+        </button>
+      )}
+      {soundOn && (
+        <div style={{ margin: "0 0 12px", fontSize: 12, color: C.good, fontWeight: 600 }}>🔊 Order sound is on</div>
+      )}
       <p style={{ margin: "0 0 14px", fontSize: 13, color: C.mut }}>
         {me.role === "waiter" ? (
           <>
@@ -153,22 +183,39 @@ function matchTable(table: string, tables: number[]): boolean {
   return m ? tables.includes(Number(m[0])) : false;
 }
 
-function chime() {
+// One shared audio context, unlocked on the first user gesture. Browsers block sound until then,
+// which is why a fresh context per chime stayed silent.
+let _ac: AudioContext | null = null;
+function audio(): AudioContext | null {
   try {
-    const AC = (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext);
-    const ctx = new AC();
-    [660, 880].forEach((f, i) => {
-      const o = ctx.createOscillator();
-      const g = ctx.createGain();
-      o.frequency.value = f;
-      o.connect(g);
-      g.connect(ctx.destination);
-      const t = ctx.currentTime + i * 0.18;
-      g.gain.setValueAtTime(0.0001, t);
-      g.gain.exponentialRampToValueAtTime(0.22, t + 0.02);
-      g.gain.exponentialRampToValueAtTime(0.0001, t + 0.3);
-      o.start(t);
-      o.stop(t + 0.31);
-    });
-  } catch {}
+    if (!_ac) {
+      const AC = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+      _ac = new AC();
+    }
+    if (_ac.state === "suspended") _ac.resume();
+    return _ac;
+  } catch {
+    return null;
+  }
+}
+// clear, attention-grabbing "new order" alert — three rising notes, played twice
+function chime() {
+  const ctx = audio();
+  if (!ctx || ctx.state !== "running") return;
+  const notes = [784, 988, 1319, 0, 784, 988, 1319]; // 0 = short gap
+  notes.forEach((f, i) => {
+    if (!f) return;
+    const o = ctx.createOscillator();
+    const g = ctx.createGain();
+    o.type = "sine";
+    o.frequency.value = f;
+    o.connect(g);
+    g.connect(ctx.destination);
+    const t = ctx.currentTime + i * 0.15;
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(0.32, t + 0.02);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.3);
+    o.start(t);
+    o.stop(t + 0.32);
+  });
 }
