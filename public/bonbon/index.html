@@ -885,7 +885,7 @@ function bot(html){
   })();
   return d;
 }
-function me(t){const d=document.createElement("div");d.className="msg me";d.textContent=t;chat.appendChild(d);toBottom();}
+function me(t){window.__started=true;if(window.__bbHdrUpdate)setTimeout(window.__bbHdrUpdate,60);const d=document.createElement("div");d.className="msg me";d.textContent=t;chat.appendChild(d);toBottom();}
 function block(cls,html){const d=document.createElement("div");d.className=cls;d.innerHTML=html;chat.appendChild(d);toBottom();return d;}
 let _bt=null,_bigTarget=null;
 function toBottom(){clearTimeout(_bt);_bt=setTimeout(()=>{const top=_bigTarget?Math.max(0,_bigTarget.offsetTop-82):chat.scrollHeight;_bigTarget=null;try{chat.scrollTo({top,behavior:"smooth"});}catch(e){chat.scrollTop=top;}},80);}
@@ -1588,23 +1588,20 @@ function bbBoot(){
 (function(){
   var ce=document.getElementById("chat"),wd=document.querySelector("header.woodhdr");
   if(!ce||!wd)return;
-  var lastY=0,col=false,lock=false;
+  var col=false,lock=false;
   function setCol(v){
     if(col===v||lock)return;
     col=v;lock=true;
     wd.style.marginTop = v ? (-wd.offsetHeight)+"px" : "";
-    // ignore scroll events caused by our own reflow, then resync the baseline
-    setTimeout(function(){lock=false;lastY=ce.scrollTop;},420);
+    setTimeout(function(){lock=false;update();},400);   // ignore our own reflow, then resync
   }
-  ce.addEventListener("scroll",function(){
-    if(lock)return;                       // don't react while the header is animating/reflowing
-    var y=ce.scrollTop,d=y-lastY;
-    if(y<12){setCol(false);lastY=y;return;}
-    if(Math.abs(d)<6)return;              // ignore jitter
-    if(d>0&&y>90)setCol(true);            // scrolling down past the threshold -> hide wood header
-    else if(d<0)setCol(false);            // scrolling up -> bring it back
-    lastY=y;
-  },{passive:true});
+  function update(){
+    if(lock)return;
+    var show = (!window.__started) || ce.scrollTop<=6;
+    setCol(!show);
+  }
+  ce.addEventListener("scroll",update,{passive:true});
+  window.__bbHdrUpdate=update;   // let me() nudge it the moment the customer first chats
 })();
 /* init */
 document.getElementById("langbar").innerHTML=LANGS.map(l=>`<button class="lang ${l[0]==='en'?'on':''}" data-l="${l[0]}" onclick="setLang('${l[0]}',this);closeLang()">${l[1]}</button>`).join("");

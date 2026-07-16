@@ -179,30 +179,33 @@ h = h.replace('</style>', `
 // watermark uses the SAME logo as the boot screen, so the boot logo appears to settle
 // into the watermark when the white screen lifts.
 h = h.replace(`document.getElementById("wm").innerHTML='<img src="'+LOGO+'">';`, `document.getElementById("wm").innerHTML='<img src="/logo_web.png">';`);
-// collapsing wood header: scrolling the chat DOWN slides the wood+logo up out of view
-// (the awning/scallops stay pinned at the top); scrolling UP a little brings it back.
+// collapsing wood header — position based:
+//  - shown ONLY when the chat is scrolled to the very top (awning stays pinned otherwise);
+//  - a partial scroll-up does NOT bring it back — only reaching the top does;
+//  - EXCEPTION: kept visible through the opening greeting (welcome + first dish tiles) until the
+//    customer's first message (window.__started, set in me()); after that it's top-only.
 h = h.replace('/* init */', `(function(){
   var ce=document.getElementById("chat"),wd=document.querySelector("header.woodhdr");
   if(!ce||!wd)return;
-  var lastY=0,col=false,lock=false;
+  var col=false,lock=false;
   function setCol(v){
     if(col===v||lock)return;
     col=v;lock=true;
     wd.style.marginTop = v ? (-wd.offsetHeight)+"px" : "";
-    // ignore scroll events caused by our own reflow, then resync the baseline
-    setTimeout(function(){lock=false;lastY=ce.scrollTop;},420);
+    setTimeout(function(){lock=false;update();},400);   // ignore our own reflow, then resync
   }
-  ce.addEventListener("scroll",function(){
-    if(lock)return;                       // don't react while the header is animating/reflowing
-    var y=ce.scrollTop,d=y-lastY;
-    if(y<12){setCol(false);lastY=y;return;}
-    if(Math.abs(d)<6)return;              // ignore jitter
-    if(d>0&&y>90)setCol(true);            // scrolling down past the threshold -> hide wood header
-    else if(d<0)setCol(false);            // scrolling up -> bring it back
-    lastY=y;
-  },{passive:true});
+  function update(){
+    if(lock)return;
+    var show = (!window.__started) || ce.scrollTop<=6;
+    setCol(!show);
+  }
+  ce.addEventListener("scroll",update,{passive:true});
+  window.__bbHdrUpdate=update;   // let me() nudge it the moment the customer first chats
 })();
 /* init */`);
+// the customer's first message flips the header into top-only mode
+h = h.replace('function me(t){const d=document.createElement("div");d.className="msg me";',
+  'function me(t){window.__started=true;if(window.__bbHdrUpdate)setTimeout(window.__bbHdrUpdate,60);const d=document.createElement("div");d.className="msg me";');
 // defer the welcome greeting until the veil fades (bbBoot handles it)
 h = h.replace(".catch(function(){}).then(function(){showGreeting();});", ".catch(function(){}).then(function(){bbBoot();});");
 h = h.split("onclick=\"setLang('${l[0]}',this)\"").join("onclick=\"setLang('${l[0]}',this);closeLang()\"");
