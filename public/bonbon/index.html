@@ -852,7 +852,7 @@ const DESC={
  gulab:{en:"Warm syrup-soaked milk dumplings; soft and sweet.",ta:"சிரப்பில் ஊறிய சூடான குலாப் ஜாமூன்.",hi:"चाशनी में डूबे गरम गुलाब जामुन।",ml:"സിറപ്പിൽ കുതിർന്ന ചൂടുള്ള ഗുലാബ് ജാമൂൻ.",te:"సిరప్‌లో నానిన వెచ్చని గులాబ్ జామూన్.",kn:"ಸಿರಪ್‌ನಲ್ಲಿ ನೆನೆದ ಬೆಚ್ಚಗಿನ ಗುಲಾಬ್ ಜಾಮೂನ್."},
  kesari:{en:"Sweet semolina pudding with ghee and cashews.",ta:"நெய், முந்திரியுடன் இனிப்பான ரவா கேசரி.",hi:"घी और काजू के साथ मीठा रवा केसरी।",ml:"നെയ്യും കശുവണ്ടിയും ചേർത്ത മധുര റവ കേസരി.",te:"నెయ్యి, జీడిపప్పుతో తీపి రవ్వ కేసరి.",kn:"ತುಪ್ಪ, ಗೋಡಂಬಿಯೊಂದಿಗೆ ಸಿಹಿ ರವಾ ಕೇಸರಿ."}};
 function desc(id){return (DESC[id]&&DESC[id][lang])||(DESC[id]&&DESC[id].en)||MENU[id].d||"a house favourite, freshly prepared.";}
-let lang="en",outlet=null,cart={},notes={},upsold=false,lastBill=null;
+let lang="en",outlet=null,cart={},notes={},cartAO={},upsold=false,lastBill=null;
 function getCustomer(){try{return JSON.parse(localStorage.getItem("ody_customer"))||null;}catch(e){return null;}}
 function saveCustomer(c){try{localStorage.setItem("ody_customer",JSON.stringify(c));}catch(e){}}
 function forgetMe(){try{localStorage.removeItem("ody_customer");}catch(e){}showGreeting();}
@@ -900,7 +900,7 @@ function renderOutlets(){chat.innerHTML="";document.getElementById("phone").clas
  block("wmark",`<img src="${LOGO}"><div class="cap">${T("pureVeg")}</div>`);}
 function setUrl(path){try{if(window.parent&&window.parent!==window)window.parent.history.replaceState(null,"",path);}catch(e){}}
 function chooseOutlet(o,defer){document.getElementById("phone").classList.remove("outletview");document.getElementById("bar").style.display="";document.getElementById("wm").style.display="";document.getElementById("back").style.display="";document.getElementById("inp").placeholder=T("ask");outlet=o;document.getElementById("hname").textContent="Bon Bon";document.getElementById("hsub").textContent="AI Menu — powered by Odysra";setUrl("/bon-bon");if(defer){chat.innerHTML="";typingBubble();return;}showGreeting();}
-function goOutlets(){cart={};notes={};upsold=false;outlet=null;refreshCart();closeModal();setUrl("/bon-bon");renderOutlets();}
+function goOutlets(){cart={};notes={};cartAO={};upsold=false;outlet=null;refreshCart();closeModal();setUrl("/bon-bon");renderOutlets();}
 
 /* ---------- dishes ---------- */
 function dishFooter(id){
@@ -923,13 +923,17 @@ function dig(el,n){el.value=el.value.replace(/\D/g,"").slice(0,n);}
 function alpha(el){el.value=el.value.replace(/[^A-Za-z ]/g,"").replace(/\s{2,}/g," ").slice(0,30);}
 function pers(el){el.value=el.value.replace(/\D/g,"").replace(/^0+/,"").slice(0,3);}
 function addDish(id){cart[id]=(cart[id]||0)+1;buzz();sync();if(MENU[id]&&MENU[id].ao&&MENU[MENU[id].ao]){offerAddon(id);}else{upsell();}}
-function offerAddon(srcId){var aid=MENU[srcId].ao;if(cart[aid]){upsell();return;}var rb=bot(T("addonAsk").replace("%n",dn(aid)).replace("%p",MENU[aid].p));block("chips",'<button class="chip go" onclick="addAddon(\''+aid+'\')">'+lbl("addonYes")+'</button><button class="chip alt" onclick="mainChips()">'+lbl("addonNo")+'</button>');anchorReply(rb);}
-function addAddon(aid){cart[aid]=(cart[aid]||0)+1;buzz();sync();var rb=bot(T("addonAdded"));mainChips();anchorReply(rb);}
+function offerAddon(srcId){var aid=MENU[srcId].ao;if(cartAO[srcId]){upsell();return;}var rb=bot(T("addonAsk").replace("%n",dn(aid)).replace("%p",MENU[aid].p));block("chips",'<button class="chip go" onclick="addAddon(\''+srcId+'\')">'+lbl("addonYes")+'</button><button class="chip alt" onclick="mainChips()">'+lbl("addonNo")+'</button>');anchorReply(rb);}
+function addAddon(srcId){cartAO[srcId]=(cartAO[srcId]||0)+1;buzz();sync();var rb=bot(T("addonAdded"));mainChips();anchorReply(rb);}
 function inc2(id){cart[id]++;buzz();sync();}
-function dec2(id){cart[id]--;if(cart[id]<=0){delete cart[id];delete notes[id];}sync();}
+function dec2(id){cart[id]--;if(cart[id]<=0){delete cart[id];delete notes[id];delete cartAO[id];}sync();}
+// add-ons live on their parent line (cartAO[parentId] = count), so they show WITH the dish, not as a separate item
+function incAO(k){cartAO[k]=(cartAO[k]||0)+1;buzz();sync();openCart();}
+function decAO(k){cartAO[k]=(cartAO[k]||0)-1;if(cartAO[k]<=0)delete cartAO[k];sync();openCart();}
+function aoOf(k){return (MENU[k]&&MENU[k].ao&&MENU[MENU[k].ao])?MENU[k].ao:null;}
 function explainDish(id){const m=MENU[id];bot(`<b>${dn(id)}</b> — ${desc(id)} <span style="color:#7a4a24;font-weight:700">₹${m.p}</span><br><span class="meta">${dishMeta(id)}</span>`);block("grid",[dishCard(id)]);exploreBar();}
 function grid(ids){ids=ids.filter(avail);if(!ids.length){bot("Those aren't being served right now — here's what's hot at this hour.");return showSpecials();}renderGrid(ids);exploreBar();}
-function refreshCart(){let n=0,t=0;for(const k in cart){n+=cart[k];t+=cart[k]*MENU[k].p;}const b=document.getElementById("cartbar"),c=document.getElementById("cartcount");if(n){b.style.display="flex";if(c)c.textContent=n;b.title=`${T("viewCart")} (${n}) · ₹${t}`;b.setAttribute("aria-label",`${T("viewCart")} (${n}) ₹${t}`);}else b.style.display="none";document.getElementById("phone").classList.toggle("hascart",n>0);}
+function refreshCart(){let n=0,t=0;for(const k in cart){n+=cart[k];t+=cart[k]*MENU[k].p;}for(const k in cartAO){var _a=aoOf(k);if(_a&&cartAO[k]){n+=cartAO[k];t+=cartAO[k]*MENU[_a].p;}}const b=document.getElementById("cartbar"),c=document.getElementById("cartcount");if(n){b.style.display="flex";if(c)c.textContent=n;b.title=`${T("viewCart")} (${n}) · ₹${t}`;b.setAttribute("aria-label",`${T("viewCart")} (${n}) ₹${t}`);}else b.style.display="none";document.getElementById("phone").classList.toggle("hascart",n>0);}
 
 /* ---------- per-dish note ---------- */
 function openNote(id){openSheet(`<h2>Note for ${dn(id)}</h2><div class="fld"><label>Any instructions for the kitchen?</label><textarea id="nt" rows="3" placeholder="e.g. less spicy, no coriander, extra crispy">${notes[id]||""}</textarea></div><button class="btn" onclick="saveNote('${id}')">Save note</button>`);}
@@ -1435,7 +1439,7 @@ function zoomDish(id){const m=MENU[id];const pic=(m.ph||LOGO_PICS)?`<div class="
 function closeLb(){lb.style.display="none";lb.innerHTML="";}
 function openSheet(html){sheet.innerHTML=html;modal.style.display="flex";sheet.scrollTop=0;}
 function closeModal(){modal.style.display="none";}
-function cartTotal(){let t=0;for(const k in cart)t+=cart[k]*MENU[k].p;return t;}
+function cartTotal(){let t=0;for(const k in cart)t+=cart[k]*MENU[k].p;for(const k in cartAO){var _a=aoOf(k);if(_a&&cartAO[k])t+=cartAO[k]*MENU[_a].p;}return t;}
 function recos(){const inCart=Object.keys(cart);let r=[];
  inCart.forEach(id=>(MENU[id].pairs||[]).forEach(p=>{if(MENU[p]&&avail(p)&&!cart[p]&&!r.includes(p))r.push(p);}));
  if(!inCart.some(i=>MENU[i].bev)){const b=Object.keys(MENU).filter(i=>MENU[i].bev&&avail(i)&&!cart[i]&&!r.includes(i));if(b[0])r.push(b[0]);}
@@ -1446,9 +1450,9 @@ function recoHTML(){const r=recos();if(!r.length)return"";
  return `<div class="recohd">${IC.star}${T("alsoLike")}</div>`+r.map(id=>`<div class="rc"><div class="e"><img src="${LOGO}"></div><div class="rg"><div class="rn">${dn(id)}</div><div class="rp">₹${MENU[id].p}</div></div><button class="radd" onclick="addReco('${id}')">+ ${T("add")}</button></div>`).join("");}
 function addReco(id){cart[id]=(cart[id]||0)+1;buzz();sync();openCart();}
 function openCart(){const ks=Object.keys(cart);if(!ks.length)return;
- openSheet(`<h2>Your cart</h2><div class="note" style="margin:0 0 8px">Bill shown in English for clarity</div>${ks.map(k=>`<div class="ci"><div class="e"><img src="${LOGO}"></div><div class="g"><div class="n">${MENU[k].n}</div><div class="p">₹${MENU[k].p}</div>${notes[k]?`<div class="cnote">${IC.note}${notes[k]}</div>`:''}<button class="noteb ${notes[k]?'has':''}" style="margin-top:5px;font-size:12.5px" onclick="openNote('${k}')">${IC.note}${notes[k]?'Edit note':'Add note'}</button></div><div class="qty"><button onclick="dec('${k}')">−</button><span>${cart[k]}</span><button onclick="inc('${k}')">+</button></div></div>`).join("")}<div class="tot big"><span>Subtotal</span><span>₹${cartTotal()}</span></div>${recoHTML()}<button class="btn" style="background:#fff;color:#7a4a24;border:1.5px solid #7a4a24" onclick="closeModal()">${IC.menu}Explore more</button><button class="btn g" onclick="checkout()">Checkout →</button>`);}
+ openSheet(`<h2>Your cart</h2><div class="note" style="margin:0 0 8px">Bill shown in English for clarity</div>${ks.map(k=>`<div class="ci"><div class="e"><img src="${LOGO}"></div><div class="g"><div class="n">${MENU[k].n}</div><div class="p">₹${MENU[k].p}</div>${notes[k]?`<div class="cnote">${IC.note}${notes[k]}</div>`:''}<button class="noteb ${notes[k]?'has':''}" style="margin-top:5px;font-size:12.5px" onclick="openNote('${k}')">${IC.note}${notes[k]?'Edit note':'Add note'}</button></div><div class="qty"><button onclick="dec('${k}')">−</button><span>${cart[k]}</span><button onclick="inc('${k}')">+</button></div></div>${aoOf(k)&&cartAO[k]?`<div class="ci" style="margin-top:-6px;padding-left:22px;border-left:2px solid var(--line);margin-left:14px"><div class="g"><div class="n" style="font-size:13.5px;color:var(--mut)">↳ ${MENU[aoOf(k)].n}</div><div class="p">₹${MENU[aoOf(k)].p}</div></div><div class="qty"><button onclick="decAO('${k}')">−</button><span>${cartAO[k]}</span><button onclick="incAO('${k}')">+</button></div></div>`:''}`).join("")}<div class="tot big"><span>Subtotal</span><span>₹${cartTotal()}</span></div>${recoHTML()}<button class="btn" style="background:#fff;color:#7a4a24;border:1.5px solid #7a4a24" onclick="closeModal()">${IC.menu}Explore more</button><button class="btn g" onclick="checkout()">Checkout →</button>`);}
 function inc(k){cart[k]++;buzz();sync();openCart();}
-function dec(k){cart[k]--;if(cart[k]<=0){delete cart[k];delete notes[k];}sync();Object.keys(cart).length?openCart():closeModal();}
+function dec(k){cart[k]--;if(cart[k]<=0){delete cart[k];delete notes[k];delete cartAO[k];}sync();Object.keys(cart).length?openCart():closeModal();}
 let order={mode:null,table:null,room:null};
 function checkout(){order={mode:"dine",table:null,room:""};openSheet(`<h2>Which table are you at?</h2><div class="fld"><label>Table number</label><input id="tbl" inputmode="numeric" oninput="roomFromTable()" placeholder="Enter your table number"></div><div id="roomline"></div><div id="contbtn"></div>`);}
 function setMode(m){order.mode=m;document.getElementById("din").classList.toggle("on",m==="dine");document.getElementById("tak").classList.toggle("on",m==="take");
@@ -1484,13 +1488,15 @@ function payCancel(){closeModal();var rb=bot(T("payCancelledMsg"));block("chips"
 function payDone(method,gt){var nm=order.name||"Guest",ph=order.phone||"",pers=order.persons||"";
   var sub=cartTotal(),tax=Math.round(sub*taxRate());
   var items=Object.keys(cart).map(function(k){return {n:MENU[k].n,q:cart[k],p:MENU[k].p*cart[k]};});
+  // add-ons ride along with their parent dish on the bill/kitchen ticket, labelled with the parent
+  Object.keys(cartAO).forEach(function(k){var a=aoOf(k);if(a&&cartAO[k])items.push({n:MENU[a].n+" (with "+MENU[k].n+")",q:cartAO[k],p:MENU[a].p*cartAO[k]});});
   var orderedIds=Object.keys(cart);
   lastBill={items:items,sub:sub,tax:tax,gt:gt,method:method,name:nm,phone:ph,type:("Dine-in · Table "+order.table),when:new Date().toLocaleString()};
   saveCustomer({name:nm,phone:ph,last:orderedIds,at:Date.now(),visits:((getCustomer()||{}).visits||0)+1});try{fetch('/api/bonbon/orders',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({items:items.map(function(it){return {name:it.n,qty:it.q,price:it.p};}),total:gt,name:nm,phone:ph,mode:order.mode,table:(order.mode==='dine'?('Table '+order.table+(order.room?' ('+order.room+')':'')):'')})});}catch(e){}
   var rows=items.map(function(it){return '<div class="brow"><span>'+it.n+' ×'+it.q+'</span><span>₹'+it.p+'</span></div>';}).join("");
   var bill='<div class="bill">'+rows+'<div class="brow"><span>Subtotal</span><span>₹'+sub+'</span></div><div class="brow"><span>GST</span><span>₹'+tax+'</span></div><div class="brow tot"><span>'+T("totalPaid")+'</span><span>₹'+gt+'</span></div></div>';
   openSheet('<div class="ok"><div class="big">'+IC.check+'</div><h2>'+T("paySuccess")+'</h2><p>'+T("payThanks").replace("%n",nm).replace("%o",outlet)+'</p>'+bill+'<p style="margin-top:8px;font-size:12px;color:var(--mut)">'+lastBill.type+(pers?" · "+pers+" "+T("persons"):"")+' · '+T("paidVia")+' '+method+'</p><div class="note" style="text-align:center;margin:4px 0 2px">📥 Download your bill below 👇</div><button class="btn g" onclick="downloadBill()">'+T("downloadBill")+'</button><button class="btn" style="background:#fff;color:var(--blue);border:1.5px solid var(--blue)" onclick="orderDone()">'+T("done")+'</button></div>');
-  cart={};notes={};sync();try{setTimeout(downloadBill,700);}catch(e){}}
+  cart={};notes={};cartAO={};sync();try{setTimeout(downloadBill,700);}catch(e){}}
 function downloadBill(){if(!lastBill)return;var b=lastBill;var rows=b.items.map(function(it){return '<tr><td style="padding:3px 0">'+it.n+' ×'+it.q+'</td><td style="text-align:right">₹'+it.p+'</td></tr>';}).join("");
   var html='<!doctype html><html><head><meta charset="utf-8"><title>Bon Bon Bill</title></head><body style="font-family:Arial,sans-serif;max-width:380px;margin:20px auto;color:#222;padding:0 16px"><h2 style="color:#7a4a24;margin:0">Bon Bon</h2><div style="color:#888;font-size:13px;margin-bottom:8px">'+outlet+' · '+b.when+'</div><div style="font-size:13px;margin-bottom:12px">'+b.type+'<br>'+b.name+' · +91 '+b.phone+'</div><table style="width:100%;border-collapse:collapse;font-size:14px">'+rows+'<tr><td style="padding-top:6px">Subtotal</td><td style="text-align:right">₹'+b.sub+'</td></tr><tr><td>GST</td><td style="text-align:right">₹'+b.tax+'</td></tr><tr style="font-weight:bold;border-top:1px solid #ccc"><td style="padding-top:6px">Total paid</td><td style="text-align:right">₹'+b.gt+'</td></tr></table><div style="margin-top:12px;font-size:12px;color:#888">Paid via '+b.method+' · Thank you!</div></body></html>';
   var blob=new Blob([html],{type:"text/html"});var url=URL.createObjectURL(blob);var a=document.createElement("a");a.href=url;a.download="Bon Bon_Bill.html";document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(url);},1500);}

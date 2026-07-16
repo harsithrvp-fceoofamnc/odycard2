@@ -356,7 +356,7 @@ h = h.replace(
   '<div class="note" style="text-align:center;margin:4px 0 2px">📥 Download your bill below 👇</div><button class="btn g" onclick="downloadBill()">\'+T("downloadBill")+\'</button><button class="btn" style="background:#fff;color:var(--blue);border:1.5px solid var(--blue)" onclick="orderDone()">\'+T("done")+\'</button>'
 );
 // auto-trigger the download on payment success (the button stays as a reliable fallback)
-h = h.replace('cart={};notes={};sync();}', 'cart={};notes={};sync();try{setTimeout(downloadBill,700);}catch(e){}}');
+h = h.replace('cart={};notes={};cartAO={};sync();}', 'cart={};notes={};cartAO={};sync();try{setTimeout(downloadBill,700);}catch(e){}}');
 
 // ---- category picker as Swiggy-style image tiles (Bon Bon only) ----
 h = h.replace('</style>', `
