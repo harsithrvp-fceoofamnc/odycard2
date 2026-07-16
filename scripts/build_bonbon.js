@@ -126,7 +126,7 @@ h = h.replace('</style>', `
   /* boot screen: plain white; the Bon Bon logo fades in, then fades out just before the screen lifts (Apple-style) */
   #bootveil{position:absolute;inset:0;z-index:50;background:#fff;transition:opacity 1.1s ease;opacity:1}
   #bootveil.gone{opacity:0;pointer-events:none}
-  #bootveil .bootlogo{position:absolute;left:50%;top:48%;width:360px;max-width:88%;height:auto;transform:translate(-50%,-50%);animation:bootlogoin 1.4s ease both}
+  #bootveil .bootlogo{position:absolute;left:50%;top:48%;width:360px;max-width:88%;aspect-ratio:480/248;height:auto;transform:translate(-50%,-50%);animation:bootlogoin 1.4s ease both}
   @keyframes bootlogoin{from{opacity:0;transform:translate(-50%,-50%) scale(.94)}to{opacity:1;transform:translate(-50%,-50%) scale(1)}}
 </style>`);
 // header interactions: globe toggles the language dropdown; picking a language closes it.
@@ -328,6 +328,19 @@ h = h.replace('rl.innerHTML=`<div class="note">Table ${v} → <b>${order.room} h
 // order-type labels: no "Takeaway" branch, no empty room text
 h = h.replace('${order.mode==="dine"?`Dine-in · ${order.room} · T${order.table}`:"Takeaway"}', 'Dine-in · Table ${order.table}');
 h = h.replace('type:(order.mode==="dine"?"Dine-in · Table "+order.table+" ("+order.room+")":"Takeaway"),', 'type:("Dine-in · Table "+order.table),');
+
+// ---- BILL (Bon Bon): no WhatsApp (too costly) — the bill auto-downloads and the success popup
+//      prompts the customer to download it. ----
+// confirm-&-pay note
+h = h.replace('<div class="note">Bill is sent to WhatsApp <b>only after full payment</b>.</div>',
+  '<div class="note">Your bill will be ready to <b>download</b> right after payment.</div>');
+// success popup: make "Download bill" the primary button, add a clear prompt, keep Done secondary
+h = h.replace(
+  '<button class="btn" style="background:#fff;color:#7a4a24;border:1.5px solid #7a4a24" onclick="downloadBill()">\'+T("downloadBill")+\'</button><button class="btn g" onclick="orderDone()">\'+T("done")+\'</button>',
+  '<div class="note" style="text-align:center;margin:4px 0 2px">📥 Download your bill below 👇</div><button class="btn g" onclick="downloadBill()">\'+T("downloadBill")+\'</button><button class="btn" style="background:#fff;color:var(--blue);border:1.5px solid var(--blue)" onclick="orderDone()">\'+T("done")+\'</button>'
+);
+// auto-trigger the download on payment success (the button stays as a reliable fallback)
+h = h.replace('cart={};notes={};sync();}', 'cart={};notes={};sync();try{setTimeout(downloadBill,700);}catch(e){}}');
 
 // ---- category picker as Swiggy-style image tiles (Bon Bon only) ----
 h = h.replace('</style>', `

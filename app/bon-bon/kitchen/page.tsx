@@ -99,7 +99,7 @@ export default function KitchenPage() {
         </>
       }
     >
-      <OutletSwitcher />
+      {me.role === "admin" && <OutletSwitcher />}
 
       {/* today's summary */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 8, margin: "0 0 14px" }}>

@@ -93,7 +93,7 @@ export default function WaiterPage() {
         )
       }
     >
-      <OutletSwitcher />
+      {me.role === "admin" && <OutletSwitcher />}
       <p style={{ margin: "0 0 14px", fontSize: 13, color: C.mut }}>
         {me.role === "waiter" ? (
           <>
