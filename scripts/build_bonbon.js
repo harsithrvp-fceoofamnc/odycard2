@@ -211,6 +211,12 @@ h = h.replace('/* init */', `setTimeout(function(){["/cat_scoops.jpg","/cat_soft
 // the customer's first message flips the header into top-only mode
 h = h.replace('function me(t){const d=document.createElement("div");d.className="msg me";',
   'function me(t){window.__started=true;if(window.__bbHdrUpdate)setTimeout(window.__bbHdrUpdate,60);const d=document.createElement("div");d.className="msg me";');
+
+// ---- opening greeting must NOT auto-scroll to the promoted dishes: keep the welcome bubbles in
+//      view; the customer scrolls down themselves. Auto-scroll resumes on their first interaction.
+h = h.replace('function toBottom(){clearTimeout(_bt);', 'function toBottom(){if(window.__bbHold)return;clearTimeout(_bt);');
+h = h.replace('async function showGreeting(instant){var pre=', 'async function showGreeting(instant){window.__bbHold=true;var pre=');
+h = h.replace('window.__bbHdrUpdate=update;', 'window.__bbHdrUpdate=update;ce.addEventListener("click",function(){window.__bbHold=false;});document.addEventListener("keydown",function(){window.__bbHold=false;});');
 // defer the welcome greeting until the veil fades (bbBoot handles it)
 h = h.replace(".catch(function(){}).then(function(){showGreeting();});", ".catch(function(){}).then(function(){bbBoot();});");
 h = h.split("onclick=\"setLang('${l[0]}',this)\"").join("onclick=\"setLang('${l[0]}',this);closeLang()\"");

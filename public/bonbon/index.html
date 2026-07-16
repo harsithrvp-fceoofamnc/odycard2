@@ -888,7 +888,7 @@ function bot(html){
 function me(t){window.__started=true;if(window.__bbHdrUpdate)setTimeout(window.__bbHdrUpdate,60);const d=document.createElement("div");d.className="msg me";d.textContent=t;chat.appendChild(d);toBottom();}
 function block(cls,html){const d=document.createElement("div");d.className=cls;d.innerHTML=html;chat.appendChild(d);toBottom();return d;}
 let _bt=null,_bigTarget=null;
-function toBottom(){clearTimeout(_bt);_bt=setTimeout(()=>{const top=_bigTarget?Math.max(0,_bigTarget.offsetTop-82):chat.scrollHeight;_bigTarget=null;try{chat.scrollTo({top,behavior:"smooth"});}catch(e){chat.scrollTop=top;}},80);}
+function toBottom(){if(window.__bbHold)return;clearTimeout(_bt);_bt=setTimeout(()=>{const top=_bigTarget?Math.max(0,_bigTarget.offsetTop-82):chat.scrollHeight;_bigTarget=null;try{chat.scrollTo({top,behavior:"smooth"});}catch(e){chat.scrollTop=top;}},80);}
 function renderGrid(ids){const el=block("grid",ids.map(dishCard).join(""));if(ids.length>2)_bigTarget=el;return el;}
 function anchorTop(){}
 function anchorReply(){}
@@ -952,7 +952,7 @@ function topDishes(){var pr=Object.keys(MENU).filter(i=>MENU[i].promoted&&avail(
  if(b.length<4)b=b.concat(Object.keys(MENU).filter(i=>avail(i)&&!b.includes(i)));
  if(!b.length)b=Object.keys(MENU).filter(i=>MENU[i].best);
  return b.slice(0,4);}
-async function showGreeting(instant){var pre=chat.querySelector(".typing");if(!pre)chat.innerHTML="";upsold=false;
+async function showGreeting(instant){window.__bbHold=true;var pre=chat.querySelector(".typing");if(!pre)chat.innerHTML="";upsold=false;
  var cust=getCustomer();
  if(cust&&cust.name){
    if(!instant){let t=pre||typingBubble();await sleep(pre?300:450);t.remove();pre=null;}else if(pre){pre.remove();pre=null;}
@@ -1603,7 +1603,7 @@ function bbBoot(){
     setCol(!show);
   }
   ce.addEventListener("scroll",update,{passive:true});
-  window.__bbHdrUpdate=update;   // let me() nudge it the moment the customer first chats
+  window.__bbHdrUpdate=update;ce.addEventListener("click",function(){window.__bbHold=false;});document.addEventListener("keydown",function(){window.__bbHold=false;});   // let me() nudge it the moment the customer first chats
 })();
 setTimeout(function(){["/cat_scoops.jpg","/cat_softy.jpg","/cat_waffle.jpg","/cat_icecream.jpg","/cat_sundae.jpg","/cat_mini.jpg","/cat_rolls.jpg","/cat_falooda.jpg","/cat_shakes.jpg","/cat_snacks.jpg"].forEach(function(s){var im=new Image();im.src=s;});},1400);
 /* init */
