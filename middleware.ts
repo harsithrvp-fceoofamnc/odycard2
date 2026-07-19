@@ -49,6 +49,8 @@ export function middleware(req: NextRequest) {
     pathname === "/" ||
     pathname === "/harsith" ||
     pathname === "/harsith.html" ||
+    pathname === "/menu" ||
+    pathname.startsWith("/menu/") ||
     pathname.startsWith("/api/gate") ||
     pathname.startsWith("/login") ||
     pathname.startsWith("/signup")
