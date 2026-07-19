@@ -25,8 +25,25 @@ function bbSessionAlive(token?: string): boolean {
   }
 }
 
+// Bon Bon's own domain is the PUBLIC swipe menu only. Any page request on it serves /menu
+// (root shows the menu, clean URL, no access gate). Static assets + /menu itself pass through.
+const BONBON_MENU_HOSTS = new Set(["bonbonicecreams.com", "www.bonbonicecreams.com"]);
+
 export function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
+
+  const host = (req.headers.get("host") || "").toLowerCase().split(":")[0];
+  if (BONBON_MENU_HOSTS.has(host)) {
+    const isAsset =
+      pathname.startsWith("/_next") ||
+      pathname === "/favicon.ico" ||
+      (/\.[a-zA-Z0-9]+$/.test(pathname) && !pathname.endsWith(".html"));
+    if (pathname.startsWith("/menu") || isAsset) return NextResponse.next();
+    const url = req.nextUrl.clone();
+    url.pathname = "/menu";
+    return NextResponse.rewrite(url);
+  }
+
   const gated = req.cookies.get("ody_gate")?.value === "ok";
   const hasSession = !!req.cookies.get("ody_session")?.value;
   const hasBB = bbSessionAlive(req.cookies.get("bb_session")?.value);
