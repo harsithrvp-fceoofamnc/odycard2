@@ -1,6 +1,6 @@
 "use client";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { C, Shell, NavLink, Spinner, OutletSwitcher, useBBSession } from "../_ui";
+import { C, Shell, NavLink, Spinner, useBBSession } from "../_ui";
 
 type Order = {
   id: string;
@@ -99,7 +99,6 @@ export default function KitchenPage() {
         </>
       }
     >
-      {me.role === "admin" && <OutletSwitcher />}
 
       {/* today's summary */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 8, margin: "0 0 14px" }}>

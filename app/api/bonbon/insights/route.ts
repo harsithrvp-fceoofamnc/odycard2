@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { BB, bbDb, bbMenuCol, requireBB } from "@/lib/bonbon";
+import { JUNE_SALES, JUNE_TOTALS } from "@/lib/bonbonSalesSeed";
 
 // The "Manager" report for the owner. The AI server files a small journal per conversation
 // (bonbon_signals): what guests craved and — the gold — what they ASKED FOR that we don't have
@@ -83,7 +84,7 @@ export async function GET(req: NextRequest) {
       }
     }
     const sold = [...itemMap.values()];
-    const leaderboard = sold.slice().sort((a, b) => b.qty - a.qty).slice(0, 10);
+    let leaderboard = sold.slice().sort((a, b) => b.qty - a.qty).slice(0, 10);
 
     // "To improve" = live menu items that barely sold in the window (0 first)
     let toImprove: { label: string; qty: number }[] = [];
@@ -115,7 +116,18 @@ export async function GET(req: NextRequest) {
       const c = byDay.get(key) || { revenue: 0, orders: 0 };
       trend.push({ day: key.slice(5), revenue: c.revenue, orders: c.orders });
     }
-    const totalRevenue = orders.reduce((n, o) => n + (Number(o.total) || 0), 0);
+    let totalRevenue = orders.reduce((n, o) => n + (Number(o.total) || 0), 0);
+
+    // Baseline from the shop's real June sales report until live orders build up.
+    // Only for the weekly+ view — the 24h board stays honest (empty if nothing sold today).
+    let seeded = false;
+    if (sold.length === 0 && days >= 7) {
+      leaderboard = JUNE_SALES.map((s) => ({ label: s.item, qty: s.qty, rev: s.total }))
+        .sort((a, b) => b.qty - a.qty)
+        .slice(0, 10);
+      totalRevenue = JUNE_TOTALS.total;
+      seeded = true;
+    }
 
     return NextResponse.json({
       days,
@@ -130,6 +142,9 @@ export async function GET(req: NextRequest) {
       leaderboard,
       toImprove,
       trend,
+      seeded,
+      period: seeded ? JUNE_TOTALS.month : null,
+      itemsSold: seeded ? JUNE_TOTALS.qty : null,
     });
   } catch {
     return NextResponse.json({ error: "Could not build insights" }, { status: 500 });

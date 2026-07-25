@@ -1,6 +1,6 @@
 "use client";
 import { useCallback, useEffect, useState } from "react";
-import { C, Shell, NavLink, Spinner, OutletSwitcher, useBBSession } from "../_ui";
+import { C, Shell, NavLink, Spinner, useBBSession } from "../_ui";
 import { catOrder, catLabels, BBMenuItem } from "@/lib/bonbonMenu";
 
 export default function ManagePage() {
@@ -77,7 +77,6 @@ export default function ManagePage() {
         </>
       }
     >
-      {me.role === "admin" && <OutletSwitcher />}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 10 }}>
         <p style={{ margin: 0, fontSize: 13.5, color: C.mut, maxWidth: 620, lineHeight: 1.5 }}>
           Edit prices, hide items, mark sold-out, or promote to <b>Best seller</b> / <b>Must try</b>. Changes save

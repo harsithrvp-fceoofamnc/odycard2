@@ -1,68 +1,34 @@
 "use client";
 import { useCallback, useEffect, useState } from "react";
 import { C, Shell, NavLink, Spinner, PasswordField, useBBSession } from "../_ui";
+import { AiManagerPanel } from "../insights/AiManagerPanel";
 
 type Staff = { id: string; name: string; username: string; role: string; active: boolean; tables?: number[] };
 type Order = { id: string; total: number; status: string; created_at: string };
-type Restaurant = { id: number; name: string };
-type Outlet = { id: number; restaurant_id: number; name: string; slug: string; tables: number };
 
 export default function AdminPage() {
   const { me, ready } = useBBSession(["admin"]);
   const [staff, setStaff] = useState<Staff[]>([]);
   const [menuCount, setMenuCount] = useState<number | null>(null);
   const [orders, setOrders] = useState<Order[]>([]);
-  const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
-  const [outlets, setOutlets] = useState<Outlet[]>([]);
   const [loading, setLoading] = useState(true);
   // freshly reset passwords, shown once so the owner can hand them over (never stored in plaintext)
   const [newPwd, setNewPwd] = useState<Record<string, string>>({});
 
   const load = useCallback(async () => {
-    const [s, m, o, r, ou] = await Promise.all([
+    const [s, m, o] = await Promise.all([
       fetch("/api/bonbon/staff"),
       fetch("/api/bonbon/menu"),
       fetch("/api/bonbon/orders?status=all"),
-      fetch("/api/bonbon/restaurants"),
-      fetch("/api/bonbon/outlets"),
     ]);
     if (s.ok) setStaff((await s.json()).staff || []);
     if (m.ok) setMenuCount(((await m.json()).items || []).filter((x: { cat: string }) => x.cat !== "addon").length);
     if (o.ok) setOrders((await o.json()).orders || []);
-    if (r.ok) setRestaurants((await r.json()).restaurants || []);
-    if (ou.ok) setOutlets((await ou.json()).outlets || []);
     setLoading(false);
   }, []);
   useEffect(() => {
     if (ready) load();
   }, [ready, load]);
-
-  // create restaurant / outlet
-  const [rName, setRName] = useState("");
-  const [rMsg, setRMsg] = useState("");
-  async function addRestaurant(e: React.FormEvent) {
-    e.preventDefault();
-    setRMsg("");
-    const r = await fetch("/api/bonbon/restaurants", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name: rName }),
-    });
-    const d = await r.json();
-    if (!r.ok) return setRMsg(d.error || "Could not add");
-    setRName("");
-    load();
-  }
-  async function addOutlet(restaurant_id: number, name: string) {
-    if (!name.trim()) return;
-    const r = await fetch("/api/bonbon/outlets", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ restaurant_id, name }),
-    });
-    if (r.ok) load();
-    else alert((await r.json()).error || "Could not add outlet");
-  }
 
   // create staff
   const [role, setRole] = useState("supervisor");
@@ -206,56 +172,8 @@ export default function AdminPage() {
             placed through the chatbot.
           </p>
 
-          {/* AI Manager: what guests are telling us */}
-          <ManagerReport />
-
-          {/* restaurants & outlets */}
-          <section style={{ ...card, marginBottom: 16 }}>
-            <h2 style={h2}>Restaurants &amp; outlets</h2>
-            <p style={hint}>
-              Add a restaurant, then give it one or more outlets (branches). Each outlet has its <b>own menu</b>.
-            </p>
-            {restaurants.map((r) => {
-              const os = outlets.filter((o) => o.restaurant_id === r.id);
-              return (
-                <div key={r.id} style={{ marginTop: 18 }}>
-                  {/* restaurant header */}
-                  <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
-                    <span style={iconWrap}><StoreIcon /></span>
-                    <div style={{ minWidth: 0 }}>
-                      <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
-                        <span style={{ fontWeight: 800, color: C.ink, fontSize: 15.5 }}>{r.name}</span>
-                        <span style={{ fontSize: 9.5, fontWeight: 800, letterSpacing: 0.5, textTransform: "uppercase", color: C.maroon, background: "#f7e3e8", padding: "2px 7px", borderRadius: 7 }}>Restaurant</span>
-                      </div>
-                      <div style={{ fontSize: 11.5, color: C.mut, marginTop: 1 }}>
-                        {os.length} outlet{os.length === 1 ? "" : "s"}
-                      </div>
-                    </div>
-                  </div>
-                  {/* outlets list */}
-                  <div style={{ paddingLeft: 6 }}>
-                    {os.map((o) => (
-                      <OutletRow key={o.id} o={o} onSaved={load} />
-                    ))}
-                    {os.length === 0 && (
-                      <div style={{ fontSize: 12.5, color: C.mut, padding: "8px 4px", borderTop: `1px solid ${C.line}` }}>No outlets yet.</div>
-                    )}
-                    <div style={{ borderTop: `1px solid ${C.line}`, paddingTop: 10, marginTop: 2 }}>
-                      <AddOutlet onAdd={(name) => addOutlet(r.id, name)} />
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-            <form onSubmit={addRestaurant} style={{ marginTop: 20, background: "#faf2f1", border: `1px solid ${C.line}`, borderRadius: 12, padding: "12px 13px" }}>
-              <div style={{ fontWeight: 700, fontSize: 12.5, color: C.mut, textTransform: "uppercase", letterSpacing: 0.4, marginBottom: 8 }}>Add a restaurant</div>
-              <div style={{ display: "flex", gap: 8 }}>
-                <input style={{ ...inp, flex: 1 }} value={rName} onChange={(e) => setRName(e.target.value)} placeholder="Restaurant name" />
-                <button style={primaryBtn}>Add</button>
-              </div>
-              {rMsg && <div style={{ marginTop: 8, fontSize: 13, color: C.warn }}>{rMsg}</div>}
-            </form>
-          </section>
+          {/* AI Manager — the capsule, right on the owner dashboard */}
+          <AiManagerPanel />
 
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(320px,1fr))", gap: 16 }}>
             {/* staff list */}
@@ -394,294 +312,6 @@ export default function AdminPage() {
   );
 }
 
-type Insights = {
-  days: number;
-  conversations: number;
-  askedButMissing: number;
-  gaps: { label: string; count: number }[];
-  flavors: { label: string; count: number }[];
-  avoid: { label: string; count: number }[];
-  moods: { label: string; count: number }[];
-  orders: number;
-  totalRevenue: number;
-  leaderboard: { label: string; qty: number; rev: number }[];
-  toImprove: { label: string; qty: number }[];
-  trend: { day: string; revenue: number; orders: number }[];
-};
-
-// The AI's "Manager" report. Every guest chat quietly leaves a note (bonbon_signals) about what
-// they craved and — most valuable — what they asked for that we don't carry. This just counts
-// those notes so the owner sees demand before stocking decisions. No sales figures here; that's
-// the top row. This is the "why".
-function ManagerReport() {
-  const [ins, setIns] = useState<Insights | null>(null);
-  const [days, setDays] = useState(30);
-  const [loading, setLoading] = useState(true);
-  const load = useCallback(async () => {
-    setLoading(true);
-    const r = await fetch(`/api/bonbon/insights?days=${days}`);
-    if (r.ok) setIns(await r.json());
-    setLoading(false);
-  }, [days]);
-  useEffect(() => {
-    load();
-  }, [load]);
-
-  const empty = ins && ins.conversations === 0 && ins.orders === 0;
-  return (
-    <section style={{ ...card, marginBottom: 16, borderColor: "#e7c9d1", background: "linear-gradient(180deg,#fff,#fdf6f7)" }}>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, flexWrap: "wrap" }}>
-        <h2 style={{ ...h2, display: "flex", alignItems: "center", gap: 8 }}>
-          <SparkIcon /> AI Manager
-        </h2>
-        <div style={{ display: "flex", gap: 6 }}>
-          {[7, 30, 90].map((d) => (
-            <button key={d} onClick={() => setDays(d)} style={{ ...miniBtn, ...(days === d ? { background: C.maroon, color: "#fff", borderColor: C.maroon } : {}) }}>
-              {d}d
-            </button>
-          ))}
-        </div>
-      </div>
-      <p style={hint}>
-        What guests told the chatbot — read automatically from every conversation. The demand gaps below are things
-        people <b>asked for that Bon Bon doesn&apos;t carry</b> (or was sold out): your stocking to-do list.
-      </p>
-
-      {loading ? (
-        <div style={{ color: C.mut, fontSize: 13, padding: "6px 0" }}>Reading the journal…</div>
-      ) : empty ? (
-        <div style={{ color: C.mut, fontSize: 13.5, padding: "10px 0" }}>
-          No guest signals yet in this window. As people chat with the menu, their cravings and requests show up here.
-        </div>
-      ) : (
-        ins && (
-          <>
-            <div style={{ display: "flex", gap: 18, flexWrap: "wrap", margin: "4px 0 16px" }}>
-              <MiniStat n={ins.orders} label="orders" />
-              <MiniStat n={ins.conversations} label="conversations" />
-              <MiniStat n={ins.askedButMissing} label="asked for something we lack" warn />
-            </div>
-
-            {ins.trend.some((t) => t.revenue > 0) && <TrendChart trend={ins.trend} />}
-
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(240px,1fr))", gap: 18 }}>
-              <ReportBlock title="Best sellers — today's board" empty="No sales in this window yet.">
-                {ins.leaderboard.map((l, i) => (
-                  <RankRow key={l.label} rank={i + 1} label={l.label} qty={l.qty} rev={l.rev} />
-                ))}
-              </ReportBlock>
-              <ReportBlock title="To improve — barely selling" empty="Nothing to flag.">
-                {ins.toImprove.map((t) => (
-                  <RankRow key={t.label} label={t.label} qty={t.qty} dim />
-                ))}
-              </ReportBlock>
-            </div>
-
-            <ReportBlock title="Demand gaps — asked for, not on the menu" empty="Nothing missing — guests found what they wanted.">
-              {ins.gaps.map((g) => (
-                <Bar key={g.label} label={g.label} count={g.count} max={ins.gaps[0]?.count || 1} tone="warn" />
-              ))}
-            </ReportBlock>
-
-            <ReportBlock title="Most-loved flavours" empty="No flavour signals yet.">
-              {ins.flavors.map((f) => (
-                <Bar key={f.label} label={f.label} count={f.count} max={ins.flavors[0]?.count || 1} tone="good" />
-              ))}
-            </ReportBlock>
-
-            {(ins.moods.length > 0 || ins.avoid.length > 0) && (
-              <div style={{ display: "flex", gap: 20, flexWrap: "wrap", marginTop: 4 }}>
-                {ins.moods.length > 0 && (
-                  <ChipList title="Moods & occasions" items={ins.moods} />
-                )}
-                {ins.avoid.length > 0 && (
-                  <ChipList title="Guests avoided" items={ins.avoid} />
-                )}
-              </div>
-            )}
-          </>
-        )
-      )}
-    </section>
-  );
-}
-
-function MiniStat({ n, label, warn }: { n: number; label: string; warn?: boolean }) {
-  return (
-    <div>
-      <div style={{ fontSize: 26, fontWeight: 800, color: warn ? C.maroon : C.ink, lineHeight: 1 }}>{n}</div>
-      <div style={{ fontSize: 11.5, color: C.mut, marginTop: 3 }}>{label}</div>
-    </div>
-  );
-}
-function ReportBlock({ title, empty, children }: { title: string; empty: string; children: React.ReactNode }) {
-  const has = Array.isArray(children) ? children.length > 0 : !!children;
-  return (
-    <div style={{ marginTop: 14 }}>
-      <div style={{ fontSize: 11.5, fontWeight: 800, color: C.mut, textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 8 }}>{title}</div>
-      {has ? <div style={{ display: "grid", gap: 7 }}>{children}</div> : <div style={{ fontSize: 12.5, color: C.mut }}>{empty}</div>}
-    </div>
-  );
-}
-function RankRow({ rank, label, qty, rev, dim }: { rank?: number; label: string; qty: number; rev?: number; dim?: boolean }) {
-  return (
-    <div style={{ display: "flex", alignItems: "center", gap: 9, padding: "2px 0" }}>
-      {rank != null && (
-        <span style={{ flex: "0 0 20px", fontSize: 12.5, fontWeight: 800, color: rank <= 3 ? C.maroon : C.mut, textAlign: "center" }}>{rank}</span>
-      )}
-      <span style={{ flex: 1, minWidth: 0, fontSize: 13.5, fontWeight: 600, color: dim ? C.mut : C.ink, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", textTransform: "capitalize" }}>{label}</span>
-      <span style={{ fontSize: 12.5, color: dim ? (qty === 0 ? C.warn : C.mut) : C.mut }}>{qty === 0 ? "0 sold" : `${qty} sold`}</span>
-      {rev != null && rev > 0 && <span style={{ fontSize: 12.5, fontWeight: 800, color: C.ink, minWidth: 52, textAlign: "right" }}>₹{rev}</span>}
-    </div>
-  );
-}
-function TrendChart({ trend }: { trend: { day: string; revenue: number; orders: number }[] }) {
-  const max = Math.max(1, ...trend.map((t) => t.revenue));
-  return (
-    <div style={{ marginBottom: 16 }}>
-      <div style={{ fontSize: 11.5, fontWeight: 800, color: C.mut, textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 8 }}>Revenue trend</div>
-      <div style={{ display: "flex", alignItems: "flex-end", gap: 4, height: 88, padding: "0 2px" }}>
-        {trend.map((t, i) => {
-          const h = Math.round((t.revenue / max) * 76);
-          return (
-            <div key={i} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 4, minWidth: 0 }} title={`${t.day}: ₹${t.revenue} · ${t.orders} orders`}>
-              <div style={{ width: "100%", maxWidth: 26, height: Math.max(2, h), background: t.revenue > 0 ? `linear-gradient(180deg,${C.maroon},${C.dark})` : C.line, borderRadius: 4 }} />
-              <span style={{ fontSize: 8.5, color: C.mut, whiteSpace: "nowrap" }}>{t.day}</span>
-            </div>
-          );
-        })}
-      </div>
-    </div>
-  );
-}
-function Bar({ label, count, max, tone }: { label: string; count: number; max: number; tone: "warn" | "good" }) {
-  const pct = Math.max(8, Math.round((count / max) * 100));
-  const col = tone === "warn" ? C.maroon : "#3b6d11";
-  const bg = tone === "warn" ? "#f7e3e8" : "#eaf3de";
-  return (
-    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-      <div style={{ flex: 1, minWidth: 0, position: "relative", height: 30, background: bg, borderRadius: 8, overflow: "hidden" }}>
-        <div style={{ position: "absolute", inset: 0, width: `${pct}%`, background: tone === "warn" ? "rgba(129,18,38,.16)" : "rgba(59,109,17,.16)" }} />
-        <span style={{ position: "absolute", left: 10, top: 0, bottom: 0, display: "flex", alignItems: "center", fontSize: 13.5, fontWeight: 600, color: C.ink, textTransform: "capitalize" }}>{label}</span>
-      </div>
-      <span style={{ fontSize: 13.5, fontWeight: 800, color: col, minWidth: 42, textAlign: "right" }}>{count}×</span>
-    </div>
-  );
-}
-function ChipList({ title, items }: { title: string; items: { label: string; count: number }[] }) {
-  return (
-    <div style={{ flex: "1 1 200px" }}>
-      <div style={{ fontSize: 11.5, fontWeight: 800, color: C.mut, textTransform: "uppercase", letterSpacing: 0.5, margin: "10px 0 8px" }}>{title}</div>
-      <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-        {items.map((i) => (
-          <span key={i.label} style={{ fontSize: 12.5, color: C.ink, background: "#f4eef0", border: `1px solid ${C.line}`, borderRadius: 20, padding: "4px 10px", textTransform: "capitalize" }}>
-            {i.label} <b style={{ color: C.mut }}>{i.count}</b>
-          </span>
-        ))}
-      </div>
-    </div>
-  );
-}
-function SparkIcon() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={C.maroon} strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M12 3l1.8 4.9L18.7 9.7 13.8 11.5 12 16.4 10.2 11.5 5.3 9.7 10.2 7.9z" />
-      <path d="M19 15l.7 2 2 .7-2 .7-.7 2-.7-2-2-.7 2-.7z" />
-    </svg>
-  );
-}
-
-function AddOutlet({ onAdd }: { onAdd: (name: string) => void }) {
-  const [v, setV] = useState("");
-  return (
-    <div style={{ display: "flex", gap: 8, marginTop: 6 }}>
-      <input
-        style={{ ...inp, flex: 1, padding: "8px 11px", fontSize: 13.5 }}
-        value={v}
-        onChange={(e) => setV(e.target.value)}
-        placeholder="New outlet name (e.g. Anna Nagar)"
-      />
-      <button
-        onClick={() => { onAdd(v); setV(""); }}
-        style={{ ...outBtn, background: C.maroon, color: "#fff", border: 0 }}
-      >
-        + Outlet
-      </button>
-    </div>
-  );
-}
-
-function OutletRow({ o, onSaved }: { o: Outlet; onSaved: () => void }) {
-  const [open, setOpen] = useState(false);
-  const [name, setName] = useState(o.name);
-  const [tables, setTables] = useState(String(o.tables || ""));
-  const [busy, setBusy] = useState(false);
-  async function save() {
-    setBusy(true);
-    const r = await fetch(`/api/bonbon/outlets/${o.id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, tables: Number(tables) || 0 }),
-    });
-    setBusy(false);
-    if (r.ok) { setOpen(false); onSaved(); }
-    else alert((await r.json()).error || "Could not save");
-  }
-  return (
-    <div style={{ borderTop: `1px solid ${C.line}` }}>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, flexWrap: "wrap", padding: "11px 4px" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 9, minWidth: 0 }}>
-          <PinIcon />
-          <div style={{ minWidth: 0 }}>
-            <div style={{ fontWeight: 700, color: C.ink, fontSize: 14 }}>{o.name}</div>
-            {o.tables > 0 && <div style={{ fontSize: 11.5, color: C.mut }}>{o.tables} tables</div>}
-          </div>
-        </div>
-        <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-          <a href={`/bon-bon/manage?outlet=${o.id}`} style={outBtn}>Menu</a>
-          <a href={`/bon-bon/kitchen?outlet=${o.id}`} style={outBtn}>Kitchen</a>
-          <a href={`/bon-bon/waiter?outlet=${o.id}`} style={outBtn}>Waiter</a>
-          <button onClick={() => setOpen(!open)} style={outBtn}>{open ? "Close" : "Details"}</button>
-        </div>
-      </div>
-      {open && (
-        <div style={{ padding: "2px 4px 14px", display: "grid", gap: 8 }}>
-          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-            <div style={{ flex: "1 1 150px" }}>
-              <label style={lbl}>Outlet name</label>
-              <input style={inp} value={name} onChange={(e) => setName(e.target.value)} />
-            </div>
-            <div style={{ width: 120 }}>
-              <label style={lbl}>No. of tables</label>
-              <input style={inp} type="number" value={tables} onChange={(e) => setTables(e.target.value)} placeholder="e.g. 12" />
-            </div>
-          </div>
-          <div style={{ display: "flex", justifyContent: "flex-end" }}>
-            <button onClick={save} disabled={busy} style={{ ...primaryBtn, opacity: busy ? 0.7 : 1 }}>{busy ? "Saving…" : "Save details"}</button>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
-
-function StoreIcon() {
-  return (
-    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke={C.maroon} strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M4 9.5V20a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1V9.5" />
-      <path d="M3 9l1.6-4.4A1 1 0 0 1 5.5 4h13a1 1 0 0 1 .9.6L21 9a3 3 0 0 1-6 0 3 3 0 0 1-6 0 3 3 0 0 1-6 0z" />
-      <path d="M9.5 21v-5h5v5" />
-    </svg>
-  );
-}
-function PinIcon() {
-  return (
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke={C.mut} strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" style={{ flex: "0 0 15px" }}>
-      <path d="M12 21s-6-5.4-6-10a6 6 0 1 1 12 0c0 4.6-6 10-6 10z" />
-      <circle cx="12" cy="11" r="2.2" />
-    </svg>
-  );
-}
 
 function Stat({ label, value, accent }: { label: string; value: string; accent?: boolean }) {
   return (
@@ -699,9 +329,6 @@ const row: React.CSSProperties = { display: "flex", justifyContent: "space-betwe
 const inp: React.CSSProperties = { width: "100%", boxSizing: "border-box", padding: "10px 12px", borderRadius: 10, border: `1.5px solid ${C.line}`, fontSize: 14.5, outline: "none", color: C.ink, background: "#fff" };
 const primaryBtn: React.CSSProperties = { padding: "11px 16px", border: 0, borderRadius: 11, background: `linear-gradient(135deg,${C.maroon},${C.dark})`, color: "#fff", fontSize: 14.5, fontWeight: 800, cursor: "pointer" };
 const miniBtn: React.CSSProperties = { padding: "6px 11px", borderRadius: 9, border: `1.5px solid ${C.line}`, background: "#fff", color: C.ink, fontWeight: 700, fontSize: 12.5, cursor: "pointer" };
-const outBtn: React.CSSProperties = { padding: "7px 12px", borderRadius: 9, border: `1.5px solid ${C.line}`, background: "#fff", color: C.maroon, fontWeight: 700, fontSize: 12.5, cursor: "pointer", textDecoration: "none", whiteSpace: "nowrap", display: "inline-block" };
-const iconWrap: React.CSSProperties = { display: "inline-flex", alignItems: "center", justifyContent: "center", width: 30, height: 30, borderRadius: 9, background: "#f7e3e8", flex: "0 0 30px" };
-const lbl: React.CSSProperties = { display: "block", fontSize: 11, fontWeight: 700, color: C.mut, textTransform: "uppercase", letterSpacing: 0.4, marginBottom: 4 };
 const tag = (role: string): React.CSSProperties => ({
   fontSize: 10, fontWeight: 800, textTransform: "uppercase", letterSpacing: 0.4, padding: "2px 7px", borderRadius: 8, marginLeft: 6,
   background: role === "supervisor" ? "#f7e3e8" : role === "waiter" ? "#eaf3de" : role === "kitchen" ? "#fdeccf" : "#eee",

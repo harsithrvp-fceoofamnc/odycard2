@@ -1,6 +1,6 @@
 "use client";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { C, Shell, NavLink, Spinner, OutletSwitcher, useBBSession } from "../_ui";
+import { C, Shell, NavLink, Spinner, useBBSession } from "../_ui";
 
 type Order = {
   id: string;
@@ -112,7 +112,6 @@ export default function WaiterPage() {
         )
       }
     >
-      {me.role === "admin" && <OutletSwitcher />}
       {!soundOn && (
         <button
           onClick={() => { audio(); chime(); setSoundOn(true); }}
