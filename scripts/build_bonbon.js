@@ -65,17 +65,29 @@ function bbApplyLiveMenu(items){
     var labels={scoops:"Scoops",softy:"Softy",waffle:"Waffle",icecream:"Ice Cream Specials",sundae:"Sundae",mini:"Mini Sundae",rolls:"Roll Ice Cream",falooda:"Falooda",shakes:"Thick Shakes",snacks:"Snacks"};
     Object.keys(MENU).forEach(function(k){delete MENU[k];});
     var byCat={};
+    window.__bbOff=[];  // {name, reason} — asked-for items we can't serve right now, with the WHY
+    window.__bbPush=[]; // dishes the owner wants the waiter to promote / upsell
     items.forEach(function(it){
       // add-ons (e.g. extra ice cream) stay available but never appear as their own card;
       // ordinary items only appear when they're not hidden and not sold out.
       var isAddon=it.cat==="addon";
-      if(!isAddon && (it.hidden || it.available===0)) return;
+      var st=it.status||"on";
+      var reason = st==="out"?"out of stock today" : st==="soon"?"not ready yet, available later" : st==="off"?"not served at this outlet" : (it.available===0?"sold out right now":"");
+      var unavailable = !isAddon && (it.hidden || it.available===0 || st!=="on");
+      if(unavailable){
+        // tell the guest the reason (unless the owner deliberately HID it — then stay quiet)
+        if(!it.hidden){var r=(it.offReason&&it.offReason.trim())||reason;if(r)window.__bbOff.push({name:it.name,reason:r});}
+        return;
+      }
       MENU[it.key]={n:it.name,p:it.price,e:"\\uD83C\\uDF68",h:[[8,23]],q:it.q||"",pt:it.pt||0,ph:it.ph||"",d:it.desc||"",veg:1};
       if(it.best)MENU[it.key].best=1;
       if(it.must)MENU[it.key].must=1;
       if(it.promoted)MENU[it.key].promoted=1;
       if(it.ao)MENU[it.key].ao=it.ao;
-      if(!isAddon)(byCat[it.cat]=byCat[it.cat]||[]).push(it);
+      if(!isAddon){
+        if((Number(it.push)||0)>=3 || it.promoted) window.__bbPush.push(it.name);
+        (byCat[it.cat]=byCat[it.cat]||[]).push(it);
+      }
     });
     CATS.length=0;
     order.forEach(function(c){
@@ -290,7 +302,30 @@ h = h.split("#a8752a").join("#8a3a4c");
 // ---- AI route -> /api/bonbon ----
 h = h.split("/api/ody").join("/api/bonbon");
 h = h.replace("body:JSON.stringify({message:q,lang,cart:Object.keys(cart),taste:tasteStr()})",
-  'body:JSON.stringify({message:q,lang,cart:Object.keys(cart),taste:tasteStr(),restaurant:"Bon Bon, an ice cream parlour"})');
+  'body:JSON.stringify({message:q,lang,cart:Object.keys(cart),taste:tasteStr(),restaurant:"Bon Bon, an ice cream parlour",profile:bbProfileStr(),cid:bbCid(),off:bbOffStr(),promote:bbPushStr()})');
+
+// ---- AI journal (client side): one conversation id + a running taste profile ----
+// The server returns a small "signals" object each turn (what the guest likes / asked for that
+// we don't have). We accumulate the taste side here so the NEXT message can personalise, and the
+// server files the whole thing under this cid so the owner can see demand gaps. Cheap: no extra
+// network call — signals ride along on the reply we already fetched.
+h = h.replace("if(!res.ok)throw 0;const data=await res.json();typing.remove();",
+  "if(!res.ok)throw 0;const data=await res.json();typing.remove();bbMergeSignals(data.signals);");
+h = h.replace('/* init */', `window.__cid=(Date.now().toString(36)+Math.random().toString(36).slice(2,8));
+window.__jrnl={flavors:[],avoid:[],mood:""};
+function bbCid(){return window.__cid;}
+function bbMergeSignals(s){if(!s)return;var j=window.__jrnl;
+  (s.flavors||[]).forEach(function(f){f=(""+f).trim();if(f&&j.flavors.indexOf(f)<0&&j.flavors.length<12)j.flavors.push(f);});
+  (s.avoid||[]).forEach(function(a){a=(""+a).trim();if(a&&j.avoid.indexOf(a)<0&&j.avoid.length<12)j.avoid.push(a);});
+  if(s.mood)j.mood=(""+s.mood).trim();}
+function bbProfileStr(){var j=window.__jrnl,p=[];
+  if(j.flavors.length)p.push("likes: "+j.flavors.join(", "));
+  if(j.avoid.length)p.push("avoids: "+j.avoid.join(", "));
+  if(j.mood)p.push("mood: "+j.mood);
+  return p.join("; ");}
+function bbOffStr(){return (window.__bbOff||[]).slice(0,24).map(function(o){return o.name+" ("+o.reason+")";}).join("; ");}
+function bbPushStr(){return (window.__bbPush||[]).slice(0,12).join(", ");}
+/* init */`);
 // route paths /annapoorna -> /bonbon (and the parent-path detection)
 h = h.split('"/annapoorna/"').join('"/bonbon/"');
 h = h.split('"/annapoorna"').join('"/bonbon"');
@@ -389,56 +424,38 @@ lines.push("extraicecream | Extra Ice Cream (add-on) | Rs.30 | Add-ons");
 const menuTxt = lines.join("\n");
 
 const route = `import { NextRequest, NextResponse } from "next/server";
+import { bbDb, BB } from "@/lib/bonbon";
+import { FieldValue } from "firebase-admin/firestore";
+import { buildWaiterPolicy, buildWaiterContext, WAITER_SCHEMA } from "@/lib/bonbonPolicy";
+import { runWaiter } from "@/lib/aiProvider";
 
-// Auto-generated from the Bon Bon menu. Server-side only (the API key never reaches the browser).
+// Auto-generated glue. The RULES live in lib/bonbonPolicy.ts (model-independent) and the MODEL
+// call lives in lib/aiProvider.ts (swap via AI_PROVIDER). This route only injects the live menu
+// and persists the customer journal. The API key never reaches the browser.
 const MENU = \`${menuTxt}\`;
 const CATEGORIES = "Scoops, Softy, Waffle, Ice Cream Specials, Sundae, Mini Sundae, Roll Ice Cream, Falooda, Thick Shakes, Snacks";
 
-function systemPrompt(lang: string, rest?: string) {
-  return [
-    "You are the warm, friendly AI server for " + (rest || "Bon Bon, an ice cream parlour") + ".",
-    "You ONLY know the menu below. NEVER invent items or prices. If asked for something not on the menu, say it's unavailable and suggest a close alternative.",
-    "Stay strictly about Bon Bon's ice creams, desserts, shakes and snacks. Politely decline anything unrelated.",
-    "IMPORTANT: Bon Bon is an ICE CREAM PARLOUR. Almost everything is a COLD sweet treat — scoops, softy, sundaes, thick shakes, falooda, waffles. NEVER describe items as 'hot and fresh' or like cooked restaurant meals, and NEVER call yourself a 'waiter' serving food — you are helping pick desserts. Talk about flavours, scoops, toppings and sweetness.",
-    "Reply ONLY in this language code: " + lang + ". Be warm and concise (1-2 short sentences).",
-    "Feel free to use a few friendly dessert emojis (🍨🍦🧇😋) — but don't overdo it.",
-    "You can take orders and help guests explore. Respond ONLY with a JSON object:",
-    '{"reply":"<short message>","actions":[ ... ]}',
-    "Each action is one of:",
-    '{"type":"add","id":"<menu id>","qty":<number>}',
-    '{"type":"show","ids":["<menu id>",...]}',
-    '{"type":"none"}',
-    "Use EXACT ids from the menu (first column). Categories: " + CATEGORIES + ".",
-    "Thick Shakes can have an optional Extra Ice Cream add-on (id 'extraicecream', Rs.30) — only add it if the guest asks.",
-    "ORDERING: when the guest wants to order, ALWAYS act — add every item you can identify in ONE reply. For anything unclear, add what you can and ask ONE short follow-up. Never refuse — keep the order moving warmly.",
-    "To recommend, ALWAYS use a show action with 3-6 specific ids. MIX across categories for variety (e.g. a scoop, a sundae, a thick shake, a waffle). NEVER open or switch a category tab yourself.",
-    "If a 'Guest taste profile' is provided, tailor picks to it and never suggest something they avoid.",
-    "MENU (id | name | price | category):",
-    MENU
-  ].join("\\n");
-}
-
 export async function POST(req: NextRequest) {
   try {
-    const { message, lang = "en", cart = [], restaurant = "", taste = "" } = await req.json();
-    const key = process.env.GEMINI_API_KEY;
-    if (!key) return NextResponse.json({ reply: "AI is not configured yet.", actions: [] });
-    const body = {
-      systemInstruction: { parts: [{ text: systemPrompt(lang, restaurant) }] },
-      contents: [{ role: "user", parts: [{ text: (taste ? "Guest taste profile: " + taste + "\\n" : "") + "Current cart (ids): " + (cart.join(", ") || "empty") + "\\nGuest says: " + message }] }],
-      generationConfig: { responseMimeType: "application/json", temperature: 0.3, maxOutputTokens: 1200, thinkingConfig: { thinkingBudget: 0 },
-        responseSchema: { type: "object", properties: { reply: { type: "string" }, actions: { type: "array", items: { type: "object", properties: { type: { type: "string" }, id: { type: "string" }, qty: { type: "number" }, ids: { type: "array", items: { type: "string" } }, name: { type: "string" } }, required: ["type"] } } }, required: ["reply"] } }
-    };
-    const r = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=" + key, {
-      method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body)
+    const { message, lang = "en", cart = [], restaurant = "", taste = "", profile = "", cid = "", outlet = 1, off = "", promote = "" } = await req.json();
+    // Rules from the portable policy, model call via the provider adapter. Neither knows the other.
+    const out = await runWaiter({
+      system: buildWaiterPolicy({ restaurant, lang, categories: CATEGORIES, menu: MENU }),
+      user: buildWaiterContext({ taste, profile, off, promote, cart, message }),
+      schema: WAITER_SCHEMA,
     });
-    const j = await r.json();
-    if (!r.ok || (j && j.error)) {
-      return NextResponse.json({ reply: "Sorry, I'm having a little trouble right now — please try again.", actions: [] });
+    const sg = out.signals || {};
+    if (cid && ((sg.unavailable && sg.unavailable.length) || (sg.flavors && sg.flavors.length) || (sg.avoid && sg.avoid.length) || sg.mood)) {
+      try {
+        const upd: Record<string, unknown> = { updated_at: new Date().toISOString(), outlet: Number(outlet) || 1, turns: FieldValue.increment(1) };
+        if (sg.unavailable && sg.unavailable.length) upd.unavailable = FieldValue.arrayUnion(...sg.unavailable.map(String));
+        if (sg.flavors && sg.flavors.length) upd.flavors = FieldValue.arrayUnion(...sg.flavors.map(String));
+        if (sg.avoid && sg.avoid.length) upd.avoid = FieldValue.arrayUnion(...sg.avoid.map(String));
+        if (sg.mood) upd.moods = FieldValue.arrayUnion(String(sg.mood));
+        await bbDb().collection(BB.signals).doc(String(cid)).set(upd, { merge: true });
+      } catch {}
     }
-    let out: { reply?: string; actions?: unknown[] } = { reply: "", actions: [] };
-    try { out = JSON.parse(j.candidates[0].content.parts[0].text); } catch { out = { reply: "Sorry, could you say that again?", actions: [] }; }
-    return NextResponse.json({ reply: out.reply || "", actions: out.actions || [] });
+    return NextResponse.json({ reply: out.reply || "", actions: out.actions || [], signals: out.signals || null });
   } catch {
     return NextResponse.json({ reply: "Sorry, something went wrong — please try again.", actions: [] });
   }

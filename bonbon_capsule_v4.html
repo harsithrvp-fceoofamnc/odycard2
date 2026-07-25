@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bon Bon — Business Capsule</title>
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;background:#0c0a0b;font-family:-apple-system,Segoe UI,Roboto,system-ui,sans-serif;color:#fff;padding:16px 0 60px}
+  .phone{max-width:400px;margin:0 auto;padding:0 14px}
+  .hdr{display:flex;align-items:center;justify-content:space-between;padding:6px 4px 16px}
+  .hdr .l{display:flex;flex-direction:column}
+  .hdr .t{font-size:17px;font-weight:800}
+  .hdr .m{font-size:12.5px;color:#9a9098;margin-top:1px}
+  .hdr .m b{color:#fff}
+  .share{width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;cursor:pointer}
+
+  .card{border-radius:22px;padding:22px;margin-bottom:14px;position:relative;overflow:hidden;opacity:0;transform:translateY(20px) scale(.98);transition:.6s cubic-bezier(.2,.8,.2,1)}
+  .card.in{opacity:1;transform:none}
+  .card .sh{position:absolute;top:16px;right:16px;width:30px;height:30px;border-radius:50%;background:rgba(0,0,0,.22);display:flex;align-items:center;justify-content:center;cursor:pointer}
+  .eyebrow{font-size:12px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;opacity:.85}
+  .huge{font-size:52px;font-weight:900;letter-spacing:-1px;line-height:1;margin:12px 0 8px}
+  .big{font-size:34px;font-weight:900;line-height:1.04;margin:10px 0 6px}
+  .say{font-size:15px;line-height:1.5;opacity:.95;font-weight:500}
+  .say b{font-weight:800}
+
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .row2 .card{margin-bottom:0}
+  .mini .k{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;opacity:.85}
+  .mini .v{font-size:24px;font-weight:900;margin:9px 0 4px;line-height:1.05}
+  .mini .s{font-size:12.5px;opacity:.9;font-weight:600}
+
+  /* palettes */
+  .green{background:linear-gradient(150deg,#1db954,#0a7d3f)}
+  .pink{background:linear-gradient(150deg,#f857a6,#a838c9);color:#fff}
+  .purple{background:linear-gradient(150deg,#7b5cff,#4a2fb0)}
+  .bold{background:linear-gradient(150deg,#ff8a3c,#e0446a)}
+  .gold{background:linear-gradient(150deg,#e9b64a,#b7772a);color:#241a06}
+  .amber{background:linear-gradient(150deg,#ffb347,#e07b39);color:#241503}
+  .blue{background:linear-gradient(150deg,#43b0ff,#4a5cff)}
+  .maroon{background:linear-gradient(150deg,#d1567a,#7c1e30)}
+  .fire{background:linear-gradient(150deg,#ff6a3d,#c9184a)}
+  .persona-art{position:absolute;right:-20px;bottom:-20px;font-size:120px;opacity:.16;transform:rotate(-8deg)}
+
+  .foot{text-align:center;font-size:12px;color:#8a8088;margin-top:8px}
+</style>
+</head>
+<body>
+<div class="phone">
+  <div class="hdr">
+    <div class="l"><span class="t">Your Bon Bon Capsule</span><span class="m"><b>July</b> 2026</span></div>
+    <div class="share"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg></div>
+  </div>
+
+  <!-- hero revenue -->
+  <div class="card green">
+    <span class="sh">↗</span>
+    <div class="eyebrow">You earned</div>
+    <div class="huge"><span data-count="168000" data-pre="₹">₹0</span></div>
+    <div class="say">Your <b>best month yet</b> — up 14% on June. ✨</div>
+  </div>
+
+  <!-- top dish + busiest day -->
+  <div class="row2" style="margin-bottom:14px">
+    <div class="card pink mini">
+      <div class="k">Top dish</div>
+      <div class="v">Belgian Waffle</div>
+      <div class="s">168 sold 🧇</div>
+    </div>
+    <div class="card purple mini">
+      <div class="k">Busiest day</div>
+      <div class="v">Saturday</div>
+      <div class="s">₹6.4k avg</div>
+    </div>
+  </div>
+
+  <!-- comparison (the "82 mins more than avg fan" card) -->
+  <div class="card bold">
+    <span class="sh">↗</span>
+    <div class="eyebrow">vs parlours like yours</div>
+    <div class="big"><span data-count="40" data-suf="%">0%</span> more waffles</div>
+    <div class="say">Bon Bon is a <b>waffle destination</b> — you out-sell similar shops nearby. Lean into it.</div>
+  </div>
+
+  <!-- persona -->
+  <div class="card gold">
+    <span class="sh">↗</span>
+    <div class="persona-art">🏆</div>
+    <div class="eyebrow">This month you were</div>
+    <div class="big">The Weekend Champion</div>
+    <div class="say">Two-thirds of your magic happens Fri–Sun. That's your superpower — own it.</div>
+  </div>
+
+  <!-- rising star -->
+  <div class="card fire">
+    <span class="sh">↗</span>
+    <div class="eyebrow">Catching fire 🔥</div>
+    <div class="big">Oreo Roll <span data-count="30" data-pre="▲ " data-suf="%">▲ 0%</span></div>
+    <div class="say">A new favourite is forming. Make it a Best Seller before it cools.</div>
+  </div>
+
+  <!-- craving missed -->
+  <div class="card amber">
+    <span class="sh">↗</span>
+    <div class="eyebrow"><span data-count="37">0</span> guests wanted</div>
+    <div class="big">Mango Kulfi</div>
+    <div class="say">…and you didn't have it. That's about <b>₹6,000</b> knocking on the door.</div>
+  </div>
+
+  <!-- golden hour -->
+  <div class="card blue">
+    <span class="sh">↗</span>
+    <div class="eyebrow">Your golden hour</div>
+    <div class="big">Sat 6–8 PM</div>
+    <div class="say"><b>2.3×</b> a normal evening. Staff up and push combos right here.</div>
+  </div>
+
+  <!-- next month -->
+  <div class="card maroon">
+    <span class="sh">↗</span>
+    <div class="eyebrow">Do one thing next month</div>
+    <div class="big">Add mango kulfi + feature the waffle</div>
+    <div class="say">…and August could reach <b>₹1.9L</b>. I'll track it for you.</div>
+  </div>
+
+  <div class="foot">Written by your AI partner from July's numbers · tap any card to share</div>
+</div>
+
+<script>
+  var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');
+    e.target.querySelectorAll('[data-count]').forEach(function(el){
+      if(el._d)return;el._d=1;var t=+el.dataset.count,pre=el.dataset.pre||"",suf=el.dataset.suf||"",s=performance.now();
+      (function st(n){var p=Math.min(1,(n-s)/900);el.textContent=pre+Math.round(t*(1-Math.pow(1-p,3))).toLocaleString('en-IN')+suf;if(p<1)requestAnimationFrame(st);})(performance.now());
+    });
+    io.unobserve(e.target);}});},{threshold:.35});
+  document.querySelectorAll('.card').forEach(function(c){io.observe(c);});
+</script>
+</body>
+</html>

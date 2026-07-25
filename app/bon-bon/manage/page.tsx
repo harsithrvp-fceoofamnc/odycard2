@@ -175,9 +175,13 @@ function ItemRow({
 }) {
   const [f, setF] = useState({ name: it.name, price: it.price, price500: it.price500 || 0, q: it.q, pt: it.pt, desc: it.desc });
   const [upBusy, setUpBusy] = useState(false);
+  const [reason, setReason] = useState(it.offReason || "");
   useEffect(() => {
     setF({ name: it.name, price: it.price, price500: it.price500 || 0, q: it.q, pt: it.pt, desc: it.desc });
+    setReason(it.offReason || "");
   }, [it, editing]);
+  const st: string = it.status || (it.available === 0 ? "out" : "on");
+  const push = Number(it.push) || 0;
 
   async function onPhoto(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -206,6 +210,7 @@ function ItemRow({
   }
 
   const soldOut = !it.available;
+  const STLAB: Record<string, string> = { out: "Out of stock", soon: "Not ready", off: "Not served here" };
   return (
     <div
       style={{
@@ -220,7 +225,8 @@ function ItemRow({
         <div style={{ minWidth: 0 }}>
           <div style={{ fontWeight: 700, color: C.ink, fontSize: 15 }}>
             {it.name}
-            {soldOut && <span style={{ ...pill, background: "#fbe9e7", color: C.warn }}>Sold out</span>}
+            {st !== "on" && <span style={{ ...pill, background: "#fbe9e7", color: C.warn }}>{STLAB[st] || "Sold out"}</span>}
+            {push >= 3 && <span style={{ ...pill, background: "#fdeee0", color: "#b45309" }}>Push {push}</span>}
             {!!it.promoted && <span style={{ ...pill, background: "#e3f5ec", color: "#0a7d55" }}>Promoted</span>}
             {!!it.hidden && <span style={{ ...pill, background: "#eee", color: "#777" }}>Hidden</span>}
           </div>
@@ -238,7 +244,7 @@ function ItemRow({
       </div>
 
       <div style={{ display: "flex", gap: 7, flexWrap: "wrap", marginTop: 10 }}>
-        <Toggle on={!soldOut} label={soldOut ? "Mark available" : "In stock"} color={C.good} onClick={() => onPatch({ available: (soldOut ? 1 : 0) as 0 | 1 })} />
+        <Toggle on={!soldOut} label={soldOut ? "Mark available" : "In stock"} color={C.good} onClick={() => onPatch({ available: (soldOut ? 1 : 0) as 0 | 1, status: soldOut ? "on" : "out" })} />
         <Toggle on={!!it.best} label="Best seller" color={C.maroon} onClick={() => onPatch({ best: (it.best ? 0 : 1) as 0 | 1 })} />
         <Toggle on={!!it.must} label="Must try" color="#a83048" onClick={() => onPatch({ must: (it.must ? 0 : 1) as 0 | 1 })} />
         <Toggle on={!!it.promoted} label="Promote" color="#0a7d55" onClick={() => onPatch({ promoted: (it.promoted ? 0 : 1) as 0 | 1 })} />
@@ -267,6 +273,48 @@ function ItemRow({
           </div>
           <label style={lbl}>Description</label>
           <textarea style={{ ...inp, minHeight: 54, resize: "vertical" }} value={f.desc} onChange={(e) => setF({ ...f, desc: e.target.value })} />
+
+          <label style={lbl}>Availability — the AI tells guests this reason</label>
+          <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+            {[
+              { k: "on", label: "In stock", color: C.good },
+              { k: "out", label: "Out of stock", color: C.warn },
+              { k: "soon", label: "Not ready yet", color: "#b45309" },
+              { k: "off", label: "Not served here", color: "#555" },
+            ].map((s) => (
+              <button
+                key={s.k}
+                onClick={() => onPatch({ status: s.k as BBMenuItem["status"], available: (s.k === "on" ? 1 : 0) as 0 | 1 })}
+                style={{ padding: "6px 11px", borderRadius: 20, border: `1.5px solid ${st === s.k ? s.color : C.line}`, background: st === s.k ? s.color : "#fff", color: st === s.k ? "#fff" : C.mut, fontSize: 12.5, fontWeight: 700, cursor: "pointer" }}
+              >
+                {s.label}
+              </button>
+            ))}
+          </div>
+          {st !== "on" && (
+            <input
+              style={inp}
+              value={reason}
+              placeholder="Reason (optional) — e.g. fresh batch by 6pm"
+              maxLength={80}
+              onChange={(e) => setReason(e.target.value)}
+              onBlur={() => reason !== (it.offReason || "") && onPatch({ offReason: reason })}
+            />
+          )}
+
+          <label style={lbl}>Push priority — how hard the AI promotes &amp; upsells this</label>
+          <div style={{ display: "flex", gap: 6, alignItems: "center", flexWrap: "wrap" }}>
+            {[0, 1, 2, 3, 4, 5].map((n) => (
+              <button
+                key={n}
+                onClick={() => onPatch({ push: n })}
+                style={{ width: 38, padding: "7px 0", borderRadius: 9, border: `1.5px solid ${push === n ? C.maroon : C.line}`, background: push === n ? C.maroon : "#fff", color: push === n ? "#fff" : C.ink, fontSize: 13.5, fontWeight: 800, cursor: "pointer" }}
+              >
+                {n}
+              </button>
+            ))}
+            <span style={{ fontSize: 11.5, color: C.mut, marginLeft: 4 }}>0 = leave alone · 3+ = actively promote</span>
+          </div>
 
           <label style={lbl}>Photo</label>
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>

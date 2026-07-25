@@ -182,6 +182,7 @@ export default function AdminPage() {
           <NavLink href="/bon-bon/admin" active>
             Dashboard
           </NavLink>
+          <NavLink href="/bon-bon/insights">AI Manager</NavLink>
           <NavLink href="/bon-bon/manage">Menu</NavLink>
           <NavLink href="/bon-bon/kitchen">Kitchen</NavLink>
           <NavLink href="/bon-bon/waiter">Waiter</NavLink>
@@ -204,6 +205,9 @@ export default function AdminPage() {
             Sales are visible to you (the owner) only — never to supervisors or waiters. Figures come from real orders
             placed through the chatbot.
           </p>
+
+          {/* AI Manager: what guests are telling us */}
+          <ManagerReport />
 
           {/* restaurants & outlets */}
           <section style={{ ...card, marginBottom: 16 }}>
@@ -387,6 +391,203 @@ export default function AdminPage() {
         </>
       )}
     </Shell>
+  );
+}
+
+type Insights = {
+  days: number;
+  conversations: number;
+  askedButMissing: number;
+  gaps: { label: string; count: number }[];
+  flavors: { label: string; count: number }[];
+  avoid: { label: string; count: number }[];
+  moods: { label: string; count: number }[];
+  orders: number;
+  totalRevenue: number;
+  leaderboard: { label: string; qty: number; rev: number }[];
+  toImprove: { label: string; qty: number }[];
+  trend: { day: string; revenue: number; orders: number }[];
+};
+
+// The AI's "Manager" report. Every guest chat quietly leaves a note (bonbon_signals) about what
+// they craved and — most valuable — what they asked for that we don't carry. This just counts
+// those notes so the owner sees demand before stocking decisions. No sales figures here; that's
+// the top row. This is the "why".
+function ManagerReport() {
+  const [ins, setIns] = useState<Insights | null>(null);
+  const [days, setDays] = useState(30);
+  const [loading, setLoading] = useState(true);
+  const load = useCallback(async () => {
+    setLoading(true);
+    const r = await fetch(`/api/bonbon/insights?days=${days}`);
+    if (r.ok) setIns(await r.json());
+    setLoading(false);
+  }, [days]);
+  useEffect(() => {
+    load();
+  }, [load]);
+
+  const empty = ins && ins.conversations === 0 && ins.orders === 0;
+  return (
+    <section style={{ ...card, marginBottom: 16, borderColor: "#e7c9d1", background: "linear-gradient(180deg,#fff,#fdf6f7)" }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, flexWrap: "wrap" }}>
+        <h2 style={{ ...h2, display: "flex", alignItems: "center", gap: 8 }}>
+          <SparkIcon /> AI Manager
+        </h2>
+        <div style={{ display: "flex", gap: 6 }}>
+          {[7, 30, 90].map((d) => (
+            <button key={d} onClick={() => setDays(d)} style={{ ...miniBtn, ...(days === d ? { background: C.maroon, color: "#fff", borderColor: C.maroon } : {}) }}>
+              {d}d
+            </button>
+          ))}
+        </div>
+      </div>
+      <p style={hint}>
+        What guests told the chatbot — read automatically from every conversation. The demand gaps below are things
+        people <b>asked for that Bon Bon doesn&apos;t carry</b> (or was sold out): your stocking to-do list.
+      </p>
+
+      {loading ? (
+        <div style={{ color: C.mut, fontSize: 13, padding: "6px 0" }}>Reading the journal…</div>
+      ) : empty ? (
+        <div style={{ color: C.mut, fontSize: 13.5, padding: "10px 0" }}>
+          No guest signals yet in this window. As people chat with the menu, their cravings and requests show up here.
+        </div>
+      ) : (
+        ins && (
+          <>
+            <div style={{ display: "flex", gap: 18, flexWrap: "wrap", margin: "4px 0 16px" }}>
+              <MiniStat n={ins.orders} label="orders" />
+              <MiniStat n={ins.conversations} label="conversations" />
+              <MiniStat n={ins.askedButMissing} label="asked for something we lack" warn />
+            </div>
+
+            {ins.trend.some((t) => t.revenue > 0) && <TrendChart trend={ins.trend} />}
+
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(240px,1fr))", gap: 18 }}>
+              <ReportBlock title="Best sellers — today's board" empty="No sales in this window yet.">
+                {ins.leaderboard.map((l, i) => (
+                  <RankRow key={l.label} rank={i + 1} label={l.label} qty={l.qty} rev={l.rev} />
+                ))}
+              </ReportBlock>
+              <ReportBlock title="To improve — barely selling" empty="Nothing to flag.">
+                {ins.toImprove.map((t) => (
+                  <RankRow key={t.label} label={t.label} qty={t.qty} dim />
+                ))}
+              </ReportBlock>
+            </div>
+
+            <ReportBlock title="Demand gaps — asked for, not on the menu" empty="Nothing missing — guests found what they wanted.">
+              {ins.gaps.map((g) => (
+                <Bar key={g.label} label={g.label} count={g.count} max={ins.gaps[0]?.count || 1} tone="warn" />
+              ))}
+            </ReportBlock>
+
+            <ReportBlock title="Most-loved flavours" empty="No flavour signals yet.">
+              {ins.flavors.map((f) => (
+                <Bar key={f.label} label={f.label} count={f.count} max={ins.flavors[0]?.count || 1} tone="good" />
+              ))}
+            </ReportBlock>
+
+            {(ins.moods.length > 0 || ins.avoid.length > 0) && (
+              <div style={{ display: "flex", gap: 20, flexWrap: "wrap", marginTop: 4 }}>
+                {ins.moods.length > 0 && (
+                  <ChipList title="Moods & occasions" items={ins.moods} />
+                )}
+                {ins.avoid.length > 0 && (
+                  <ChipList title="Guests avoided" items={ins.avoid} />
+                )}
+              </div>
+            )}
+          </>
+        )
+      )}
+    </section>
+  );
+}
+
+function MiniStat({ n, label, warn }: { n: number; label: string; warn?: boolean }) {
+  return (
+    <div>
+      <div style={{ fontSize: 26, fontWeight: 800, color: warn ? C.maroon : C.ink, lineHeight: 1 }}>{n}</div>
+      <div style={{ fontSize: 11.5, color: C.mut, marginTop: 3 }}>{label}</div>
+    </div>
+  );
+}
+function ReportBlock({ title, empty, children }: { title: string; empty: string; children: React.ReactNode }) {
+  const has = Array.isArray(children) ? children.length > 0 : !!children;
+  return (
+    <div style={{ marginTop: 14 }}>
+      <div style={{ fontSize: 11.5, fontWeight: 800, color: C.mut, textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 8 }}>{title}</div>
+      {has ? <div style={{ display: "grid", gap: 7 }}>{children}</div> : <div style={{ fontSize: 12.5, color: C.mut }}>{empty}</div>}
+    </div>
+  );
+}
+function RankRow({ rank, label, qty, rev, dim }: { rank?: number; label: string; qty: number; rev?: number; dim?: boolean }) {
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: 9, padding: "2px 0" }}>
+      {rank != null && (
+        <span style={{ flex: "0 0 20px", fontSize: 12.5, fontWeight: 800, color: rank <= 3 ? C.maroon : C.mut, textAlign: "center" }}>{rank}</span>
+      )}
+      <span style={{ flex: 1, minWidth: 0, fontSize: 13.5, fontWeight: 600, color: dim ? C.mut : C.ink, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", textTransform: "capitalize" }}>{label}</span>
+      <span style={{ fontSize: 12.5, color: dim ? (qty === 0 ? C.warn : C.mut) : C.mut }}>{qty === 0 ? "0 sold" : `${qty} sold`}</span>
+      {rev != null && rev > 0 && <span style={{ fontSize: 12.5, fontWeight: 800, color: C.ink, minWidth: 52, textAlign: "right" }}>₹{rev}</span>}
+    </div>
+  );
+}
+function TrendChart({ trend }: { trend: { day: string; revenue: number; orders: number }[] }) {
+  const max = Math.max(1, ...trend.map((t) => t.revenue));
+  return (
+    <div style={{ marginBottom: 16 }}>
+      <div style={{ fontSize: 11.5, fontWeight: 800, color: C.mut, textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 8 }}>Revenue trend</div>
+      <div style={{ display: "flex", alignItems: "flex-end", gap: 4, height: 88, padding: "0 2px" }}>
+        {trend.map((t, i) => {
+          const h = Math.round((t.revenue / max) * 76);
+          return (
+            <div key={i} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 4, minWidth: 0 }} title={`${t.day}: ₹${t.revenue} · ${t.orders} orders`}>
+              <div style={{ width: "100%", maxWidth: 26, height: Math.max(2, h), background: t.revenue > 0 ? `linear-gradient(180deg,${C.maroon},${C.dark})` : C.line, borderRadius: 4 }} />
+              <span style={{ fontSize: 8.5, color: C.mut, whiteSpace: "nowrap" }}>{t.day}</span>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+function Bar({ label, count, max, tone }: { label: string; count: number; max: number; tone: "warn" | "good" }) {
+  const pct = Math.max(8, Math.round((count / max) * 100));
+  const col = tone === "warn" ? C.maroon : "#3b6d11";
+  const bg = tone === "warn" ? "#f7e3e8" : "#eaf3de";
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+      <div style={{ flex: 1, minWidth: 0, position: "relative", height: 30, background: bg, borderRadius: 8, overflow: "hidden" }}>
+        <div style={{ position: "absolute", inset: 0, width: `${pct}%`, background: tone === "warn" ? "rgba(129,18,38,.16)" : "rgba(59,109,17,.16)" }} />
+        <span style={{ position: "absolute", left: 10, top: 0, bottom: 0, display: "flex", alignItems: "center", fontSize: 13.5, fontWeight: 600, color: C.ink, textTransform: "capitalize" }}>{label}</span>
+      </div>
+      <span style={{ fontSize: 13.5, fontWeight: 800, color: col, minWidth: 42, textAlign: "right" }}>{count}×</span>
+    </div>
+  );
+}
+function ChipList({ title, items }: { title: string; items: { label: string; count: number }[] }) {
+  return (
+    <div style={{ flex: "1 1 200px" }}>
+      <div style={{ fontSize: 11.5, fontWeight: 800, color: C.mut, textTransform: "uppercase", letterSpacing: 0.5, margin: "10px 0 8px" }}>{title}</div>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+        {items.map((i) => (
+          <span key={i.label} style={{ fontSize: 12.5, color: C.ink, background: "#f4eef0", border: `1px solid ${C.line}`, borderRadius: 20, padding: "4px 10px", textTransform: "capitalize" }}>
+            {i.label} <b style={{ color: C.mut }}>{i.count}</b>
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+}
+function SparkIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={C.maroon} strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 3l1.8 4.9L18.7 9.7 13.8 11.5 12 16.4 10.2 11.5 5.3 9.7 10.2 7.9z" />
+      <path d="M19 15l.7 2 2 .7-2 .7-.7 2-.7-2-2-.7 2-.7z" />
+    </svg>
   );
 }
 

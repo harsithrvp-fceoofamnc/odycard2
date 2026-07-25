@@ -1,0 +1,278 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bon Bon — AI Manager (visual)</title>
+<style>
+  :root{
+    --bg:#150d0e; --panel:#211619; --panel2:#281a1e; --line:rgba(255,255,255,.09);
+    --ink:#f4e9e6; --mut:#b39a97; --dim:#8b7573;
+    --rose:#f07a97; --gold:#e9cf94; --green:#77c79c; --amber:#e6b56a; --blue:#8fb8e6;
+    --maroon:#b7405a;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;color:var(--ink);font-family:-apple-system,Segoe UI,Roboto,system-ui,sans-serif;
+    background:radial-gradient(900px 380px at 80% -8%,rgba(183,64,90,.20),transparent 60%),radial-gradient(700px 340px at 0% 6%,rgba(233,207,148,.07),transparent 55%),var(--bg);
+    padding:20px 14px 60px;min-height:100vh}
+  .wrap{max-width:860px;margin:0 auto}
+  .top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:18px}
+  .brand{display:flex;align-items:center;gap:11px}
+  .logo{width:38px;height:38px;border-radius:11px;background:linear-gradient(135deg,var(--maroon),#7c1e30);display:flex;align-items:center;justify-content:center;box-shadow:0 6px 18px rgba(183,64,90,.35)}
+  .brand h1{font-size:16px;margin:0;font-weight:700}
+  .brand .sub{font-size:11px;color:var(--mut);margin-top:1px;display:flex;align-items:center;gap:6px}
+  .pulse{width:7px;height:7px;border-radius:50%;background:var(--green);animation:pulse 1.8s infinite}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(119,199,156,.55)}70%{box-shadow:0 0 0 7px rgba(119,199,156,0)}100%{box-shadow:0 0 0 0 rgba(119,199,156,0)}}
+  .seg{display:flex;gap:5px;background:var(--panel);border:1px solid var(--line);border-radius:11px;padding:4px}
+  .seg button{border:0;background:transparent;color:var(--mut);font-weight:700;font-size:12px;padding:6px 11px;border-radius:8px;cursor:pointer}
+  .seg button.on{background:var(--maroon);color:#fff}
+
+  /* headline */
+  .headline{background:linear-gradient(180deg,var(--panel2),var(--panel));border:1px solid var(--line);border-radius:18px;padding:16px 18px;display:flex;align-items:center;gap:13px;position:relative;overflow:hidden}
+  .headline::before{content:"";position:absolute;top:-50%;right:-6%;width:240px;height:240px;background:radial-gradient(circle,rgba(240,122,151,.16),transparent 65%)}
+  .spark{width:32px;height:32px;flex:0 0 32px;border-radius:9px;background:rgba(233,207,148,.12);border:1px solid rgba(233,207,148,.25);display:flex;align-items:center;justify-content:center}
+  .headline .txt{font-size:15px;line-height:1.5;font-weight:600}
+  .headline .txt b{color:#fff}
+  .chips{display:flex;gap:7px;flex-wrap:wrap;margin-top:12px}
+  .chip{font-size:12px;font-weight:700;color:#fff;background:rgba(183,64,90,.9);border:0;border-radius:20px;padding:7px 13px;cursor:pointer}
+  .chip.g{background:transparent;border:1px solid var(--line);color:var(--ink)}
+
+  .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:11px;margin:14px 0}
+  @media(max-width:640px){.kpis{grid-template-columns:repeat(2,1fr)}}
+  .kpi{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:13px 14px}
+  .kpi .n{font-size:22px;font-weight:800}
+  .kpi .l{font-size:10.5px;color:var(--mut);margin-top:3px}
+  .kpi .d{font-size:11px;font-weight:700;margin-top:5px}
+  .up{color:var(--green)} .down{color:var(--rose)}
+
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  @media(max-width:640px){.grid{grid-template-columns:1fr}}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:15px 16px 14px}
+  .card .ct{font-size:12px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;color:var(--mut)}
+  .card .ci{font-size:12.5px;color:var(--gold);margin-top:5px;display:flex;align-items:center;gap:6px}
+  .card .ci::before{content:"✦";font-size:10px}
+  .chartwrap{margin-top:12px}
+
+  /* donut legend */
+  .legend{display:flex;flex-direction:column;gap:6px}
+  .lrow{display:flex;align-items:center;gap:8px;font-size:12px}
+  .dot{width:9px;height:9px;border-radius:3px;flex:0 0 9px}
+  .lrow .lv{margin-left:auto;color:var(--mut);font-weight:700}
+
+  /* horizontal bars */
+  .hb{display:flex;align-items:center;gap:10px;margin:9px 0}
+  .hb .nm{width:118px;font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .hb .tk{flex:1;height:22px;background:rgba(255,255,255,.05);border-radius:6px;overflow:hidden}
+  .hb .fl{height:100%;width:0;border-radius:6px;transition:width 1s cubic-bezier(.2,.7,.2,1)}
+  .hb .vv{font-size:12px;font-weight:800;min-width:34px;text-align:right}
+
+  /* gaps */
+  .gap{display:flex;align-items:center;gap:10px;margin:9px 0}
+  .gap .nm{flex:1;font-size:13px;text-transform:capitalize}
+  .gap .bar{width:120px;height:8px;background:rgba(255,255,255,.06);border-radius:5px;overflow:hidden}
+  .gap .bf{height:100%;width:0;background:var(--rose);border-radius:5px;transition:width 1s cubic-bezier(.2,.7,.2,1)}
+  .gap .c{font-size:12.5px;font-weight:800;color:var(--rose);min-width:30px;text-align:right}
+
+  /* hourly */
+  .hours{display:flex;align-items:flex-end;gap:5px;height:96px;margin-top:12px}
+  .hours .h{flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;justify-content:flex-end}
+  .hours .hb2{width:100%;max-width:22px;border-radius:4px 4px 0 0;height:0;transition:height .9s cubic-bezier(.2,.7,.2,1)}
+  .hours .hl{font-size:8.5px;color:var(--dim)}
+
+  .find{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px 14px;display:flex;align-items:center;gap:12px;margin-bottom:9px}
+  .find .tag{font-size:9.5px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;padding:4px 8px;border-radius:6px;white-space:nowrap}
+  .tag.now{background:rgba(240,122,151,.16);color:var(--rose)}
+  .tag.trim{background:rgba(230,181,106,.16);color:var(--amber)}
+  .tag.opp{background:rgba(119,199,156,.15);color:var(--green)}
+  .find .ft{flex:1;font-size:13px}
+  .find .ft b{color:#fff}
+  .find .im{font-size:11.5px;color:var(--green);font-weight:700;white-space:nowrap}
+
+  .chat{background:linear-gradient(180deg,var(--panel2),var(--panel));border:1px solid var(--line);border-radius:18px;padding:15px;margin-top:16px}
+  .chat .hd{font-weight:800;font-size:14px;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+  .log{display:flex;flex-direction:column;gap:9px;margin-bottom:10px}
+  .bub{max-width:88%;padding:10px 13px;border-radius:13px;font-size:13.3px;line-height:1.5}
+  .bub.me{align-self:flex-end;background:var(--maroon);color:#fff;border-bottom-right-radius:5px}
+  .bub.ai{align-self:flex-start;background:var(--panel);border:1px solid var(--line);border-bottom-left-radius:5px}
+  .qs{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:10px}
+  .q{font-size:11.5px;color:var(--ink);background:transparent;border:1px solid var(--line);border-radius:20px;padding:6px 11px;cursor:pointer}
+  .q:hover{border-color:var(--rose);color:var(--rose)}
+  .box{display:flex;gap:8px}
+  .box input{flex:1;background:var(--bg);border:1px solid var(--line);border-radius:11px;padding:10px 13px;color:var(--ink);font-size:13.5px;outline:none}
+  .box button{border:0;background:var(--maroon);color:#fff;font-weight:700;border-radius:11px;padding:0 15px;cursor:pointer}
+  h2s{}
+  .sec{font-size:12px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--mut);margin:20px 4px 10px}
+  .note{max-width:860px;margin:14px auto 0;font-size:11px;color:var(--dim);text-align:center}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <div class="brand">
+      <div class="logo"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.8 4.9L18.7 9.7 13.8 11.5 12 16.4 10.2 11.5 5.3 9.7 10.2 7.9z"/></svg></div>
+      <div><h1>Bon Bon · AI Manager</h1><div class="sub"><span class="pulse"></span>ready · updated just now</div></div>
+    </div>
+    <div class="seg"><button>7d</button><button class="on">This week</button><button>30d</button></div>
+  </div>
+
+  <div class="headline">
+    <span class="spark"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#e9cf94" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.7 4.6L18 9.3l-4.3 1.7L12 15.6l-1.7-4.6L6 9.3l4.3-1.7z"/></svg></span>
+    <div>
+      <div class="txt" id="hl"></div>
+      <div class="chips"><button class="chip">＋ Add mango kulfi</button><button class="chip g">Trim 2 items</button><button class="chip g">Fix 8pm dip</button></div>
+    </div>
+  </div>
+
+  <div class="kpis">
+    <div class="kpi"><div class="n" data-count="312">0</div><div class="l">Orders</div><div class="d up">▲ 18%</div></div>
+    <div class="kpi"><div class="n" data-pre="₹" data-count="42180">0</div><div class="l">Revenue</div><div class="d up">▲ 12%</div></div>
+    <div class="kpi"><div class="n" data-count="96">0</div><div class="l">Unmet requests</div><div class="d down">▼ 8</div></div>
+    <div class="kpi"><div class="n" data-pre="₹" data-count="135">0</div><div class="l">Avg bill</div><div class="d up">▲ 6%</div></div>
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <div class="ct">Revenue trend</div>
+      <div class="ci">Up 12% — Fri &amp; Sat carry the week</div>
+      <div class="chartwrap">
+        <svg viewBox="0 0 320 130" width="100%" height="130">
+          <defs><linearGradient id="ag" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f07a97" stop-opacity=".35"/><stop offset="1" stop-color="#f07a97" stop-opacity="0"/></linearGradient></defs>
+          <path id="area" fill="url(#ag)" opacity="0"></path>
+          <path id="linep" fill="none" stroke="#f07a97" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" pathLength="1" stroke-dasharray="1" stroke-dashoffset="1"></path>
+          <g id="dots"></g>
+          <g id="xlab"></g>
+        </svg>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="ct">Where sales come from</div>
+      <div class="ci">Scoops are a third; shakes slipping</div>
+      <div class="chartwrap" style="display:flex;align-items:center;gap:14px">
+        <svg viewBox="0 0 120 120" width="120" height="120" style="flex:0 0 120px">
+          <g id="donut" transform="rotate(-90 60 60)"></g>
+          <text x="60" y="57" text-anchor="middle" font-size="20" font-weight="800" fill="#f4e9e6">32%</text>
+          <text x="60" y="72" text-anchor="middle" font-size="9" fill="#b39a97">Scoops</text>
+        </svg>
+        <div class="legend" id="legend" style="flex:1"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="ct">Best sellers</div>
+      <div class="ci">Oreo Roll &amp; Butterscotch lead</div>
+      <div class="chartwrap" id="best"></div>
+    </div>
+
+    <div class="card">
+      <div class="ct">Demand you're missing</div>
+      <div class="ci">Mango kulfi — 37 asks, not on menu</div>
+      <div class="chartwrap" id="gaps"></div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:12px">
+    <div class="ct">Orders by hour</div>
+    <div class="ci">After 8pm drops ~40% — your weak window</div>
+    <div class="hours" id="hours"></div>
+  </div>
+
+  <div class="sec">What I'd do — ranked</div>
+  <div class="find"><span class="tag now">Act now</span><div class="ft"><b>Add mango kulfi</b> — 37 asks, 0 stock, #1 unmet 2 weeks running.</div><span class="im">+₹6k/mo</span></div>
+  <div class="find"><span class="tag trim">Trim</span><div class="ft"><b>Rose Falooda &amp; Kiwi Scoop</b> barely sell — hide or push once.</div><span class="im">cleaner menu</span></div>
+  <div class="find"><span class="tag opp">Opportunity</span><div class="ft"><b>8pm waffle + shake combo</b> to lift quiet evenings.</div><span class="im">+9% eve</span></div>
+
+  <div class="chat">
+    <div class="hd"><span class="spark" style="width:26px;height:26px;flex:0 0 26px"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#e9cf94" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-8 8H7l-4 3V12a8 8 0 0 1 8-8h2a8 8 0 0 1 8 8z"/></svg></span>Ask your manager</div>
+    <div class="log" id="log"></div>
+    <div class="qs" id="qs">
+      <button class="q">Why did shakes drop?</button>
+      <button class="q">What to push tomorrow?</button>
+      <button class="q">Who's my fastest waiter?</button>
+    </div>
+    <div class="box"><input id="inp" placeholder="Ask about Bon Bon…"><button id="send">Ask</button></div>
+  </div>
+
+  <div class="note">Preview · sample data. The real version draws every chart, line and answer from each restaurant's own numbers.</div>
+</div>
+
+<script>
+  // headline (short)
+  var hlText="Add mango kulfi, trim 2 dead items, and rescue your 8pm dip — that's the week.";
+  var hlEl=document.getElementById('hl'),k=0;
+  (function t(){ if(k<hlText.length){hlEl.textContent+=hlText[k++];setTimeout(t,hlText[k-1]===' '?14:20);} })();
+
+  // kpis
+  document.querySelectorAll('[data-count]').forEach(function(el){
+    var tt=+el.dataset.count,pre=el.dataset.pre||"",s=performance.now();
+    (function st(n){var p=Math.min(1,(n-s)/1000);el.textContent=pre+Math.round(tt*(1-Math.pow(1-p,3))).toLocaleString('en-IN');if(p<1)requestAnimationFrame(st);})(performance.now());
+  });
+
+  // trend line + area
+  var rev=[1980,2340,1720,2610,3050,2890,3420], days=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  (function(){
+    var W=320,H=130,pl=34,pr=10,pt=12,pb=22,max=Math.max.apply(null,rev),min=Math.min.apply(null,rev)*0.9;
+    var xs=function(i){return pl+(W-pl-pr)*i/(rev.length-1);}, ys=function(v){return pt+(H-pt-pb)*(1-(v-min)/(max-min));};
+    var d="M"+xs(0)+" "+ys(rev[0]);for(var i=1;i<rev.length;i++)d+=" L"+xs(i)+" "+ys(rev[i]);
+    document.getElementById('linep').setAttribute('d',d);
+    var area=d+" L"+xs(rev.length-1)+" "+(H-pb)+" L"+xs(0)+" "+(H-pb)+" Z";
+    document.getElementById('area').setAttribute('d',area);
+    var dots="",xl="";
+    for(var j=0;j<rev.length;j++){dots+='<circle cx="'+xs(j)+'" cy="'+ys(rev[j])+'" r="0" fill="#150d0e" stroke="#f07a97" stroke-width="2"><animate attributeName="r" to="3" dur="0.3s" begin="'+(0.9+j*0.07)+'s" fill="freeze"/></circle>';xl+='<text x="'+xs(j)+'" y="'+(H-6)+'" text-anchor="middle" font-size="8.5" fill="#8b7573">'+days[j]+'</text>';}
+    document.getElementById('dots').innerHTML=dots;document.getElementById('xlab').innerHTML=xl;
+    var lp=document.getElementById('linep');lp.style.transition='stroke-dashoffset 1.2s ease';requestAnimationFrame(function(){lp.style.strokeDashoffset='0';});
+    var ar=document.getElementById('area');ar.style.transition='opacity .8s ease .6s';requestAnimationFrame(function(){ar.style.opacity='1';});
+  })();
+
+  // donut
+  (function(){
+    var data=[['Scoops',32,'#f07a97'],['Shakes',22,'#e9cf94'],['Sundae',15,'#77c79c'],['Waffle',12,'#e6b56a'],['Falooda',10,'#8fb8e6'],['Other',9,'#b39a97']];
+    var r=48,C=2*Math.PI*r,off=0,g=document.getElementById('donut'),leg=document.getElementById('legend'),html="",lh="";
+    data.forEach(function(d,i){
+      var len=C*d[1]/100;
+      html+='<circle cx="60" cy="60" r="'+r+'" fill="none" stroke="'+d[2]+'" stroke-width="14" stroke-dasharray="'+len+' '+(C-len)+'" stroke-dashoffset="'+(-off)+'" style="opacity:0"><animate attributeName="opacity" to="1" dur="0.01s" begin="'+(0.3+i*0.12)+'s" fill="freeze"/><animate attributeName="stroke-dasharray" from="0 '+C+'" to="'+len+' '+(C-len)+'" dur="0.5s" begin="'+(0.3+i*0.12)+'s" fill="freeze"/></circle>';
+      off+=len;
+      lh+='<div class="lrow"><span class="dot" style="background:'+d[2]+'"></span>'+d[0]+'<span class="lv">'+d[1]+'%</span></div>';
+    });
+    g.innerHTML=html;leg.innerHTML=lh;
+  })();
+
+  // best sellers
+  (function(){
+    var b=[['Oreo Roll',41,'#f07a97'],['Butterscotch',38,'#e9cf94'],['Coffee Shake',29,'#77c79c'],['Death by Choc',22,'#e6b56a'],['Vanilla Softy',19,'#8fb8e6']],max=41,html="";
+    b.forEach(function(x){html+='<div class="hb"><span class="nm">'+x[0]+'</span><div class="tk"><div class="fl" style="background:'+x[2]+'" data-w="'+(x[1]/max*100)+'"></div></div><span class="vv">'+x[1]+'</span></div>';});
+    var el=document.getElementById('best');el.innerHTML=html;
+    setTimeout(function(){el.querySelectorAll('.fl').forEach(function(f){f.style.width=f.dataset.w+'%';});},200);
+  })();
+
+  // gaps
+  (function(){
+    var g=[['mango kulfi',37],['sugar-free',21],['kulfi falooda',15],['matka kulfi',11],['vegan',9]],max=37,html="";
+    g.forEach(function(x){html+='<div class="gap"><span class="nm">'+x[0]+'</span><div class="bar"><div class="bf" data-w="'+(x[1]/max*100)+'"></div></div><span class="c">'+x[1]+'</span></div>';});
+    var el=document.getElementById('gaps');el.innerHTML=html;
+    setTimeout(function(){el.querySelectorAll('.bf').forEach(function(f){f.style.width=f.dataset.w+'%';});},200);
+  })();
+
+  // hours
+  (function(){
+    var h=[['12p',18],['2p',34],['4p',41],['6p',52],['8p',30],['10p',12]],max=52,html="";
+    h.forEach(function(x){var col=x[0]==='8p'||x[0]==='10p'?'#e6b56a':'#b7405a';html+='<div class="h"><div class="hb2" style="background:'+col+'" data-h="'+(x[1]/max*80)+'"></div><span class="hl">'+x[0]+'</span></div>';});
+    var el=document.getElementById('hours');el.innerHTML=html;
+    setTimeout(function(){el.querySelectorAll('.hb2').forEach(function(f){f.style.height=f.dataset.h+'px';});},300);
+  })();
+
+  // chat
+  var log=document.getElementById('log');
+  var answers={
+    "why did shakes drop?":"Down 22% after Tuesday — nearly all on the Filter Coffee shake, right after the ₹20 price rise. Soften it with a combo, don't roll back.",
+    "what to push tomorrow?":"Saturday favours your Belgian Waffle & Death by Chocolate — set both to push and have the waiter offer an extra scoop (58% take-up last weekend).",
+    "who's my fastest waiter?":"Ravi: 6 min order-to-served vs 11 min floor-wide. Priya lags only on shake-heavy tables — that's the blender queue."
+  };
+  function bubble(cls,txt,ty){var b=document.createElement('div');b.className='bub '+cls;log.appendChild(b);b.scrollIntoView({behavior:'smooth',block:'end'});if(!ty){b.textContent=txt;return;}var j=0;(function t(){if(j<txt.length){b.textContent+=txt[j++];setTimeout(t,txt[j-1]===' '?11:18);}else b.scrollIntoView({behavior:'smooth',block:'end'});})();}
+  function ask(q){bubble('me',q,false);var a=answers[q.trim().toLowerCase()]||"Short version: your biggest levers are the mango-kulfi demand you're missing and the quiet 8pm window — those move the bill most this week.";setTimeout(function(){bubble('ai',a,true);},380);}
+  document.getElementById('qs').addEventListener('click',function(e){if(e.target.classList.contains('q'))ask(e.target.textContent);});
+  document.getElementById('send').addEventListener('click',function(){var v=document.getElementById('inp').value.trim();if(v){ask(v);document.getElementById('inp').value='';}});
+  document.getElementById('inp').addEventListener('keydown',function(e){if(e.key==='Enter')document.getElementById('send').click();});
+</script>
+</body>
+</html>

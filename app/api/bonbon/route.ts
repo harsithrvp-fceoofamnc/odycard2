@@ -1,6 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
+import { bbDb, BB } from "@/lib/bonbon";
+import { FieldValue } from "firebase-admin/firestore";
+import { buildWaiterPolicy, buildWaiterContext, WAITER_SCHEMA } from "@/lib/bonbonPolicy";
+import { runWaiter } from "@/lib/aiProvider";
 
-// Auto-generated from the Bon Bon menu. Server-side only (the API key never reaches the browser).
+// Auto-generated glue. The RULES live in lib/bonbonPolicy.ts (model-independent) and the MODEL
+// call lives in lib/aiProvider.ts (swap via AI_PROVIDER). This route only injects the live menu
+// and persists the customer journal. The API key never reaches the browser.
 const MENU = `madagascarvanilla | Madagascar Vanilla | Rs.80 | Scoops
 cookiencream | Cookie N Cream | Rs.90 | Scoops
 blackcurrant_sc | Black Currant | Rs.90 | Scoops
@@ -113,51 +119,27 @@ cheeseballsandwich | Cheese Ball Sandwich | Rs.180 | Snacks
 extraicecream | Extra Ice Cream (add-on) | Rs.30 | Add-ons`;
 const CATEGORIES = "Scoops, Softy, Waffle, Ice Cream Specials, Sundae, Mini Sundae, Roll Ice Cream, Falooda, Thick Shakes, Snacks";
 
-function systemPrompt(lang: string, rest?: string) {
-  return [
-    "You are the warm, friendly AI server for " + (rest || "Bon Bon, an ice cream parlour") + ".",
-    "You ONLY know the menu below. NEVER invent items or prices. If asked for something not on the menu, say it's unavailable and suggest a close alternative.",
-    "Stay strictly about Bon Bon's ice creams, desserts, shakes and snacks. Politely decline anything unrelated.",
-    "IMPORTANT: Bon Bon is an ICE CREAM PARLOUR. Almost everything is a COLD sweet treat — scoops, softy, sundaes, thick shakes, falooda, waffles. NEVER describe items as 'hot and fresh' or like cooked restaurant meals, and NEVER call yourself a 'waiter' serving food — you are helping pick desserts. Talk about flavours, scoops, toppings and sweetness.",
-    "Reply ONLY in this language code: " + lang + ". Be warm and concise (1-2 short sentences).",
-    "Feel free to use a few friendly dessert emojis (🍨🍦🧇😋) — but don't overdo it.",
-    "You can take orders and help guests explore. Respond ONLY with a JSON object:",
-    '{"reply":"<short message>","actions":[ ... ]}',
-    "Each action is one of:",
-    '{"type":"add","id":"<menu id>","qty":<number>}',
-    '{"type":"show","ids":["<menu id>",...]}',
-    '{"type":"none"}',
-    "Use EXACT ids from the menu (first column). Categories: " + CATEGORIES + ".",
-    "Thick Shakes can have an optional Extra Ice Cream add-on (id 'extraicecream', Rs.30) — only add it if the guest asks.",
-    "ORDERING: when the guest wants to order, ALWAYS act — add every item you can identify in ONE reply. For anything unclear, add what you can and ask ONE short follow-up. Never refuse — keep the order moving warmly.",
-    "To recommend, ALWAYS use a show action with 3-6 specific ids. MIX across categories for variety (e.g. a scoop, a sundae, a thick shake, a waffle). NEVER open or switch a category tab yourself.",
-    "If a 'Guest taste profile' is provided, tailor picks to it and never suggest something they avoid.",
-    "MENU (id | name | price | category):",
-    MENU
-  ].join("\n");
-}
-
 export async function POST(req: NextRequest) {
   try {
-    const { message, lang = "en", cart = [], restaurant = "", taste = "" } = await req.json();
-    const key = process.env.GEMINI_API_KEY;
-    if (!key) return NextResponse.json({ reply: "AI is not configured yet.", actions: [] });
-    const body = {
-      systemInstruction: { parts: [{ text: systemPrompt(lang, restaurant) }] },
-      contents: [{ role: "user", parts: [{ text: (taste ? "Guest taste profile: " + taste + "\n" : "") + "Current cart (ids): " + (cart.join(", ") || "empty") + "\nGuest says: " + message }] }],
-      generationConfig: { responseMimeType: "application/json", temperature: 0.3, maxOutputTokens: 1200, thinkingConfig: { thinkingBudget: 0 },
-        responseSchema: { type: "object", properties: { reply: { type: "string" }, actions: { type: "array", items: { type: "object", properties: { type: { type: "string" }, id: { type: "string" }, qty: { type: "number" }, ids: { type: "array", items: { type: "string" } }, name: { type: "string" } }, required: ["type"] } } }, required: ["reply"] } }
-    };
-    const r = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=" + key, {
-      method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body)
+    const { message, lang = "en", cart = [], restaurant = "", taste = "", profile = "", cid = "", outlet = 1, off = "", promote = "" } = await req.json();
+    // Rules from the portable policy, model call via the provider adapter. Neither knows the other.
+    const out = await runWaiter({
+      system: buildWaiterPolicy({ restaurant, lang, categories: CATEGORIES, menu: MENU }),
+      user: buildWaiterContext({ taste, profile, off, promote, cart, message }),
+      schema: WAITER_SCHEMA,
     });
-    const j = await r.json();
-    if (!r.ok || (j && j.error)) {
-      return NextResponse.json({ reply: "Sorry, I'm having a little trouble right now — please try again.", actions: [] });
+    const sg = out.signals || {};
+    if (cid && ((sg.unavailable && sg.unavailable.length) || (sg.flavors && sg.flavors.length) || (sg.avoid && sg.avoid.length) || sg.mood)) {
+      try {
+        const upd: Record<string, unknown> = { updated_at: new Date().toISOString(), outlet: Number(outlet) || 1, turns: FieldValue.increment(1) };
+        if (sg.unavailable && sg.unavailable.length) upd.unavailable = FieldValue.arrayUnion(...sg.unavailable.map(String));
+        if (sg.flavors && sg.flavors.length) upd.flavors = FieldValue.arrayUnion(...sg.flavors.map(String));
+        if (sg.avoid && sg.avoid.length) upd.avoid = FieldValue.arrayUnion(...sg.avoid.map(String));
+        if (sg.mood) upd.moods = FieldValue.arrayUnion(String(sg.mood));
+        await bbDb().collection(BB.signals).doc(String(cid)).set(upd, { merge: true });
+      } catch {}
     }
-    let out: { reply?: string; actions?: unknown[] } = { reply: "", actions: [] };
-    try { out = JSON.parse(j.candidates[0].content.parts[0].text); } catch { out = { reply: "Sorry, could you say that again?", actions: [] }; }
-    return NextResponse.json({ reply: out.reply || "", actions: out.actions || [] });
+    return NextResponse.json({ reply: out.reply || "", actions: out.actions || [], signals: out.signals || null });
   } catch {
     return NextResponse.json({ reply: "Sorry, something went wrong — please try again.", actions: [] });
   }

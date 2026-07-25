@@ -27,6 +27,16 @@ export async function PATCH(req: NextRequest, ctx: { params: Promise<{ key: stri
     if (b.available !== undefined) patch.available = b.available ? 1 : 0;
     if (b.hidden !== undefined) patch.hidden = b.hidden ? 1 : 0;
     if (b.ph !== undefined) patch.ph = String(b.ph);
+    // Palantir layer: how hard the AI should promote this (0=leave alone, 5=push everywhere)
+    if (b.push !== undefined) patch.push = Math.max(0, Math.min(5, parseInt(String(b.push), 10) || 0));
+    // Live stock status the AI reads out to guests. "on" = available; the rest carry a reason.
+    if (b.status !== undefined) {
+      const st = String(b.status);
+      const ok = ["on", "out", "soon", "off"];
+      patch.status = ok.includes(st) ? st : "on";
+      if (patch.status === "on") patch.offReason = "";
+    }
+    if (b.offReason !== undefined) patch.offReason = String(b.offReason).slice(0, 80);
 
     if (Object.keys(patch).length === 0)
       return NextResponse.json({ error: "Nothing to update" }, { status: 400 });

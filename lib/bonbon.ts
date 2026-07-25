@@ -100,6 +100,7 @@ export const BB = {
   orders: "bonbon_orders",
   restaurants: "bonbon_restaurants",
   outlets: "bonbon_outlets",
+  signals: "bonbon_signals", // per-conversation AI "journal": taste reads + demand gaps
 };
 
 // The original Bon Bon is restaurant #1 / outlet #1. Its menu stays in the top-level `bonbon_menu`

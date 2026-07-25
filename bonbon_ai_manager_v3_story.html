@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bon Bon — AI Growth Partner</title>
+<style>
+  :root{
+    --bg:#140c0d; --panel:#20151800; --p1:#241619; --p2:#2a1a1e; --line:rgba(255,255,255,.09);
+    --ink:#f4e9e6; --mut:#b39a97; --dim:#8b7573;
+    --rose:#f07a97; --gold:#e9cf94; --green:#7bd3a0; --amber:#e6b56a; --maroon:#b7405a;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;color:var(--ink);font-family:-apple-system,Segoe UI,Roboto,system-ui,sans-serif;
+    background:radial-gradient(1000px 420px at 82% -10%,rgba(123,211,160,.12),transparent 60%),radial-gradient(760px 360px at 0% 4%,rgba(233,207,148,.09),transparent 55%),var(--bg);
+    padding:20px 14px 64px;min-height:100vh}
+  .wrap{max-width:760px;margin:0 auto}
+  .serif{font-family:"Iowan Old Style",Georgia,serif}
+  .top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+  .brand{display:flex;align-items:center;gap:11px}
+  .logo{width:38px;height:38px;border-radius:11px;background:linear-gradient(135deg,var(--maroon),#7c1e30);display:flex;align-items:center;justify-content:center;box-shadow:0 6px 18px rgba(183,64,90,.35)}
+  .brand h1{font-size:15.5px;margin:0;font-weight:700}
+  .brand .sub{font-size:11px;color:var(--mut);margin-top:1px;display:flex;align-items:center;gap:6px}
+  .pulse{width:7px;height:7px;border-radius:50%;background:var(--green);animation:pulse 1.8s infinite}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(123,211,160,.55)}70%{box-shadow:0 0 0 7px rgba(123,211,160,0)}100%{box-shadow:0 0 0 0 rgba(123,211,160,0)}}
+  .seg{display:flex;gap:5px;background:var(--p1);border:1px solid var(--line);border-radius:11px;padding:4px}
+  .seg button{border:0;background:transparent;color:var(--mut);font-weight:700;font-size:12px;padding:6px 11px;border-radius:8px;cursor:pointer}
+  .seg button.on{background:var(--maroon);color:#fff}
+
+  /* momentum hero */
+  .hero{position:relative;background:linear-gradient(180deg,var(--p2),var(--p1));border:1px solid var(--line);border-radius:20px;padding:20px 22px;overflow:hidden}
+  .hero .eyebrow{font-size:11.5px;letter-spacing:1.4px;text-transform:uppercase;color:var(--gold);font-weight:800}
+  .hero .big{font-size:44px;font-weight:800;letter-spacing:.5px;margin:8px 0 2px;display:flex;align-items:baseline;gap:12px}
+  .hero .big .up{font-size:16px;color:var(--green);font-weight:800}
+  .hero .glow{animation:sh 3s ease-in-out infinite}
+  @keyframes sh{0%,100%{text-shadow:0 0 22px rgba(123,211,160,.0)}50%{text-shadow:0 0 26px rgba(123,211,160,.25)}}
+  .hero .line{font-size:14.5px;color:var(--ink);margin-top:6px}
+  .hero .line b{color:var(--gold)}
+  .badge{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:800;color:#0f2318;background:var(--green);border-radius:20px;padding:4px 11px;margin-top:12px}
+  .spark-svg{position:absolute;right:0;bottom:0;width:56%;height:70%;opacity:.9;pointer-events:none}
+
+  .sec{font-size:12px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;margin:22px 4px 11px;display:flex;align-items:center;gap:8px}
+  .sec.win{color:var(--green)} .sec.opp{color:var(--amber)}
+
+  .story{background:var(--p1);border:1px solid var(--line);border-left:3px solid var(--green);border-radius:14px;padding:14px 16px;margin-bottom:10px;opacity:0;transform:translateY(12px)}
+  .story.opp{border-left-color:var(--amber)}
+  .story.in{opacity:1;transform:none;transition:.5s cubic-bezier(.2,.7,.2,1)}
+  .story .r1{display:flex;align-items:center;gap:10px}
+  .story h3{margin:0;font-size:16px;flex:1}
+  .story .metric{font-size:13px;font-weight:800;padding:4px 10px;border-radius:8px;white-space:nowrap}
+  .metric.g{background:rgba(123,211,160,.14);color:var(--green)}
+  .metric.a{background:rgba(230,181,106,.15);color:var(--amber)}
+  .story .why{font-size:13.3px;color:var(--mut);margin:7px 0 0;line-height:1.5}
+  .story .move{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:700;color:var(--rose);margin-top:9px;cursor:pointer}
+  .story .move::before{content:"→"}
+
+  /* projection */
+  .proj{background:linear-gradient(180deg,var(--p2),var(--p1));border:1px solid rgba(233,207,148,.28);border-radius:18px;padding:18px 20px;margin-top:16px}
+  .proj .h{font-size:14px;font-weight:800;color:var(--gold);margin-bottom:3px}
+  .proj .s{font-size:12.5px;color:var(--mut);margin-bottom:14px}
+  .pbar{display:flex;align-items:center;gap:12px;margin:9px 0}
+  .pbar .lb{width:78px;font-size:12px;color:var(--mut)}
+  .pbar .tk{flex:1;height:26px;background:rgba(255,255,255,.05);border-radius:7px;overflow:hidden;position:relative}
+  .pbar .fl{height:100%;width:0;border-radius:7px;transition:width 1.1s cubic-bezier(.2,.7,.2,1);display:flex;align-items:center;justify-content:flex-end;padding-right:9px;font-size:12px;font-weight:800;color:#fff}
+  .fl.now{background:var(--maroon)} .fl.tgt{background:linear-gradient(90deg,#9a7d2f,var(--gold));color:#26200e}
+
+  .chat{background:linear-gradient(180deg,var(--p2),var(--p1));border:1px solid var(--line);border-radius:18px;padding:15px;margin-top:16px}
+  .chat .hd{font-weight:800;font-size:14px;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+  .spark{width:26px;height:26px;flex:0 0 26px;border-radius:8px;background:rgba(233,207,148,.12);border:1px solid rgba(233,207,148,.25);display:flex;align-items:center;justify-content:center}
+  .log{display:flex;flex-direction:column;gap:9px;margin-bottom:10px}
+  .bub{max-width:88%;padding:10px 13px;border-radius:13px;font-size:13.3px;line-height:1.5}
+  .bub.me{align-self:flex-end;background:var(--maroon);color:#fff;border-bottom-right-radius:5px}
+  .bub.ai{align-self:flex-start;background:var(--p1);border:1px solid var(--line);border-bottom-left-radius:5px}
+  .qs{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:10px}
+  .q{font-size:11.5px;color:var(--ink);background:transparent;border:1px solid var(--line);border-radius:20px;padding:6px 11px;cursor:pointer}
+  .q:hover{border-color:var(--green);color:var(--green)}
+  .box{display:flex;gap:8px}
+  .box input{flex:1;background:var(--bg);border:1px solid var(--line);border-radius:11px;padding:10px 13px;color:var(--ink);font-size:13.5px;outline:none}
+  .box button{border:0;background:var(--maroon);color:#fff;font-weight:700;border-radius:11px;padding:0 15px;cursor:pointer}
+  .note{margin:14px auto 0;font-size:11px;color:var(--dim);text-align:center}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <div class="brand">
+      <div class="logo"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.8 4.9L18.7 9.7 13.8 11.5 12 16.4 10.2 11.5 5.3 9.7 10.2 7.9z"/></svg></div>
+      <div><h1>Bon Bon · AI Growth Partner</h1><div class="sub"><span class="pulse"></span>your week, read &amp; ready</div></div>
+    </div>
+    <div class="seg"><button>7d</button><button class="on">This week</button><button>30d</button></div>
+  </div>
+
+  <div class="hero">
+    <svg class="spark-svg" viewBox="0 0 300 150" preserveAspectRatio="none">
+      <defs><linearGradient id="gg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7bd3a0" stop-opacity=".28"/><stop offset="1" stop-color="#7bd3a0" stop-opacity="0"/></linearGradient></defs>
+      <path id="harea" fill="url(#gg)" opacity="0"></path>
+      <path id="hline" fill="none" stroke="#7bd3a0" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" pathLength="1" stroke-dasharray="1" stroke-dashoffset="1"></path>
+    </svg>
+    <div class="eyebrow">Your week</div>
+    <div class="big"><span class="glow" data-pre="₹" data-count="42180">₹0</span><span class="up">▲ 12%</span></div>
+    <div class="line">Your <b>best week this month</b> — and I found <b>₹7,000 more</b> within reach.</div>
+    <div class="badge">✦ momentum building</div>
+  </div>
+
+  <div class="sec win">▲ What's winning — pour fuel here</div>
+
+  <div class="story win" data-d="0">
+    <div class="r1"><h3>Belgian Waffle is your quiet champion</h3><span class="metric g">41 sold</span></div>
+    <p class="why">Your best-margin item is also your most-loved — and guests who order it spend <b style="color:#f4e9e6">₹40 more</b> on average.</p>
+    <span class="move">Feature it on the welcome screen</span>
+  </div>
+  <div class="story win" data-d="110">
+    <div class="r1"><h3>Saturday 6–8pm is gold</h3><span class="metric g">2.3× a weekday</span></div>
+    <p class="why">One golden window drives a fifth of your week. Guests come in groups and order more.</p>
+    <span class="move">Staff up &amp; push shake combos then</span>
+  </div>
+  <div class="story win" data-d="220">
+    <div class="r1"><h3>Oreo Roll is catching fire</h3><span class="metric g">▲ 30%</span></div>
+    <p class="why">Up 30% in two weeks — a new favourite is forming. Ride it before it cools.</p>
+    <span class="move">Mark it Best Seller</span>
+  </div>
+
+  <div class="sec opp">△ Quick plugs — easy money</div>
+
+  <div class="story opp" data-d="0">
+    <div class="r1"><h3>Mango kulfi keeps walking out</h3><span class="metric a">37 asks · 0 stock</span></div>
+    <p class="why">Your #1 unmet request, two weeks running — that's roughly ₹6,000 a month you're turning away.</p>
+    <span class="move">Add it to the menu</span>
+  </div>
+  <div class="story opp" data-d="110">
+    <div class="r1"><h3>Evenings after 8pm go quiet</h3><span class="metric a">−40%</span></div>
+    <p class="why">A soft window you can own with one combo, no discounting.</p>
+    <span class="move">Launch an 8pm waffle + shake combo</span>
+  </div>
+
+  <div class="proj">
+    <div class="h">If you make these 4 moves…</div>
+    <div class="s">a realistic next week, based on your own numbers</div>
+    <div class="pbar"><span class="lb">This week</span><div class="tk"><div class="fl now" data-w="86" data-t="₹42,180"></div></div></div>
+    <div class="pbar"><span class="lb">Next week</span><div class="tk"><div class="fl tgt" data-w="100" data-t="₹49,000"></div></div></div>
+  </div>
+
+  <div class="chat">
+    <div class="hd"><span class="spark"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#e9cf94" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-8 8H7l-4 3V12a8 8 0 0 1 8-8h2a8 8 0 0 1 8 8z"/></svg></span>Ask your partner</div>
+    <div class="log" id="log"></div>
+    <div class="qs" id="qs">
+      <button class="q">What's my biggest win?</button>
+      <button class="q">How do I grow the waffle?</button>
+      <button class="q">Where am I losing money?</button>
+    </div>
+    <div class="box"><input id="inp" placeholder="Ask about Bon Bon…"><button id="send">Ask</button></div>
+  </div>
+
+  <div class="note">Preview · sample data. The real version writes this story — wins first — from each restaurant's own numbers.</div>
+</div>
+
+<script>
+  // count up hero
+  (function(){var el=document.querySelector('[data-count]'),t=+el.dataset.count,pre=el.dataset.pre||"",s=performance.now();
+    (function st(n){var p=Math.min(1,(n-s)/1300);el.textContent=pre+Math.round(t*(1-Math.pow(1-p,3))).toLocaleString('en-IN');if(p<1)requestAnimationFrame(st);})(performance.now());})();
+
+  // rising hero curve
+  (function(){
+    var v=[20,26,22,30,28,38,52],W=300,H=150,pl=6,pr=6,pt=30,pb=6,max=Math.max.apply(null,v),min=8;
+    var xs=function(i){return pl+(W-pl-pr)*i/(v.length-1);},ys=function(x){return pt+(H-pt-pb)*(1-(x-min)/(max-min));};
+    var d="M"+xs(0)+" "+ys(v[0]);for(var i=1;i<v.length;i++)d+=" L"+xs(i)+" "+ys(v[i]);
+    document.getElementById('hline').setAttribute('d',d);
+    document.getElementById('harea').setAttribute('d',d+" L"+xs(v.length-1)+" "+H+" L"+xs(0)+" "+H+" Z");
+    var lp=document.getElementById('hline');lp.style.transition='stroke-dashoffset 1.5s ease';requestAnimationFrame(function(){lp.style.strokeDashoffset='0';});
+    var ar=document.getElementById('harea');ar.style.transition='opacity 1s ease .5s';requestAnimationFrame(function(){ar.style.opacity='1';});
+  })();
+
+  // reveal stories
+  document.querySelectorAll('.story').forEach(function(s){setTimeout(function(){s.classList.add('in');},300+ +s.dataset.d);});
+
+  // projection bars
+  setTimeout(function(){document.querySelectorAll('.proj .fl').forEach(function(f){f.style.width=f.dataset.w+'%';f.textContent=f.dataset.t;});},600);
+
+  // chat
+  var log=document.getElementById('log');
+  var answers={
+    "what's my biggest win?":"Your Belgian Waffle. It's your best-margin item AND most-loved, and it pulls the whole bill up ₹40 when it's ordered. Put it front and centre — that's your growth engine right now.",
+    "how do i grow the waffle?":"Three moves: feature it on the welcome screen, have the waiter offer it with a shake (that pairing over-indexes), and run it as your 8pm combo hero to fix the quiet window. Small pushes, it's already a winner.",
+    "where am i losing money?":"Two leaks: mango kulfi (37 asked, you don't stock it — ~₹6k/mo walking out) and dead menu slots like Rose Falooda. Plug those and you keep more of the demand you already have."
+  };
+  function bubble(cls,txt,ty){var b=document.createElement('div');b.className='bub '+cls;log.appendChild(b);b.scrollIntoView({behavior:'smooth',block:'end'});if(!ty){b.textContent=txt;return;}var j=0;(function t(){if(j<txt.length){b.textContent+=txt[j++];setTimeout(t,txt[j-1]===' '?11:18);}else b.scrollIntoView({behavior:'smooth',block:'end'});})();}
+  function ask(q){bubble('me',q,false);var a=answers[q.trim().toLowerCase()]||"Lead with your waffle — it's your engine. Then plug the mango-kulfi leak and own your 8pm window. Those three are your fastest path up.";setTimeout(function(){bubble('ai',a,true);},380);}
+  document.getElementById('qs').addEventListener('click',function(e){if(e.target.classList.contains('q'))ask(e.target.textContent);});
+  document.getElementById('send').addEventListener('click',function(){var v=document.getElementById('inp').value.trim();if(v){ask(v);document.getElementById('inp').value='';}});
+  document.getElementById('inp').addEventListener('keydown',function(e){if(e.key==='Enter')document.getElementById('send').click();});
+</script>
+</body>
+</html>

@@ -53,6 +53,7 @@ export function middleware(req: NextRequest) {
   const bbProtected =
     pathname.startsWith("/bon-bon/admin") ||
     pathname.startsWith("/bon-bon/manage") ||
+    pathname.startsWith("/bon-bon/insights") ||
     pathname.startsWith("/bon-bon/kitchen") ||
     pathname.startsWith("/bon-bon/waiter");
 

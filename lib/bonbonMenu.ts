@@ -46,6 +46,9 @@ export type BBMenuItem = {
   promoted?: number; // show on the welcome screen when a customer arrives
   available: number;
   hidden: number;
+  push?: number; // 0-5: how hard the AI should promote / upsell this dish
+  status?: "on" | "out" | "soon" | "off"; // live stock state the AI reads out to guests
+  offReason?: string; // optional free-text reason shown when status !== "on"
   sort: number;
   ao?: string;
   ph?: string; // dish photo URL (Cloudinary); empty = show the logo block

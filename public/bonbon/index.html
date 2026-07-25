@@ -1406,8 +1406,8 @@ async function finalizeSidecar(){
 async function sendText(){if(busy)return;const inp=document.getElementById("inp");const v=inp.value.trim();if(!v)return;voiceLocked=true;if(listening)stopVoice();inp.value="";autoGrow();me(v);await askOdy(v);}
 function setBusy(on){var b=document.getElementById("bar");if(b)b.classList.toggle("busy",on);}
 async function askOdy(q){busy=true;setBusy(true);const typing=typingBubble();
- try{const res=await fetch('/api/bonbon',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:q,lang,cart:Object.keys(cart),taste:tasteStr(),restaurant:"Bon Bon, an ice cream parlour"})});
-  if(!res.ok)throw 0;const data=await res.json();typing.remove();
+ try{const res=await fetch('/api/bonbon',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:q,lang,cart:Object.keys(cart),taste:tasteStr(),restaurant:"Bon Bon, an ice cream parlour",profile:bbProfileStr(),cid:bbCid(),off:bbOffStr(),promote:bbPushStr()})});
+  if(!res.ok)throw 0;const data=await res.json();typing.remove();bbMergeSignals(data.signals);
   let rb=null;if(data.reply)rb=bot(data.reply);const added=runActions(data.actions);
   if(added){const cc=confirmOrder();anchorReply(cc||rb);}else{exploreBar();anchorReply(rb);}
  }catch(e){typing.remove();ai(q.toLowerCase());}
@@ -1541,17 +1541,29 @@ function bbApplyLiveMenu(items){
     var labels={scoops:"Scoops",softy:"Softy",waffle:"Waffle",icecream:"Ice Cream Specials",sundae:"Sundae",mini:"Mini Sundae",rolls:"Roll Ice Cream",falooda:"Falooda",shakes:"Thick Shakes",snacks:"Snacks"};
     Object.keys(MENU).forEach(function(k){delete MENU[k];});
     var byCat={};
+    window.__bbOff=[];  // {name, reason} — asked-for items we can't serve right now, with the WHY
+    window.__bbPush=[]; // dishes the owner wants the waiter to promote / upsell
     items.forEach(function(it){
       // add-ons (e.g. extra ice cream) stay available but never appear as their own card;
       // ordinary items only appear when they're not hidden and not sold out.
       var isAddon=it.cat==="addon";
-      if(!isAddon && (it.hidden || it.available===0)) return;
+      var st=it.status||"on";
+      var reason = st==="out"?"out of stock today" : st==="soon"?"not ready yet, available later" : st==="off"?"not served at this outlet" : (it.available===0?"sold out right now":"");
+      var unavailable = !isAddon && (it.hidden || it.available===0 || st!=="on");
+      if(unavailable){
+        // tell the guest the reason (unless the owner deliberately HID it — then stay quiet)
+        if(!it.hidden){var r=(it.offReason&&it.offReason.trim())||reason;if(r)window.__bbOff.push({name:it.name,reason:r});}
+        return;
+      }
       MENU[it.key]={n:it.name,p:it.price,e:"\uD83C\uDF68",h:[[8,23]],q:it.q||"",pt:it.pt||0,ph:it.ph||"",d:it.desc||"",veg:1};
       if(it.best)MENU[it.key].best=1;
       if(it.must)MENU[it.key].must=1;
       if(it.promoted)MENU[it.key].promoted=1;
       if(it.ao)MENU[it.key].ao=it.ao;
-      if(!isAddon)(byCat[it.cat]=byCat[it.cat]||[]).push(it);
+      if(!isAddon){
+        if((Number(it.push)||0)>=3 || it.promoted) window.__bbPush.push(it.name);
+        (byCat[it.cat]=byCat[it.cat]||[]).push(it);
+      }
     });
     CATS.length=0;
     order.forEach(function(c){
@@ -1611,6 +1623,20 @@ function bbBoot(){
   window.__bbHdrUpdate=update;ce.addEventListener("click",function(){window.__bbHold=false;});document.addEventListener("keydown",function(){window.__bbHold=false;});   // let me() nudge it the moment the customer first chats
 })();
 setTimeout(function(){["/cat_scoops.jpg","/cat_softy.jpg","/cat_waffle.jpg","/cat_icecream.jpg","/cat_sundae.jpg","/cat_mini.jpg","/cat_rolls.jpg","/cat_falooda.jpg","/cat_shakes.jpg","/cat_snacks.jpg"].forEach(function(s){var im=new Image();im.src=s;});},1400);
+window.__cid=(Date.now().toString(36)+Math.random().toString(36).slice(2,8));
+window.__jrnl={flavors:[],avoid:[],mood:""};
+function bbCid(){return window.__cid;}
+function bbMergeSignals(s){if(!s)return;var j=window.__jrnl;
+  (s.flavors||[]).forEach(function(f){f=(""+f).trim();if(f&&j.flavors.indexOf(f)<0&&j.flavors.length<12)j.flavors.push(f);});
+  (s.avoid||[]).forEach(function(a){a=(""+a).trim();if(a&&j.avoid.indexOf(a)<0&&j.avoid.length<12)j.avoid.push(a);});
+  if(s.mood)j.mood=(""+s.mood).trim();}
+function bbProfileStr(){var j=window.__jrnl,p=[];
+  if(j.flavors.length)p.push("likes: "+j.flavors.join(", "));
+  if(j.avoid.length)p.push("avoids: "+j.avoid.join(", "));
+  if(j.mood)p.push("mood: "+j.mood);
+  return p.join("; ");}
+function bbOffStr(){return (window.__bbOff||[]).slice(0,24).map(function(o){return o.name+" ("+o.reason+")";}).join("; ");}
+function bbPushStr(){return (window.__bbPush||[]).slice(0,12).join(", ");}
 /* init */
 document.getElementById("langbar").innerHTML=LANGS.map(l=>`<button class="lang ${l[0]==='en'?'on':''}" data-l="${l[0]}" onclick="setLang('${l[0]}',this);closeLang()">${l[1]}</button>`).join("");
 function setLang(l,b){lang=l;document.querySelectorAll(".lang").forEach(x=>x.classList.remove("on"));b.classList.add("on");

@@ -88,6 +88,9 @@ export async function POST(req: NextRequest) {
       must: b.must ? 1 : 0,
       available: 1,
       hidden: 0,
+      push: b.push ? Math.max(0, Math.min(5, parseInt(String(b.push), 10) || 0)) : 0,
+      status: "on",
+      offReason: "",
       sort: maxSort + 1,
     };
     if (cat === "sundae" && b.price500) doc.price500 = parseInt(String(b.price500), 10);

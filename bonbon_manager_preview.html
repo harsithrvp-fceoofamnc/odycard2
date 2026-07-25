@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bon Bon — AI Manager (preview)</title>
+<style>
+  :root{
+    --maroon:#811226; --dark:#5e0d1c; --ink:#241016; --mut:#8a7379;
+    --line:#eadfe2; --card:#fff; --good:#3b6d11; --goodbg:#eaf3de;
+    --warnbg:#f7e3e8; --chip:#f4eef0;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:#f4edee;font-family:-apple-system,Segoe UI,Roboto,system-ui,sans-serif;color:var(--ink);padding:22px 14px 60px}
+  .wrap{max-width:640px;margin:0 auto}
+  .top{font-size:12px;color:var(--mut);text-align:center;margin-bottom:14px}
+  .top b{color:var(--maroon)}
+
+  /* the panel — same look as the real owner dashboard */
+  .panel{background:linear-gradient(180deg,#fff,#fdf6f7);border:1px solid #e7c9d1;border-radius:16px;padding:18px 18px 22px}
+  .head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+  h2{margin:0;font-size:17px;display:flex;align-items:center;gap:8px}
+  .seg{display:flex;gap:6px}
+  .seg button{padding:6px 11px;border-radius:9px;border:1.5px solid var(--line);background:#fff;color:var(--ink);font-weight:700;font-size:12.5px;cursor:pointer}
+  .seg button.on{background:var(--maroon);color:#fff;border-color:var(--maroon)}
+  .hint{margin:8px 0 12px;font-size:12.5px;color:var(--mut);line-height:1.5}
+  .hint b{color:var(--ink)}
+
+  .stats{display:flex;gap:26px;flex-wrap:wrap;margin:4px 0 16px}
+  .stat .n{font-size:26px;font-weight:800;line-height:1}
+  .stat .l{font-size:11.5px;color:var(--mut);margin-top:3px}
+  .stat.warn .n{color:var(--maroon)}
+
+  .blk{margin-top:16px}
+  .blk .t{font-size:11.5px;font-weight:800;color:var(--mut);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px}
+  .bars{display:grid;gap:7px}
+  .bar{display:flex;align-items:center;gap:10px}
+  .track{flex:1;position:relative;height:30px;border-radius:8px;overflow:hidden}
+  .track.warn{background:var(--warnbg)}
+  .track.good{background:var(--goodbg)}
+  .fill{position:absolute;inset:0}
+  .fill.warn{background:rgba(129,18,38,.16)}
+  .fill.good{background:rgba(59,109,17,.16)}
+  .lab{position:absolute;left:10px;top:0;bottom:0;display:flex;align-items:center;font-size:13.5px;font-weight:600;text-transform:capitalize}
+  .cnt{font-size:13.5px;font-weight:800;min-width:42px;text-align:right}
+  .cnt.warn{color:var(--maroon)} .cnt.good{color:var(--good)}
+
+  .cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:18px}
+  .trend{display:flex;align-items:flex-end;gap:4px;height:92px;padding:0 2px}
+  .trend .col{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;min-width:0}
+  .trend .bar2{width:100%;max-width:26px;border-radius:4px;background:linear-gradient(180deg,var(--maroon),var(--dark))}
+  .trend .day{font-size:8.5px;color:var(--mut);white-space:nowrap}
+  .rank{display:flex;align-items:center;gap:9px;padding:3px 0}
+  .rank .r{flex:0 0 20px;text-align:center;font-size:12.5px;font-weight:800;color:var(--mut)}
+  .rank .r.top{color:var(--maroon)}
+  .rank .nm{flex:1;min-width:0;font-size:13.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-transform:capitalize}
+  .rank .nm.dim{color:var(--mut)}
+  .rank .q{font-size:12.5px;color:var(--mut)} .rank .q.zero{color:var(--maroon)}
+  .rank .rv{font-size:12.5px;font-weight:800;min-width:52px;text-align:right}
+  .two{display:flex;gap:22px;flex-wrap:wrap;margin-top:4px}
+  .chips{flex:1 1 220px}
+  .chips .row{display:flex;flex-wrap:wrap;gap:6px}
+  .chip{font-size:12.5px;background:var(--chip);border:1px solid var(--line);border-radius:20px;padding:4px 10px;text-transform:capitalize}
+  .chip b{color:var(--mut)}
+  svg{flex:0 0 auto}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">Preview · sample data · this sits on your <b>Owner dashboard</b>, above sales</div>
+
+  <div class="panel">
+    <div class="head">
+      <h2>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#811226" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 3l1.8 4.9L18.7 9.7 13.8 11.5 12 16.4 10.2 11.5 5.3 9.7 10.2 7.9z"/>
+          <path d="M19 15l.7 2 2 .7-2 .7-.7 2-.7-2-2-.7 2-.7z"/>
+        </svg>
+        AI Manager
+      </h2>
+      <div class="seg">
+        <button>7d</button><button class="on">30d</button><button>90d</button>
+      </div>
+    </div>
+
+    <p class="hint">What guests told the chatbot — read automatically from every conversation. The demand gaps below are things people <b>asked for that Bon Bon doesn't carry</b> (or was sold out): your stocking to-do list.</p>
+
+    <div class="stats">
+      <div class="stat"><div class="n">312</div><div class="l">orders</div></div>
+      <div class="stat"><div class="n">428</div><div class="l">conversations</div></div>
+      <div class="stat warn"><div class="n">96</div><div class="l">asked for something we lack</div></div>
+    </div>
+
+    <div class="blk">
+      <div class="t">Revenue trend</div>
+      <div class="trend" id="trend"></div>
+    </div>
+
+    <div class="cols">
+      <div class="blk">
+        <div class="t">Best sellers — today's board</div>
+        <div id="best"></div>
+      </div>
+      <div class="blk">
+        <div class="t">To improve — barely selling</div>
+        <div id="improve"></div>
+      </div>
+    </div>
+
+    <div class="blk">
+      <div class="t">Demand gaps — asked for, not on the menu</div>
+      <div class="bars" id="gaps"></div>
+    </div>
+
+    <div class="blk">
+      <div class="t">Most-loved flavours</div>
+      <div class="bars" id="flav"></div>
+    </div>
+
+    <div class="two" style="margin-top:14px">
+      <div class="chips">
+        <div class="t">Moods &amp; occasions</div>
+        <div class="row">
+          <span class="chip">birthday treat <b>18</b></span>
+          <span class="chip">something light <b>12</b></span>
+          <span class="chip">late night <b>9</b></span>
+          <span class="chip">kids <b>7</b></span>
+        </div>
+      </div>
+      <div class="chips">
+        <div class="t">Guests avoided</div>
+        <div class="row">
+          <span class="chip">nuts <b>14</b></span>
+          <span class="chip">too sweet <b>8</b></span>
+          <span class="chip">mango <b>3</b></span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  var gaps=[["Mango kulfi",34],["Sugar-free ice cream",21],["Kulfi falooda",15],["Matka kulfi",11],["Vegan / dairy-free",9],["Belgian chocolate",6]];
+  var flav=[["Chocolate",142],["Butterscotch",88],["Coffee",61],["Strawberry",47],["Pista",39],["Mango",33]];
+  function draw(id,data,tone){
+    var max=data[0][1], html="";
+    data.forEach(function(d){
+      var pct=Math.max(8,Math.round(d[1]/max*100));
+      html+='<div class="bar"><div class="track '+tone+'"><div class="fill '+tone+'" style="width:'+pct+'%"></div><span class="lab">'+d[0]+'</span></div><span class="cnt '+tone+'">'+d[1]+'×</span></div>';
+    });
+    document.getElementById(id).innerHTML=html;
+  }
+  draw("gaps",gaps,"warn");
+  draw("flav",flav,"good");
+
+  var trend=[["07-17",1980],["07-18",2340],["07-19",1720],["07-20",2610],["07-21",3050],["07-22",2890],["07-23",3420]];
+  var tmax=Math.max.apply(null,trend.map(function(t){return t[1]}));
+  document.getElementById("trend").innerHTML=trend.map(function(t){
+    var h=Math.max(2,Math.round(t[1]/tmax*76));
+    return '<div class="col" title="₹'+t[1]+'"><div class="bar2" style="height:'+h+'px"></div><span class="day">'+t[0]+'</span></div>';
+  }).join("");
+
+  var best=[["Oreo Roll",41,3690],["Butterscotch Scoop",38,2280],["Coffee Thick Shake",29,3480],["Death by Chocolate",22,3080],["Vanilla Softy",19,760]];
+  document.getElementById("best").innerHTML=best.map(function(b,i){
+    return '<div class="rank"><span class="r'+(i<3?" top":"")+'">'+(i+1)+'</span><span class="nm">'+b[0]+'</span><span class="q">'+b[1]+' sold</span><span class="rv">₹'+b[2]+'</span></div>';
+  }).join("");
+
+  var improve=[["Kiwi Scoop",0],["Rose Falooda",0],["Plain Waffle",1],["Mini Nutty Sundae",2],["Blackforest Roll",3]];
+  document.getElementById("improve").innerHTML=improve.map(function(t){
+    return '<div class="rank"><span class="nm dim">'+t[0]+'</span><span class="q'+(t[1]===0?" zero":"")+'">'+t[1]+' sold</span></div>';
+  }).join("");
+</script>
+</body>
+</html>
