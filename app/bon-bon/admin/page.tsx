@@ -1,6 +1,7 @@
 "use client";
 import { useCallback, useEffect, useState } from "react";
-import { C, Shell, NavLink, Spinner, PasswordField, useBBSession } from "../_ui";
+import { useRouter } from "next/navigation";
+import { C, Spinner, PasswordField, useBBSession } from "../_ui";
 import { AiManagerPanel } from "../insights/AiManagerPanel";
 
 type Staff = { id: string; name: string; username: string; role: string; active: boolean; tables?: number[] };
@@ -8,6 +9,11 @@ type Order = { id: string; total: number; status: string; created_at: string };
 
 export default function AdminPage() {
   const { me, ready } = useBBSession(["admin"]);
+  const router = useRouter();
+  async function logout() {
+    await fetch("/api/bonbon/auth/logout", { method: "POST" });
+    router.replace("/bon-bon/login");
+  }
   const [staff, setStaff] = useState<Staff[]>([]);
   const [menuCount, setMenuCount] = useState<number | null>(null);
   const [orders, setOrders] = useState<Order[]>([]);
@@ -139,22 +145,21 @@ export default function AdminPage() {
   const waiters = staff.filter((s) => s.role === "waiter").length;
 
   return (
-    <Shell
-      title="Owner dashboard"
-      role={me.role}
-      name={me.name}
-      nav={
-        <>
-          <NavLink href="/bon-bon/admin" active>
-            Dashboard
-          </NavLink>
-          <NavLink href="/bon-bon/insights">AI Manager</NavLink>
-          <NavLink href="/bon-bon/manage">Menu</NavLink>
-          <NavLink href="/bon-bon/kitchen">Kitchen</NavLink>
-          <NavLink href="/bon-bon/waiter">Waiter</NavLink>
-        </>
-      }
-    >
+    <div className="own">
+      <style>{OWN_CSS}</style>
+      <header className="ownhdr">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img className="ownlogo" src="/logo_web.png" alt="Bon Bon" />
+        <div className="owntitle">Owner dashboard<span>{me.name}</span></div>
+        <nav className="ownnav">
+          <a className="on" href="/bon-bon/admin">Dashboard</a>
+          <a href="/bon-bon/manage">Menu</a>
+          <a href="/bon-bon/kitchen">Kitchen</a>
+          <a href="/bon-bon/waiter">Waiter</a>
+        </nav>
+        <button className="ownout" onClick={logout}>Log out</button>
+      </header>
+      <main className="ownmain">
       {loading ? (
         <Spinner />
       ) : (
@@ -167,9 +172,9 @@ export default function AdminPage() {
             <Stat label="Menu items" value={menuCount == null ? "—" : String(menuCount)} />
             <Stat label="Staff" value={String(staff.length)} />
           </div>
-          <p style={{ fontSize: 12, color: C.mut, marginTop: -10, marginBottom: 22 }}>
-            Sales are visible to you (the owner) only — never to supervisors or waiters. Figures come from real orders
-            placed through the chatbot.
+          <p style={{ fontSize: 12, color: "#c9b3ad", marginTop: -10, marginBottom: 22 }}>
+            Sales are visible to you (the owner) only — never to supervisors or waiters. Today&apos;s figures come from
+            real orders placed through the chatbot.
           </p>
 
           {/* AI Manager — the capsule, right on the owner dashboard */}
@@ -308,9 +313,25 @@ export default function AdminPage() {
           </div>
         </>
       )}
-    </Shell>
+      </main>
+    </div>
   );
 }
+
+const OWN_CSS = `
+.own{min-height:100vh;color:#f6ece9;font-family:-apple-system,Segoe UI,Roboto,system-ui,sans-serif;
+  background:linear-gradient(180deg,rgba(18,8,6,.72),rgba(18,8,6,.82)),url('/wood_web.jpg') center/cover fixed}
+.own .ownhdr{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:12px;flex-wrap:wrap;
+  padding:11px 16px;background:rgba(20,10,12,.86);backdrop-filter:blur(8px);border-bottom:1px solid rgba(233,207,148,.18)}
+.own .ownlogo{width:44px;filter:drop-shadow(0 0 8px rgba(255,255,255,.4)) drop-shadow(0 2px 6px rgba(0,0,0,.5))}
+.own .owntitle{font-size:15px;font-weight:800;display:flex;flex-direction:column;line-height:1.15}
+.own .owntitle span{font-size:11px;color:#c9b3ad;font-weight:500}
+.own .ownnav{display:flex;gap:6px;flex-wrap:wrap;margin-left:8px}
+.own .ownnav a{font-size:12.5px;font-weight:700;color:#e9cf94;text-decoration:none;padding:6px 12px;border-radius:9px;border:1px solid rgba(233,207,148,.25)}
+.own .ownnav a.on{background:#8f2740;color:#fff;border-color:#8f2740}
+.own .ownout{margin-left:auto;padding:7px 13px;border-radius:9px;border:1px solid rgba(255,255,255,.3);background:transparent;color:#f6ece9;font-weight:700;font-size:12.5px;cursor:pointer}
+.own .ownmain{max-width:760px;margin:0 auto;padding:18px 15px 64px}
+`;
 
 
 function Stat({ label, value, accent }: { label: string; value: string; accent?: boolean }) {

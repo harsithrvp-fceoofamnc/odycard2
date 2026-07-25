@@ -78,15 +78,6 @@ export function AiManagerPanel() {
     <div className="aim">
       <style>{CSS}</style>
       <div className="wrap">
-        <div className="phead-row">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img className="logo" src="/logo_web.png" alt="Bon Bon" />
-          <div>
-            <div className="pttl">AI Manager</div>
-            <div className="psub">Your business, read by AI</div>
-          </div>
-        </div>
-
         <div className="card maroon">
           <div className="eyebrow">✦ This week&apos;s read</div>
           <div className="read serif">{loading ? "Reading your week…" : read}</div>
@@ -187,12 +178,9 @@ function Bar({ label, val, max, tone }: { label: string; val: number; max: numbe
 }
 
 const CSS = `
-.aim{border-radius:20px;overflow:hidden;color:#f6ece9;margin-bottom:20px;
-  font-family:-apple-system,Segoe UI,Roboto,system-ui,sans-serif;
-  background:linear-gradient(180deg,rgba(18,8,6,.74),rgba(18,8,6,.84)),url('/wood_web.jpg') center/cover;
-  box-shadow:0 14px 34px rgba(0,0,0,.3)}
+.aim{color:#f6ece9;font-family:-apple-system,Segoe UI,Roboto,system-ui,sans-serif}
 .aim .serif{font-family:"Cormorant Garamond",Georgia,serif}
-.aim .wrap{padding:18px}
+.aim .wrap{padding:0}
 .aim .phead-row{display:flex;align-items:center;gap:12px;margin-bottom:14px}
 .aim .logo{width:64px;filter:drop-shadow(0 0 8px rgba(255,255,255,.4)) drop-shadow(0 2px 6px rgba(0,0,0,.5))}
 .aim .pttl{font-size:18px;font-weight:800}
