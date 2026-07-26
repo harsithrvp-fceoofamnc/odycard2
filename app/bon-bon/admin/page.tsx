@@ -321,11 +321,10 @@ export default function AdminPage() {
 }
 
 const OWN_CSS = `
-.own{min-height:100vh;color:#f6ece9;font-family:-apple-system,Segoe UI,Roboto,system-ui,sans-serif;
-  background:radial-gradient(800px 520px at 50% 0%,#241417,#120a0b 72%)}
-.own .owncol{max-width:440px;margin:0 auto;min-height:100vh;position:relative;
+.own{min-height:100vh;color:#f6ece9;font-family:-apple-system,Segoe UI,Roboto,system-ui,sans-serif;background:#000}
+.own .owncol{max-width:460px;margin:0 auto;min-height:100vh;position:relative;
   background:linear-gradient(180deg,rgba(18,8,6,.72),rgba(18,8,6,.82)),url('/wood_web.jpg') center/cover;
-  box-shadow:0 0 60px rgba(0,0,0,.55)}
+  box-shadow:0 0 44px rgba(0,0,0,.5)}
 .own .ownhdr{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:10px;flex-wrap:wrap;
   padding:11px 15px;background:rgba(20,10,12,.9);backdrop-filter:blur(8px);border-bottom:1px solid rgba(233,207,148,.18)}
 .own .ownlogo{width:44px;filter:drop-shadow(0 0 8px rgba(255,255,255,.4)) drop-shadow(0 2px 6px rgba(0,0,0,.5))}

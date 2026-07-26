@@ -12,8 +12,8 @@ export default function InsightsPage() {
       </div>
     );
   return (
-    <div style={{ minHeight: "100vh", background: "radial-gradient(800px 520px at 50% 0%,#241417,#120a0b 72%)" }}>
-      <div style={{ maxWidth: 440, margin: "0 auto", minHeight: "100vh", background: "linear-gradient(180deg,rgba(18,8,6,.72),rgba(18,8,6,.82)),url('/wood_web.jpg') center/cover", boxShadow: "0 0 60px rgba(0,0,0,.55)", padding: "16px 14px 44px" }}>
+    <div style={{ minHeight: "100vh", background: "#000" }}>
+      <div style={{ maxWidth: 460, margin: "0 auto", minHeight: "100vh", background: "linear-gradient(180deg,rgba(18,8,6,.72),rgba(18,8,6,.82)),url('/wood_web.jpg') center/cover", boxShadow: "0 0 44px rgba(0,0,0,.5)", padding: "16px 14px 44px" }}>
         <a href="/bon-bon/admin" style={{ color: "#e9cf94", textDecoration: "none", fontSize: 13, fontWeight: 700 }}>← Back to dashboard</a>
         <div style={{ marginTop: 12 }}>
           <AiManagerPanel />
