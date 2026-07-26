@@ -150,7 +150,7 @@ export default function AdminPage() {
       <div className="owncol">
       <header className="ownhdr">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img className="ownlogo" src="/logo_web.png" alt="Bon Bon" />
+        <img className="ownlogo" src="/bon_bon_logo.png" alt="Bon Bon" />
         <div className="owntitle">Owner dashboard<span>{me.name}</span></div>
         <nav className="ownnav">
           <a className="on" href="/bon-bon/admin">Dashboard</a>
@@ -173,7 +173,7 @@ export default function AdminPage() {
             <Stat label="Menu items" value={menuCount == null ? "—" : String(menuCount)} />
             <Stat label="Staff" value={String(staff.length)} />
           </div>
-          <p style={{ fontSize: 12, color: "#c9b3ad", marginTop: -10, marginBottom: 22 }}>
+          <p style={{ fontSize: 12, color: "#8a8a90", marginTop: -10, marginBottom: 22 }}>
             Sales are visible to you (the owner) only — never to supervisors or waiters. Today&apos;s figures come from
             real orders placed through the chatbot.
           </p>
@@ -321,20 +321,18 @@ export default function AdminPage() {
 }
 
 const OWN_CSS = `
-.own{min-height:100vh;color:#f6ece9;font-family:-apple-system,Segoe UI,Roboto,system-ui,sans-serif;background:#000}
-.own .owncol{max-width:460px;margin:0 auto;min-height:100vh;position:relative;
-  background:linear-gradient(180deg,rgba(18,8,6,.72),rgba(18,8,6,.82)),url('/wood_web.jpg') center/cover;
-  box-shadow:0 0 44px rgba(0,0,0,.5)}
+.own{min-height:100vh;color:#1e1418;font-family:-apple-system,Segoe UI,Roboto,system-ui,sans-serif;background:#eef0f3}
+.own .owncol{max-width:480px;margin:0 auto;min-height:100vh;position:relative;background:#f6f7f9;box-shadow:0 0 40px rgba(20,10,15,.08)}
 .own .ownhdr{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:10px;flex-wrap:wrap;
-  padding:11px 15px;background:rgba(20,10,12,.9);backdrop-filter:blur(8px);border-bottom:1px solid rgba(233,207,148,.18)}
-.own .ownlogo{width:44px;filter:drop-shadow(0 0 8px rgba(255,255,255,.4)) drop-shadow(0 2px 6px rgba(0,0,0,.5))}
-.own .owntitle{font-size:15px;font-weight:800;display:flex;flex-direction:column;line-height:1.15}
-.own .owntitle span{font-size:11px;color:#c9b3ad;font-weight:500}
+  padding:11px 15px;background:#fff;border-bottom:1px solid #ececec}
+.own .ownlogo{width:40px}
+.own .owntitle{font-size:15px;font-weight:800;color:#1e1418;display:flex;flex-direction:column;line-height:1.15}
+.own .owntitle span{font-size:11px;color:#8a8a90;font-weight:500}
 .own .ownnav{display:flex;gap:6px;flex-wrap:wrap;margin-left:8px}
-.own .ownnav a{font-size:12.5px;font-weight:700;color:#e9cf94;text-decoration:none;padding:6px 12px;border-radius:9px;border:1px solid rgba(233,207,148,.25)}
-.own .ownnav a.on{background:#8f2740;color:#fff;border-color:#8f2740}
-.own .ownout{margin-left:auto;padding:7px 13px;border-radius:9px;border:1px solid rgba(255,255,255,.3);background:transparent;color:#f6ece9;font-weight:700;font-size:12.5px;cursor:pointer}
-.own .ownmain{padding:16px 14px 60px}
+.own .ownnav a{font-size:12.5px;font-weight:700;color:#811226;text-decoration:none;padding:6px 12px;border-radius:9px;border:1px solid #f0dbe0}
+.own .ownnav a.on{background:#811226;color:#fff;border-color:#811226}
+.own .ownout{margin-left:auto;padding:7px 13px;border-radius:9px;border:1px solid #e2e2e2;background:#fff;color:#666;font-weight:700;font-size:12.5px;cursor:pointer}
+.own .ownmain{padding:16px 14px 96px}
 `;
 
 
