@@ -77,3 +77,27 @@ export async function runWaiter(req: WaiterRequest): Promise<WaiterOut> {
     return FALLBACK_ERROR;
   }
 }
+
+/** Generic single-shot text answer (no JSON schema) — powers the owner's AI Manager chat. */
+export async function askText(system: string, user: string): Promise<string> {
+  const key = process.env.GEMINI_API_KEY;
+  if (!key) return "The AI isn't configured yet.";
+  try {
+    const body = {
+      systemInstruction: { parts: [{ text: system }] },
+      contents: [{ role: "user", parts: [{ text: user }] }],
+      generationConfig: { temperature: 0.5, maxOutputTokens: 400, thinkingConfig: { thinkingBudget: 0 } },
+    };
+    const r = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=" + key, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+    const j = await r.json();
+    if (!r.ok || (j && j.error)) return "Sorry, I couldn't get to that just now — try again.";
+    const text = j?.candidates?.[0]?.content?.parts?.[0]?.text;
+    return typeof text === "string" && text.trim() ? text.trim() : "Hmm, I didn't catch that — ask me again?";
+  } catch {
+    return "Sorry, something went wrong — try again.";
+  }
+}

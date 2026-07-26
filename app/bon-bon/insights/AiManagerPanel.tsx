@@ -142,7 +142,7 @@ export function AiManagerPanel() {
         </div>
       )}
 
-      <AskBar week={week} />
+      <AskBar />
     </div>
   );
 }
@@ -173,43 +173,54 @@ function Bar({ label, val, max, tone }: { label: string; val: number; max: numbe
 }
 
 // ── Ask-anything bar + chat sheet + mic ─────────────────────────────────────────
-function AskBar({ week }: { week: Ins | null }) {
+type Msg = { me: boolean; text: string; typing?: boolean };
+function AskBar() {
   const [open, setOpen] = useState(false);
-  const [log, setLog] = useState<{ me: boolean; text: string }[]>([]);
+  const [log, setLog] = useState<Msg[]>([]);
   const [val, setVal] = useState("");
   const [listening, setListening] = useState(false);
+  const [busy, setBusy] = useState(false);
   const logRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     logRef.current?.scrollTo({ top: logRef.current.scrollHeight, behavior: "smooth" });
   }, [log]);
 
-  function answer(q: string): string {
-    const n = q.toLowerCase();
-    const top = week?.leaderboard?.[0];
-    const gap = week?.gaps?.[0];
-    if (/top|best|sell/.test(n) && top) return `${cap(top.label)} — ${top.qty} sold, ${inr(top.rev)}. It's carrying your board.`;
-    if (/revenue|sales|earn|money|total/.test(n)) return `${inr(week?.totalRevenue || 0)}${week?.period ? ` in ${week.period}` : " this week"}.`;
-    if (/miss|gap|stock|ask/.test(n) && gap) return `${gap.count} guests asked for ${gap.label} and you don't stock it — your biggest gap. Adding it is easy money.`;
-    if (/flavou?r|like|love/.test(n) && week?.flavors?.[0]) return `Guests love ${week.flavors[0].label} most right now.`;
-    return "Your two biggest levers: the demand you're missing, and doubling down on your top seller. Want me to break either one down?";
-  }
-
-  function ask(q: string) {
-    if (!q.trim()) return;
+  async function ask(q: string) {
+    if (!q.trim() || busy) return;
     setOpen(true);
-    setLog((l) => [...l, { me: true, text: q }]);
-    setTimeout(() => setLog((l) => [...l, { me: false, text: answer(q) }]), 380);
     setVal("");
+    setBusy(true);
+    setLog((l) => [...l, { me: true, text: q }, { me: false, text: "", typing: true }]);
+    let answer = "Sorry, I couldn't reach the AI just now.";
+    try {
+      const r = await fetch("/api/bonbon/manager/ask", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ question: q }),
+      });
+      const d = await r.json();
+      if (d.answer) answer = d.answer;
+    } catch {
+      /* keep fallback */
+    }
+    setLog((l) => {
+      const c = [...l];
+      const i = c.map((x) => x.typing).lastIndexOf(true);
+      if (i >= 0) c[i] = { me: false, text: answer };
+      return c;
+    });
+    setBusy(false);
   }
 
   function mic() {
+    if (busy) return;
     setOpen(true);
     setListening(true);
     setTimeout(() => {
       setListening(false);
-      ask("What's my top seller?");
-    }, 1500);
+      ask("What should I promote this week?");
+    }, 1400);
   }
 
   return (
@@ -230,14 +241,18 @@ function AskBar({ week }: { week: Ins | null }) {
               <button onClick={() => setOpen(false)}>×</button>
             </div>
             <div className="slog" ref={logRef}>
-              {log.length === 0 && <div className="hello">Ask me about your sales, your top seller, or what guests keep asking for.</div>}
-              {log.map((m, i) => (
-                <div key={i} className={"bub " + (m.me ? "me" : "ai")}>{m.text}</div>
-              ))}
+              {log.length === 0 && <div className="hello">Ask me about your sales, what to promote, or what guests keep asking for.</div>}
+              {log.map((m, i) =>
+                m.typing ? (
+                  <div key={i} className="bub ai typing"><span /><span /><span /></div>
+                ) : (
+                  <div key={i} className={"bub " + (m.me ? "me" : "ai")}>{m.text}</div>
+                )
+              )}
               {listening && <div className="listening">🎙️ Listening…</div>}
             </div>
             <div className="qs">
-              {["What's my top seller?", "How much did I make?", "What am I missing?"].map((q) => (
+              {["What should I promote?", "What am I missing?", "How did June go?"].map((q) => (
                 <button key={q} onClick={() => ask(q)}>{q}</button>
               ))}
             </div>
@@ -316,6 +331,10 @@ const CSS = `
 .aim .bub{max-width:86%;padding:10px 13px;border-radius:14px;font-size:13.5px;line-height:1.5}
 .aim .bub.me{align-self:flex-end;background:#811226;color:#fff;border-bottom-right-radius:5px}
 .aim .bub.ai{align-self:flex-start;background:#f4f1f2;color:#1e1418;border-bottom-left-radius:5px}
+.aim .bub.typing{display:flex;gap:4px;padding:13px 14px}
+.aim .bub.typing span{width:7px;height:7px;border-radius:50%;background:#b9a7ac;animation:td 1s infinite}
+.aim .bub.typing span:nth-child(2){animation-delay:.15s}.aim .bub.typing span:nth-child(3){animation-delay:.3s}
+@keyframes td{0%,60%,100%{opacity:.3;transform:translateY(0)}30%{opacity:1;transform:translateY(-3px)}}
 .aim .listening{align-self:center;color:#811226;font-size:12.5px;font-weight:600}
 .aim .qs{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0}
 .aim .qs button{font-size:11.5px;color:#811226;background:#fff;border:1px solid #f0dbe0;border-radius:16px;padding:6px 11px;cursor:pointer}

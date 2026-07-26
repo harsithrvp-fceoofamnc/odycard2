@@ -338,9 +338,9 @@ const OWN_CSS = `
 
 function Stat({ label, value, accent }: { label: string; value: string; accent?: boolean }) {
   return (
-    <div style={{ background: accent ? `linear-gradient(135deg,${C.maroon},${C.dark})` : C.card, border: `1px solid ${C.line}`, borderRadius: 14, padding: "14px 16px" }}>
+    <div style={{ background: accent ? `linear-gradient(135deg,${C.maroon},${C.dark})` : "#fff", border: accent ? "0" : "1px solid #ececf0", borderRadius: 14, padding: "14px 16px", boxShadow: "0 1px 2px rgba(20,10,15,.04)" }}>
       <div style={{ fontSize: 24, fontWeight: 800, color: accent ? "#fff" : C.ink }}>{value}</div>
-      <div style={{ fontSize: 11, color: accent ? "rgba(255,255,255,.85)" : C.mut, textTransform: "uppercase", letterSpacing: 0.4, marginTop: 2 }}>{label}</div>
+      <div style={{ fontSize: 11, color: accent ? "rgba(255,255,255,.85)" : "#8a8a90", textTransform: "uppercase", letterSpacing: 0.4, marginTop: 2 }}>{label}</div>
     </div>
   );
 }
