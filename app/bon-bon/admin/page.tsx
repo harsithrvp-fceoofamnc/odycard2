@@ -321,8 +321,8 @@ export default function AdminPage() {
 const OWN_CSS = `
 .own{min-height:100vh;color:#f6ece9;font-family:-apple-system,Segoe UI,Roboto,system-ui,sans-serif;
   background:linear-gradient(180deg,rgba(18,8,6,.72),rgba(18,8,6,.82)),url('/wood_web.jpg') center/cover fixed}
-.own .ownhdr{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:12px;flex-wrap:wrap;
-  padding:11px 16px;background:rgba(20,10,12,.86);backdrop-filter:blur(8px);border-bottom:1px solid rgba(233,207,148,.18)}
+.own .ownhdr{position:sticky;top:0;z-index:20;max-width:440px;margin:0 auto;display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+  padding:11px 15px;background:rgba(20,10,12,.9);backdrop-filter:blur(8px);border-bottom:1px solid rgba(233,207,148,.18)}
 .own .ownlogo{width:44px;filter:drop-shadow(0 0 8px rgba(255,255,255,.4)) drop-shadow(0 2px 6px rgba(0,0,0,.5))}
 .own .owntitle{font-size:15px;font-weight:800;display:flex;flex-direction:column;line-height:1.15}
 .own .owntitle span{font-size:11px;color:#c9b3ad;font-weight:500}
@@ -330,7 +330,7 @@ const OWN_CSS = `
 .own .ownnav a{font-size:12.5px;font-weight:700;color:#e9cf94;text-decoration:none;padding:6px 12px;border-radius:9px;border:1px solid rgba(233,207,148,.25)}
 .own .ownnav a.on{background:#8f2740;color:#fff;border-color:#8f2740}
 .own .ownout{margin-left:auto;padding:7px 13px;border-radius:9px;border:1px solid rgba(255,255,255,.3);background:transparent;color:#f6ece9;font-weight:700;font-size:12.5px;cursor:pointer}
-.own .ownmain{max-width:760px;margin:0 auto;padding:18px 15px 64px}
+.own .ownmain{max-width:440px;margin:0 auto;padding:16px 14px 60px}
 `;
 
 
