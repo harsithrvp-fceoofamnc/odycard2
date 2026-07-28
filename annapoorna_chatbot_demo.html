@@ -742,14 +742,14 @@ const chat=document.getElementById("chat");
 // ChatGPT-style bot bubble: plain-text messages reveal one character at a time.
 // Anything containing HTML markup (tags) renders instantly so markup never leaks.
 // Returns the bubble element immediately; the typing runs in the background.
-function bot(html){
+function bot(html,onDone){
   var d=document.createElement("div");d.className="msg bot";chat.appendChild(d);
   var s=String(html==null?"":html);
-  if(/<[a-z!\/][\s\S]*>/i.test(s)){d.innerHTML=s;toBottom();return d;}
+  if(/<[a-z!\/][\s\S]*>/i.test(s)){d.innerHTML=s;toBottom();if(onDone)onDone();return d;}
   var i=0;
   (function step(){
     i++;d.textContent=s.slice(0,i);toBottom();
-    if(i>=s.length)return;
+    if(i>=s.length){if(onDone)onDone();return;}
     var c=s[i-1],dl=16;
     if(c===" ")dl=8;else if(c===","||c===";"||c===":")dl=55;else if(c==="."||c==="!"||c==="?"||c==="\n")dl=95;
     setTimeout(step,dl);
@@ -1277,8 +1277,9 @@ function setBusy(on){var b=document.getElementById("bar");if(b)b.classList.toggl
 async function askOdy(q){busy=true;setBusy(true);const typing=typingBubble();
  try{const res=await fetch('/api/ody',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:q,lang,cart:Object.keys(cart),taste:tasteStr()})});
   if(!res.ok)throw 0;const data=await res.json();typing.remove();
-  let rb=null;if(data.reply)rb=bot(data.reply);const added=runActions(data.actions);
-  if(added){const cc=confirmOrder();anchorReply(cc||rb);}else{exploreBar();anchorReply(rb);}
+  let rb=null;
+  const finish=function(){const added=runActions(data.actions);if(added){const cc=confirmOrder();anchorReply(cc||rb);}else{exploreBar();anchorReply(rb);}};
+  if(data.reply){rb=bot(data.reply,finish);}else{finish();}
  }catch(e){typing.remove();ai(q.toLowerCase());}
  finally{busy=false;setBusy(false);}}
 function runActions(acts){let added=0;(acts||[]).forEach(a=>{
