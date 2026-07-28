@@ -13,14 +13,24 @@ export type WaiterRequest = {
   schema: unknown;
 };
 
-// Which Gemini model runs the AI. Flash-Lite = cheapest (~4x less than Flash).
-// Override with the GEMINI_MODEL env var (e.g. "gemini-2.5-flash") without any code change.
-const MODEL = process.env.GEMINI_MODEL || "gemini-2.5-flash-lite";
+// Which Gemini model runs the AI. Default to Flash (reliable, strong at Tamil/Tanglish + JSON).
+// To try the cheaper Flash-Lite, set GEMINI_MODEL=gemini-2.5-flash-lite in the env — no code change.
+const MODEL = process.env.GEMINI_MODEL || "gemini-2.5-flash";
 
 // Graceful, identical-across-models fallbacks so a bad model call never breaks the chat.
 const FALLBACK_UNCONFIGURED: WaiterOut = { reply: "AI is not configured yet.", actions: [] };
 const FALLBACK_ERROR: WaiterOut = { reply: "Sorry, I'm having a little trouble right now — please try again.", actions: [] };
 const FALLBACK_PARSE: WaiterOut = { reply: "Sorry, could you say that again?", actions: [] };
+
+// Pull JSON out of a model reply even if it's wrapped in ```json fences or has stray text.
+function extractJson(text: string): unknown {
+  let t = String(text || "").trim();
+  t = t.replace(/^```(?:json)?/i, "").replace(/```\s*$/i, "").trim();
+  const a = t.indexOf("{");
+  const b = t.lastIndexOf("}");
+  if (a >= 0 && b > a) t = t.slice(a, b + 1);
+  return JSON.parse(t);
+}
 
 // Normalise any parsed model JSON to the WaiterOut contract.
 function toWaiterOut(parsed: unknown): WaiterOut {
@@ -55,7 +65,8 @@ async function gemini(req: WaiterRequest): Promise<WaiterOut> {
   const j = await r.json();
   if (!r.ok || (j && j.error)) return FALLBACK_ERROR;
   try {
-    return toWaiterOut(JSON.parse(j.candidates[0].content.parts[0].text));
+    const text = j?.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
+    return toWaiterOut(extractJson(text));
   } catch {
     return FALLBACK_PARSE;
   }
