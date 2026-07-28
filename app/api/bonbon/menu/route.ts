@@ -40,7 +40,12 @@ export async function GET(req: NextRequest) {
     const items = snap.docs
       .map((d) => ({ ...(d.data() as MenuDoc), key: d.id } as MenuDoc))
       .sort((a, b) => (Number(a.sort) || 0) - (Number(b.sort) || 0));
-    return NextResponse.json({ items, catOrder, catLabels });
+    // Cache at the CDN edge: unlimited visitors share one cached copy instead of each hitting
+    // Firestore. Menu edits propagate within ~60s. Keyed by the full URL, so ?outlet=… stays separate.
+    return NextResponse.json(
+      { items, catOrder, catLabels },
+      { headers: { "Cache-Control": "public, s-maxage=60, stale-while-revalidate=300" } }
+    );
   } catch (e) {
     console.error("GET /api/bonbon/menu:", e);
     return NextResponse.json({ error: "Server error" }, { status: 500 });

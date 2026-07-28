@@ -5,9 +5,10 @@ import { bbMenuCol } from "@/lib/bonbon";
 import { catOrder, catLabels } from "@/lib/bonbonMenu";
 import MenuViewer, { type MenuCategory } from "./MenuViewer";
 
-// Public QR menu — the premium "Butter Crafted Ice Creams" card. Rendered from the LIVE menu data,
-// so price / sold-out / best-seller edits from the supervisor show up here automatically.
-export const dynamic = "force-dynamic";
+// Public QR menu — the premium "Butter Crafted Ice Creams" card. Rendered from the LIVE menu data.
+// Cached at the CDN and rebuilt at most once a minute (ISR): unlimited people across the city can
+// open it at once for almost nothing, and supervisor edits (price / sold-out) still show within ~60s.
+export const revalidate = 60;
 export const metadata: Metadata = { title: "Bon Bon — Menu", description: "Bon Bon — Butter Crafted Ice Creams." };
 export const viewport: Viewport = { width: "device-width", initialScale: 1, maximumScale: 5, userScalable: true, themeColor: "#17100e" };
 
