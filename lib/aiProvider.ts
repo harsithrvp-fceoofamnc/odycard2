@@ -43,12 +43,30 @@ function toWaiterOut(parsed: unknown): WaiterOut {
 }
 
 // ── Gemini adapter ───────────────────────────────────────────────────────────
+async function postGemini(key: string, body: unknown): Promise<{ ok: boolean; j: unknown }> {
+  const r = await fetch("https://generativelanguage.googleapis.com/v1beta/models/" + MODEL + ":generateContent?key=" + key, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+  const j = await r.json();
+  const err = !!(j && (j as { error?: unknown }).error);
+  return { ok: r.ok && !err, j };
+}
+function replyText(j: unknown): string {
+  const c = j as { candidates?: { content?: { parts?: { text?: string }[] } }[] } | null;
+  return c?.candidates?.[0]?.content?.parts?.[0]?.text || "";
+}
+
 async function gemini(req: WaiterRequest): Promise<WaiterOut> {
   const key = process.env.GEMINI_API_KEY;
   if (!key) return FALLBACK_UNCONFIGURED;
-  const body = {
+  const contents = [{ role: "user", parts: [{ text: req.user }] }];
+
+  // 1) Structured attempt — reply + actions + signals as JSON.
+  const a = await postGemini(key, {
     systemInstruction: { parts: [{ text: req.system }] },
-    contents: [{ role: "user", parts: [{ text: req.user }] }],
+    contents,
     generationConfig: {
       responseMimeType: "application/json",
       temperature: WAITER_GEN.temperature,
@@ -56,20 +74,29 @@ async function gemini(req: WaiterRequest): Promise<WaiterOut> {
       thinkingConfig: { thinkingBudget: 0 },
       responseSchema: req.schema,
     },
-  };
-  const r = await fetch("https://generativelanguage.googleapis.com/v1beta/models/" + MODEL + ":generateContent?key=" + key, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body),
   });
-  const j = await r.json();
-  if (!r.ok || (j && j.error)) return FALLBACK_ERROR;
-  try {
-    const text = j?.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
-    return toWaiterOut(extractJson(text));
-  } catch {
-    return FALLBACK_PARSE;
+  if (a.ok) {
+    const t = replyText(a.j);
+    if (t) {
+      try {
+        return toWaiterOut(extractJson(t));
+      } catch {
+        /* structured parse failed — fall through to the plain reply below */
+      }
+    }
   }
+
+  // 2) Plain fallback — the guest ALWAYS gets a warm reply in their own language, even if the
+  // structured JSON attempt failed (e.g. on Tamil/Tanglish). No add/show actions, just a reply.
+  const b = await postGemini(key, {
+    systemInstruction: { parts: [{ text: req.system + "\n\nReply with ONE short, warm sentence in the guest's own language. Plain text only — no JSON, no lists." }] },
+    contents,
+    generationConfig: { temperature: 0.4, maxOutputTokens: 200, thinkingConfig: { thinkingBudget: 0 } },
+  });
+  const t2 = replyText(b.j).trim().replace(/^["'`]+|["'`]+$/g, "");
+  if (t2) return { reply: t2, actions: [] };
+
+  return a.ok ? FALLBACK_PARSE : FALLBACK_ERROR;
 }
 
 // ── Registry ─────────────────────────────────────────────────────────────────
