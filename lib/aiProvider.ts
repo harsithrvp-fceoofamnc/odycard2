@@ -13,6 +13,10 @@ export type WaiterRequest = {
   schema: unknown;
 };
 
+// Which Gemini model runs the AI. Flash-Lite = cheapest (~4x less than Flash).
+// Override with the GEMINI_MODEL env var (e.g. "gemini-2.5-flash") without any code change.
+const MODEL = process.env.GEMINI_MODEL || "gemini-2.5-flash-lite";
+
 // Graceful, identical-across-models fallbacks so a bad model call never breaks the chat.
 const FALLBACK_UNCONFIGURED: WaiterOut = { reply: "AI is not configured yet.", actions: [] };
 const FALLBACK_ERROR: WaiterOut = { reply: "Sorry, I'm having a little trouble right now — please try again.", actions: [] };
@@ -43,7 +47,7 @@ async function gemini(req: WaiterRequest): Promise<WaiterOut> {
       responseSchema: req.schema,
     },
   };
-  const r = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=" + key, {
+  const r = await fetch("https://generativelanguage.googleapis.com/v1beta/models/" + MODEL + ":generateContent?key=" + key, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
@@ -88,7 +92,7 @@ export async function askText(system: string, user: string): Promise<string> {
       contents: [{ role: "user", parts: [{ text: user }] }],
       generationConfig: { temperature: 0.5, maxOutputTokens: 400, thinkingConfig: { thinkingBudget: 0 } },
     };
-    const r = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=" + key, {
+    const r = await fetch("https://generativelanguage.googleapis.com/v1beta/models/" + MODEL + ":generateContent?key=" + key, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),

@@ -1,0 +1,317 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Odysra · Owner Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#eceef2;--card:#fff;--ink:#16131a;--sub:#6c7280;--faint:#9aa0aa;--hair:#f2f3f5;
+    --accent:#8a1530;--accent2:#b0324f;--soft:#fbecf0;--softline:#f4d9e0;
+    --green:#0e7a55;--greenbg:#e8f6ef;--amber:#a86412;--amberbg:#fbf0dd;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0}
+  body{margin:0;background:#000;font-family:"Inter",-apple-system,Segoe UI,Roboto,sans-serif;color:var(--ink);-webkit-font-smoothing:antialiased}
+  .serif{font-family:"Fraunces","Georgia",serif;font-weight:700}
+  .tnum{font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+  .phone{max-width:430px;margin:0 auto;min-height:100vh;background:var(--bg);position:relative;overflow-x:hidden;padding:0 0 150px}
+
+  /* bottom tab bar */
+  .nav{position:fixed;left:50%;transform:translateX(-50%);bottom:0;width:min(430px,100vw);z-index:46;display:flex;background:#fff;border-top:1px solid #eceef0;padding:8px 6px 14px;box-shadow:0 -4px 20px rgba(20,15,25,.07)}
+  .nav button{flex:1;border:0;background:transparent;display:flex;flex-direction:column;align-items:center;gap:3px;color:#9aa0aa;font-family:inherit;font-size:10.5px;font-weight:600;cursor:pointer}
+  .nav button svg{stroke:currentColor}
+  .nav button.on{color:var(--accent)}
+
+  /* kitchen */
+  .ksum{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:4px}
+  .ks{background:#fff;border-radius:13px;padding:11px;box-shadow:0 1px 2px rgba(20,20,40,.05)}
+  .ks .v{font-size:18px;font-weight:800}.ks .k{font-size:9px;font-weight:600;color:var(--faint);text-transform:uppercase;letter-spacing:.04em;margin-top:2px}
+  .tk{display:flex;flex-direction:column;gap:5px}
+  .tk .th{display:flex;align-items:center;justify-content:space-between}
+  .tk .tt{font-size:14px;font-weight:700}.tk .ti{font-size:12px;color:var(--faint)}
+  .tk .items{font-size:13px;color:var(--sub);margin-top:2px}
+  .tk .foot{display:flex;align-items:center;justify-content:space-between;margin-top:8px}
+  .st{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.03em;padding:4px 10px;border-radius:20px}
+  .st.prep{background:var(--amberbg);color:var(--amber)}.st.ready{background:#e7f0fb;color:#2f6fb0}.st.served{background:var(--greenbg);color:var(--green)}
+  .tk .ago{font-size:11.5px;color:var(--faint)}
+
+  /* staff */
+  .fld{margin-top:11px}.fld label{font-size:10.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--faint)}
+  .fld input,.fld .ro{width:100%;margin-top:5px;border:1.5px solid #e6e2e4;border-radius:11px;padding:11px 13px;font-family:inherit;font-size:14px;outline:none;color:var(--ink);background:#fff}
+  .fld .ro{background:#f6f7f9;color:var(--sub)}
+  .roles{display:flex;gap:6px;margin-top:6px}
+  .roles button{flex:1;border:1.5px solid #e6e2e4;background:#fff;color:var(--sub);font-family:inherit;font-weight:700;font-size:12.5px;padding:9px 0;border-radius:10px;cursor:pointer}
+  .roles button.on{border-color:var(--accent);background:var(--soft);color:var(--accent)}
+  .addbtn{margin-top:13px;width:100%;border:0;background:var(--accent);color:#fff;font-family:inherit;font-weight:700;font-size:14px;border-radius:12px;padding:12px 0;cursor:pointer}
+  .srow{display:flex;align-items:center;gap:11px;padding:12px 0;border-top:1px solid var(--hair)}
+  .srow:first-of-type{border-top:0;padding-top:2px}
+  .srow .sa{width:36px;height:36px;border-radius:10px;background:var(--soft);color:var(--accent);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px}
+  .srow .sm{flex:1}.srow .sm .t{font-size:14px;font-weight:600}.srow .sm .r{font-size:12px;color:var(--sub)}
+  .srow .x{border:1px solid #eceef0;background:#fff;color:var(--sub);border-radius:9px;padding:6px 10px;font-family:inherit;font-weight:700;font-size:12px;cursor:pointer}
+
+  .top{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:11px;padding:16px 18px 10px;background:linear-gradient(rgba(236,238,242,.96),rgba(236,238,242,.86));backdrop-filter:blur(10px)}
+  .badge{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;display:flex;align-items:center;justify-content:center;font-family:"Fraunces",serif;font-weight:700;font-size:19px;transition:.3s}
+  .who .g{font-size:12px;color:var(--sub);font-weight:500;line-height:1.2}
+  .who .n{font-size:15.5px;font-weight:700;letter-spacing:-.01em;line-height:1.15}
+  .av{margin-left:auto;width:33px;height:33px;border-radius:50%;background:#dfe2e8;color:#5b6470;font-weight:700;font-size:14px;display:flex;align-items:center;justify-content:center}
+
+  .switch{display:flex;gap:6px;padding:2px 16px 8px}
+  .switch button{flex:1;border:1px solid #dcdfe6;background:#fff;color:var(--sub);font-family:inherit;font-weight:700;font-size:12.5px;padding:9px 0;border-radius:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;transition:.2s}
+  .switch button.on{border-color:var(--accent);color:var(--accent);background:var(--soft)}
+  .switch .dot{width:8px;height:8px;border-radius:50%}
+  .seg{display:flex;gap:2px;margin:2px 16px 12px;background:#dfe2e8;border-radius:11px;padding:3px}
+  .seg button{flex:1;border:0;background:transparent;color:var(--sub);font-family:inherit;font-weight:600;font-size:12px;padding:8px 0;border-radius:8px;cursor:pointer}
+  .seg button.on{background:#fff;color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.08)}
+
+  .wrap{padding:0 15px;display:flex;flex-direction:column;gap:12px}
+  .wrap>*{opacity:0;animation:cin .55s cubic-bezier(.2,.8,.2,1) forwards}
+  @keyframes cin{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+  .wrap>*:nth-child(1){animation-delay:.02s}.wrap>*:nth-child(2){animation-delay:.07s}.wrap>*:nth-child(3){animation-delay:.12s}
+  .wrap>*:nth-child(4){animation-delay:.17s}.wrap>*:nth-child(5){animation-delay:.22s}.wrap>*:nth-child(6){animation-delay:.27s}
+  .wrap>*:nth-child(7){animation-delay:.32s}.wrap>*:nth-child(8){animation-delay:.37s}.wrap>*:nth-child(9){animation-delay:.42s}
+  .wrap>*:nth-child(n+10){animation-delay:.47s}
+
+  .card{background:var(--card);border-radius:18px;padding:18px;box-shadow:0 1px 2px rgba(20,20,40,.05),0 6px 18px rgba(20,20,40,.03)}
+  .lbl{font-size:10.5px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--faint)}
+  .sh{display:flex;align-items:center;justify-content:space-between;margin:8px 2px -2px}
+  .sh .lbl{color:var(--sub)}.sh a{font-size:12px;font-weight:600;color:var(--accent);text-decoration:none}
+
+  .hero{position:relative;overflow:hidden;color:#fff;background:linear-gradient(140deg,var(--accent),var(--accent2))}
+  .hero .lbl{color:rgba(255,255,255,.75)}
+  .hero .top-row{display:flex;align-items:center;justify-content:space-between}
+  .hero .big{font-size:44px;letter-spacing:-.03em;margin:8px 0 0;line-height:1}
+  .delta{display:inline-flex;align-items:center;gap:4px;font-size:12.5px;font-weight:700;color:#fff;background:rgba(255,255,255,.2);padding:4px 9px;border-radius:20px}
+  .hero .meta{display:flex;gap:18px;margin-top:15px}
+  .hero .meta div{font-size:12px;color:rgba(255,255,255,.82)}
+  .hero .meta b{display:block;font-size:16px;font-weight:700;color:#fff;margin-bottom:1px}
+  .hero .spk{position:absolute;right:0;bottom:0;width:56%;height:58px;opacity:.55}
+  .hero .spk path{stroke-dasharray:1;stroke-dashoffset:1;animation:draw 1.2s .25s ease forwards}
+  @keyframes draw{to{stroke-dashoffset:0}}
+
+  .ai{background:var(--soft);border:1px solid var(--softline)}
+  .ai .head{display:flex;align-items:center;gap:8px;margin-bottom:9px}
+  .ai .s{width:24px;height:24px;border-radius:7px;background:var(--accent);display:flex;align-items:center;justify-content:center}
+  .ai .head .lbl{color:var(--accent)}
+  .ai .txt{font-size:15px;line-height:1.55;font-weight:500;color:#2a1a20}
+
+  .persona{position:relative;overflow:hidden;color:#fff;background:linear-gradient(140deg,var(--accent),#360912)}
+  .persona .lbl{color:rgba(255,255,255,.72)}
+  .persona .t{font-size:29px;line-height:1.05;margin:8px 0 7px}
+  .persona .s{font-size:14px;color:rgba(255,255,255,.85);line-height:1.5;max-width:80%}
+  .persona .em{position:absolute;right:8px;bottom:-16px;font-size:104px;opacity:.16;animation:pop .6s .3s both}
+  @keyframes pop{from{transform:scale(.6) rotate(-12deg);opacity:0}to{transform:scale(1) rotate(-8deg);opacity:.16}}
+
+  .demand{background:#241a1e;color:#fff}
+  .demand .lbl{color:#e08aa0}
+  .demand .t{font-size:29px;line-height:1.05;margin:7px 0 8px}
+  .demand .s{font-size:14px;color:rgba(255,255,255,.72);line-height:1.5}.demand .s b{color:#fff}
+  .arw{width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.14);display:flex;align-items:center;justify-content:center;color:#fff}
+
+  .rk{display:flex;align-items:center;gap:12px;padding:12px 0;border-top:1px solid var(--hair)}
+  .rk:first-of-type{border-top:0;padding-top:2px}
+  .rk .pos{width:20px;font-size:13px;font-weight:700;color:var(--faint);text-align:center}.rk .pos.top{color:var(--accent)}
+  .rk .nm{flex:1;min-width:0}.rk .nm .t{font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .rk .nm .track{height:5px;background:#f1f0f2;border-radius:3px;margin-top:6px;overflow:hidden}
+  .rk .nm .fill{height:100%;width:0;background:linear-gradient(90deg,var(--accent2),var(--accent));border-radius:3px;transition:width 1s cubic-bezier(.2,.8,.2,1)}
+  .rk .val{text-align:right}.rk .val .a{font-size:14px;font-weight:700}.rk .val .b{font-size:11.5px;color:var(--faint);margin-top:1px}
+
+  .chips{display:flex;gap:7px;flex-wrap:wrap;margin:12px 0 10px}
+  .chip{font-size:12px;font-weight:600;color:var(--accent);background:var(--soft);border:1px solid var(--softline);border-radius:18px;padding:7px 12px;cursor:pointer;transition:.15s}
+  .chip:active{transform:scale(.95)}
+  .inrow{display:flex;gap:8px}
+  .inrow input{flex:1;border:1.5px solid #e6e2e4;border-radius:12px;padding:11px 13px;font-family:inherit;font-size:14px;outline:none;color:var(--ink)}
+  .inrow button{border:0;background:var(--accent);color:#fff;font-family:inherit;font-weight:700;font-size:14px;border-radius:12px;padding:0 18px;cursor:pointer}
+  .fres{margin-top:14px;padding-top:14px;border-top:1px solid var(--hair);display:none}
+  .fres.show{display:block;animation:cin .4s both}
+  .fres .p{font-size:26px;font-weight:800;color:var(--accent)}.fres .p small{font-size:14px;font-weight:600;color:var(--sub)}
+  .fres .cf{display:inline-block;font-size:10.5px;font-weight:800;text-transform:uppercase;padding:3px 9px;border-radius:7px;margin-left:8px;vertical-align:3px}
+  .cf.High{background:var(--greenbg);color:var(--green)}.cf.Medium{background:var(--amberbg);color:var(--amber)}
+  .fres .w{font-size:13px;color:var(--sub);margin-top:8px;line-height:1.5}
+
+  .combo{background:linear-gradient(140deg,#12805c,#0b5e44);color:#fff}
+  .combo .lbl{color:rgba(255,255,255,.8)}
+  .cb{display:flex;align-items:center;gap:10px;padding:12px 0;border-top:1px solid rgba(255,255,255,.14)}
+  .cb:first-of-type{border-top:0;padding-top:6px}
+  .cb .ci{flex:1;min-width:0}.cb .cn{font-size:14.5px;font-weight:700}.cb .cd{font-size:12px;color:rgba(255,255,255,.82);margin-top:1px}.cb .cw{font-size:11px;color:rgba(255,255,255,.62);margin-top:3px}
+  .cb .cr{text-align:right}.cb .cp{font-size:16px;font-weight:800}
+  .cb .pro{margin-top:5px;border:0;background:rgba(255,255,255,.18);color:#fff;font-family:inherit;font-weight:700;font-size:11.5px;border-radius:9px;padding:6px 11px;cursor:pointer;transition:.15s}
+  .cb .pro:active{transform:scale(.95)}
+
+  .lseg{margin:11px 0}.lhead{display:flex;justify-content:space-between;align-items:baseline}
+  .ln{font-size:13.5px;font-weight:600}.lp{font-size:12.5px;font-weight:800;color:var(--sub)}
+  .lt{height:8px;background:#f1f0f2;border-radius:5px;overflow:hidden;margin:5px 0 4px}
+  .lf{height:100%;width:0;border-radius:5px;transition:width 1s cubic-bezier(.2,.8,.2,1)}
+  .ll{font-size:11.5px;color:var(--sub)}
+
+  .wx{background:linear-gradient(140deg,#3f80c4,#2b5a8f);color:#fff}
+  .wx .lbl{color:rgba(255,255,255,.82)}
+  .wx .row{display:flex;align-items:center;gap:12px;margin-top:8px}
+  .wx .t{font-size:38px;font-weight:800}.wx .c{font-size:15px;font-weight:700}
+  .wx .s{font-size:13px;color:rgba(255,255,255,.85);margin-top:11px;line-height:1.5}
+
+  .att{display:flex;align-items:center;gap:12px;padding:12px 0;border-top:1px solid var(--hair)}
+  .att:first-of-type{border-top:0;padding-top:2px}
+  .att .ic{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;flex:0 0 34px;background:var(--amberbg);color:var(--amber)}
+  .att .m{flex:1}.att .m .t{font-size:14px;font-weight:600}.att .m .s{font-size:12px;color:var(--sub);margin-top:1px}
+  .att .chip2{font-size:11.5px;font-weight:700;padding:4px 9px;border-radius:20px;white-space:nowrap;background:var(--amberbg);color:var(--amber)}
+
+  .ops{display:grid;grid-template-columns:repeat(4,1fr);gap:9px}
+  .op{background:var(--card);border-radius:14px;padding:12px;box-shadow:0 1px 2px rgba(20,20,40,.05)}
+  .op .v{font-size:18px;font-weight:800;letter-spacing:-.02em}.op .k{font-size:9px;font-weight:600;color:var(--faint);text-transform:uppercase;letter-spacing:.05em;margin-top:3px}
+
+  .ask{position:fixed;left:50%;transform:translateX(-50%);bottom:80px;width:min(400px,92vw);z-index:44;display:flex;align-items:center;gap:9px;background:#fff;border:1px solid #e7e2e4;border-radius:30px;padding:8px 8px 8px 18px;box-shadow:0 10px 30px rgba(20,15,25,.22)}
+  .ask input{flex:1;border:0;outline:none;font-family:inherit;font-size:14px;background:transparent;color:var(--ink)}
+  .ask .mic{width:40px;height:40px;flex:0 0 40px;border:0;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;cursor:pointer;transition:.2s}
+  .ask .mic.on{animation:pulse 1s infinite}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(138,21,48,.5)}70%{box-shadow:0 0 0 12px rgba(138,21,48,0)}100%{box-shadow:0 0 0 0 rgba(138,21,48,0)}}
+  .toast{position:fixed;left:50%;bottom:74px;width:min(360px,86vw);transform:translate(-50%,8px);z-index:55;background:#12805c;color:#fff;font-size:13px;font-weight:600;text-align:center;padding:11px 16px;border-radius:12px;opacity:0;transition:.3s;pointer-events:none}
+  .toast.on{opacity:1;transform:translate(-50%,0)}
+</style>
+</head>
+<body>
+<div class="phone" id="phone">
+  <div class="top">
+    <div class="badge" id="badge">B</div>
+    <div class="who"><div class="g">Good evening, Ram</div><div class="n" id="who">Bon Bon · Owner</div></div>
+    <div class="av">R</div>
+  </div>
+  <div class="switch">
+    <button data-k="annapoorna"><span class="dot" style="background:#c0561f"></span>Annapoorna</button>
+    <button data-k="bonbon" class="on"><span class="dot" style="background:#8a1530"></span>Bon Bon</button>
+  </div>
+  <div class="seg" id="seg"><button>Today</button><button>This week</button><button class="on">This month</button></div>
+  <div class="wrap" id="content"></div>
+</div>
+<div class="ask" id="ask"><input placeholder="Ask your AI partner anything…" id="askin"><button class="mic" id="mic"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button></div>
+<div class="toast" id="toast"></div>
+<div class="nav" id="nav">
+  <button data-t="dash" class="on"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5L12 4l9 6.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>Home</button>
+  <button data-t="kitchen"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 3h16v7a4 4 0 0 1-4 4H8a4 4 0 0 1-4-4z"/><path d="M8 14v7M16 14v7"/></svg>Kitchen</button>
+  <button data-t="staff"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3 2.7-5 6-5s6 2 6 5"/><path d="M17 8.5a3 3 0 0 1 0 5M18 20c0-2-.8-3.6-2-4.6"/></svg>Staff</button>
+</div>
+
+<script>
+const SPK='<svg class="spk" viewBox="0 0 260 58" preserveAspectRatio="none"><path pathLength="1" d="M0,46 C40,42 60,37 90,35 C130,32 150,23 190,17 C220,12 240,8 260,5" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/></svg>';
+const DATA={
+  bonbon:{accent:"#8a1530",accent2:"#b0324f",soft:"#fbecf0",softline:"#f4d9e0",badge:"B",name:"Bon Bon · Owner",
+    revNum:241700,delta:"▲ 14%",items:"1,865",avg:"₹130",period:"June",topName:"Scoops",
+    read:"<b>Scoops carried your month</b> — 320 sold, ₹28,800. Softy &amp; Mini Sundae are quiet engines. Guests kept asking for <b>kulfi</b> you don't stock.",
+    persona:{t:"The Weekend Champion",s:"Two-thirds of your magic happens Fri–Sun.",em:"🏆"},
+    demand:{n:"37",item:"Mango Kulfi",s:"…and you didn't have it — about <b>₹6,000</b> knocking on the door."},
+    best:[["Scoops","320 sold","₹28,800",100],["Titanic Boat","65 sold","₹13,650",47],["Mini Sundae","98 sold","₹12,740",44],["Madagascar Vanilla Softy","208 sold","₹12,480",43],["Sizzling Hot Brownie Sizzler","55 sold","₹11,550",40]],
+    fchips:["Pista Kulfi","Brownie Waffle","Sugar-free Softy","Cold Coffee"],
+    combos:[["Weekend Waffle Duo","Belgian Waffle + Coffee Thick Shake","Bought together 40% of weekends · +₹40 bill","₹280"],["Chill Pair","Butterscotch Scoop + Oreo Roll","Hot-day favourite · +₹35 bill","₹150"]],
+    langs:[["Tamil",46,"#8a1530","loves Filter Coffee &amp; Butterscotch"],["Malayalam",22,"#1d8f6a","loves Tender Coconut &amp; Banana Caramel"],["Hindi",14,"#c9922f","keeps asking for Kulfi &amp; Rabri Falooda"],["Telugu",12,"#3f74c0","loves Alphonso Mango &amp; Badam"],["Kannada",6,"#c93a5a","loves Nut Butterscotch"]],
+    wx:{ic:"☀️",t:"34°",c:"Hot &amp; sunny",s:"Cold-treat sales lift ~<b>18%</b> — push shakes, softy &amp; falooda today."},
+    att:[["!","Kulfi keeps being asked for","Not on your menu — recurring request","add it","amber"],["↓","Vanilla &amp; Choco Mania barely sold","1 each in June — menu clutter","review","grey"]],
+    ops:[["₹0","Today"],["1","Live"],["109","Menu"],["2","Staff"]],
+    details:{phone:"+91 90000 12345",addr:"T. Nagar, Chennai"},
+    staff:[["Priya","Supervisor · manages menu","P"],["Ravi","Waiter · Tables 1–6","R"],["Kumar","Kitchen","K"]],
+    kitchen:{sum:[["24","Orders"],["3","Pending"],["21","Served"],["₹6,480","Sales"]],tickets:[["Table 4","#1042","2× Scoops · 1× Belgian Waffle","Preparing","2m","prep"],["Table 7","#1041","1× Titanic Boat","Ready","5m","ready"],["Table 2","#1040","3× Mini Sundae","Served","12m","served"]]}},
+  annapoorna:{accent:"#c0561f",accent2:"#e07a2e",soft:"#fdeee0",softline:"#f6dcc4",badge:"A",name:"Annapoorna · Owner",
+    revNum:412500,delta:"▲ 9%",items:"5,240",avg:"₹142",period:"June",topName:"Masala Dosa",
+    read:"<b>Masala Dosa is your anchor</b> — 1,120 plates. Filter Coffee runs the mornings. Guests kept asking for <b>Jain / no-onion</b> options you don't flag.",
+    persona:{t:"The Breakfast King",s:"Your 7–10am rush is 3× the lunch crowd.",em:"👑"},
+    demand:{n:"41",item:"Rava Kesari",s:"…a sweet guests keep asking for after meals — an easy, cheap add."},
+    best:[["Masala Dosa","1,120 plates","₹78,400",100],["Ghee Roast","540 plates","₹54,000",69],["Filter Coffee","1,850 cups","₹46,250",59],["Mini Tiffin","420 plates","₹37,800",48],["Podi Idli","610 plates","₹30,500",39]],
+    fchips:["Rava Kesari","Jain Dosa","Ragi Idli","Filter Cold Coffee"],
+    combos:[["Tiffin + Filter Coffee","Masala Dosa + Filter Coffee","Morning staple · +₹25 bill","₹90"],["South Thali Combo","Mini Tiffin + Payasam","Weekend lunch favourite · +₹40 bill","₹160"]],
+    langs:[["Tamil",72,"#c0561f","loves Ghee Roast &amp; Filter Coffee"],["Telugu",12,"#3f74c0","loves Pesarattu &amp; Upma"],["Malayalam",8,"#1d8f6a","loves Appam &amp; Stew"],["Hindi",5,"#8a5cc0","asks for Jain / no-onion"],["Kannada",3,"#c93a5a","loves Rava Idli"]],
+    wx:{ic:"🌧️",t:"29°",c:"Cloudy · light rain",s:"Rain lifts hot tiffin &amp; filter coffee; cold items dip. Prep extra idli batter."},
+    att:[["!","Jain / no-onion keeps coming up","You don't flag Jain items on the menu","flag them","amber"],["↓","Rava Idli &amp; Bisibele barely move","Under 5 plates each — consider dropping","review","grey"]],
+    ops:[["₹0","Today"],["3","Live"],["86","Menu"],["5","Staff"]],
+    details:{phone:"+91 90000 67890",addr:"Anna Nagar, Chennai"},
+    staff:[["Meena","Supervisor · manages menu","M"],["Suresh","Waiter · Tables 1–8","S"],["Bala","Waiter · Tables 9–16","B"],["Lakshmi","Kitchen","L"],["Anand","Kitchen","A"]],
+    kitchen:{sum:[["58","Orders"],["6","Pending"],["52","Served"],["₹14,220","Sales"]],tickets:[["Table 6","#2088","2× Masala Dosa · 2× Filter Coffee","Preparing","1m","prep"],["Table 3","#2087","1× Ghee Roast · 1× Podi Idli","Ready","4m","ready"],["Table 9","#2086","2× Mini Tiffin","Served","9m","served"]]}},
+};
+let cur="bonbon",tab="dash";
+function forecast(name){const n=name.toLowerCase();
+  if(/kulfi|mango|kesari|jain|matka/.test(n))return{lo:45,hi:65,cf:"High",w:"Matches your #1 unmet demand — guests keep asking for it."};
+  if(/pista|almond|nut|badam|dry\s?fruit/.test(n))return{lo:35,hi:52,cf:"High",w:"Nutty flavours are among your most-loved — a natural fit."};
+  if(/waffle|brownie|dosa|roast/.test(n))return{lo:40,hi:60,cf:"High",w:"Rides your best-selling category — an easy win."};
+  if(/sugar\s?free|vegan|ragi|diet/.test(n))return{lo:18,hi:30,cf:"Medium",w:"A smaller but rising, loyal ask."};
+  if(/coffee|cold|filter/.test(n))return{lo:25,hi:42,cf:"Medium",w:"Steady daily pull — a reliable base."};
+  return{lo:15,hi:30,cf:"Medium",w:"No strong signal yet — start small and track two weeks."};}
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('on');setTimeout(()=>t.classList.remove('on'),2200);}
+function countUp(el,to){const s=performance.now();(function st(n){const p=Math.min(1,(n-s)/1000);el.textContent='₹'+Math.round(to*(1-Math.pow(1-p,3))).toLocaleString('en-IN');if(p<1)requestAnimationFrame(st);})(performance.now());}
+
+function renderDash(){
+  const d=DATA[cur];
+  const best=d.best.map((r,i)=>`<div class="rk"><span class="pos${i<3?' top':''}">${i+1}</span><div class="nm"><div class="t">${r[0]}</div><div class="track"><div class="fill" data-w="${r[3]}%"></div></div></div><div class="val"><div class="a tnum">${r[2]}</div><div class="b tnum">${r[1]}</div></div></div>`).join('');
+  const chips=d.fchips.map(x=>`<span class="chip" data-x="${x}">${x}</span>`).join('');
+  const combos=d.combos.map(x=>`<div class="cb"><div class="ci"><div class="cn">${x[0]}</div><div class="cd">${x[1]}</div><div class="cw">${x[2]}</div></div><div class="cr"><div class="cp">${x[3]}</div><button class="pro">Promote</button></div></div>`).join('');
+  const langs=d.langs.map(l=>`<div class="lseg"><div class="lhead"><span class="ln">${l[0]}</span><span class="lp">${l[1]}%</span></div><div class="lt"><span class="lf" data-w="${l[1]}%" style="background:${l[2]}"></span></div><div class="ll">${l[3]}</div></div>`).join('');
+  const att=d.att.map(a=>`<div class="att"><span class="ic" ${a[4]==='grey'?'style="background:#eef1f5;color:#5b6472"':''}>${a[0]}</span><div class="m"><div class="t">${a[1]}</div><div class="s">${a[2]}</div></div><span class="chip2" ${a[4]==='grey'?'style="background:#eef1f5;color:#5b6472"':''}>${a[3]}</span></div>`).join('');
+  const ops=d.ops.map(o=>`<div class="op"><div class="v tnum">${o[0]}</div><div class="k">${o[1]}</div></div>`).join('');
+  document.getElementById('content').innerHTML=`
+    <div class="card hero">${SPK}<div class="top-row"><span class="lbl">Revenue · ${d.period}</span><span class="delta">${d.delta}</span></div><div class="big serif tnum" id="herobig">₹0</div><div class="meta"><div><b class="tnum">${d.items}</b>items sold</div><div><b class="tnum">${d.avg}</b>avg bill</div><div><b>${d.topName}</b>top seller</div></div></div>
+    <div class="card ai"><div class="head"><span class="s"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.8 4.9L18.7 9.7 13.8 11.5 12 16.4 10.2 11.5 5.3 9.7 10.2 7.9z"/></svg></span><span class="lbl">AI Manager · this month</span></div><div class="txt">${d.read}</div></div>
+    <div class="card persona"><span class="em">${d.persona.em}</span><div class="lbl">This month you were</div><div class="t serif">${d.persona.t}</div><div class="s">${d.persona.s}</div></div>
+    <div class="card demand"><div style="display:flex;justify-content:space-between"><span class="lbl">${d.demand.n} guests wanted</span><span class="arw">↗</span></div><div class="t serif">${d.demand.item}</div><div class="s">${d.demand.s}</div></div>
+    <div class="sh"><span class="lbl">Best sellers</span><a>Full report →</a></div>
+    <div class="card">${best}</div>
+    <div class="card"><div class="lbl" style="color:var(--accent)">Dish forecaster</div><div style="font-size:13.5px;color:var(--sub);margin-top:6px">Thinking of a new dish? See how it'll sell — from your current demand.</div><div class="chips">${chips}</div><div class="inrow"><input id="fin" placeholder="Type a new dish idea…"><button id="fgo">Forecast</button></div><div class="fres" id="fres"><div><span class="p" id="fp"></span><span class="cf" id="fc"></span></div><div class="w" id="fw"></div></div></div>
+    <div class="sh"><span class="lbl">Grow the bill</span></div>
+    <div class="card combo"><div class="lbl" style="margin-bottom:4px">Combos that would sell</div>${combos}</div>
+    <div class="sh"><span class="lbl">Crowd by language</span></div>
+    <div class="card"><div style="font-size:12.5px;color:var(--sub)">Who they are, from the language they chat in. English = mixed, not counted.</div>${langs}</div>
+    <div class="card wx"><div class="lbl">Today's weather</div><div class="row"><span style="font-size:30px">${d.wx.ic}</span><span class="t tnum">${d.wx.t}</span><span class="c">${d.wx.c}</span></div><div class="s">${d.wx.s}</div></div>
+    <div class="sh"><span class="lbl">Needs attention</span></div>
+    <div class="card">${att}</div>
+    <div class="sh"><span class="lbl">Right now</span></div>
+    <div class="ops">${ops}</div>`;
+  countUp(document.getElementById('herobig'),d.revNum);
+  requestAnimationFrame(()=>{setTimeout(()=>document.querySelectorAll('[data-w]').forEach(e=>e.style.width=e.dataset.w),120);});
+  const run=(q)=>{if(!q.trim())return;const f=forecast(q);document.getElementById('fp').innerHTML='≈ '+f.lo+'–'+f.hi+' <small>/ week</small>';const cf=document.getElementById('fc');cf.textContent=f.cf;cf.className='cf '+f.cf;document.getElementById('fw').innerHTML='<b>'+q+'</b> — '+f.w;document.getElementById('fres').classList.add('show');document.getElementById('fin').value=q;};
+  document.getElementById('fgo').onclick=()=>run(document.getElementById('fin').value);
+  document.getElementById('fin').onkeydown=(e)=>{if(e.key==='Enter')run(e.target.value);};
+  document.querySelectorAll('.chip').forEach(ch=>ch.onclick=()=>run(ch.dataset.x));
+  document.querySelectorAll('.pro').forEach(b=>b.onclick=()=>toast('✓ Promotion queued — pushed to waiter & welcome screen'));
+}
+function renderKitchen(){
+  const d=DATA[cur];
+  const sum=d.kitchen.sum.map(s=>`<div class="ks"><div class="v tnum">${s[0]}</div><div class="k">${s[1]}</div></div>`).join('');
+  const tickets=d.kitchen.tickets.map(t=>`<div class="card tk"><div class="th"><div><span class="tt">${t[0]}</span> <span class="ti">${t[1]}</span></div><span class="ago">${t[4]} ago</span></div><div class="items">${t[2]}</div><div class="foot"><span class="st ${t[5]}">${t[3]}</span><span class="ago">tap to advance →</span></div></div>`).join('');
+  document.getElementById('content').innerHTML=`<div class="ksum">${sum}</div><div class="sh"><span class="lbl">Live tickets · today</span></div>${tickets}`;
+}
+function renderStaff(){
+  const d=DATA[cur];
+  const rows=d.staff.map(s=>`<div class="srow"><span class="sa">${s[2]}</span><div class="sm"><div class="t">${s[0]}</div><div class="r">${s[1]}</div></div><button class="x">Edit</button></div>`).join('');
+  document.getElementById('content').innerHTML=`
+    <div class="sh"><span class="lbl">Restaurant details</span></div>
+    <div class="card"><div class="fld"><label>Name</label><div class="ro">${d.name.replace(' · Owner','')}</div></div><div class="fld"><label>Phone</label><div class="ro">${d.details.phone}</div></div><div class="fld"><label>Address</label><div class="ro">${d.details.addr}</div></div></div>
+    <div class="sh"><span class="lbl">Add a team member</span></div>
+    <div class="card">
+      <div class="fld"><label>Full name</label><input id="snm" placeholder="e.g. Anitha"></div>
+      <div class="fld"><label>Role</label><div class="roles"><button class="on">Supervisor</button><button>Kitchen</button><button>Waiter</button></div></div>
+      <div class="fld"><label>Username</label><input placeholder="their login"></div>
+      <div class="fld"><label>Password</label><input placeholder="set a password"></div>
+      <button class="addbtn" id="addst">Add team member</button>
+    </div>
+    <div class="sh"><span class="lbl">Team · ${d.staff.length} people</span></div>
+    <div class="card">${rows}</div>`;
+  document.querySelectorAll('.roles button').forEach(b=>b.onclick=()=>{b.parentElement.querySelectorAll('button').forEach(x=>x.classList.remove('on'));b.classList.add('on');});
+  document.getElementById('addst').onclick=()=>toast('✓ Team member added (preview)');
+  document.querySelectorAll('.srow .x').forEach(b=>b.onclick=()=>toast('Edit staff (preview)'));
+}
+function render(){
+  const d=DATA[cur],cs=document.documentElement.style;
+  cs.setProperty('--accent',d.accent);cs.setProperty('--accent2',d.accent2);cs.setProperty('--soft',d.soft);cs.setProperty('--softline',d.softline);
+  document.getElementById('badge').textContent=d.badge;document.getElementById('who').textContent=d.name;
+  document.getElementById('seg').style.display=tab==='dash'?'flex':'none';
+  document.getElementById('ask').style.display=tab==='dash'?'flex':'none';
+  document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('on',b.dataset.t===tab));
+  if(tab==='dash')renderDash();else if(tab==='kitchen')renderKitchen();else renderStaff();
+}
+document.querySelectorAll('.nav button').forEach(b=>b.onclick=()=>{tab=b.dataset.t;render();window.scrollTo({top:0,behavior:'smooth'});});
+document.querySelectorAll('.switch button').forEach(b=>b.onclick=()=>{document.querySelectorAll('.switch button').forEach(x=>x.classList.remove('on'));b.classList.add('on');cur=b.dataset.k;render();window.scrollTo({top:0,behavior:'smooth'});});
+const mic=document.getElementById('mic');
+mic.onclick=()=>{mic.classList.add('on');toast('🎙️ Listening…');setTimeout(()=>mic.classList.remove('on'),1500);};
+document.getElementById('askin').onkeydown=(e)=>{if(e.key==='Enter')toast('Thinking… (preview)');};
+render();
+</script>
+</body>
+</html>
