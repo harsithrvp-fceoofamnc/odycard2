@@ -5,11 +5,13 @@ import { C, Spinner, PasswordField, useBBSession } from "../_ui";
 import { AiManagerPanel } from "../insights/AiManagerPanel";
 
 type Staff = { id: string; name: string; username: string; role: string; active: boolean; tables?: number[] };
-type Order = { id: string; total: number; status: string; created_at: string };
+type OrderItem = { name: string; qty: number; price: number };
+type Order = { id: string; ticket?: number; total: number; status: string; created_at: string; table?: string; items?: OrderItem[] };
 
 export default function AdminPage() {
   const { me, ready } = useBBSession(["admin"]);
   const router = useRouter();
+  const [tab, setTab] = useState<"home" | "kitchen" | "staff">("home");
   async function logout() {
     await fetch("/api/bonbon/auth/logout", { method: "POST" });
     router.replace("/bon-bon/login");
@@ -151,37 +153,42 @@ export default function AdminPage() {
       <header className="ownhdr">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img className="ownlogo" src="/bon_bon_logo.png" alt="Bon Bon" />
-        <div className="owntitle">Owner dashboard<span>{me.name}</span></div>
-        <nav className="ownnav">
-          <a className="on" href="/bon-bon/admin">Dashboard</a>
-          <a href="/bon-bon/manage">Menu</a>
-          <a href="/bon-bon/kitchen">Kitchen</a>
-          <a href="/bon-bon/waiter">Waiter</a>
-        </nav>
+        <div className="owntitle">
+          {tab === "home" ? "Owner dashboard" : tab === "kitchen" ? "Kitchen" : "Team & details"}
+          <span>{me.name}</span>
+        </div>
         <button className="ownout" onClick={logout}>Log out</button>
       </header>
       <main className="ownmain">
       {loading ? (
         <Spinner />
-      ) : (
-        <>
-          {/* live stats */}
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(150px,1fr))", gap: 12, marginBottom: 20 }}>
+      ) : tab === "kitchen" ? (
+        <KitchenTab orders={orders} />
+      ) : tab === "home" ? (
+        <div className="stagger">
+          {/* today, at a glance */}
+          <div className="opsgrid">
             <Stat label="Today's sales" value={`₹${revenue}`} accent />
             <Stat label="Today's orders" value={String(todays.length)} />
             <Stat label="Live orders" value={String(activeOrders)} />
             <Stat label="Menu items" value={menuCount == null ? "—" : String(menuCount)} />
-            <Stat label="Staff" value={String(staff.length)} />
           </div>
-          <p style={{ fontSize: 12, color: "#8a8a90", marginTop: -10, marginBottom: 22 }}>
-            Sales are visible to you (the owner) only — never to supervisors or waiters. Today&apos;s figures come from
-            real orders placed through the chatbot.
+          <p style={{ fontSize: 11.5, color: "#9aa0aa", margin: "-2px 2px 4px", lineHeight: 1.5 }}>
+            Sales are visible to you only — never to supervisors or waiters. Today&apos;s figures come from real orders.
           </p>
 
           {/* AI Manager — the capsule, right on the owner dashboard */}
           <AiManagerPanel />
 
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(320px,1fr))", gap: 16 }}>
+          <div className="quick">
+            <a href="/bon-bon/manage">Menu</a>
+            <a href="/bon-bon/kitchen">Kitchen screen</a>
+            <a href="/bon-bon/waiter">Waiter screen</a>
+          </div>
+        </div>
+      ) : (
+        <>
+          <div style={{ display: "grid", gap: 14 }}>
             {/* staff list */}
             <section style={card}>
               <h2 style={h2}>Staff &amp; logins</h2>
@@ -315,24 +322,137 @@ export default function AdminPage() {
         </>
       )}
       </main>
+
+      <nav className="ownnav2">
+        <button className={tab === "home" ? "on" : ""} onClick={() => setTab("home")}>
+          <svg width="21" height="21" viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 10.5L12 4l9 6.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z" /></svg>
+          Home
+        </button>
+        <button className={tab === "kitchen" ? "on" : ""} onClick={() => setTab("kitchen")}>
+          <svg width="21" height="21" viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 3h16v7a4 4 0 0 1-4 4H8a4 4 0 0 1-4-4z" /><path d="M8 14v7M16 14v7" /></svg>
+          Kitchen
+        </button>
+        <button className={tab === "staff" ? "on" : ""} onClick={() => setTab("staff")}>
+          <svg width="21" height="21" viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="8" r="3.2" /><path d="M3 20c0-3 2.7-5 6-5s6 2 6 5" /><path d="M17 8.5a3 3 0 0 1 0 5M18 20c0-2-.8-3.6-2-4.6" /></svg>
+          Team
+        </button>
+      </nav>
       </div>
     </div>
   );
 }
 
+// ── Kitchen tab — today's tickets, newest first ───────────────────────────────
+function KitchenTab({ orders }: { orders: Order[] }) {
+  const today = new Date().toDateString();
+  const mine = orders
+    .filter((o) => new Date(o.created_at).toDateString() === today && o.status !== "cancelled")
+    .sort((a, b) => (b.ticket || 0) - (a.ticket || 0));
+  const live = mine.filter((o) => ["new", "preparing", "ready"].includes(o.status));
+  const done = mine.filter((o) => !["new", "preparing", "ready"].includes(o.status));
+  const sales = mine.reduce((s, o) => s + (o.total || 0), 0);
+  const ago = (t: string) => {
+    const m = Math.max(0, Math.round((Date.now() - new Date(t).getTime()) / 60000));
+    return m < 1 ? "just now" : m < 60 ? m + "m ago" : Math.round(m / 60) + "h ago";
+  };
+  const cls = (s: string) => (s === "ready" ? "ready" : s === "served" || s === "done" ? "served" : "prep");
+
+  return (
+    <div className="stagger">
+      <div className="opsgrid">
+        <Stat label="Orders today" value={String(mine.length)} accent />
+        <Stat label="In progress" value={String(live.length)} />
+        <Stat label="Completed" value={String(done.length)} />
+        <Stat label="Sales" value={`₹${sales}`} />
+      </div>
+      <div className="sechead">Live tickets</div>
+      {live.length === 0 && <div className="empty">Nothing cooking right now.</div>}
+      {live.map((o) => (
+        <div className="tick" key={o.id}>
+          <div className="th">
+            <div><b>{o.table ? "Table " + o.table : "Order"}</b> <span className="tno">#{o.ticket || o.id}</span></div>
+            <span className="tago">{ago(o.created_at)}</span>
+          </div>
+          <div className="tit">{(o.items || []).map((i) => `${i.qty}× ${i.name}`).join(" · ") || "—"}</div>
+          <div className="tf">
+            <span className={"st " + cls(o.status)}>{o.status}</span>
+            <span className="tamt">₹{o.total}</span>
+          </div>
+        </div>
+      ))}
+      {done.length > 0 && (
+        <>
+          <div className="sechead">Completed today</div>
+          {done.slice(0, 12).map((o) => (
+            <div className="tick done" key={o.id}>
+              <div className="th">
+                <div><b>{o.table ? "Table " + o.table : "Order"}</b> <span className="tno">#{o.ticket || o.id}</span></div>
+                <span className="tago">{ago(o.created_at)}</span>
+              </div>
+              <div className="tit">{(o.items || []).map((i) => `${i.qty}× ${i.name}`).join(" · ") || "—"}</div>
+              <div className="tf">
+                <span className={"st " + cls(o.status)}>{o.status}</span>
+                <span className="tamt">₹{o.total}</span>
+              </div>
+            </div>
+          ))}
+        </>
+      )}
+    </div>
+  );
+}
+
 const OWN_CSS = `
-.own{min-height:100vh;color:#1e1418;font-family:-apple-system,Segoe UI,Roboto,system-ui,sans-serif;background:#eef0f3}
-.own .owncol{max-width:480px;margin:0 auto;min-height:100vh;position:relative;background:#f6f7f9;box-shadow:0 0 40px rgba(20,10,15,.08)}
-.own .ownhdr{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:10px;flex-wrap:wrap;
-  padding:11px 15px;background:#fff;border-bottom:1px solid #ececec}
-.own .ownlogo{width:40px}
-.own .owntitle{font-size:15px;font-weight:800;color:#1e1418;display:flex;flex-direction:column;line-height:1.15}
-.own .owntitle span{font-size:11px;color:#8a8a90;font-weight:500}
-.own .ownnav{display:flex;gap:6px;flex-wrap:wrap;margin-left:8px}
-.own .ownnav a{font-size:12.5px;font-weight:700;color:#811226;text-decoration:none;padding:6px 12px;border-radius:9px;border:1px solid #f0dbe0}
-.own .ownnav a.on{background:#811226;color:#fff;border-color:#811226}
-.own .ownout{margin-left:auto;padding:7px 13px;border-radius:9px;border:1px solid #e2e2e2;background:#fff;color:#666;font-weight:700;font-size:12.5px;cursor:pointer}
-.own .ownmain{padding:16px 14px 96px}
+.own{min-height:100vh;color:#16131a;font-family:-apple-system,"Segoe UI",Roboto,system-ui,sans-serif;background:#e7e9ee;-webkit-font-smoothing:antialiased}
+.own .owncol{max-width:460px;margin:0 auto;min-height:100vh;position:relative;background:#eceef2;box-shadow:0 0 40px rgba(20,10,15,.09)}
+.own .ownhdr{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:11px;
+  padding:13px 16px;background:rgba(255,255,255,.92);backdrop-filter:blur(10px);border-bottom:1px solid #e7e9ec}
+.own .ownlogo{width:34px;height:34px;border-radius:9px;object-fit:cover}
+.own .owntitle{font-size:15.5px;font-weight:700;letter-spacing:-.01em;color:#16131a;display:flex;flex-direction:column;line-height:1.15}
+.own .owntitle span{font-size:11.5px;color:#8a8a90;font-weight:500;margin-top:1px}
+.own .ownout{margin-left:auto;padding:7px 13px;border-radius:9px;border:1px solid #e4e4e7;background:#fff;color:#6c7280;font-weight:600;font-size:12.5px;cursor:pointer}
+.own .ownmain{padding:15px 15px 108px}
+
+/* entrance animation */
+.own .stagger{display:flex;flex-direction:column;gap:13px}
+.own .stagger>*{opacity:0;animation:ownin .5s cubic-bezier(.2,.8,.2,1) forwards}
+@keyframes ownin{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.own .stagger>*:nth-child(1){animation-delay:.02s}.own .stagger>*:nth-child(2){animation-delay:.07s}
+.own .stagger>*:nth-child(3){animation-delay:.12s}.own .stagger>*:nth-child(4){animation-delay:.17s}
+.own .stagger>*:nth-child(5){animation-delay:.22s}.own .stagger>*:nth-child(n+6){animation-delay:.27s}
+
+.own .opsgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.own .sechead{font-size:10.5px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:#6c7280;margin:6px 2px -4px}
+.own .empty{background:#fff;border-radius:16px;padding:18px;text-align:center;color:#9aa0aa;font-size:13.5px;box-shadow:0 1px 2px rgba(20,20,40,.05)}
+
+/* quick links */
+.own .quick{display:flex;gap:8px;flex-wrap:wrap}
+.own .quick a{flex:1;text-align:center;background:#fff;border:1px solid #ececf0;border-radius:13px;padding:12px 8px;
+  font-size:12.5px;font-weight:600;color:#811226;text-decoration:none;box-shadow:0 1px 2px rgba(20,20,40,.04)}
+
+/* kitchen tickets */
+.own .tick{background:#fff;border-radius:16px;padding:15px 16px;box-shadow:0 1px 2px rgba(20,20,40,.05),0 6px 18px rgba(20,20,40,.03)}
+.own .tick.done{opacity:.72}
+.own .tick .th{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.own .tick .th b{font-size:14.5px;font-weight:700}
+.own .tick .tno{font-size:12px;color:#9aa0aa}
+.own .tick .tago{font-size:11.5px;color:#9aa0aa}
+.own .tick .tit{font-size:13.5px;color:#6c7280;margin-top:5px;line-height:1.5}
+.own .tick .tf{display:flex;align-items:center;justify-content:space-between;margin-top:10px}
+.own .tick .tamt{font-size:14px;font-weight:800;color:#811226}
+.own .st{font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;padding:4px 10px;border-radius:20px}
+.own .st.prep{background:#fbf0dd;color:#a86412}
+.own .st.ready{background:#e7f0fb;color:#2f6fb0}
+.own .st.served{background:#e8f6ef;color:#0e7a55}
+
+/* bottom tab bar */
+.own .ownnav2{position:fixed;left:50%;transform:translateX(-50%);bottom:0;width:min(460px,100vw);z-index:46;
+  display:flex;background:rgba(255,255,255,.96);backdrop-filter:blur(10px);border-top:1px solid #e9ebee;
+  padding:8px 6px 15px;box-shadow:0 -4px 20px rgba(20,15,25,.06)}
+.own .ownnav2 button{flex:1;border:0;background:transparent;display:flex;flex-direction:column;align-items:center;gap:3px;
+  color:#9aa0aa;font-family:inherit;font-size:10.5px;font-weight:600;cursor:pointer;padding:4px 0}
+.own .ownnav2 button svg{stroke:currentColor}
+.own .ownnav2 button.on{color:#811226}
 `;
 
 

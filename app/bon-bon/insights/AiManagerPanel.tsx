@@ -75,17 +75,38 @@ export function AiManagerPanel() {
     <div className="aim">
       <style>{CSS}</style>
 
-      <div className="card read-card">
-        <div className="eyebrow">This week&apos;s read</div>
-        <div className="read">{loading ? "Reading your week…" : read}</div>
+      <div className="hero">
+        <svg className="spk" viewBox="0 0 260 58" preserveAspectRatio="none">
+          <path pathLength={1} d="M0,46 C40,42 60,37 90,35 C130,32 150,23 190,17 C220,12 240,8 260,5" fill="none" stroke="#fff" strokeWidth="2.4" strokeLinecap="round" />
+        </svg>
+        <div className="hrow">
+          <span className="eyebrow">Revenue{period ? " · " + period : " · this week"}</span>
+        </div>
+        <div className="big">{loading ? "…" : inr(revenue)}</div>
+        <div className="hmeta">
+          <div><b>{seeded ? (week?.itemsSold || 0).toLocaleString("en-IN") : String(orders)}</b>{seeded ? "items sold" : "orders"}</div>
+          <div><b>{convos}</b>conversations</div>
+          <div><b>{topSeller ? cap(topSeller.label).split(" ")[0] : "—"}</b>top seller</div>
+        </div>
       </div>
 
-      <div className="kpis">
-        <Kpi n={inr(revenue)} l="Revenue" accent />
-        {seeded ? <Kpi n={(week?.itemsSold || 0).toLocaleString("en-IN")} l="Items sold" /> : <Kpi n={String(orders)} l="Orders" />}
-        <Kpi n={String(convos)} l="Conversations" />
-        <Kpi n={String(unmet)} l="Unmet requests" />
+      <div className="card read-card">
+        <div className="head">
+          <span className="s">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3l1.8 4.9L18.7 9.7 13.8 11.5 12 16.4 10.2 11.5 5.3 9.7 10.2 7.9z" /></svg>
+          </span>
+          <span className="eyebrow acc">AI Manager</span>
+        </div>
+        <div className="read">{loading ? "Reading your numbers…" : read}</div>
       </div>
+
+      {unmet > 0 && topGap && (
+        <div className="card demand">
+          <div className="eyebrow dm">{topGap.count} guests wanted</div>
+          <div className="dt">{cap(topGap.label)}</div>
+          <div className="ds">…and you didn&apos;t have it. That&apos;s demand walking out of the door.</div>
+        </div>
+      )}
 
       <div className="card">
         <div className="rowhead">
@@ -143,15 +164,6 @@ export function AiManagerPanel() {
       )}
 
       <AskBar />
-    </div>
-  );
-}
-
-function Kpi({ n, l, accent }: { n: string; l: string; accent?: boolean }) {
-  return (
-    <div className={"kpi" + (accent ? " accent" : "")}>
-      <div className="n">{n}</div>
-      <div className="l">{l}</div>
     </div>
   );
 }
@@ -276,16 +288,30 @@ const CSS = `
 .aim .muted{color:#8a8a90;font-size:13px;padding:6px 0}
 .aim .note{margin-top:9px;font-size:11.5px;color:#9a8a8e}
 
-.aim .read-card{background:#fbeef1;border-color:#f0d6dd}
-.aim .read{font-size:18px;line-height:1.55;margin-top:9px;color:#2a121a;font-weight:500}
+/* hero */
+.aim .hero{position:relative;overflow:hidden;color:#fff;background:linear-gradient(140deg,#8a1530,#b0324f);
+  border-radius:18px;padding:18px;margin-bottom:12px;box-shadow:0 6px 20px rgba(138,21,48,.18)}
+.aim .hero .eyebrow{color:rgba(255,255,255,.78)}
+.aim .hero .big{font-size:40px;font-weight:800;letter-spacing:-.03em;margin-top:8px;line-height:1;
+  font-variant-numeric:tabular-nums}
+.aim .hero .hmeta{display:flex;gap:18px;margin-top:15px}
+.aim .hero .hmeta div{font-size:11.5px;color:rgba(255,255,255,.8)}
+.aim .hero .hmeta b{display:block;font-size:15.5px;font-weight:700;color:#fff;margin-bottom:1px;font-variant-numeric:tabular-nums}
+.aim .hero .spk{position:absolute;right:0;bottom:0;width:56%;height:56px;opacity:.5}
+.aim .hero .spk path{stroke-dasharray:1;stroke-dashoffset:1;animation:aimdraw 1.2s .3s ease forwards}
+@keyframes aimdraw{to{stroke-dashoffset:0}}
 
-.aim .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:12px}
-@media(max-width:520px){.aim .kpis{grid-template-columns:repeat(2,1fr)}}
-.aim .kpi{background:#fff;border:1px solid #ececf0;border-radius:14px;padding:12px 13px;box-shadow:0 1px 2px rgba(20,10,15,.04)}
-.aim .kpi .n{font-size:21px;font-weight:800;color:#1e1418}
-.aim .kpi .l{font-size:10.5px;color:#8a8a90;margin-top:3px;text-transform:uppercase;letter-spacing:.3px}
-.aim .kpi.accent{background:linear-gradient(135deg,#811226,#5a0c1a);border:0}
-.aim .kpi.accent .n{color:#fff}.aim .kpi.accent .l{color:rgba(255,255,255,.8)}
+.aim .read-card{background:#fbeef1;border-color:#f0d6dd}
+.aim .read-card .head{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.aim .read-card .s{width:23px;height:23px;border-radius:7px;background:#811226;display:flex;align-items:center;justify-content:center}
+.aim .eyebrow.acc{color:#811226}
+.aim .read{font-size:15.5px;line-height:1.55;color:#2a121a;font-weight:500}
+
+/* demand */
+.aim .demand{background:#241a1e;border:0;color:#fff}
+.aim .eyebrow.dm{color:#e08aa0}
+.aim .demand .dt{font-size:27px;font-weight:800;letter-spacing:-.02em;margin:7px 0 7px;line-height:1.1}
+.aim .demand .ds{font-size:13.5px;color:rgba(255,255,255,.72);line-height:1.5}
 
 .aim .rowhead{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
 .aim .seg{display:flex;gap:4px;background:#f3f0f1;border-radius:10px;padding:3px}
