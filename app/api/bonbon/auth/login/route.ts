@@ -7,11 +7,45 @@ import { BB, bbDb, bbCreateToken, bbCookieOptions, bbTtl, bbAdminUser, bbAdminPa
 //  - The owner (admin) authenticates against config (env BONBON_ADMIN_USER/PASS).
 //  - Supervisors & waiters authenticate against the bonbon_staff collection (created by the admin).
 
+// ── Brute-force throttle ─────────────────────────────────────────────────────
+// Without this, someone can machine-gun the owner login until they hit the password.
+// In-memory per instance: not perfect across serverless instances, but it turns a
+// seconds-long attack into a hopeless one, and costs nothing.
+const ATTEMPTS = new Map<string, { n: number; until: number }>();
+const MAX_TRIES = 8;
+const LOCK_MS = 10 * 60 * 1000; // 10 minutes
+
+function clientKey(req: NextRequest): string {
+  const fwd = req.headers.get("x-forwarded-for") || "";
+  return (fwd.split(",")[0] || req.headers.get("x-real-ip") || "unknown").trim();
+}
+function throttled(key: string): number {
+  const e = ATTEMPTS.get(key);
+  if (!e) return 0;
+  if (Date.now() > e.until) { ATTEMPTS.delete(key); return 0; }
+  return e.n >= MAX_TRIES ? Math.ceil((e.until - Date.now()) / 60000) : 0;
+}
+function noteFail(key: string) {
+  const e = ATTEMPTS.get(key);
+  const n = (e && Date.now() <= e.until ? e.n : 0) + 1;
+  ATTEMPTS.set(key, { n, until: Date.now() + LOCK_MS });
+  if (ATTEMPTS.size > 5000) ATTEMPTS.clear(); // crude cap so this can't grow unbounded
+}
+
 export async function POST(req: NextRequest) {
   try {
+    const key = clientKey(req);
+    const mins = throttled(key);
+    if (mins) {
+      return NextResponse.json(
+        { error: `Too many failed attempts. Try again in ${mins} minute${mins === 1 ? "" : "s"}.` },
+        { status: 429 }
+      );
+    }
+
     const { username, password } = await req.json();
-    const u = String(username || "").toLowerCase().trim();
-    const p = String(password || "");
+    const u = String(username || "").toLowerCase().trim().slice(0, 64);
+    const p = String(password || "").slice(0, 200);
     if (!u || !p) return NextResponse.json({ error: "Enter your username and password" }, { status: 400 });
 
     let session: { sub: string; role: BBRole; name: string } | null = null;

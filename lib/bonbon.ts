@@ -25,8 +25,19 @@ export function bbTtl(role: BBRole): number {
   return role === "waiter" || role === "kitchen" ? BB_TTL_WAITER : BB_TTL_ADMIN;
 }
 
+// The HMAC key that signs every staff/owner session cookie. If this is guessable,
+// anyone can forge an admin session — so in production we refuse to run without it
+// rather than silently falling back to a public default.
 function secret(): string {
-  return process.env.SESSION_SECRET || "dev-insecure-secret-change-me";
+  const s = process.env.SESSION_SECRET;
+  if (s && s.length >= 24) return s;
+  if (process.env.NODE_ENV === "production") {
+    throw new Error(
+      "SESSION_SECRET is missing or too short. Set a random 32+ character value in the " +
+        "environment before deploying — without it, session cookies can be forged."
+    );
+  }
+  return "dev-insecure-secret-change-me";
 }
 function b64url(buf: Buffer): string {
   return buf.toString("base64").replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
@@ -90,7 +101,15 @@ export function bbAdminUser(): string {
   return (process.env.BONBON_ADMIN_USER || "admin").toLowerCase();
 }
 export function bbAdminPass(): string {
-  return process.env.BONBON_ADMIN_PASS || "bonbon123";
+  const p = process.env.BONBON_ADMIN_PASS;
+  if (p) return p;
+  if (process.env.NODE_ENV === "production") {
+    throw new Error(
+      "BONBON_ADMIN_PASS is not set. The owner login would fall back to a password that is " +
+        "public in the source code. Set a real one in the environment before deploying."
+    );
+  }
+  return "bonbon123";
 }
 
 // ── Firestore collections ───────────────────────────────────────────────────────
