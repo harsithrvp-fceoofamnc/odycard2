@@ -56,21 +56,22 @@ export async function POST(req: NextRequest) {
       const a = Buffer.from(p);
       const b = Buffer.from(expected);
       const ok = a.length === b.length && crypto.timingSafeEqual(a, b);
-      if (!ok) return NextResponse.json({ error: "Wrong password" }, { status: 401 });
+      if (!ok) { noteFail(key); return NextResponse.json({ error: "Wrong password" }, { status: 401 }); }
       session = { sub: "admin", role: "admin", name: "Bon Bon Owner" };
     } else {
       // 2) staff (supervisor / waiter)
       const db = bbDb();
       const snap = await db.collection(BB.staff).where("username", "==", u).limit(1).get();
-      if (snap.empty) return NextResponse.json({ error: "No such user" }, { status: 401 });
+      if (snap.empty) { noteFail(key); return NextResponse.json({ error: "No such user" }, { status: 401 }); }
       const doc = snap.docs[0];
       const d = doc.data();
       if (d.active === false) return NextResponse.json({ error: "This login is disabled" }, { status: 403 });
       const ok = await bcrypt.compare(p, d.password_hash || "");
-      if (!ok) return NextResponse.json({ error: "Wrong password" }, { status: 401 });
+      if (!ok) { noteFail(key); return NextResponse.json({ error: "Wrong password" }, { status: 401 }); }
       session = { sub: doc.id, role: d.role as BBRole, name: d.name || u };
     }
 
+    ATTEMPTS.delete(key); // clean slate after a good login
     const ttl = bbTtl(session.role);
     const token = bbCreateToken(session, ttl);
     const res = NextResponse.json({ role: session.role, name: session.name });
