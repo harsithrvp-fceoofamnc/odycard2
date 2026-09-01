@@ -215,8 +215,9 @@ function ItemRow({
       style={{
         background: C.card,
         border: `1px solid ${C.line}`,
-        borderRadius: 14,
-        padding: "12px 14px",
+        borderRadius: 16,
+        padding: "14px 15px",
+        boxShadow: "0 1px 2px rgba(20,20,40,.05),0 6px 18px rgba(20,20,40,.03)",
         opacity: it.hidden ? 0.6 : 1,
       }}
     >

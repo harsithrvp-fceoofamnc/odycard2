@@ -151,7 +151,7 @@ export default function KitchenPage() {
 
 function Stat({ label, value, color }: { label: string; value: string; color?: string }) {
   return (
-    <div style={{ background: C.card, border: `1px solid ${C.line}`, borderRadius: 11, padding: "9px 10px", textAlign: "center" }}>
+    <div style={{ background: C.card, border: `1px solid ${C.line}`, borderRadius: 14, padding: "12px 10px", textAlign: "center", boxShadow: "0 1px 2px rgba(20,20,40,.05),0 6px 18px rgba(20,20,40,.03)" }}>
       <div style={{ fontSize: 17, fontWeight: 800, color: color || C.ink }}>{value}</div>
       <div style={{ fontSize: 11, color: C.mut, marginTop: 1 }}>{label}</div>
     </div>
@@ -185,4 +185,4 @@ function beep() {
   } catch {}
 }
 
-const ticket: React.CSSProperties = { background: C.card, border: `1px solid ${C.line}`, borderRadius: 12, padding: "11px 13px" };
+const ticket: React.CSSProperties = { background: C.card, border: `1px solid ${C.line}`, borderRadius: 16, padding: "15px 16px", boxShadow: "0 1px 2px rgba(20,20,40,.05),0 6px 18px rgba(20,20,40,.03)" };

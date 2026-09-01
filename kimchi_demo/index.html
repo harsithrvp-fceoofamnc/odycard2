@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Kim Chi &amp; Ramen — Menu</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;background:#0d0d0f;font-family:-apple-system,"Segoe UI",Roboto,system-ui,sans-serif;overflow:hidden}
+.app{max-width:440px;height:100dvh;margin:0 auto;position:relative;overflow:hidden;background:#fdeff0;
+  box-shadow:0 0 60px rgba(0,0,0,.7);display:flex;flex-direction:column}
+
+/* ---------------- shutter ---------------- */
+#shut{position:absolute;inset:0;z-index:90;background:#fff url('assets/shutter.png') center top/100% 100% no-repeat;
+  transition:transform 1.5s cubic-bezier(.72,.02,.28,1);cursor:pointer}
+#shut.up{transform:translateY(-101%)}
+.tap{position:absolute;left:0;right:0;bottom:64px;text-align:center;font-size:11px;font-weight:700;
+  letter-spacing:.22em;color:#b9424a;animation:pulse 2.1s infinite}
+@keyframes pulse{0%,100%{opacity:.45}50%{opacity:1}}
+#shadow{position:absolute;left:0;right:0;top:0;height:34px;z-index:60;pointer-events:none;
+  background:linear-gradient(#00000026,transparent);opacity:0;transition:opacity .5s .9s}
+#shadow.on{opacity:1}
+
+/* ---------------- header ---------------- */
+.head{flex:0 0 auto;position:relative;background:url('assets/board.png') center/cover;
+  padding:16px 16px 20px;display:flex;align-items:center;justify-content:center;min-height:150px}
+.lant{position:absolute;top:0;left:0;width:100%;pointer-events:none}
+.logo{width:64%;max-width:250px;position:relative;z-index:2;filter:drop-shadow(0 1px 2px rgba(0,0,0,.07))}
+.globe{position:absolute;top:12px;right:12px;z-index:4;width:33px;height:33px;border-radius:50%;
+  border:1.5px solid #d8323c;background:rgba(255,255,255,.82);display:flex;align-items:center;
+  justify-content:center;cursor:pointer}
+
+/* awning — bleeds past both edges so the perspective sides don't leave gaps */
+.awnwrap{flex:0 0 auto;position:relative;overflow:hidden;margin-top:-2px;line-height:0}
+.awn{width:126%;margin-left:-13%;display:block;
+  filter:drop-shadow(0 7px 11px rgba(140,20,25,.26))}
+
+/* ---------------- body ---------------- */
+.body{flex:1;overflow-y:auto;padding:14px 14px 6px;scrollbar-width:none;background:#fdeff0}
+.body::-webkit-scrollbar{display:none}
+.msg{background:#fff;border-radius:17px;border-top-left-radius:6px;padding:13px 15px;font-size:14.5px;
+  line-height:1.55;color:#241b1d;box-shadow:0 1px 3px rgba(120,20,30,.09);max-width:90%;margin-bottom:11px;
+  animation:up .45s cubic-bezier(.2,.8,.2,1) both}
+.you{background:#d8323c;color:#fff;border-radius:17px;border-top-right-radius:6px;padding:11px 15px;
+  font-size:13.5px;margin:0 0 11px auto;width:fit-content;max-width:80%;
+  animation:up .3s cubic-bezier(.2,.8,.2,1) both}
+@keyframes up{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+.dots{display:flex;gap:5px;padding:4px 2px}
+.dots i{width:6px;height:6px;border-radius:50%;background:#e6a9ae;animation:bl 1.1s infinite}
+.dots i:nth-child(2){animation-delay:.15s}.dots i:nth-child(3){animation-delay:.3s}
+@keyframes bl{0%,60%,100%{opacity:.3}30%{opacity:1}}
+
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.card{background:#fff;border-radius:16px;padding:13px 13px 14px;box-shadow:0 1px 3px rgba(120,20,30,.08),
+  0 8px 20px rgba(120,20,30,.05);animation:up .48s cubic-bezier(.2,.8,.2,1) both}
+.card.off{opacity:.5}
+.nm{display:flex;align-items:flex-start;gap:7px;font-size:13.5px;font-weight:700;color:#1c1719;line-height:1.32}
+.veg{width:13px;height:13px;flex:0 0 auto;margin-top:2px;border:1.6px solid #0e7a3c;border-radius:2px;position:relative}
+.veg:after{content:"";position:absolute;inset:2.6px;border-radius:50%;background:#0e7a3c}
+.tag{font-size:10.5px;font-weight:800;letter-spacing:.03em;color:#d8323c;margin-top:6px}
+.ds{font-size:11.5px;color:#8e8285;line-height:1.5;margin-top:6px;min-height:34px}
+.pr{font-size:16px;font-weight:800;color:#d8323c;margin-top:9px}
+.soldout{font-size:10.5px;font-weight:800;color:#9a9093;margin-top:9px;letter-spacing:.03em}
+
+/* ---------------- category bar ---------------- */
+.bar{flex:0 0 auto;background:rgba(255,255,255,.94);backdrop-filter:blur(10px);border-top:1px solid #f6dcde;
+  padding:11px 12px calc(13px + env(safe-area-inset-bottom))}
+.cats{display:flex;gap:7px;overflow-x:auto;scrollbar-width:none}
+.cats::-webkit-scrollbar{display:none}
+.cat{flex:0 0 auto;border:1.5px solid #e8a0a5;background:#fff;border-radius:22px;padding:9px 15px;
+  font-size:13px;font-weight:700;color:#d8323c;cursor:pointer;font-family:inherit;white-space:nowrap;
+  transition:.16s;display:flex;align-items:center;gap:6px}
+.cat:active{transform:scale(.95)}
+.cat.on{background:#d8323c;border-color:#d8323c;color:#fff}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div id="shut" onclick="open_()"><div class="tap">TAP TO ENTER</div></div>
+  <div id="shadow"></div>
+
+  <div class="head">
+    <img class="lant" src="assets/lanterns.png" alt="">
+    <img class="logo" src="assets/logo.png" alt="Kim Chi &amp; Ramen">
+    <div class="globe">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#d8323c" stroke-width="1.8">
+        <circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a15 15 0 0 1 0 18a15 15 0 0 1 0-18"/></svg>
+    </div>
+  </div>
+
+  <div class="awnwrap"><img class="awn" src="assets/awning.png" alt=""></div>
+
+  <div class="body" id="body"></div>
+
+  <div class="bar"><div class="cats" id="cats"></div></div>
+</div>
+
+<script>
+/* ---- menu data (admin-editable in the real build) ---- */
+const MENU={
+ favourites:{label:"⭐ Favourites",items:["ramen","kmomos","krice","bao"]},
+ ramen:{label:"🍜 Ramen & Noodles",items:["ramen","sramen","kvnoodles","ktnoodles","chopsuey","nasi"]},
+ momos:{label:"🥟 Momos",items:["fmomos","kmomos","hmomos","tmomos"]},
+ bao:{label:"🥖 Korean Bao",items:["bao","baot","baop","baothai"]},
+ starters:{label:"🍢 Starters",items:["honey","dragon","manch","tpaneer","kfp"]},
+ rice:{label:"🍚 Rice",items:["krice","kricetower","vrice","srice","mexrice"]},
+ drinks:{label:"🥤 Drinks",items:["mint","blue","triple"]}
+};
+const D={
+ ramen:{n:"Paneer Ramen",p:220,t:"BESTSELLER",d:"Japanese-style noodles in a rich, flavourful broth with spiced paneer & veggies."},
+ sramen:{n:"Special Veg Ramen",p:270,t:"MUST TRY",d:"A soulful mix of veggies, noodles and broth — comfort in every spoonful."},
+ kvnoodles:{n:"Kimchi Veg Noodles",p:220,t:"",d:"Fiery noodles tossed with kimchi, veggies and Asian spices."},
+ ktnoodles:{n:"Kimchi Tower Noodles",p:270,t:"CHEF'S PICK",d:"Layered stack of spicy noodles with kimchi, veggies and sauces."},
+ chopsuey:{n:"American Chopsuey",p:250,t:"",d:"Crispy fried noodles with a sweet and tangy vegetable sauce."},
+ nasi:{n:"Nasi Goreng",p:240,t:"",d:"Indonesian-style fried rice with vegetables, aromatic spices and crispy crackers."},
+ fmomos:{n:"Fried Momos",p:100,t:"",d:"6 pieces piping hot, with schezwan chutney."},
+ kmomos:{n:"Korean Veg Momos",p:150,t:"MUST TRY",d:"Steamed dumplings with fresh vegetables, Korean spices and gochujang dip."},
+ hmomos:{n:"Honey Veg Momos",p:150,t:"",d:"Soft dumplings tossed in a sweet and mildly spicy honey glaze."},
+ tmomos:{n:"Thai Red Veg Momos",p:180,t:"",d:"Steamed dumplings tossed in a rich, creamy Thai red curry sauce."},
+ bao:{n:"Paneer Bao Classic",p:160,t:"BESTSELLER",d:"Soft, fluffy bao buns filled with spiced paneer, fresh veggies and creamy sauce."},
+ baot:{n:"Paneer Bao Tandoori",p:180,t:"",d:"Fluffy bao filled with smoky tandoori-spiced paneer and tangy sauce."},
+ baop:{n:"Paneer Bao Peri Peri",p:180,t:"",d:"Steamed bao with fiery peri peri paneer and crisp veggies."},
+ baothai:{n:"Paneer Thai Red",p:200,t:"",d:"Soft fluffy bao with mild Thai red curry, layered with veggies and sauce."},
+ honey:{n:"Honey Paneer",p:220,t:"MUST TRY",d:"Paneer cubes tossed in a sweet and mildly spicy honey glaze."},
+ dragon:{n:"Dragon Paneer",p:220,t:"",d:"Spicy strips of paneer tossed in a bold dragon sauce."},
+ manch:{n:"Paneer Manchurian",p:180,t:"",d:"Crispy paneer cubes in a tangy Indo-Chinese sauce with garlic, onions and peppers."},
+ tpaneer:{n:"Thai Red Paneer",p:230,t:"",d:"Soft paneer simmered in a rich, creamy Thai red curry with aromatic herbs."},
+ kfp:{n:"Korean Fried Paneer",p:200,t:"CHEF'S PICK",d:"Crispy paneer in a sweet, spicy gochujang glaze — crunchy outside, soft inside."},
+ krice:{n:"Kimchi Rice",p:220,t:"BESTSELLER",d:"Spicy fried rice with kimchi, veggies and Asian seasoning."},
+ kricetower:{n:"Kimchi Rice Tower",p:270,t:"",d:"Layered tower of spicy kimchi rice with veggies and sauces.",off:1},
+ vrice:{n:"Veg Rice / Noodles",p:130,t:"",d:"Classic stir-fry with veggies and soy seasoning."},
+ srice:{n:"Schezwan Rice / Noodles",p:150,t:"",d:"Spicy fried rice with veggies and schezwan sauce."},
+ mexrice:{n:"Mexican Rice / Spaghetti",p:180,t:"",d:"Zesty fried rice or spaghetti tossed with veggies and bold Mexican flavours."},
+ mint:{n:"Virgin Mint Mojito",p:80,t:"",d:"Cool, fizzy and fresh."},
+ blue:{n:"Blue Curacao",p:80,t:"",d:"Citrusy and refreshing."},
+ triple:{n:"Triple Sec Mojito",p:80,t:"",d:"Zesty orange and lime."}
+};
+
+const $=i=>document.getElementById(i);
+let busy=false, active="favourites";
+
+function open_(){
+  $("shut").classList.add("up");
+  $("shadow").classList.add("on");
+  setTimeout(()=>$("shut").style.display="none",1600);
+}
+function cardHtml(id,d){
+  const m=D[id];
+  return `<div class="card ${m.off?'off':''}" style="animation-delay:${d}s">
+    <div class="nm"><span class="veg"></span>${m.n}</div>
+    ${m.t?`<div class="tag">★ ${m.t}</div>`:""}
+    <div class="ds">${m.d}</div>
+    ${m.off?`<div class="soldout">SOLD OUT TODAY</div>`:`<div class="pr">₹${m.p}</div>`}
+  </div>`;
+}
+function show(key,userSaid){
+  if(busy)return; busy=true; active=key;
+  const c=MENU[key], box=$("body");
+  [...document.querySelectorAll(".cat")].forEach(b=>b.classList.toggle("on",b.dataset.k===key));
+  if(userSaid) box.insertAdjacentHTML("beforeend",`<div class="you">${c.label}</div>`);
+  box.insertAdjacentHTML("beforeend",`<div class="msg" id="tp"><div class="dots"><i></i><i></i><i></i></div></div>`);
+  box.scrollTop=box.scrollHeight;
+  setTimeout(()=>{
+    $("tp").remove();
+    const line = key==="favourites"
+      ? "Here are some of our favourites 🥟👇"
+      : `Here's everything in <b>${c.label.replace(/^\S+\s/,"")}</b> 👇`;
+    box.insertAdjacentHTML("beforeend",`<div class="msg">${line}</div>
+      <div class="grid">${c.items.map((id,i)=>cardHtml(id,i*.06)).join("")}</div>`);
+    box.scrollTop=box.scrollHeight;
+    busy=false;
+  },520);
+}
+
+$("cats").innerHTML=Object.keys(MENU).map(k=>
+  `<button class="cat" data-k="${k}" onclick="show('${k}',1)">${MENU[k].label}</button>`).join("");
+
+$("body").innerHTML=`<div class="msg">Hi! 🍜 Welcome to <b>Kim Chi &amp; Ramen</b> — what are you craving today?</div>`;
+setTimeout(()=>show("favourites",0),300);
+</script>
+</body>
+</html>

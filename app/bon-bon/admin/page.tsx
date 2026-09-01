@@ -3,6 +3,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { C, Spinner, PasswordField, useBBSession } from "../_ui";
 import { AiManagerPanel } from "../insights/AiManagerPanel";
+import { CombosPanel } from "./CombosPanel";
 
 type Staff = { id: string; name: string; username: string; role: string; active: boolean; tables?: number[] };
 type OrderItem = { name: string; qty: number; price: number };
@@ -179,6 +180,8 @@ export default function AdminPage() {
 
           {/* AI Manager — the capsule, right on the owner dashboard */}
           <AiManagerPanel />
+
+          <CombosPanel />
 
           <div className="quick">
             <a href="/bon-bon/manage">Menu</a>

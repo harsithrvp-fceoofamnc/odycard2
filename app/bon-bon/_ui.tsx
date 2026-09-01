@@ -6,15 +6,15 @@ import { useRouter } from "next/navigation";
 // same palette as the chatbot so it feels like one product.
 
 export const C = {
-  maroon: "#811226",
-  dark: "#5a0c1a",
-  ink: "#2a1212",
-  mut: "#9a8585",
-  line: "#ecdcdc",
-  cream: "#faf2f1",
-  card: "#fffdfc",
-  bg: "#efe4e2",
-  good: "#1b7d3a",
+  maroon: "#8a1530",
+  dark: "#5c0d1f",
+  ink: "#16131a",
+  mut: "#6c7280",
+  line: "#ececf0",
+  cream: "#fbeef1",
+  card: "#ffffff",
+  bg: "#eceef2",
+  good: "#0e7a55",
   warn: "#c0392b",
 };
 
@@ -70,21 +70,26 @@ export function Shell({
     router.replace("/bon-bon/login");
   }
   return (
-    <div style={{ minHeight: "100vh", background: "#000", fontFamily: font, color: C.ink }}>
-      {/* black behind the phone-width column on desktop; hide every scrollbar while a dashboard is open */}
+    <div style={{ minHeight: "100vh", background: "#e7e9ee", fontFamily: font, color: C.ink }}>
+      {/* clean light backdrop behind the phone-width column; hide scrollbars inside the column */}
       <style>{`
-        html, body { background: #000 !important; }
-        html::-webkit-scrollbar, body::-webkit-scrollbar, .bbcol *::-webkit-scrollbar { width: 0 !important; height: 0 !important; display: none !important; }
-        html, body, .bbcol, .bbcol * { scrollbar-width: none !important; -ms-overflow-style: none !important; }
+        html, body { background: #e7e9ee !important; }
+        .bbcol *::-webkit-scrollbar { width: 0 !important; height: 0 !important; display: none !important; }
+        .bbcol, .bbcol * { scrollbar-width: none !important; -ms-overflow-style: none !important; }
+        .bbcol main > * { opacity: 0; animation: bbin .5s cubic-bezier(.2,.8,.2,1) forwards; }
+        .bbcol main > *:nth-child(1){animation-delay:.02s}.bbcol main > *:nth-child(2){animation-delay:.07s}
+        .bbcol main > *:nth-child(3){animation-delay:.12s}.bbcol main > *:nth-child(4){animation-delay:.17s}
+        .bbcol main > *:nth-child(n+5){animation-delay:.22s}
+        @keyframes bbin { from { opacity:0; transform: translateY(14px) } to { opacity:1; transform:none } }
       `}</style>
       <div
         className="bbcol"
         style={{
-          maxWidth: 520,
+          maxWidth: 460,
           margin: "0 auto",
           minHeight: "100vh",
           background: C.bg,
-          boxShadow: "0 0 44px rgba(0,0,0,.5)",
+          boxShadow: "0 0 40px rgba(20,10,15,.09)",
         }}
       >
       <header
@@ -93,24 +98,26 @@ export function Shell({
           alignItems: "center",
           justifyContent: "space-between",
           gap: 12,
-          padding: "12px 18px",
-          background: `linear-gradient(135deg,${C.maroon},${C.dark})`,
-          color: "#fff",
+          padding: "13px 16px",
+          background: "rgba(255,255,255,.92)",
+          backdropFilter: "blur(10px)",
+          borderBottom: "1px solid #e7e9ec",
+          color: C.ink,
           position: "sticky",
           top: 0,
           zIndex: 10,
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", gap: 12, minWidth: 0 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 11, minWidth: 0 }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/bon_bon_logo.png"
             alt="Bon Bon"
-            style={{ height: 34, width: 34, borderRadius: 9, objectFit: "cover", background: "#fff", padding: 2 }}
+            style={{ height: 34, width: 34, borderRadius: 9, objectFit: "cover" }}
           />
           <div style={{ minWidth: 0 }}>
-            <div style={{ fontSize: 15.5, fontWeight: 800, lineHeight: 1.1 }}>{title}</div>
-            <div style={{ fontSize: 11.5, opacity: 0.85, textTransform: "capitalize" }}>
+            <div style={{ fontSize: 15.5, fontWeight: 700, letterSpacing: "-.01em", lineHeight: 1.15 }}>{title}</div>
+            <div style={{ fontSize: 11.5, color: "#8a8a90", textTransform: "capitalize", marginTop: 1 }}>
               {role} · {name}
             </div>
           </div>
@@ -120,11 +127,11 @@ export function Shell({
           style={{
             padding: "7px 13px",
             borderRadius: 9,
-            border: "1.5px solid rgba(255,255,255,.5)",
-            background: "transparent",
-            color: "#fff",
-            fontWeight: 700,
-            fontSize: 13,
+            border: "1px solid #e4e4e7",
+            background: "#fff",
+            color: "#6c7280",
+            fontWeight: 600,
+            fontSize: 12.5,
             cursor: "pointer",
           }}
         >
@@ -135,9 +142,9 @@ export function Shell({
         <nav
           style={{
             display: "flex",
-            gap: 8,
-            padding: "10px 18px",
-            background: C.card,
+            gap: 7,
+            padding: "10px 16px",
+            background: "#fff",
             borderBottom: `1px solid ${C.line}`,
             overflowX: "auto",
           }}
@@ -145,7 +152,7 @@ export function Shell({
           {nav}
         </nav>
       )}
-      <main style={{ padding: "16px 14px 64px" }}>{children}</main>
+      <main style={{ padding: "15px 15px 72px", display: "flex", flexDirection: "column", gap: 13 }}>{children}</main>
       </div>
     </div>
   );
@@ -158,12 +165,13 @@ export function NavLink({ href, active, children }: { href: string; active?: boo
       style={{
         padding: "7px 13px",
         borderRadius: 9,
-        fontSize: 13.5,
+        fontSize: 12.5,
         fontWeight: 700,
         textDecoration: "none",
         whiteSpace: "nowrap",
-        background: active ? C.maroon : "#f3e7e6",
+        background: active ? C.maroon : "#fff",
         color: active ? "#fff" : C.maroon,
+        border: `1px solid ${active ? C.maroon : "#f0dbe0"}`,
       }}
     >
       {children}

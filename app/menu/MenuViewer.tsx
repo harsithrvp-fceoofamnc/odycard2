@@ -67,9 +67,28 @@ export default function MenuViewer({ categories }: { categories: MenuCategory[] 
         );
       })}
 
+      {/* a little something while you decide */}
+      <a className="playcard" href="/game">
+        <span className="pi">🍨</span>
+        <span className="pt">
+          <b>Scoop Stacker</b>
+          Waiting for your order? Stack the scoops — how high can you go?
+        </span>
+        <span className="pg">Play →</span>
+      </a>
+
       <div className="foot"><div className="m serif">Bon Bon</div>Butter Crafted Ice Creams</div>
 
       <style>{`
+        .playcard{display:flex;align-items:center;gap:13px;margin:0 auto;max-width:420px;
+          padding:18px 18px;background:linear-gradient(140deg,#8a1530,#5c0d1f);color:#fff;text-decoration:none;
+          border-radius:20px;box-shadow:0 10px 30px rgba(0,0,0,.35)}
+        .playcard .pi{font-size:34px;flex:0 0 auto}
+        .playcard .pt{flex:1;font-size:12.5px;line-height:1.5;color:rgba(255,255,255,.8)}
+        .playcard .pt b{display:block;font-size:16px;color:#fff;margin-bottom:2px;letter-spacing:-.01em}
+        .playcard .pg{flex:0 0 auto;font-size:12.5px;font-weight:800;background:rgba(255,255,255,.18);
+          padding:8px 13px;border-radius:20px;white-space:nowrap}
+
         html,body{margin:0;height:100%;background:#000}
         .app{--cream:#f5e9e6;
           max-width:460px;margin:0 auto;height:100dvh;overflow-y:scroll;scroll-snap-type:y mandatory;background:#160b0e;position:relative;

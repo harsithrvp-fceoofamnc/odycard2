@@ -150,7 +150,7 @@ export default function WaiterPage() {
       ) : (
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(260px,1fr))", gap: 14 }}>
           {orders.map((o) => (
-            <div key={o.id} style={{ background: C.card, border: `1px solid ${C.line}`, borderTop: `3px solid ${C.good}`, borderRadius: 13, padding: "13px 15px" }}>
+            <div key={o.id} style={{ background: C.card, border: `1px solid ${C.line}`, borderTop: `3px solid ${C.good}`, borderRadius: 16, padding: "15px 16px", boxShadow: "0 1px 2px rgba(20,20,40,.05),0 6px 18px rgba(20,20,40,.03)" }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
                 <div style={{ fontWeight: 800, color: C.ink, fontSize: 16 }}>#{o.ticket}</div>
                 {o.table && (

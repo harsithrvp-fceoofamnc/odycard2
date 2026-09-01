@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Odysra — Choose a menu</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{--sans:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",Inter,"Helvetica Neue",Arial,sans-serif}
+html,body{height:100%;background:#000;font-family:var(--sans);overflow:hidden;-webkit-font-smoothing:antialiased}
+.app{max-width:440px;height:100dvh;margin:0 auto;position:relative;overflow:hidden;background:#000;
+  box-shadow:0 0 60px rgba(0,0,0,.9)}
+
+/* ================= 1 · SPLASH ================= */
+#splash{position:absolute;inset:0;z-index:60;background:#000;display:flex;align-items:center;
+  justify-content:center;opacity:0;transition:opacity 1.5s ease}
+#splash.in{opacity:1}
+#splash img{width:82%;max-width:340px;filter:drop-shadow(0 0 40px rgba(255,120,160,.35))}
+
+/* ================= 2 · HERO WAITER ================= */
+#hero{position:absolute;left:0;bottom:0;z-index:30;height:74vh;max-height:560px;
+  transform:translateX(-120%);opacity:0;
+  transition:transform 1.7s cubic-bezier(.33,.02,.2,1),opacity .9s ease}
+#hero.in{transform:translateX(-6%);opacity:1}
+#hero.out{transform:translateX(-120%);opacity:0;transition:transform 1.2s cubic-bezier(.5,0,.75,.1),opacity .8s ease}
+#hero img{height:100%;width:auto;display:block;filter:drop-shadow(0 0 50px rgba(255,190,140,.18))}
+
+#heroBub{position:absolute;left:44%;bottom:60%;right:16px;z-index:32;opacity:0;
+  transform:translateY(12px) scale(.95);
+  transition:opacity .7s ease,transform .95s cubic-bezier(.33,.02,.2,1)}
+#heroBub.in{opacity:1;transform:none}
+.bubble{position:relative;background:#fff;border-radius:20px;padding:16px 18px;
+  box-shadow:0 18px 46px rgba(0,0,0,.55)}
+.bubble:after{content:"";position:absolute;left:-11px;bottom:20px;width:0;height:0;
+  border:11px solid transparent;border-right-color:#fff;border-left:0}
+.bubble .t{font-size:15.5px;line-height:1.5;color:#1c1a1f;font-weight:500;letter-spacing:-.008em}
+.cur{display:inline-block;width:2px;height:14px;background:#8a1530;vertical-align:-2px;margin-left:2px;
+  animation:blink .75s steps(2) infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+
+#tapHint{position:absolute;left:0;right:0;bottom:26px;z-index:40;text-align:center;font-size:9.5px;
+  font-weight:800;letter-spacing:.3em;color:#5a5058;opacity:0;transition:opacity .8s ease;
+  animation:pulse 2.1s infinite}
+#tapHint.in{opacity:1}
+@keyframes pulse{0%,100%{opacity:.3}50%{opacity:1}}
+
+/* ================= 3 · HEADING ================= */
+#craving{position:absolute;top:0;left:0;right:0;z-index:20;text-align:center;padding:34px 24px 0;
+  transform:translateY(-150%);opacity:0;
+  transition:transform 1.5s cubic-bezier(.33,.02,.2,1),opacity 1s ease}
+#craving.in{transform:none;opacity:1}
+#craving h1{font-size:27px;font-weight:800;color:#fff;letter-spacing:-.03em;line-height:1.2}
+#craving .g{background:linear-gradient(95deg,#ff4d8d,#c14ff0 55%,#7c5cff);
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
+  font-size:31px;display:block}
+
+/* ================= 4 · BIG WAITER ================= */
+#big{position:absolute;left:50%;bottom:0;z-index:5;height:84vh;max-height:700px;
+  transform:translateX(-50%) translateY(30%);opacity:0;
+  transition:transform 1.8s cubic-bezier(.33,.02,.2,1),opacity 1.2s ease}
+#big.in{transform:translateX(-50%) translateY(4%);opacity:1}
+#big img{height:100%;width:auto;display:block;filter:drop-shadow(0 0 60px rgba(255,190,140,.16))}
+#bigGlow{position:absolute;left:50%;bottom:-6%;width:420px;height:420px;transform:translateX(-50%);
+  z-index:4;background:radial-gradient(circle,rgba(255,150,190,.12),transparent 68%);
+  opacity:0;transition:opacity 1.6s ease}
+#bigGlow.in{opacity:1}
+
+/* ================= 5 · CARDS ================= */
+#stage{position:absolute;left:0;right:0;bottom:11%;height:372px;z-index:12;
+  perspective:1200px;touch-action:pan-y}
+.card{position:absolute;left:50%;top:0;width:242px;height:364px;margin-left:-121px;
+  border-radius:28px;overflow:hidden;cursor:pointer;opacity:0;
+  transition:transform .62s cubic-bezier(.25,.9,.3,1),opacity .55s ease,filter .55s ease}
+.up .card{opacity:1}
+
+/* dish photo, sharp, full bleed */
+.card .bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0}
+/* light scrim, only enough to keep the logo and button legible */
+.card .veil{position:absolute;inset:0;z-index:1;
+  background:linear-gradient(180deg,rgba(0,0,0,.5) 0%,rgba(0,0,0,.05) 34%,
+             rgba(0,0,0,.08) 58%,rgba(0,0,0,.72) 100%)}
+
+/* big logo */
+.card .lg{position:absolute;left:7%;right:7%;top:7%;width:86%;height:26%;object-fit:contain;z-index:3;
+  filter:drop-shadow(0 3px 12px rgba(0,0,0,.65))}
+/* explore button */
+.card .cta{position:absolute;left:14px;right:14px;bottom:14px;z-index:3;border-radius:28px;padding:11px;
+  font-size:12.5px;font-weight:800;display:flex;align-items:center;justify-content:center;gap:7px;
+  white-space:nowrap;-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+.card .arw{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;
+  justify-content:center;font-size:13px;font-weight:800;line-height:0;padding-bottom:2px}
+
+/* glass rim */
+.card .edge{position:absolute;inset:0;z-index:5;border-radius:28px;pointer-events:none;
+  border:1.5px solid rgba(255,255,255,.5);
+  box-shadow:inset 0 1.5px 0 rgba(255,255,255,.75),
+             inset 0 -1px 0 rgba(255,255,255,.2),
+             inset 0 0 44px rgba(255,255,255,.07)}
+.card .sheen{position:absolute;inset:0;z-index:4;pointer-events:none;
+  background:linear-gradient(148deg,rgba(255,255,255,.26) 0%,rgba(255,255,255,.05) 24%,
+             rgba(255,255,255,0) 46%)}
+
+/* positions */
+.card.mid  {transform:translateX(0) scale(1);z-index:6;filter:none}
+.card.left {transform:translateX(-142px) scale(.6);z-index:3;filter:brightness(.5);opacity:.8}
+.card.right{transform:translateX( 142px) scale(.6);z-index:3;filter:brightness(.5);opacity:.8}
+#stage.enter .card{transform:translateY(130%) scale(.6);opacity:0}
+
+.b-bonbon{box-shadow:0 0 32px rgba(255,92,147,.4),0 18px 40px rgba(0,0,0,.75)}
+.b-bonbon .cta{background:rgba(138,21,48,.55);border:1.5px solid rgba(255,255,255,.7);color:#fff}
+.b-bonbon .arw{background:#fff;color:#8a1530}
+
+.b-dvour{box-shadow:0 0 26px rgba(255,176,32,.3),0 18px 40px rgba(0,0,0,.78)}
+.b-dvour .cta{background:rgba(12,12,14,.6);border:1.5px solid rgba(255,176,32,.9);color:#ffc453}
+.b-dvour .arw{background:#ffb020;color:#111}
+
+.b-kimchi{box-shadow:0 0 26px rgba(255,60,70,.3),0 18px 40px rgba(0,0,0,.78)}
+/* its logo is black + red, so give it a white halo to lift it off the photo */
+.b-kimchi .lg{filter:drop-shadow(0 0 4px rgba(255,255,255,.95)) drop-shadow(0 0 12px rgba(255,255,255,.8))}
+.b-kimchi .cta{background:rgba(200,20,30,.88);border:1.5px solid rgba(255,255,255,.6);color:#fff}
+.b-kimchi .arw{background:#fff;color:#c8141e}
+
+#zoom{position:absolute;z-index:70;overflow:hidden;opacity:0;pointer-events:none}
+.fade{opacity:0 !important;transition:opacity .8s ease}
+</style>
+</head>
+<body>
+<div class="app" id="app">
+
+  <div id="splash"><img src="assets/logo_bonbon.png" alt=""></div>
+
+  <div id="craving"><h1>What are you<span class="g">in the mood for?</span></h1></div>
+
+  <div id="bigGlow"></div>
+  <div id="big"><img src="assets/mascot_stand.png" alt=""></div>
+
+  <div id="stage" class="enter">
+    <div class="card b-dvour" data-k="dvour" onclick="tap(this)">
+      <img class="bg" src="assets/dish_dvour.png" alt="">
+      <div class="veil"></div>
+      <img class="lg" src="assets/logo_dvour.png" alt="">
+      <div class="cta">Explore D'Vour<span class="arw">›</span></div>
+      <div class="sheen"></div><div class="edge"></div>
+    </div>
+    <div class="card b-bonbon" data-k="bonbon" onclick="tap(this)">
+      <img class="bg" src="assets/dish_bonbon.png" alt="">
+      <div class="veil"></div>
+      <img class="lg" src="assets/logo_bonbon.png" alt="">
+      <div class="cta">Explore Bon Bon<span class="arw">›</span></div>
+      <div class="sheen"></div><div class="edge"></div>
+    </div>
+    <div class="card b-kimchi" data-k="kimchi" onclick="tap(this)">
+      <img class="bg" src="assets/dish_kimchi.png" alt="">
+      <div class="veil"></div>
+      <img class="lg" src="assets/logo_kimchi.png" alt="">
+      <div class="cta">Explore Kimchi<span class="arw">›</span></div>
+      <div class="sheen"></div><div class="edge"></div>
+    </div>
+  </div>
+
+  <div id="hero"><img src="assets/mascot_wave.png" alt=""></div>
+  <div id="heroBub"><div class="bubble"><div class="t" id="heroLine"></div></div></div>
+  <div id="tapHint">TAP TO CONTINUE</div>
+
+  <div id="zoom"></div>
+</div>
+
+<script>
+const $=i=>document.getElementById(i);
+const CARDS=[...document.querySelectorAll('#stage .card')];
+let phase=0, typing=false, locked=false, mid=1, timer=null;
+
+function typeInto(el,txt,done){
+  typing=true; const plain=txt.replace(/<[^>]+>/g,""); let n=0;
+  (function step(){
+    n++; let res="",c=0;
+    for(let i=0;i<txt.length;i++){
+      if(txt[i]==="<"){const e=txt.indexOf(">",i);res+=txt.slice(i,e+1);i=e;continue;}
+      if(c<n){res+=txt[i];c++;} else break;
+    }
+    el.innerHTML=res+'<span class="cur"></span>';
+    if(c>=plain.length){el.innerHTML=txt;typing=false;done&&done();return;}
+    setTimeout(step,/[.,!?…]/.test(plain[c-1])?120:28);
+  })();
+}
+
+setTimeout(()=>$("splash").classList.add("in"),150);
+setTimeout(()=>$("splash").classList.remove("in"),2200);
+setTimeout(()=>{$("splash").style.display="none"; heroIn();},3750);
+
+function heroIn(){
+  $("hero").classList.add("in");
+  setTimeout(()=>{
+    $("heroBub").classList.add("in");
+    typeInto($("heroLine"),"Welcome! 👋 I'm your waiter today.",()=>{
+      $("tapHint").classList.add("in"); phase=1;
+    });
+  },1250);
+}
+
+function toMenu(){
+  if(typing){ $("heroLine").innerHTML="Welcome! 👋 I'm your waiter today.";
+              typing=false; $("tapHint").classList.add("in"); phase=1; return; }
+  if(phase!==1) return;
+  phase=2;
+  $("heroBub").classList.remove("in");
+  $("tapHint").classList.remove("in");
+  $("hero").classList.remove("in"); $("hero").classList.add("out");
+  setTimeout(()=>{ $("big").classList.add("in"); $("bigGlow").classList.add("in"); },450);
+  setTimeout(()=>$("craving").classList.add("in"),850);
+  setTimeout(()=>{
+    $("stage").classList.remove("enter"); $("stage").classList.add("up");
+    place(); autoplay();
+  },1150);
+}
+$("app").addEventListener("click",()=>{ if(phase<2) toMenu(); });
+
+function place(){
+  CARDS.forEach((c,i)=>{
+    c.classList.remove("left","mid","right");
+    const d=(i-mid+3)%3;
+    c.classList.add(d===0?"mid":d===1?"right":"left");
+  });
+}
+function go(dir){ mid=(mid+dir+3)%3; place(); autoplay(); }
+function autoplay(){
+  clearInterval(timer);
+  timer=setInterval(()=>{ if(!locked){ mid=(mid+1)%3; place(); } },5200);
+}
+function tap(el){
+  const i=CARDS.indexOf(el);
+  if(i!==mid){ mid=i; place(); autoplay(); return; }
+  open_(el);
+}
+
+let x0=null,y0=null;
+$("stage").addEventListener("touchstart",e=>{x0=e.touches[0].clientX;y0=e.touches[0].clientY;},{passive:true});
+$("stage").addEventListener("touchend",e=>{
+  if(x0===null)return;
+  const dx=e.changedTouches[0].clientX-x0, dy=e.changedTouches[0].clientY-y0;
+  if(Math.abs(dx)>34&&Math.abs(dx)>Math.abs(dy)) go(dx<0?1:-1);
+  x0=y0=null;
+});
+let mx=null;
+$("stage").addEventListener("mousedown",e=>mx=e.clientX);
+$("stage").addEventListener("mouseup",e=>{
+  if(mx===null)return;
+  const dx=e.clientX-mx; if(Math.abs(dx)>34) go(dx<0?1:-1);
+  mx=null;
+});
+
+function open_(el){
+  if(locked) return; locked=true; clearInterval(timer);
+  const r=el.getBoundingClientRect(), a=$("app").getBoundingClientRect();
+  const z=$("zoom");
+  z.className=[...el.classList].filter(c=>c.startsWith("b-")).join(" ");
+  z.innerHTML=el.innerHTML;
+  z.style.cssText=`position:absolute;z-index:70;overflow:hidden;border-radius:26px;
+    left:${r.left-a.left}px;top:${r.top-a.top}px;width:${r.width}px;height:${r.height}px;opacity:1;
+    transition:all 1.25s cubic-bezier(.33,.02,.2,1)`;
+  ["craving","stage","big","bigGlow"].forEach(i=>$(i).classList.add("fade"));
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{
+    z.style.left="0px"; z.style.top="0px";
+    z.style.width=a.width+"px"; z.style.height=a.height+"px"; z.style.borderRadius="0px";
+  }));
+  setTimeout(()=>{
+    z.style.transition="opacity .5s"; z.style.opacity="0";
+    ["craving","stage","big","bigGlow"].forEach(i=>$(i).classList.remove("fade"));
+    setTimeout(()=>{ z.style.cssText="opacity:0"; locked=false; autoplay(); },820);
+  },3000);
+}
+</script>
+</body>
+</html>
