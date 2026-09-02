@@ -10,7 +10,7 @@ const STALLS = [
   { key: "bonbon", name: "Bon Bon",         tag: "THE GOURMET ICE CREAM",    pic: "/bon_bon_scoop.png" },
   { key: "kimchi", name: "Kim Chi & Ramen", tag: "INDO ASIAN FOOD",          pic: "/kimchi_ramen.png" },
 ];
-const V = 7; // bump to bust the iframe cache after a rebuild
+const V = 8; // bump to bust the iframe cache after a rebuild
 
 export default function FestApp() {
   const [phase, setPhase] = useState<"splash" | "intro" | "pick">("splash");
@@ -215,10 +215,14 @@ const CSS = `
   animation:slidein .45s cubic-bezier(.2,.85,.25,1) both}
 @keyframes slidein{from{opacity:0;transform:scale(1.04)}to{opacity:1;transform:none}}
 .stallframe iframe{width:100%;height:100%;border:0;display:block}
-.fback{position:absolute;left:10px;top:12px;z-index:9;width:34px;height:34px;border-radius:10px;
+/* These MUST stay scoped under .fst. The reset four rules up is ".fst button", which is a
+   class plus a type selector — more specific than a bare ".fback", so its background:none
+   was quietly winning and the button has been fully transparent on every stall. What you
+   could see was backdrop-filter blurring whatever sat behind it. */
+.fst .fback{position:absolute;left:10px;top:12px;z-index:9;width:34px;height:34px;border-radius:10px;
   background:rgba(255,255,255,.22);backdrop-filter:blur(8px);color:#fff;font-size:23px;line-height:0;
   padding-bottom:4px;display:flex;align-items:center;justify-content:center}
 /* Bon Bon's wood and D'VOUR's black board carry a white chevron fine. Kim Chi's board is
-   white, so a white-on-translucent button vanished into it — that one is solid black. */
-.fb-kimchi{background:#111;color:#fff;backdrop-filter:none;box-shadow:0 2px 8px rgba(0,0,0,.3)}
+   white, so a translucent button vanished into it — that one is solid black. */
+.fst .fb-kimchi{background:#111;color:#fff;backdrop-filter:none;box-shadow:0 2px 8px rgba(0,0,0,.35)}
 `;
