@@ -355,6 +355,9 @@
   #bootveil{background:#0b0b0c}
   #langbar{display:none!important}
   .bot:before{content:"";position:absolute;left:-42px;bottom:0;width:34px;height:34px;border-radius:50%;background:#fff url('/fest/mascot_face.png') center bottom / 100% auto no-repeat;border:1.5px solid var(--line);box-shadow:0 1px 4px rgba(0,0,0,.12)}
+  .tags{margin:2px 0 4px}
+  .tag{display:inline-block;margin:0 7px 0 0;font-size:11.5px;font-weight:800;letter-spacing:.02em;color:var(--gold)}
+  .t-NEW{color:#1f9d55}
   .chips{gap:9px}
   .chip{font-size:15.5px;padding:10px 17px;border-radius:22px}
   .catgrid,.catpic{display:none}
@@ -376,39 +379,39 @@
 </div>
 <script>
 const MENU={
- dv_b_green:{n:"Green Flag Burger",p:150,e:"🍔",h:[[8,23]],q:"",pt:8,ph:"",d:"Grill patty, layered fresh veggies, cheese melt, bun hug - bite heaven",veg:1,tagtxt:"BESTSELLER",promoted:1},
- dv_b_nash:{n:"Nashville Burger",p:230,e:"🍔",h:[[8,23]],q:"",pt:8,ph:"",d:"Spicy crispy patty, tangy pickles, creamy mayo, soft bun - fiery buzz",veg:1},
- dv_b_korean:{n:"Korean Burger",p:230,e:"🍔",h:[[8,23]],q:"",pt:8,ph:"",d:"Korean spiced patty, kimchi crunch, gochujang mayo, soft bun - bold bite",veg:1,tagtxt:"MUST TRY"},
- dv_b_makhani:{n:"Makhani Gravy Burger",p:250,e:"🍔",h:[[8,23]],q:"",pt:8,ph:"",d:"Grill patty glazed in rich, buttery makhani gravy with a cheese melt, soft bun - desi comfort",veg:1,tagtxt:"NEW"},
+ dv_b_green:{n:"Green Flag Burger",p:150,e:"🍔",h:[[8,23]],q:"",pt:8,ph:"",d:"Grill patty, layered fresh veggies, cheese melt, bun hug - bite heaven",veg:1,promoted:1},
+ dv_b_nash:{n:"Nashville Burger",p:230,e:"🍔",h:[[8,23]],q:"",pt:8,ph:"",d:"Spicy crispy patty, tangy pickles, creamy mayo, soft bun - fiery buzz",veg:1,tagtxt:"BESTSELLER"},
+ dv_b_korean:{n:"Korean Burger",p:230,e:"🍔",h:[[8,23]],q:"",pt:8,ph:"",d:"Korean spiced patty, kimchi crunch, gochujang mayo, soft bun - bold bite",veg:1,tagtxt:"BESTSELLER"},
+ dv_b_makhani:{n:"Makhani Gravy Burger",p:250,e:"🍔",h:[[8,23]],q:"",pt:8,ph:"",d:"Grill patty glazed in rich, buttery makhani gravy with a cheese melt, soft bun - desi comfort",veg:1},
  dv_b_avop:{n:"Avocado Paneer Burger",p:250,e:"🍔",h:[[8,23]],q:"",pt:8,ph:"",d:"Golden seared paneer with creamy avocado sauce, crisp lettuce and tomato, soft bun - cool and creamy",veg:1},
  dv_b_jal:{n:"Cheese & Jalapeño Burger",p:250,e:"🍔",h:[[8,23]],q:"",pt:8,ph:"",d:"Grill patty, cheese melt and pickled jalapeños, soft bun - sharp and cheesy",veg:1},
  dv_b_buff:{n:"Buffalo Burger",p:270,e:"🍔",h:[[8,23]],q:"",pt:8,ph:"",d:"Golden seared paneer, ranch drizzle, soft bun - zesty bite",veg:1},
- dv_b_dunk:{n:"Cheese Dunk Burger",p:270,e:"🍔",h:[[8,23]],q:"",pt:8,ph:"",d:"Loaded with cheese, built to dunk - pure cheesy indulgence",veg:1},
+ dv_b_dunk:{n:"Cheese Dunk Burger",p:270,e:"🍔",h:[[8,23]],q:"",pt:8,ph:"",d:"Loaded with cheese, built to dunk - pure cheesy indulgence",veg:1,tagtxt:"MUST TRY"},
  dv_b_sig:{n:"Signature Burger",p:270,e:"🍔",h:[[8,23]],q:"",pt:8,ph:"",d:"Chef's special patty, secret sauce, fresh layers - your perfect bite",veg:1},
- dv_b_double:{n:"Double Decker Burger",p:350,e:"🍔",h:[[8,23]],q:"",pt:8,ph:"",d:"Two juicy patties, double cheese, extra layers - twice the taste, twice the joy",veg:1},
- dv_b_cclassic:{n:"Classic Burger",p:160,e:"🍔",h:[[8,23]],q:"",pt:8,ph:"",d:"Golden chicken patty, garden fresh veggies, creamy cheese, soft bun - simple bliss",veg:0,nv:1,tagtxt:"BESTSELLER"},
- dv_b_cnash:{n:"Nashville Chicken Burger",p:250,e:"🍔",h:[[8,23]],q:"",pt:8,ph:"",d:"Crispy fried chicken, Nashville spice kick, tangy pickles, soft bun - fiery southern bite",veg:0,nv:1,tagtxt:"MUST TRY"},
- dv_b_ckorean:{n:"Korean Chicken Burger",p:250,e:"🍔",h:[[8,23]],q:"",pt:8,ph:"",d:"Crispy chicken, kimchi crunch, gochujang mayo, soft bun - bold Korean punch",veg:0,nv:1},
+ dv_b_double:{n:"Double Decker Burger",p:350,e:"🍔",h:[[8,23]],q:"",pt:8,ph:"",d:"Two juicy patties, double cheese, extra layers - twice the taste, twice the joy",veg:1,tagtxt:"BESTSELLER"},
+ dv_b_cclassic:{n:"Classic Burger",p:160,e:"🍔",h:[[8,23]],q:"",pt:8,ph:"",d:"Golden chicken patty, garden fresh veggies, creamy cheese, soft bun - simple bliss",veg:0,nv:1},
+ dv_b_cnash:{n:"Nashville Chicken Burger",p:250,e:"🍔",h:[[8,23]],q:"",pt:8,ph:"",d:"Crispy fried chicken, Nashville spice kick, tangy pickles, soft bun - fiery southern bite",veg:0,nv:1,tagtxt:"BESTSELLER"},
+ dv_b_ckorean:{n:"Korean Chicken Burger",p:250,e:"🍔",h:[[8,23]],q:"",pt:8,ph:"",d:"Crispy chicken, kimchi crunch, gochujang mayo, soft bun - bold Korean punch",veg:0,nv:1,tagtxt:"BESTSELLER"},
  dv_b_cjal:{n:"Cheese & Jalapeño Chicken Burger",p:250,e:"🍔",h:[[8,23]],q:"",pt:8,ph:"",d:"Crispy chicken, cheese melt and pickled jalapeños, soft bun - sharp and cheesy",veg:0,nv:1},
  dv_b_cavo:{n:"Avocado Chicken Burger",p:270,e:"🍔",h:[[8,23]],q:"",pt:8,ph:"",d:"Crispy chicken with creamy avocado sauce, crisp lettuce and tomato, soft bun - cool and creamy",veg:0,nv:1},
  dv_b_cbuff:{n:"Buffalo Chicken Burger",p:290,e:"🍔",h:[[8,23]],q:"",pt:8,ph:"",d:"Crispy chicken, buffalo hot sauce, cool ranch drizzle, soft bun - zesty kick in every bite",veg:0,nv:1},
  dv_b_csig:{n:"Signature Burger",p:290,e:"🍔",h:[[8,23]],q:"",pt:8,ph:"",d:"Chef's special chicken patty, secret sauce, melted cheese, fresh layers - pure gourmet bite",veg:0,nv:1,promoted:1},
- dv_b_cdunk:{n:"Cheese Dunk Burger",p:300,e:"🍔",h:[[8,23]],q:"",pt:8,ph:"",d:"Loaded with cheese inside and outside, ready to dunk for the ultimate melt down",veg:0,nv:1},
- dv_b_cdouble:{n:"Double Decker Burger",p:350,e:"🍔",h:[[8,23]],q:"",pt:8,ph:"",d:"Two juicy patties, double cheese, extra layers - twice the taste, twice the joy",veg:0,nv:1},
- dv_b_noroti:{n:"No Roti Burger",p:350,e:"🍔",h:[[8,23]],q:"",pt:8,ph:"",d:"Flame grilled patty stacked with cheddar, fresh layers and house made sauce, soft bun",veg:0,nv:1,tagtxt:"NEW"},
+ dv_b_cdunk:{n:"Cheese Dunk Burger",p:300,e:"🍔",h:[[8,23]],q:"",pt:8,ph:"",d:"Loaded with cheese inside and outside, ready to dunk for the ultimate melt down",veg:0,nv:1,tagtxt:"MUST TRY"},
+ dv_b_cdouble:{n:"Double Decker Burger",p:350,e:"🍔",h:[[8,23]],q:"",pt:8,ph:"",d:"Two juicy patties, double cheese, extra layers - twice the taste, twice the joy",veg:0,nv:1,tagtxt:"BESTSELLER"},
+ dv_b_noroti:{n:"No Roti Burger",p:350,e:"🍔",h:[[8,23]],q:"",pt:8,ph:"",d:"Flame grilled patty stacked with cheddar, fresh layers and house made sauce, soft bun",veg:0,nv:1},
  dv_f_classic:{n:"Classic Fries",p:130,e:"🍟",h:[[8,23]],q:"",pt:8,ph:"",d:"",veg:1},
  dv_f_peri:{n:"French Fries Peri Peri",p:130,e:"🍟",h:[[8,23]],q:"",pt:8,ph:"",d:"",veg:1},
- dv_f_mafia:{n:"Cheese Mafia Fries",p:160,e:"🍟",h:[[8,23]],q:"",pt:8,ph:"",d:"",veg:1,tagtxt:"BESTSELLER"},
- dv_f_cload:{n:"Chicken Loaded Fries with Mojito",p:250,e:"🍟",h:[[8,23]],q:"",pt:8,ph:"",d:"Crispy fries topped with Korean or Nashville chicken, cheese sauce and spicy mayo, served with mojito",veg:0,nv:1,tagtxt:"MUST TRY"},
+ dv_f_mafia:{n:"Cheese Mafia Fries",p:160,e:"🍟",h:[[8,23]],q:"",pt:8,ph:"",d:"",veg:1,tagtxt:"MUST TRY"},
+ dv_f_cload:{n:"Chicken Loaded Fries with Mojito",p:250,e:"🍟",h:[[8,23]],q:"",pt:8,ph:"",d:"Crispy fries topped with Korean or Nashville chicken, cheese sauce and spicy mayo, served with mojito",veg:0,nv:1},
  dv_f_pload:{n:"Paneer Loaded Fries with Mojito",p:250,e:"🍟",h:[[8,23]],q:"",pt:8,ph:"",d:"Crispy fries topped with spicy paneer, cheese and sauces, paired with a refreshing mint mojito",veg:1},
- dv_s_tender:{n:"Fried Chicken Tender",p:220,e:"🍗",h:[[8,23]],q:"",pt:8,ph:"",d:"Juicy golden fried chicken strips seasoned to perfection, served with your choice of dipping sauce",veg:0,nv:1},
- dv_s_firebird:{n:"Nashville Fire Bird Tenders",p:220,e:"🍗",h:[[8,23]],q:"",pt:8,ph:"",d:"Crispy, juicy tenders tossed in a fiery Nashville style hot sauce, served with pickles and cooling ranch",veg:0,nv:1,tagtxt:"MUST TRY"},
- dv_s_wings:{n:"Buffalo Wings",p:220,e:"🍗",h:[[8,23]],q:"",pt:8,ph:"",d:"Classic crispy wings tossed in tangy buffalo sauce, served with cool ranch or blue cheese dip",veg:0,nv:1,tagtxt:"BESTSELLER"},
+ dv_s_tender:{n:"Fried Chicken Tender",p:220,e:"🍗",h:[[8,23]],q:"",pt:8,ph:"",d:"Juicy golden fried chicken strips seasoned to perfection, served with your choice of dipping sauce",veg:0,nv:1,tagtxt:"MUST TRY"},
+ dv_s_firebird:{n:"Nashville Fire Bird Tenders",p:220,e:"🍗",h:[[8,23]],q:"",pt:8,ph:"",d:"Crispy, juicy tenders tossed in a fiery Nashville style hot sauce, served with pickles and cooling ranch",veg:0,nv:1},
+ dv_s_wings:{n:"Buffalo Wings",p:220,e:"🍗",h:[[8,23]],q:"",pt:8,ph:"",d:"Classic crispy wings tossed in tangy buffalo sauce, served with cool ranch or blue cheese dip",veg:0,nv:1},
  dv_s_wingst:{n:"Buffalo Wings Tower",p:270,e:"🍗",h:[[8,23]],q:"",pt:8,ph:"",d:"Classic crispy wings tossed in tangy buffalo sauce, served with cool ranch or blue cheese dip and mojito",veg:0,nv:1},
  dv_w_yinv:{n:"Yin & Yang Garlic Burst Wrap (Veg)",p:250,e:"🌯",h:[[8,23]],q:"",pt:8,ph:"",d:"A garlicky rush of flavour in this juicy roll with onions, tomatoes, lettuce and fillet",veg:1},
  dv_w_yinc:{n:"Yin & Yang Garlic Burst Wrap (Chicken)",p:270,e:"🌯",h:[[8,23]],q:"",pt:8,ph:"",d:"A garlicky rush of flavour in this juicy roll with onions, tomatoes, lettuce and fillet",veg:0,nv:1},
- dv_w_seov:{n:"Seoul Street Wrap (Veg)",p:210,e:"🌯",h:[[8,23]],q:"",pt:8,ph:"",d:"Enjoy the Korean flavours of this big, juicy paneer or chicken roll",veg:1,tagtxt:"BESTSELLER"},
- dv_w_seoc:{n:"Seoul Street Wrap (Chicken)",p:230,e:"🌯",h:[[8,23]],q:"",pt:8,ph:"",d:"Enjoy the Korean flavours of this big, juicy paneer or chicken roll",veg:0,nv:1,tagtxt:"BESTSELLER",promoted:1},
+ dv_w_seov:{n:"Seoul Street Wrap (Veg)",p:210,e:"🌯",h:[[8,23]],q:"",pt:8,ph:"",d:"Enjoy the Korean flavours of this big, juicy paneer or chicken roll",veg:1,tagtxt:"MUST TRY"},
+ dv_w_seoc:{n:"Seoul Street Wrap (Chicken)",p:230,e:"🌯",h:[[8,23]],q:"",pt:8,ph:"",d:"Enjoy the Korean flavours of this big, juicy paneer or chicken roll",veg:0,nv:1,tagtxt:"MUST TRY",promoted:1},
  dv_w_swtv:{n:"Sweet Chilli Wrap (Veg)",p:200,e:"🌯",h:[[8,23]],q:"",pt:8,ph:"",d:"A rush of sweet chilli flavour in this juicy roll with onions, tomatoes and lettuce",veg:1},
  dv_w_swtc:{n:"Sweet Chilli Wrap (Chicken)",p:220,e:"🌯",h:[[8,23]],q:"",pt:8,ph:"",d:"A rush of sweet chilli flavour in this juicy roll with onions, tomatoes and lettuce",veg:0,nv:1},
  dv_x_ricev:{n:"Mexican Rice (Veg)",p:190,e:"🌮",h:[[8,23]],q:"",pt:8,ph:"",d:"Fragrant Mexican style rice tossed with golden seared paneer, sweet corn and bell peppers",veg:1},
@@ -417,7 +420,7 @@ const MENU={
  dv_x_noodc:{n:"Mexican Noodles (Chicken)",p:220,e:"🌮",h:[[8,23]],q:"",pt:8,ph:"",d:"Creamy, mildly spiced noodles with tender chicken bites and sauced vegetables",veg:0,nv:1},
  dv_d_mint:{n:"Virgin Mint Mojito",p:80,e:"🥤",h:[[8,23]],q:"",pt:8,ph:"",d:"",veg:1},
  dv_d_blue:{n:"Blue Curaçao Mojito",p:80,e:"🥤",h:[[8,23]],q:"",pt:8,ph:"",d:"",veg:1},
- dv_d_butter:{n:"Harry Potter Butter Fizz",p:160,e:"🥤",h:[[8,23]],q:"",pt:8,ph:"",d:"Our signature butterbeer-style fizz.",veg:1,tagtxt:"SIGNATURE POUR"}
+ dv_d_butter:{n:"Harry Potter Butter Fizz",p:160,e:"🥤",h:[[8,23]],q:"",pt:8,ph:"",d:"Our signature butterbeer-style fizz.",veg:1,tagtxt:"MUST TRY"}
 };
 const CATS=[
  {name:"Burgers",ids:["dv_b_green","dv_b_nash","dv_b_korean","dv_b_makhani","dv_b_avop","dv_b_jal","dv_b_buff","dv_b_dunk","dv_b_sig","dv_b_double","dv_b_cclassic","dv_b_cnash","dv_b_ckorean","dv_b_cjal","dv_b_cavo","dv_b_cbuff","dv_b_csig","dv_b_cdunk","dv_b_cdouble","dv_b_noroti"]},
@@ -785,7 +788,13 @@ const HOUR=new Date().getHours();
 const part=()=>HOUR<11?"morning":HOUR<16?"afternoon":"evening";
 const TIME_FILTER=false; // DEMO: false = show ALL dishes/categories. Set to true for the real time-based menu.
 const OPEN=Object.keys(MENU).some(id=>HOUR>=MENU[id].h[0]&&HOUR<MENU[id].h[1]);
-const avail=id=>!TIME_FILTER||!OPEN||(HOUR>=MENU[id].h[0]&&HOUR<MENU[id].h[1]);
+var FDIET=0,FTAG="",LASTCAT=-1;
+function hasTag(id,t){return (MENU[id].tagtxt||"").split(",").indexOf(t)>=0;}
+function filterChips(){return '<button class="chip '+(FDIET===1?'go':'alt')+'" onclick="setDiet(1)">\u{1F7E2} Veg only</button>'+'<button class="chip '+(FDIET===2?'go':'alt')+'" onclick="setDiet(2)">\u{1F534} Non-veg only</button>'+'<button class="chip '+(FTAG==="BESTSELLER"?'go':'alt')+'" onclick="setTag(&quot;BESTSELLER&quot;)">\u2605 Bestsellers</button>'+'<button class="chip '+(FTAG==="MUST TRY"?'go':'alt')+'" onclick="setTag(&quot;MUST TRY&quot;)">\u2726 Must try</button>';}
+function setDiet(v){FDIET=(FDIET===v?0:v);refilter();}
+function setTag(t){FTAG=(FTAG===t?"":t);refilter();}
+function refilter(){if(LASTCAT>=0)openCat(LASTCAT);else showCats();}
+const avail=id=>(FDIET!==1||!MENU[id].nv)&&(FDIET!==2||!!MENU[id].nv)&&(!FTAG||hasTag(id,FTAG))&&(!TIME_FILTER||!OPEN||(HOUR>=MENU[id].h[0]&&HOUR<MENU[id].h[1]));
 const SHOW_TIMING=TIME_FILTER; // the "timed" build shows serving times on dishes; the all-time build hides them
 const LOGO_PICS=false; // when true, dishes without a real photo show an image block with the logo centred
 const chat=document.getElementById("chat");
@@ -827,9 +836,12 @@ function photoUrl(id){return MENU[id].ph||LOGO;}
 function fmtTime(t){var hr=Math.floor(t),mn=Math.round((t-hr)*60),ap=hr<12?"AM":"PM",hh=hr%12;if(hh===0)hh=12;return hh+(mn?":"+("0"+mn).slice(-2):"")+ap;}
 function fmtWin(id){var h=MENU[id].h;if(!h||!h.length)return"";return h.map(function(w){return fmtTime(w[0])+"–"+fmtTime(w[1]);}).join(", ");}
 function dishMeta(id){var m=MENU[id],p=[];if(m.q)p.push(m.q);return p.join(" · ");}
-function tagsHTML(m){var h="";if(m.best)h+='<div class="tag">★ '+T("bestseller")+'</div>';if(m.must)h+='<div class="tag must">✦ '+T("musttry")+'</div>';return h;}
+function tagsHTML(m){if(!m.tagtxt)return "";
+ return '<div class="tags">'+m.tagtxt.split(",").map(function(t){
+   return '<span class="tag t-'+t.replace(/ /g,"")+'">'+(t==="BESTSELLER"?"\u2605":"\u2726")+" "+t+"</span>";
+ }).join("")+"</div>";}
 function compactCard(id){const m=MENU[id];
- return `<div class="dish simple" data-id="${id}"><div class="sbd"><div class="srow"><span class="vegdot${m.nv?' nv':''}"></span><div class="nm">${dn(id)}</div></div>${tagsHTML(m)}<div class="meta">${dishMeta(id)}</div><div class="sdesc">${desc(id)}</div><div class="sfoot"><div class="pr">₹${m.p}</div><div class="frow">${dishFooter(id)}</div></div></div></div>`;}
+ return `<div class="dish simple" data-id="${id}"><div class="sbd"><div class="srow"><span class="vegdot${m.nv?' nv':''}"></span><div class="nm">${dn(id)}</div></div>${tagsHTML(m)}<div class="meta">${dishMeta(id)}</div><div class="sfoot"><div class="pr">₹${m.p}</div><div class="frow">${dishFooter(id)}</div></div></div></div>`;}
 function dishCard(id){const m=MENU[id];
  if(!m.ph&&!LOGO_PICS)return compactCard(id); // no photo & no logo-pics -> clean text card
  var inner=m.ph?`<img class="ph" src="${m.ph}" loading="lazy" alt="${dn(id)}" onerror="this.style.display='none';">`:`<img class="piclogo" src="${LOGO}" alt="">`;
@@ -866,7 +878,7 @@ function upsell(){if(upsold)return;const ids=Object.keys(cart);if(!ids.length||i
  setTimeout(()=>{block("pair",`<p>Add a drink? Our <b>${names}</b> go beautifully with your order.</p><div class="row">${sug.map(s=>`<div class="pi" data-id="${s}"><div class="e"><img src="${LOGO}"></div><div class="n">${dn(s)}</div><div class="pifoot">${pairFoot(s)}</div></div>`).join("")}</div>`);exploreBar();},420);}
 
 /* ---------- conversation ---------- */
-function exploreBar(){block("chips",`<button class="chip go" onclick="explore()">${IC.menu}${lbl("exploreMore")}</button><button class="chip alt" onclick="showSpecials()">${IC.star}${lbl("specials")}</button>`);}
+function exploreBar(){block("chips",`<button class="chip go" onclick="explore()">${IC.menu}${lbl("exploreMore")}</button><button class="chip alt" onclick="showSpecials()">${IC.star}${lbl("specials")}</button>`+filterChips());}
 function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
 function typingBubble(){const d=document.createElement("div");d.className="msg bot typing";d.innerHTML='<span class="dot"></span><span class="dot"></span><span class="dot"></span>';chat.appendChild(d);toBottom();return d;}
 function topDishes(){var pr=Object.keys(MENU).filter(i=>MENU[i].promoted&&avail(i));if(pr.length)return pr.slice(0,6);
@@ -896,7 +908,7 @@ function showUsual(){var c=getCustomer()||{};var ids=(c.last||[]).filter(functio
 function showNew(skipMe){var c=getCustomer()||{};var prev=c.last||[];if(!skipMe)me(lbl("somethingNew"));var pool=Object.keys(MENU).filter(function(i){return MENU[i].best&&avail(i)&&prev.indexOf(i)<0;});if(pool.length<4)pool=Object.keys(MENU).filter(function(i){return avail(i)&&prev.indexOf(i)<0;});var rb=bot(T("newIntro"));renderGrid(shuffle(pool).slice(0,6));exploreBar();anchorReply(rb);}
 function showSpecials(quiet){const best=topDishes();if(!quiet)me("Today's picks");
  bot(`Here are today's specials 🍔👇`);renderGrid(best);mainChips();}
-function mainChips(){block("chips",`<button class="chip go" onclick="explore()">${IC.menu}${lbl("exploreFull")}</button><button class="chip alt" onclick="showSpecials()">${IC.star}${lbl("specialsLong")}</button>`);}
+function mainChips(){block("chips",`<button class="chip go" onclick="explore()">${IC.menu}${lbl("exploreFull")}</button><button class="chip alt" onclick="showSpecials()">${IC.star}${lbl("specialsLong")}</button>`+filterChips());}
 let fbRating=0,fbCur="";
 const FBTOPICS=["Food & Taste","Service","Cleanliness","Ambience","Staff","Value for Money","App Experience"];
 function openFeedback(){const rb=bot("What would you like to share feedback about? 😊");block("chips",FBTOPICS.map(a=>`<button class="chip" onclick="fbTopic('${a}')">${a}</button>`).join("")+`<button class="chip alt" onclick="fbCustom()">${IC.note}Something else</button><button class="chip alt" onclick="mainChips()">${IC.back}Done</button>`);}
@@ -911,12 +923,16 @@ function submitFeedback(custom){const ta=document.getElementById("fbtext");const
 var CATPIC={};
 function catFallback(el){el.onerror=null;el.src="/cat_default.jpg";}
 function catImg(c){if(CATPIC[c.name])return CATPIC[c.name];var ids=(c.ids||(c.subs||[]).flatMap(function(s){return s.ids;})).filter(avail);for(var k=0;k<ids.length;k++){if(MENU[ids[k]]&&MENU[ids[k]].ph)return MENU[ids[k]].ph;}return "/cat_default.jpg";}
-function explore(){me(T("exploreMore"));const cs=CATS.filter(c=>(c.ids||(c.subs||[]).flatMap(s=>s.ids)).some(avail));
+function showCats(){const cs=CATS.filter(c=>(c.ids||(c.subs||[]).flatMap(s=>s.ids)).some(avail));
+ if(!cs.length){bot("Nothing veg on this menu just now.");block("chips",filterChips());return;}
  bot(`${T("whatExplore")}`);
- block("chips",cs.map((c)=>`<button class="chip" onclick="openCat(${CATS.indexOf(c)})">${cn(c.name)}</button>`).join("")+`<button class="chip alt" onclick="mainChips()">${IC.home}${lbl("home")}</button>`);}
-function openCat(i){const c=CATS[i];me(cn(c.name));if(c.subs){const ss=c.subs.filter(s=>s.ids.some(avail));bot(`<b>${cn(c.name)}</b> — ${T("pickType")}:`);
-  block("chips",ss.map((s)=>`<button class="chip" onclick="openSub(${i},${c.subs.indexOf(s)})">${cn(s.name)}</button>`).join("")+`<button class="chip alt" onclick="explore()">${IC.back}${lbl("back")}</button>`);
- }else{bot(`<b>${cn(c.name)}</b> — ${T("tapAdd")}:`);grid(c.ids);}}
+ block("chips",cs.map((c)=>`<button class="chip" onclick="openCat(${CATS.indexOf(c)})">${cn(c.name)}</button>`).join("")+filterChips()+`<button class="chip alt" onclick="mainChips()">${IC.home}${lbl("home")}</button>`);}
+function explore(){me(T("exploreMore"));showCats();}
+function openCat(i){if(!CATS[i])return;LASTCAT=i;const c=CATS[i];me(cn(c.name));
+ var ids=(c.ids||[]).filter(avail);
+ if(!ids.length){bot("Nothing in <b>"+cn(c.name)+"</b> matches that filter.");
+  block("chips",filterChips()+`<button class="chip alt" onclick="LASTCAT=-1;explore()">${IC.back}${lbl("back")}</button>`);return;}
+ bot(`<b>${cn(c.name)}</b>:`);renderGrid(ids);exploreBar();}
 function openSub(i,j){const s=CATS[i].subs[j];me(cn(s.name));bot(`<b>${cn(s.name)}</b> — ${T("tapAdd")}:`);grid(s.ids);}
 function info(){me("Store info");bot(`📍 <b>Bon Bon, ${outlet}</b><br>🕖 Open 6:30 AM – 11:00 PM, all days<br>🅿️ Valet parking available<br>❄️ AC &amp; Non-AC dining halls<br>📞 0422-xxxxxxx`);exploreBar();}
 function banquet(){me("Banquet hall enquiry");bot(`We'd be glad to host your event at <b>${outlet}</b>! 🎉 Our hall seats up to 250 with pure-veg catering. Leave your details and our banquet manager will call you.`);

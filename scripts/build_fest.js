@@ -72,6 +72,7 @@ const SKIN = {
     // The dishes the stall pushes: they fill the opening "our favourites" grid and
     // "Today's picks". topDishes() prefers anything flagged promoted over its own guess.
     promote: ["bb_lotus", "bb_caramel", "bb_bub_cookie", "bb_spanish"],
+    filters: ["best", "must"],   // every Bon Bon item is veg, so no diet filter
     hasAwning: true,
   },
   kimchi: {
@@ -82,6 +83,8 @@ const SKIN = {
     shutter: "/kimchi_new_shutter.png", logo: "/fest/logo_kimchi.png",
     greet: "Hi! 🍜 Welcome to Kim Chi & Ramen — what are you craving today?", emoji: "🍜",
     promote: ["kr_s_kwingst", "kr_mc_cramen", "kr_m_cmongol", "kr_mc_svramen"],
+    // Kim Chi is the only stall with new dishes on it — the whole Mongolian line.
+    filters: ["veg", "nonveg", "best", "must", "neu"],
     // Wooden planks behind the chat, running VERTICALLY — /fest/wood_vertical.jpg is
     // wood_web.jpg rotated 90°, since the stock texture's planks lie flat. Sized to cover
     // the phone so it never tiles, which would put a seam straight across the grain.
@@ -103,6 +106,7 @@ const SKIN = {
     // Chicken versions where the dish comes both ways: Signature ₹290, Mexican Rice ₹220,
     // Seoul Street Wrap ₹230. Green Flag Burger only exists the one way.
     promote: ["dv_b_green", "dv_b_csig", "dv_x_ricec", "dv_w_seoc"],
+    filters: ["veg", "nonveg", "best", "must"],
     accentRgb: "0,0,0",
     // Flat black board, yellow rule along the bottom, no image and no awning at all.
     // The other two stalls read as a tall header because the board (~145px) has an awning
@@ -363,14 +367,84 @@ function build(stallKey, stalls) {
       "border:1.5px solid var(--line);box-shadow:0 1px 4px rgba(0,0,0,.12)}"
   );
 
+  // 5a1 ── the BESTSELLER / MUST TRY / NEW badges.
+  // tagsHTML() reads m.best and m.must, but menuJs writes the label into m.tagtxt, so no
+  // badge has ever rendered on these pages. Read the label directly, and split on commas:
+  // the Mongolian dishes are MUST TRY *and* NEW, which two booleans could never express.
+  s = replaceFn(s, "tagsHTML",
+    'function tagsHTML(m){if(!m.tagtxt)return "";\n' +
+    ' return \'<div class="tags">\'+m.tagtxt.split(",").map(function(t){\n' +
+    '   return \'<span class="tag t-\'+t.replace(/ /g,"")+\'">\'+(t==="BESTSELLER"?"\\u2605":"\\u2726")+" "+t+"</span>";\n' +
+    ' }).join("")+"</div>";}');
+  extra.push(".tags{margin:2px 0 4px}",
+    ".tag{display:inline-block;margin:0 7px 0 0;font-size:11.5px;font-weight:800;letter-spacing:.02em;color:var(--gold)}",
+    ".t-NEW{color:#1f9d55}");
+  // 5a2 ── the description leaves the card; it belongs to the info button.
+  // Everything else about the card is untouched: veg dot, name, badge, price, the button.
+  s = replaceFn(s, "compactCard",
+    'function compactCard(id){const m=MENU[id];\n' +
+    ' return `<div class="dish simple" data-id="${id}"><div class="sbd">' +
+    '<div class="srow"><span class="vegdot${m.nv?\' nv\':\'\'}"></span><div class="nm">${dn(id)}</div></div>' +
+    '${tagsHTML(m)}<div class="meta">${dishMeta(id)}</div>' +
+    '<div class="sfoot"><div class="pr">\u20b9${m.p}</div><div class="frow">${dishFooter(id)}</div></div>' +
+    '</div></div>`;}');
+
+  // 5a3 ── the filter bar.
+  // Hooking the filters into avail() rather than into each grid means the whole page obeys
+  // them at once: the category list drops categories that go empty, the specials grid
+  // re-picks, and openCat() shows a filtered list — one switch, everywhere.
+  //   FDIET  0 = any, 1 = veg only, 2 = non-veg only   (mutually exclusive by nature)
+  //   FTAG   "" | BESTSELLER | MUST TRY | NEW          (one at a time; they overlap)
+  // Diet and tag stack, so "Veg only + Must try" is a valid, useful combination.
+  {
+    const chips = (sk.filters || []).map((f) => {
+      const [kind, val, icon, label] = {
+        veg:    ["diet", 1, "\\u{1F7E2}", "Veg only"],
+        nonveg: ["diet", 2, "\\u{1F534}", "Non-veg only"],
+        best:   ["tag", "BESTSELLER", "\\u2605", "Bestsellers"],
+        must:   ["tag", "MUST TRY", "\\u2726", "Must try"],
+        neu:    ["tag", "NEW", "\\u2726", "New"],
+      }[f];
+      const on = kind === "diet" ? `FDIET===${val}` : `FTAG===${JSON.stringify(val)}`;
+      const arg = kind === "diet" ? val : `&quot;${val}&quot;`;
+      const fn = kind === "diet" ? `setDiet(${val})` : `setTag(${arg})`;
+      return `'<button class="chip '+(${on}?'go':'alt')+'" onclick="${fn}">${icon} ${label}</button>'`;
+    });
+    if (!chips.length) chips.push("''");
+
+    s = s.replace(
+      "const avail=id=>!TIME_FILTER||!OPEN||(HOUR>=MENU[id].h[0]&&HOUR<MENU[id].h[1]);",
+      "var FDIET=0,FTAG=\"\",LASTCAT=-1;\n" +
+      "function hasTag(id,t){return (MENU[id].tagtxt||\"\").split(\",\").indexOf(t)>=0;}\n" +
+      "function filterChips(){return " + chips.join("+") + ";}\n" +
+      "function setDiet(v){FDIET=(FDIET===v?0:v);refilter();}\n" +
+      "function setTag(t){FTAG=(FTAG===t?\"\":t);refilter();}\n" +
+      "function refilter(){if(LASTCAT>=0)openCat(LASTCAT);else showCats();}\n" +
+      "const avail=id=>(FDIET!==1||!MENU[id].nv)&&(FDIET!==2||!!MENU[id].nv)" +
+        "&&(!FTAG||hasTag(id,FTAG))" +
+        "&&(!TIME_FILTER||!OPEN||(HOUR>=MENU[id].h[0]&&HOUR<MENU[id].h[1]));"
+    );
+
+    // openCat has to remember where we are, so a filter tap re-renders THIS category
+    // rather than bouncing the guest back to the category list.
+    s = replaceFn(s, "openCat",
+      'function openCat(i){if(!CATS[i])return;LASTCAT=i;const c=CATS[i];me(cn(c.name));\n' +
+      ' var ids=(c.ids||[]).filter(avail);\n' +
+      ' if(!ids.length){bot("Nothing in <b>"+cn(c.name)+"</b> matches that filter.");\n' +
+      '  block("chips",filterChips()+`<button class="chip alt" onclick="LASTCAT=-1;explore()">${IC.back}${lbl("back")}</button>`);return;}\n' +
+      ' bot(`<b>${cn(c.name)}</b>:`);renderGrid(ids);exploreBar();}');
+  }
+
   // 5b ── categories exactly as Sree Annapoorna does them: a wrapping row of chips.
   // No photo, which also kills the bug where Bon Bon's ice-cream shot was the fallback
   // image for every Kim Chi and D'VOUR category.
   s = replaceFn(s, "explore",
-    'function explore(){me(T("exploreMore"));const cs=CATS.filter(c=>(c.ids||(c.subs||[]).flatMap(s=>s.ids)).some(avail));\n' +
+    'function showCats(){const cs=CATS.filter(c=>(c.ids||(c.subs||[]).flatMap(s=>s.ids)).some(avail));\n' +
+    ' if(!cs.length){bot("Nothing veg on this menu just now.");block("chips",filterChips());return;}\n' +
     ' bot(`${T("whatExplore")}`);\n' +
     ' block("chips",cs.map((c)=>`<button class="chip" onclick="openCat(${CATS.indexOf(c)})">${cn(c.name)}</button>`).join("")' +
-    '+`<button class="chip alt" onclick="mainChips()">${IC.home}${lbl("home")}</button>`);}');
+    '+filterChips()+`<button class="chip alt" onclick="mainChips()">${IC.home}${lbl("home")}</button>`);}\n' +
+    'function explore(){me(T("exploreMore"));showCats();}');
   extra.push(
     ".chips{gap:9px}",
     ".chip{font-size:15.5px;padding:10px 17px;border-radius:22px}",
@@ -421,10 +495,10 @@ function build(stallKey, stalls) {
   // button-only, so the rows keep just the two that browse: full menu and today's picks.
   s = replaceFn(s, "mainChips",
     'function mainChips(){block("chips",`<button class="chip go" onclick="explore()">${IC.menu}${lbl("exploreFull")}</button>' +
-    '<button class="chip alt" onclick="showSpecials()">${IC.star}${lbl("specialsLong")}</button>`);}');
+    '<button class="chip alt" onclick="showSpecials()">${IC.star}${lbl("specialsLong")}</button>`+filterChips());}');
   s = replaceFn(s, "exploreBar",
     'function exploreBar(){block("chips",`<button class="chip go" onclick="explore()">${IC.menu}${lbl("exploreMore")}</button>' +
-    '<button class="chip alt" onclick="showSpecials()">${IC.star}${lbl("specials")}</button>`);}');
+    '<button class="chip alt" onclick="showSpecials()">${IC.star}${lbl("specials")}</button>`+filterChips());}');
 
   // 8 ── every per-stall override lands here, at the very end of the stylesheet.
   // #bar needs !important: bbBoot and chooseOutlet both put the bar back by setting
