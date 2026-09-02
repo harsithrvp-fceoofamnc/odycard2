@@ -148,12 +148,12 @@ const CSS = `
 .hero.in{transform:translateX(-6%);opacity:1}
 .hero.out{transform:translateX(-120%);opacity:0;transition:transform 1.2s cubic-bezier(.5,0,.75,.1),opacity .8s}
 .hero img{height:100%;width:auto;display:block;filter:drop-shadow(0 0 50px rgba(255,190,140,.18))}
-.herobub{position:absolute;left:44%;bottom:58%;right:16px;z-index:32;opacity:0;
+/* sits beside his head, not his shoulder */
+.herobub{position:absolute;left:44%;bottom:70%;right:16px;z-index:32;opacity:0;
   transform:translateY(12px) scale(.95);transition:opacity .7s ease,transform .95s cubic-bezier(.33,.02,.2,1)}
 .herobub.in{opacity:1;transform:none}
+/* no speech-bubble tail — it read as a notch cut out of the card */
 .bubble{position:relative;background:#fff;border-radius:20px;padding:15px 17px;box-shadow:0 18px 46px rgba(0,0,0,.55)}
-.bubble:after{content:"";position:absolute;left:-11px;bottom:20px;border:11px solid transparent;
-  border-right-color:#fff;border-left:0}
 .bubble .t{font-size:15px;line-height:1.5;color:#1c1a1f;font-weight:500}
 .taphint{position:absolute;left:0;right:0;bottom:24px;z-index:40;text-align:center;font-size:9.5px;
   font-weight:800;letter-spacing:.3em;color:#5a5058;animation:pulse 2.1s infinite}
