@@ -78,8 +78,11 @@ const SKIN = {
     wood: "/fest/kimchi_board.png", awning: "/fest/kimchi_awning.png",
     shutter: "/fest/kimchi_shutter.png", logo: "/fest/logo_kimchi.png",
     greet: "Hi! 🍜 Welcome to Kim Chi & Ramen — what are you craving today?", emoji: "🍜",
-    // A soft charcoal behind the white board — the red-and-black street-food look without
-    // going flat black — which also means the glows invert: white, not Bon Bon's maroon.
+    // Wooden planks behind the chat, running VERTICALLY — /fest/wood_vertical.jpg is
+    // wood_web.jpg rotated 90°, since the stock texture's planks lie flat. Sized to cover
+    // the phone so it never tiles, which would put a seam straight across the grain.
+    // --cream stays as the colour behind it, and the glows invert to white to suit it.
+    pageBg: "linear-gradient(rgba(0,0,0,.34),rgba(0,0,0,.34)),url('/fest/wood_vertical.jpg')",
     accentRgb: "255,255,255",
     // its own board art is white — the stock dark scrim is what was turning it grey.
     // No awning here either, so the board needs its own height, as D'VOUR's does.
@@ -266,6 +269,13 @@ function build(stallKey, stalls) {
   const bgBefore = s;
   s = s.replace(/(#phone\{\s*)background:#f2e0de;/, "$1background:var(--cream);");
   if (s === bgBefore) throw new Error("page background rule not found — chatbot CSS changed");
+
+  // 4b2 ── an image behind the whole screen, for stalls that want one.
+  // This has to be pushed as an override rather than edited into the #phone rule: the
+  // stall's own art paths must NOT go through the /wood_web.jpg swap in patch 4 below.
+  if (sk.pageBg) extra.push(
+    `#phone{background-image:${sk.pageBg};background-size:cover,cover;` +
+    "background-position:center,center;background-repeat:no-repeat,no-repeat}");
 
   // 4c ── the board (header.woodhdr). Bon Bon keeps the wood and its dark scrim; the other
   // two get their own rule appended, so it wins on source order.
