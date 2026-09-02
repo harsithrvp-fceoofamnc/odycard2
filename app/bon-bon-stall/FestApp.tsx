@@ -17,12 +17,20 @@ export default function FestApp() {
   const [open, setOpen] = useState<string | null>(null);
   const [mid, setMid] = useState(1);
   const [shown, setShown] = useState(false);
+  // The stall cards wait for the waiter: he rises from the bottom first, and only once he
+  // has settled do the three menu blocks come up behind him.
+  const [cardsUp, setCardsUp] = useState(false);
   const timer = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => { const t = setTimeout(() => setPhase("intro"), 2600); return () => clearTimeout(t); }, []);
   useEffect(() => {
     if (phase !== "intro") return;
     const t = setTimeout(() => setShown(true), 1150);
+    return () => clearTimeout(t);
+  }, [phase]);
+  useEffect(() => {
+    if (phase !== "pick") return;
+    const t = setTimeout(() => setCardsUp(true), 1050);
     return () => clearTimeout(t);
   }, [phase]);
 
@@ -60,7 +68,7 @@ export default function FestApp() {
           <img src="/fest/mascot_stand.png" alt="" />
         </div>
 
-        <div className={"stage" + (phase === "pick" ? " up" : "")}>
+        <div className={"stage" + (cardsUp ? " up" : "")}>
           {STALLS.map((s, i) => {
             const d = (i - mid + 3) % 3;
             const pos = d === 0 ? "mid" : d === 1 ? "right" : "left";
