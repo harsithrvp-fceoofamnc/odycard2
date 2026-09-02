@@ -119,7 +119,7 @@ export default function FestApp() {
           <img src="/fest/mascot_wave.png" alt="" />
         </div>
         <div className={"herobub" + (phase === "intro" && shown ? " in" : "")}>
-          <div className="hline">Welcome! 👋<br />I&apos;m your waiter today.</div>
+          <div className="hline">Welcome!<span className="g">I&apos;m your waiter today.</span></div>
         </div>
         {phase === "intro" && shown && <div className="taphint">TAP TO CONTINUE</div>}
         {phase === "intro" && <div className="tapzone" onClick={() => { if (!shown) return; track("intro_continue"); setPhase("pick"); }} />}
@@ -148,7 +148,7 @@ const CSS = `
 .splash.in{opacity:1}
 .splash img{width:80%;max-width:330px;filter:drop-shadow(0 0 40px rgba(255,120,160,.35))}
 
-.hero{position:absolute;left:0;bottom:0;z-index:30;height:70vh;max-height:540px;transform:translateX(-120%);
+.hero{position:absolute;left:0;bottom:0;z-index:30;height:84vh;max-height:680px;transform:translateX(-120%);
   opacity:0;transition:transform 1.7s cubic-bezier(.33,.02,.2,1),opacity .9s ease}
 .hero.in{transform:translateX(-6%);opacity:1}
 .hero.out{transform:translateX(-120%);opacity:0;transition:transform 1.2s cubic-bezier(.5,0,.75,.1),opacity .8s}
@@ -157,10 +157,12 @@ const CSS = `
 .herobub{position:absolute;left:44%;bottom:70%;right:16px;z-index:32;opacity:0;
   transform:translateY(12px) scale(.95);transition:opacity .7s ease,transform .95s cubic-bezier(.33,.02,.2,1)}
 .herobub.in{opacity:1;transform:none}
-/* Not a bubble — the waiter's line is set like the "What are you in the mood for?"
-   heading, so the two intro beats read as one voice. */
-.hline{font-size:23px;font-weight:800;color:#fff;letter-spacing:-.03em;line-height:1.25;
+/* Set exactly like "What are you in the mood for?" — same sizes, same gradient — so the
+   two intro beats read as one voice rather than two designs. */
+.hline{font-size:26px;font-weight:800;color:#fff;letter-spacing:-.03em;line-height:1.2;
   text-shadow:0 2px 22px rgba(0,0,0,.75)}
+.hline .g{background:linear-gradient(95deg,#ff4d8d,#c14ff0 55%,#7c5cff);-webkit-background-clip:text;
+  background-clip:text;-webkit-text-fill-color:transparent;font-size:30px;display:block}
 .taphint{position:absolute;left:0;right:0;bottom:24px;z-index:40;text-align:center;font-size:9.5px;
   font-weight:800;letter-spacing:.3em;color:#5a5058;animation:pulse 2.1s infinite}
 @keyframes pulse{0%,100%{opacity:.3}50%{opacity:1}}
