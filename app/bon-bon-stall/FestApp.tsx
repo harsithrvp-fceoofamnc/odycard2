@@ -11,7 +11,7 @@ const STALLS = [
   { key: "bonbon", name: "Bon Bon",         tag: "THE GOURMET ICE CREAM",    pic: "/bon_bon_scoop.png" },
   { key: "kimchi", name: "Kim Chi & Ramen", tag: "INDO ASIAN FOOD",          pic: "/kimchi_ramen.png" },
 ];
-const V = 27; // bump to bust the iframe cache after a rebuild
+const V = 28; // bump to bust the iframe cache after a rebuild
 
 export default function FestApp() {
   const [phase, setPhase] = useState<"splash" | "intro" | "pick">("splash");
@@ -116,6 +116,7 @@ export default function FestApp() {
                 <div className="sveil" />
                 <img className="slg" src={`/fest/logo_${s.key}.png`} alt="" />
                 <div className="scta">Explore {s.name}<span className="arw">›</span></div>
+                <div className="sheen" /><div className="edge" />
               </button>
             );
           })}
@@ -202,12 +203,10 @@ const CSS = `
 .stage:not(.up) .scard{transform:translateY(130%) scale(.6);opacity:0}
 .sbg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0}
 .sveil{position:absolute;inset:0;z-index:1;
-  background:linear-gradient(180deg,rgba(0,0,0,.48) 0%,rgba(0,0,0,.04) 34%,rgba(0,0,0,.12) 56%,rgba(0,0,0,.78) 100%)}
+  background:linear-gradient(180deg,rgba(0,0,0,.55) 0%,rgba(0,0,0,.08) 36%,rgba(0,0,0,.15) 58%,rgba(0,0,0,.8) 100%)}
 .slg{position:absolute;left:8%;right:8%;top:8%;width:84%;height:24%;object-fit:contain;z-index:3;
   filter:drop-shadow(0 3px 12px rgba(0,0,0,.7))}
-/* Clean cards: no rim, no gloss sheen, no coloured halo — just the artwork and one soft
-   drop shadow, the way a streaming-app poster tile reads. The "Explore" pill is frosted
-   glass over the photo rather than a solid brand-coloured bar. */
+/* The card keeps its rim and gloss — only the "Explore" pill changed to frosted glass. */
 .scta{position:absolute;left:14px;right:14px;bottom:14px;z-index:3;border-radius:28px;padding:12px 8px;
   font-size:12.5px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:7px;
   white-space:nowrap;color:#fff;border:0;background:rgba(255,255,255,.17);
@@ -215,7 +214,15 @@ const CSS = `
 .arw{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;
   font-size:13px;font-weight:800;line-height:0;padding-bottom:2px;flex:0 0 auto;
   background:rgba(255,255,255,.92);color:#15131a}
-.scard{box-shadow:0 20px 46px rgba(0,0,0,.62)}
+.edge{position:absolute;inset:0;z-index:5;border-radius:26px;pointer-events:none;
+  border:1.5px solid rgba(255,255,255,.5);box-shadow:inset 0 1.5px 0 rgba(255,255,255,.7)}
+.sheen{position:absolute;inset:0;z-index:4;pointer-events:none;
+  background:linear-gradient(148deg,rgba(255,255,255,.24) 0%,rgba(255,255,255,0) 46%)}
+/* Each card's halo is its own stall's colour. Maroon and red carry enough luminance to
+   glow on black; D'VOUR's is white, since amber would read as a third warm tone. */
+.k-bonbon{box-shadow:0 0 34px rgba(158,26,56,.85),0 18px 42px rgba(0,0,0,.75)}
+.k-kimchi{box-shadow:0 0 34px rgba(214,28,36,.8),0 18px 42px rgba(0,0,0,.78)}
+.k-dvour{box-shadow:0 0 32px rgba(255,255,255,.5),0 18px 42px rgba(0,0,0,.8)}
 
 /* the stall's own menu page */
 .stallframe{position:absolute;inset:0;z-index:70;background:#000;
