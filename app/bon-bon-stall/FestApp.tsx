@@ -1,5 +1,6 @@
 "use client";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { track } from "@/lib/ga";
 
 // odysra.com/bon-bon-stall — VIT Chennai food stall.
 // Intro (splash → waiter → pick a stall), then that stall's menu, which is the REAL
@@ -10,7 +11,7 @@ const STALLS = [
   { key: "bonbon", name: "Bon Bon",         tag: "THE GOURMET ICE CREAM",    pic: "/bon_bon_scoop.png" },
   { key: "kimchi", name: "Kim Chi & Ramen", tag: "INDO ASIAN FOOD",          pic: "/kimchi_ramen.png" },
 ];
-const V = 17; // bump to bust the iframe cache after a rebuild
+const V = 18; // bump to bust the iframe cache after a rebuild
 
 export default function FestApp() {
   const [phase, setPhase] = useState<"splash" | "intro" | "pick">("splash");
@@ -55,6 +56,7 @@ export default function FestApp() {
     if (!s) return;
     const dx = x - s.x;
     if (Math.abs(dx) < 45 || Math.abs(dx) < Math.abs(y - s.y)) return; // a tap, or a scroll
+    track("stall_swipe", { direction: dx < 0 ? "next" : "prev" });
     setMid((m) => (m + (dx < 0 ? 1 : 2)) % 3);
     autoplay();
     swiped.current = true;
@@ -63,7 +65,7 @@ export default function FestApp() {
 
   // the stall pages post back when the customer taps their back button
   useEffect(() => {
-    const h = (e: MessageEvent) => { if (e.data === "fest:back") setOpen(null); };
+    const h = (e: MessageEvent) => { if (e.data === "fest:back") { track("back_to_menus", { from: "page" }); setOpen(null); } };
     window.addEventListener("message", h);
     return () => window.removeEventListener("message", h);
   }, []);
@@ -98,7 +100,10 @@ export default function FestApp() {
               <button key={s.key} className={`scard ${pos} k-${s.key}`}
                 onClick={() => {
                   if (swiped.current) return;
-                  if (pos !== "mid") { setMid(i); autoplay(); } else setOpen(s.key);
+                  if (pos !== "mid") { track("stall_card_tap", { stall: s.key }); setMid(i); autoplay(); return; }
+                  track("select_content", { content_type: "stall", item_id: s.key });
+                  track("menu_view", { stall: s.key, stall_name: s.name });
+                  setOpen(s.key);
                 }}>
                 <img className="sbg" src={s.pic} alt="" />
                 <div className="sveil" />
@@ -117,12 +122,12 @@ export default function FestApp() {
           <div className="bubble"><div className="t">Welcome! 👋 I&apos;m your waiter today.</div></div>
         </div>
         {phase === "intro" && shown && <div className="taphint">TAP TO CONTINUE</div>}
-        {phase === "intro" && <div className="tapzone" onClick={() => shown && setPhase("pick")} />}
+        {phase === "intro" && <div className="tapzone" onClick={() => { if (!shown) return; track("intro_continue"); setPhase("pick"); }} />}
 
         {open && (
           <div className="stallframe">
             <iframe src={`/fest/${open}/index.html?v=${V}`} title="Menu" />
-            <button className={"fback fb-" + open} onClick={() => setOpen(null)} aria-label="Back to menus">‹</button>
+            <button className={"fback fb-" + open} onClick={() => { track("back_to_menus", { from: "button", stall: open }); setOpen(null); }} aria-label="Back to menus">‹</button>
           </div>
         )}
       </div>

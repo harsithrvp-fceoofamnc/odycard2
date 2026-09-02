@@ -417,8 +417,8 @@ function build(stallKey, stalls) {
       "var FDIET=0,FTAG=\"\",LASTCAT=-1;\n" +
       "function hasTag(id,t){return (MENU[id].tagtxt||\"\").split(\",\").indexOf(t)>=0;}\n" +
       "function filterChips(){return " + chips.join("+") + ";}\n" +
-      "function setDiet(v){FDIET=(FDIET===v?0:v);refilter();}\n" +
-      "function setTag(t){FTAG=(FTAG===t?\"\":t);refilter();}\n" +
+      "function setDiet(v){FDIET=(FDIET===v?0:v);odyga('filter_click',{filter:v===1?'veg':'non-veg',active:FDIET===v});refilter();}\n" +
+      "function setTag(t){FTAG=(FTAG===t?\"\":t);odyga('filter_click',{filter:t,active:FTAG===t});refilter();}\n" +
       "function refilter(){if(LASTCAT>=0)openCat(LASTCAT);else showCats();}\n" +
       "const avail=id=>(FDIET!==1||!MENU[id].nv)&&(FDIET!==2||!!MENU[id].nv)" +
         "&&(!FTAG||hasTag(id,FTAG))" +
@@ -429,11 +429,32 @@ function build(stallKey, stalls) {
     // rather than bouncing the guest back to the category list.
     s = replaceFn(s, "openCat",
       'function openCat(i){if(!CATS[i])return;LASTCAT=i;const c=CATS[i];me(cn(c.name));\n' +
+      ' odyga("view_item_list",{item_list_id:c.key||String(i),item_list_name:cn(c.name)});\n' +
       ' var ids=(c.ids||[]).filter(avail);\n' +
       ' if(!ids.length){bot("Nothing in <b>"+cn(c.name)+"</b> matches that filter.");\n' +
       '  block("chips",filterChips()+`<button class="chip alt" onclick="LASTCAT=-1;explore()">${IC.back}${lbl("back")}</button>`);return;}\n' +
       ' bot(`<b>${cn(c.name)}</b>:`);renderGrid(ids);exploreBar();}');
   }
+
+  // 5a4 ── analytics.
+  // These pages are static HTML in an iframe, so they have no gtag of their own and
+  // loading a second one would open a second GA session on the same visit. Instead each
+  // event is posted up to the parent, which owns the GA4 context and replays it — one
+  // property, one session, and the page path stays /bon-bon-stall. Targeted at our own
+  // origin, never "*", and it degrades to nothing if the page is opened outside the app.
+  s = s.replace("const avail=id=>",
+    "function odyga(n,p){try{if(window.parent&&window.parent!==window)" +
+      "window.parent.postMessage({__odyga:{name:n,params:Object.assign({stall:STALL_KEY},p||{})}},location.origin);}catch(e){}}\n" +
+    `const STALL_KEY=${JSON.stringify(stallKey)};\n` +
+    "const avail=id=>");
+
+  // the info button is the one real "tell me about this dish" signal on these pages
+  s = replaceFn(s, "explainDish",
+    'function explainDish(id){const m=MENU[id];\n' +
+    ' odyga("select_item",{item_id:id,item_name:dn(id),price:m.p});\n' +
+    ' bot(`<b>${dn(id)}</b> — ${desc(id)} <span style="color:#7a4a24;font-weight:700">\u20b9${m.p}</span>' +
+      '<br><span class="meta">${dishMeta(id)}</span>`);\n' +
+    ' block("grid",[dishCard(id)]);exploreBar();}');
 
   // 5b ── categories exactly as Sree Annapoorna does them: a wrapping row of chips.
   // No photo, which also kills the bug where Bon Bon's ice-cream shot was the fallback
@@ -444,7 +465,7 @@ function build(stallKey, stalls) {
     ' bot(`${T("whatExplore")}`);\n' +
     ' block("chips",cs.map((c)=>`<button class="chip" onclick="openCat(${CATS.indexOf(c)})">${cn(c.name)}</button>`).join("")' +
     '+filterChips()+`<button class="chip alt" onclick="mainChips()">${IC.home}${lbl("home")}</button>`);}\n' +
-    'function explore(){me(T("exploreMore"));showCats();}');
+    'function explore(){me(T("exploreMore"));odyga("view_full_menu");showCats();}');
   extra.push(
     ".chips{gap:9px}",
     ".chip{font-size:15.5px;padding:10px 17px;border-radius:22px}",
@@ -483,7 +504,7 @@ function build(stallKey, stalls) {
     `const FRESH={en:"These are today's specials ${sk.emoji}\u{1F447}"};`);
   s = replaceFn(s, "showSpecials",
     'function showSpecials(quiet){const best=topDishes();if(!quiet)me("Today\'s picks");\n' +
-    ` bot(\`Here are today's specials ${sk.emoji}\u{1F447}\`);renderGrid(best);mainChips();}`);
+    ` odyga("view_promotion",{promotion_name:"Today's specials"});\n bot(\`Here are today's specials ${sk.emoji}\u{1F447}\`);renderGrid(best);mainChips();}`);
 
   // 7 ── the opening line
   s = s.replace(/const GREET=\{[\s\S]*?\};/, `const GREET={en:${JSON.stringify(sk.greet)}};`);

@@ -1,5 +1,6 @@
 import "./globals.css";
 import { LoaderProvider } from "@/context/LoaderContext";
+import Analytics from "@/components/Analytics";
 
 export const metadata = {
   title: "OdyCard",
@@ -20,6 +21,8 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
+        {/* renders nothing; no-op unless NEXT_PUBLIC_GA_ID is set */}
+        <Analytics />
         <LoaderProvider>
           {children}
         </LoaderProvider>

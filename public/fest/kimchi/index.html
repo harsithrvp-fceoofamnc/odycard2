@@ -799,9 +799,11 @@ const OPEN=Object.keys(MENU).some(id=>HOUR>=MENU[id].h[0]&&HOUR<MENU[id].h[1]);
 var FDIET=0,FTAG="",LASTCAT=-1;
 function hasTag(id,t){return (MENU[id].tagtxt||"").split(",").indexOf(t)>=0;}
 function filterChips(){return '<button class="chip '+(FDIET===1?'go':'alt')+'" onclick="setDiet(1)">\u{1F7E2} Veg only</button>'+'<button class="chip '+(FDIET===2?'go':'alt')+'" onclick="setDiet(2)">\u{1F534} Non-veg only</button>'+'<button class="chip '+(FTAG==="BESTSELLER"?'go':'alt')+'" onclick="setTag(&quot;BESTSELLER&quot;)">\u2605 Bestsellers</button>'+'<button class="chip '+(FTAG==="MUST TRY"?'go':'alt')+'" onclick="setTag(&quot;MUST TRY&quot;)">\u2726 Must try</button>'+'<button class="chip '+(FTAG==="NEW"?'go':'alt')+'" onclick="setTag(&quot;NEW&quot;)">\u2726 New</button>';}
-function setDiet(v){FDIET=(FDIET===v?0:v);refilter();}
-function setTag(t){FTAG=(FTAG===t?"":t);refilter();}
+function setDiet(v){FDIET=(FDIET===v?0:v);odyga('filter_click',{filter:v===1?'veg':'non-veg',active:FDIET===v});refilter();}
+function setTag(t){FTAG=(FTAG===t?"":t);odyga('filter_click',{filter:t,active:FTAG===t});refilter();}
 function refilter(){if(LASTCAT>=0)openCat(LASTCAT);else showCats();}
+function odyga(n,p){try{if(window.parent&&window.parent!==window)window.parent.postMessage({__odyga:{name:n,params:Object.assign({stall:STALL_KEY},p||{})}},location.origin);}catch(e){}}
+const STALL_KEY="kimchi";
 const avail=id=>(FDIET!==1||!MENU[id].nv)&&(FDIET!==2||!!MENU[id].nv)&&(!FTAG||hasTag(id,FTAG))&&(!TIME_FILTER||!OPEN||(HOUR>=MENU[id].h[0]&&HOUR<MENU[id].h[1]));
 const SHOW_TIMING=TIME_FILTER; // the "timed" build shows serving times on dishes; the all-time build hides them
 const LOGO_PICS=false; // when true, dishes without a real photo show an image block with the logo centred
@@ -868,7 +870,10 @@ function dec2(id){cart[id]--;if(cart[id]<=0){delete cart[id];delete notes[id];de
 function incAO(k){cartAO[k]=(cartAO[k]||0)+1;buzz();sync();openCart();}
 function decAO(k){cartAO[k]=(cartAO[k]||0)-1;if(cartAO[k]<=0)delete cartAO[k];sync();openCart();}
 function aoOf(k){return (MENU[k]&&MENU[k].ao&&MENU[MENU[k].ao])?MENU[k].ao:null;}
-function explainDish(id){const m=MENU[id];bot(`<b>${dn(id)}</b> — ${desc(id)} <span style="color:#7a4a24;font-weight:700">₹${m.p}</span><br><span class="meta">${dishMeta(id)}</span>`);block("grid",[dishCard(id)]);exploreBar();}
+function explainDish(id){const m=MENU[id];
+ odyga("select_item",{item_id:id,item_name:dn(id),price:m.p});
+ bot(`<b>${dn(id)}</b> — ${desc(id)} <span style="color:#7a4a24;font-weight:700">₹${m.p}</span><br><span class="meta">${dishMeta(id)}</span>`);
+ block("grid",[dishCard(id)]);exploreBar();}
 function grid(ids){ids=ids.filter(avail);if(!ids.length){bot("Those aren't being served right now — here's what's hot at this hour.");return showSpecials();}renderGrid(ids);exploreBar();}
 function refreshCart(){let n=0,t=0;for(const k in cart){n+=cart[k];t+=cart[k]*MENU[k].p;}for(const k in cartAO){var _a=aoOf(k);if(_a&&cartAO[k]){t+=cartAO[k]*MENU[_a].p;}}const b=document.getElementById("cartbar"),c=document.getElementById("cartcount");if(n){b.style.display="flex";if(c)c.textContent=n;b.title=`${T("viewCart")} (${n}) · ₹${t}`;b.setAttribute("aria-label",`${T("viewCart")} (${n}) ₹${t}`);}else b.style.display="none";document.getElementById("phone").classList.toggle("hascart",n>0);}
 
@@ -915,6 +920,7 @@ function returningChips(){block("chips",`<button class="chip go" onclick="showUs
 function showUsual(){var c=getCustomer()||{};var ids=(c.last||[]).filter(function(i){return MENU[i]&&avail(i);});me(lbl("myUsual"));if(!ids.length){bot(T("noUsual"));return showNew(true);}var rb=bot(T("usualIntro"));renderGrid(ids.slice(0,6));exploreBar();anchorReply(rb);}
 function showNew(skipMe){var c=getCustomer()||{};var prev=c.last||[];if(!skipMe)me(lbl("somethingNew"));var pool=Object.keys(MENU).filter(function(i){return MENU[i].best&&avail(i)&&prev.indexOf(i)<0;});if(pool.length<4)pool=Object.keys(MENU).filter(function(i){return avail(i)&&prev.indexOf(i)<0;});var rb=bot(T("newIntro"));renderGrid(shuffle(pool).slice(0,6));exploreBar();anchorReply(rb);}
 function showSpecials(quiet){const best=topDishes();if(!quiet)me("Today's picks");
+ odyga("view_promotion",{promotion_name:"Today's specials"});
  bot(`Here are today's specials 🍜👇`);renderGrid(best);mainChips();}
 function mainChips(){block("chips",`<button class="chip go" onclick="explore()">${IC.menu}${lbl("exploreFull")}</button><button class="chip alt" onclick="showSpecials()">${IC.star}${lbl("specialsLong")}</button>`+filterChips());}
 let fbRating=0,fbCur="";
@@ -935,8 +941,9 @@ function showCats(){const cs=CATS.filter(c=>(c.ids||(c.subs||[]).flatMap(s=>s.id
  if(!cs.length){bot("Nothing veg on this menu just now.");block("chips",filterChips());return;}
  bot(`${T("whatExplore")}`);
  block("chips",cs.map((c)=>`<button class="chip" onclick="openCat(${CATS.indexOf(c)})">${cn(c.name)}</button>`).join("")+filterChips()+`<button class="chip alt" onclick="mainChips()">${IC.home}${lbl("home")}</button>`);}
-function explore(){me(T("exploreMore"));showCats();}
+function explore(){me(T("exploreMore"));odyga("view_full_menu");showCats();}
 function openCat(i){if(!CATS[i])return;LASTCAT=i;const c=CATS[i];me(cn(c.name));
+ odyga("view_item_list",{item_list_id:c.key||String(i),item_list_name:cn(c.name)});
  var ids=(c.ids||[]).filter(avail);
  if(!ids.length){bot("Nothing in <b>"+cn(c.name)+"</b> matches that filter.");
   block("chips",filterChips()+`<button class="chip alt" onclick="LASTCAT=-1;explore()">${IC.back}${lbl("back")}</button>`);return;}
