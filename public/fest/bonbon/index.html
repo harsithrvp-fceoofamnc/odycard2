@@ -378,7 +378,9 @@
   .dish .pr,.pr,.lbpr{color:#e8557c}
   .chip{background:#181818;border:1.3px solid #e8557c;color:#e8557c}
   .chip.alt{background:#151515;border-color:#333;color:#d2d2d2}
-  .chip.go{background:#e8557c;color:#fff;border-color:#e8557c}
+  .chip.go{background:rgba(232,85,124,.20);color:#fff;border-color:rgba(232,85,124,.62);box-shadow:none}
+  .chip.go::after{display:none;animation:none}
+  .chip:hover,.chip.go:hover{box-shadow:none}
   .infob{background:#181818;border:1.3px solid #2c2c2c;color:#e8557c}
   .typing .dot{background:#e8557c}
   .tag{color:#e8557c}

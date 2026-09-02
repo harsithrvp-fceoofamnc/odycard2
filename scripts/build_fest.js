@@ -632,6 +632,7 @@ function build(stallKey, stalls) {
   // breathing glow, and the chat. This block is pushed last so it beats the stock rules
   // without needing !important on every line.
   const ACC = sk.accentDark;
+  const RGB = ACC.replace("#","").match(/../g).map((h) => parseInt(h, 16)).join(",");
   extra.push(
     "#phone{background:#000;background-image:none}",
     "#chat{background:transparent;padding-top:12px}",
@@ -660,7 +661,13 @@ function build(stallKey, stalls) {
     `.dish .pr,.pr,.lbpr{color:${ACC}}`,
     `.chip{background:#181818;border:1.3px solid ${ACC};color:${ACC}}`,
     ".chip.alt{background:#151515;border-color:#333;color:#d2d2d2}",
-    `.chip.go{background:${ACC};color:#fff;border-color:${ACC}}`,
+    // The active chip: a muted wash of the accent rather than a solid slab of it. The stock
+    // rule fills it with a brandtop->brandbot gradient AND a coloured drop shadow, and
+    // .chip.go::after sweeps a white gradient across it every 5.5s — that sweep is the
+    // "glow". All three are switched off here; only the tint and a hairline remain.
+    `.chip.go{background:rgba(${RGB},.20);color:#fff;border-color:rgba(${RGB},.62);box-shadow:none}`,
+    ".chip.go::after{display:none;animation:none}",
+    ".chip:hover,.chip.go:hover{box-shadow:none}",
     `.infob{background:#181818;border:1.3px solid #2c2c2c;color:${ACC}}`,
     `.typing .dot{background:${ACC}}`,
     `.tag{color:${ACC}}`,
