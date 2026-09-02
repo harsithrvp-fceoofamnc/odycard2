@@ -6,12 +6,14 @@ import { track } from "@/lib/ga";
 // Intro (splash → waiter → pick a stall), then that stall's menu, which is the REAL
 // Bon Bon chatbot re-skinned by scripts/build_fest.js and served in an iframe.
 
+// logo is explicit rather than derived from the key: Kim Chi's mark was redrawn in white
+// and lives outside /fest, and the card and the menu header must not drift apart.
 const STALLS = [
-  { key: "dvour",  name: "D'VOUR",          tag: "SAVOUR THE SPEED",         pic: "/dvour_burger.png" },
-  { key: "bonbon", name: "Bon Bon",         tag: "THE GOURMET ICE CREAM",    pic: "/bon_bon_scoop.png" },
-  { key: "kimchi", name: "Kim Chi & Ramen", tag: "INDO ASIAN FOOD",          pic: "/kimchi_ramen.png" },
+  { key: "dvour",  name: "D'VOUR",          pic: "/dvour_burger.png", logo: "/fest/logo_dvour.png" },
+  { key: "bonbon", name: "Bon Bon",         pic: "/bon_bon_scoop.png", logo: "/fest/logo_bonbon.png" },
+  { key: "kimchi", name: "Kim Chi & Ramen", pic: "/kimchi_ramen.png", logo: "/kimchi_new_logo.png" },
 ];
-const V = 32; // bump to bust the iframe cache after a rebuild
+const V = 33; // bump to bust the iframe cache after a rebuild
 
 export default function FestApp() {
   const [phase, setPhase] = useState<"splash" | "intro" | "pick">("splash");
@@ -107,7 +109,7 @@ export default function FestApp() {
                 }}>
                 <img className="sbg" src={s.pic} alt="" />
                 <div className="sveil" />
-                <img className="slg" src={`/fest/logo_${s.key}.png`} alt="" />
+                <img className="slg" src={s.logo} alt="" />
                 <div className="scta">Explore {s.name}<span className="arw">›</span></div>
                 <div className="sheen" /><div className="edge" />
               </button>

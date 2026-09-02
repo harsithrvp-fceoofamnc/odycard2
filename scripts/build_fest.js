@@ -84,7 +84,7 @@ const SKIN = {
     vars: { blue: "#c8141e", ink: "#f1f1f1", mut: "#9d9d9d", line: "#242424", cream: "#000000",
             gold: "#c8141e", card: "#161616", brandtop: "#d8323c", brandbot: "#96101c" },
     wood: "/fest/kimchi_board.png", awning: "/fest/kimchi_awning.png",
-    shutter: "/kimchi_new_shutter.png", logo: "/fest/logo_kimchi.png",
+    shutter: "/kimchi_shutter.png", logo: "/kimchi_new_logo.png",
     greet: "Hi! 🍜 Welcome to Kim Chi & Ramen — what are you craving today?", emoji: "🍜",
     promote: ["kr_s_kwingst", "kr_mc_cramen", "kr_m_cmongol", "kr_mc_svramen"],
     // Kim Chi is the only stall with new dishes on it — the whole Mongolian line.
@@ -97,7 +97,7 @@ const SKIN = {
     file: "dvour", title: "D'VOUR — Menu",
     vars: { blue: "#a87c00", ink: "#f1f1f1", mut: "#9d9d9d", line: "#242424", cream: "#000000",
             gold: "#ffc400", card: "#161616", brandtop: "#1d1d1f", brandbot: "#050505" },
-    wood: "", awning: "", shutter: "/fest/dvour_shutter.png", logo: "/fest/logo_dvour.png",
+    wood: "", awning: "", shutter: "/shutter_web.jpg", logo: "/fest/logo_dvour.png",
     greet: "Hi! 🍔 Welcome to D'VOUR — what are you craving today?", emoji: "🍔",
     // Chicken versions where the dish comes both ways: Signature ₹290, Mexican Rice ₹220,
     // Seoul Street Wrap ₹230. Green Flag Burger only exists the one way.
@@ -566,10 +566,17 @@ function build(stallKey, stalls) {
       ["if(!instant){let t=pre||typingBubble();await sleep(pre?300:500);t.remove();pre=null;}else if(pre){pre.remove();pre=null;}",
        "if(pre){pre.remove();pre=null;}"],
       ["if(!instant){await sleep(450);let t=typingBubble();await sleep(600);t.remove();}",
-       "if(!instant)await sleep(340);"],
+       "if(!instant)await sleep(260);"],
       ["if(!instant)await sleep(300);\n const best=topDishes();const g=block(\"grid\",\"\");\n" +
        " for(const id of best){g.insertAdjacentHTML(\"beforeend\",dishCard(id));toBottom();if(!instant)await sleep(260);}",
-       "if(!instant)await sleep(620);\n const best=topDishes();const g=block(\"grid\",best.map(dishCard).join(\"\"));"],
+       "if(!instant)await sleep(300);\n const best=topDishes();const g=block(\"grid\",best.map(dishCard).join(\"\"));"],
+      // Wait for the line to actually LAND before the dishes appear. bot() shows dots for
+      // 560ms and only then writes the text, so any fixed sleep was racing it — awaiting
+      // bot's own onDone makes the order exact: dots, then the bubble, then the grid.
+      ['bot(GREET[lang].replace("%t",part()).replace("%o",outlet||""));',
+       'await new Promise(function(r){bot(GREET[lang].replace("%t",part()).replace("%o",outlet||""),r);});'],
+      ["bot(FRESH[lang]);",
+       "await new Promise(function(r){bot(FRESH[lang],r);});"],
     ];
     for (const [from, to] of reps) {
       if (!s.includes(from)) throw new Error("greeting shape changed: " + from.slice(0, 46));
@@ -594,16 +601,11 @@ function build(stallKey, stalls) {
     '<button class="chip alt" onclick="showAll()">${IC.menu}View full menu</button>' +
     '<button class="chip alt" onclick="showSpecials()">${IC.star}${lbl("specials")}</button>`+filterChips());}');
 
-  // 7b2 ── no shutter. bbBoot existed to roll one up over the board; with no board it is
-  // just a delay. Fade the black veil and go straight to the greeting.
-  s = replaceFn(s, "bbBoot",
-    'function bbBoot(){\n' +
-    '  var veil=document.getElementById("bootveil"),frame=document.getElementById("shutterframe");\n' +
-    '  if(frame&&frame.parentNode)frame.parentNode.removeChild(frame);\n' +
-    '  setTimeout(function(){ if(veil)veil.classList.add("gone");\n' +
-    '    setTimeout(function(){ if(veil&&veil.parentNode)veil.parentNode.removeChild(veil); showGreeting(); },760);\n' +
-    '  },700);\n' +
-    '}');
+  // 7b2 ── the shutter reveal, back by request.
+  // showShutter (patched further up) anchors it to the board's bottom edge, so it covers
+  // only the chat: the logo is on show from the first frame and the shutter rolls up off
+  // it. bbBoot keeps its original timing; the veil it lifts is black now, not white, so
+  // there is no flash of white before the stall appears.
 
   // 7c ── THE DARK LOOK.
   // Everything the shop-front theatre added — board art, awning, page texture, the shutter
@@ -625,7 +627,6 @@ function build(stallKey, stalls) {
       "50%{opacity:.75;transform:translate(-50%,-50%) scale(1.06)}}",
     ".woodhdr .woodlogo{position:relative;z-index:2;width:62%;max-width:262px;animation:none}",
     ".awnbar{display:none}",
-    "#shutterframe{display:none!important}",
     "#bootveil{background:#000}",
 
     // dark surfaces

@@ -334,7 +334,7 @@
 
   #shutterframe{position:absolute;left:0;right:0;bottom:0;top:150px;z-index:2;overflow:hidden;display:none}
   #shutterframe.on{display:block}
-  #shutter{position:absolute;left:0;right:0;top:0;height:100%;background:#5a0c1a url('/fest/dvour_shutter.png') center/cover no-repeat;box-shadow:0 7px 16px rgba(0,0,0,.30);transform:translateY(0);transition:transform 1.15s cubic-bezier(.5,.05,.2,1);will-change:transform}
+  #shutter{position:absolute;left:0;right:0;top:0;height:100%;background:#5a0c1a url('/shutter_web.jpg') center/cover no-repeat;box-shadow:0 7px 16px rgba(0,0,0,.30);transform:translateY(0);transition:transform 1.15s cubic-bezier(.5,.05,.2,1);will-change:transform}
   #shutter.up{transform:translateY(-100%)}
 
   .catgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:4px 0 2px}
@@ -368,7 +368,6 @@
   @keyframes odyglow{0%,100%{opacity:.35;transform:translate(-50%,-50%) scale(.94)}50%{opacity:.75;transform:translate(-50%,-50%) scale(1.06)}}
   .woodhdr .woodlogo{position:relative;z-index:2;width:62%;max-width:262px;animation:none}
   .awnbar{display:none}
-  #shutterframe{display:none!important}
   #bootveil{background:#000}
   .bot{background:#161616;border:1px solid #242424;color:var(--ink)}
   .dish.simple{background:#161616;border:1px solid #242424}
@@ -942,10 +941,10 @@ async function showGreeting(instant){window.__bbHold=true;var pre=chat.querySele
    return;
  }
  if(pre){pre.remove();pre=null;}
- bot(GREET[lang].replace("%t",part()).replace("%o",outlet||""));
- if(!instant)await sleep(340);
- bot(FRESH[lang]);
- if(!instant)await sleep(620);
+ await new Promise(function(r){bot(GREET[lang].replace("%t",part()).replace("%o",outlet||""),r);});
+ if(!instant)await sleep(260);
+ await new Promise(function(r){bot(FRESH[lang],r);});
+ if(!instant)await sleep(300);
  const best=topDishes();const g=block("grid",best.map(dishCard).join(""));
  if(!instant)await sleep(200);mainChips();window.__bbHold=false;var _p=g.previousElementSibling;_bigTarget=(_p&&/msg/.test(_p.className))?_p:g;toBottom();}
 function returningChips(){block("chips",`<button class="chip go" onclick="showUsual()">${IC.star}${lbl("myUsual")}</button><button class="chip" onclick="showNew()">${IC.star}${lbl("somethingNew")}</button><button class="chip alt" onclick="explore()">${IC.menu}${lbl("exploreFull")}</button><button class="chip alt" onclick="forgetMe()">${IC.x}${lbl("notYou")}</button>`);}
@@ -1562,11 +1561,30 @@ document.addEventListener("click",function(ev){var lb=document.getElementById("l
 // Here we just wait for the header assets, then fade the whole white screen out (logo fades
 // with it = fade-out at exit), and only THEN play the welcome greeting.
 function bbBoot(){
-  var veil=document.getElementById("bootveil"),frame=document.getElementById("shutterframe");
-  if(frame&&frame.parentNode)frame.parentNode.removeChild(frame);
-  setTimeout(function(){ if(veil)veil.classList.add("gone");
-    setTimeout(function(){ if(veil&&veil.parentNode)veil.parentNode.removeChild(veil); showGreeting(); },760);
-  },700);
+  var veil=document.getElementById("bootveil");
+  var frame=document.getElementById("shutterframe");
+  var sh=document.getElementById("shutter");
+  var bar=document.getElementById("bar");
+  var start=Date.now(),MIN=1900,done=false;   // hold long enough for the slow fade-in + a beat
+  var imgs=["/wood_web.jpg","/fest/logo_dvour.png","/awning_web.png?v=3","/shutter_web.jpg"],left=imgs.length;
+  function showShutter(){ if(!frame)return;
+    var aw=document.querySelector(".awnbar"),hd=document.querySelector("header.woodhdr"),ph=document.getElementById("phone");
+    var ref=(aw&&aw.offsetParent!==null)?aw.getBoundingClientRect().top:(hd?hd.getBoundingClientRect().bottom:0);
+    if(ph)frame.style.top=Math.max(0,ref-ph.getBoundingClientRect().top)+"px";
+    if(bar)bar.style.visibility="hidden";
+    frame.classList.add("on");
+  }
+  function finish(){ if(done)return; done=true;
+    showShutter();                                                            // put the shutter up (still hidden behind the white veil)
+    if(veil)veil.classList.add("gone");                                       // lift the white boot screen -> shutter revealed (shows through scallops)
+    setTimeout(function(){ if(veil&&veil.parentNode)veil.parentNode.removeChild(veil); }, 1160);
+    setTimeout(function(){ if(sh)sh.classList.add("up"); }, 1520);            // roll the shutter straight up behind the awning
+    setTimeout(function(){ if(bar)bar.style.visibility=""; }, 2450);          // input bar reappears as the shutter clears it
+    setTimeout(function(){ if(frame&&frame.parentNode)frame.parentNode.removeChild(frame); showGreeting(); }, 2780); // chat revealed -> welcome
+  }
+  function ready(){ setTimeout(finish, Math.max(0, MIN-(Date.now()-start))); }
+  imgs.forEach(function(src){ var im=new Image(); im.onload=im.onerror=function(){ if(--left<=0)ready(); }; im.src=src; });
+  setTimeout(function(){ if(!done)ready(); }, 3600);
 }
 (function(){
   var ce=document.getElementById("chat"),wd=document.querySelector("header.woodhdr");
