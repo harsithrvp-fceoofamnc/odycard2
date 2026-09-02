@@ -347,12 +347,14 @@
   .catlabel{font-size:14px;font-weight:700;color:var(--ink);text-align:center;line-height:1.15}
 
   /* ---- fest stall overrides ---- */
-  header.woodhdr{background:#0b0b0c;border-bottom:3px solid #ffc400;box-shadow:none}
+  header.woodhdr{background:#0b0b0c;border-bottom:3px solid #ffc400;box-shadow:none;min-height:210px;padding:20px 12px 26px}
+  .woodhdr .woodlogo{width:68%;max-width:296px}
   .awnbar{display:none}
   #chat{padding-top:14px}
+  #langbar{display:none!important}
   .bot:before{content:"";position:absolute;left:-42px;bottom:0;width:34px;height:34px;border-radius:50%;background:#fff url('/fest/mascot_face.png') center bottom / 100% auto no-repeat;border:1.5px solid var(--line);box-shadow:0 1px 4px rgba(0,0,0,.12)}
-  .catgrid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:4px 0 2px}
-  .catcard{display:block;background:var(--card);border:1.5px solid var(--line);border-radius:14px;padding:16px 12px;font-size:14.5px;font-weight:700;color:var(--ink);text-align:center;line-height:1.25;box-shadow:0 2px 8px rgba(0,0,0,.055);transition:transform .15s ease}
+  .catgrid{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin:6px 0 2px}
+  .catcard{display:flex;align-items:center;justify-content:center;min-height:86px;background:var(--card);border:1.5px solid var(--line);border-radius:16px;padding:18px 14px;font-size:16.5px;font-weight:700;color:var(--ink);text-align:center;line-height:1.3;box-shadow:0 2px 10px rgba(0,0,0,.07);transition:transform .15s ease}
   .catcard:active{transform:scale(.97)}
   .catpic{display:none}
   .infob{width:38px;height:38px;padding:0;border-radius:50%;flex:0 0 auto;align-self:center;display:flex;align-items:center;justify-content:center}
@@ -361,7 +363,7 @@
 </head>
 <body>
 <div id="phone"><div id="bootveil"><img class="bootlogo" src="/fest/logo_dvour.png" alt="Bon Bon"></div>
-  <header class="woodhdr"><button id="back"></button><h1 id="hname"></h1><div id="hsub"></div><img class="woodlogo" src="/fest/logo_dvour.png" alt="Bon Bon"><button class="langtoggle" onclick="toggleLang()" aria-label="Language"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.3"/><path d="M2.7 12h18.6"/><path d="M12 2.7a14 14 0 0 1 3.7 9.3 14 14 0 0 1-3.7 9.3 14 14 0 0 1-3.7-9.3A14 14 0 0 1 12 2.7Z"/></svg></button></header>
+  <header class="woodhdr"><button id="back"></button><h1 id="hname"></h1><div id="hsub"></div><img class="woodlogo" src="/fest/logo_dvour.png" alt="Bon Bon"></header>
   <div class="awnbar"><img src="/awning_web.png?v=3" alt=""></div>
   <div class="langbar" id="langbar"></div>
   <div id="shutterframe"><div id="shutter"></div></div><div id="wm"></div>
@@ -417,12 +419,12 @@ const MENU={
  dv_d_butter:{n:"Harry Potter Butter Fizz",p:160,e:"🥤",h:[[8,23]],q:"",pt:8,ph:"",d:"Our signature butterbeer-style fizz.",veg:1,tagtxt:"SIGNATURE POUR"}
 };
 const CATS=[
- {name:"🍔 Burgers",ids:["dv_b_green","dv_b_nash","dv_b_korean","dv_b_makhani","dv_b_avop","dv_b_jal","dv_b_buff","dv_b_dunk","dv_b_sig","dv_b_double","dv_b_cclassic","dv_b_cnash","dv_b_ckorean","dv_b_cjal","dv_b_cavo","dv_b_cbuff","dv_b_csig","dv_b_cdunk","dv_b_cdouble","dv_b_noroti"]},
- {name:"🍟 Fries",ids:["dv_f_classic","dv_f_peri","dv_f_mafia","dv_f_cload","dv_f_pload"]},
- {name:"🍗 Special Starters",ids:["dv_s_tender","dv_s_firebird","dv_s_wings","dv_s_wingst"]},
- {name:"🌯 Wraps",ids:["dv_w_yinv","dv_w_yinc","dv_w_seov","dv_w_seoc","dv_w_swtv","dv_w_swtc"]},
- {name:"🌮 Mexican Corner",ids:["dv_x_ricev","dv_x_noodv","dv_x_ricec","dv_x_noodc"]},
- {name:"🥤 Mojitos",ids:["dv_d_mint","dv_d_blue","dv_d_butter"]}
+ {name:"Burgers",ids:["dv_b_green","dv_b_nash","dv_b_korean","dv_b_makhani","dv_b_avop","dv_b_jal","dv_b_buff","dv_b_dunk","dv_b_sig","dv_b_double","dv_b_cclassic","dv_b_cnash","dv_b_ckorean","dv_b_cjal","dv_b_cavo","dv_b_cbuff","dv_b_csig","dv_b_cdunk","dv_b_cdouble","dv_b_noroti"]},
+ {name:"Fries",ids:["dv_f_classic","dv_f_peri","dv_f_mafia","dv_f_cload","dv_f_pload"]},
+ {name:"Special Starters",ids:["dv_s_tender","dv_s_firebird","dv_s_wings","dv_s_wingst"]},
+ {name:"Wraps",ids:["dv_w_yinv","dv_w_yinc","dv_w_seov","dv_w_seoc","dv_w_swtv","dv_w_swtc"]},
+ {name:"Mexican Corner",ids:["dv_x_ricev","dv_x_noodv","dv_x_ricec","dv_x_noodc"]},
+ {name:"Mojitos",ids:["dv_d_mint","dv_d_blue","dv_d_butter"]}
 ];
 const OUTLETS=["Bon Bon"];
 const LOGO="/fest/logo_dvour.png";

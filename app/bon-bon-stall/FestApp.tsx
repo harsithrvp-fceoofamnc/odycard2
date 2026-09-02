@@ -10,7 +10,7 @@ const STALLS = [
   { key: "bonbon", name: "Bon Bon",         tag: "THE GOURMET ICE CREAM",    pic: "/bon_bon_scoop.png" },
   { key: "kimchi", name: "Kim Chi & Ramen", tag: "INDO ASIAN FOOD",          pic: "/kimchi_ramen.png" },
 ];
-const V = 3; // bump to bust the iframe cache after a rebuild
+const V = 4; // bump to bust the iframe cache after a rebuild
 
 export default function FestApp() {
   const [phase, setPhase] = useState<"splash" | "intro" | "pick">("splash");
@@ -97,7 +97,7 @@ export default function FestApp() {
         {open && (
           <div className="stallframe">
             <iframe src={`/fest/${open}/index.html?v=${V}`} title="Menu" />
-            <button className="fback" onClick={() => setOpen(null)} aria-label="Back to menus">‹</button>
+            <button className={"fback fb-" + open} onClick={() => setOpen(null)} aria-label="Back to menus">‹</button>
           </div>
         )}
       </div>
@@ -192,4 +192,7 @@ const CSS = `
 .fback{position:absolute;left:10px;top:12px;z-index:9;width:34px;height:34px;border-radius:10px;
   background:rgba(255,255,255,.22);backdrop-filter:blur(8px);color:#fff;font-size:23px;line-height:0;
   padding-bottom:4px;display:flex;align-items:center;justify-content:center}
+/* Bon Bon's wood and D'VOUR's black board carry a white chevron fine. Kim Chi's board is
+   white, so the white-on-translucent button vanished — give that one a solid dark chip. */
+.fb-kimchi{background:rgba(12,8,8,.72);border:1px solid rgba(255,255,255,.35)}
 `;

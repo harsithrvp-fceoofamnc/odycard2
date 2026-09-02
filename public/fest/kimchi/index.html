@@ -348,10 +348,11 @@
 
   /* ---- fest stall overrides ---- */
   header.woodhdr{background:#fff url('/fest/kimchi_board.png') center/cover;box-shadow:inset 0 -8px 16px rgba(0,0,0,.10)}
-  #lanterns{position:absolute;top:0;left:0;width:100%;z-index:2;pointer-events:none}
+  #lanterns{position:absolute;top:0;left:7%;width:86%;z-index:4;pointer-events:none}
+  #langbar{display:none!important}
   .bot:before{content:"";position:absolute;left:-42px;bottom:0;width:34px;height:34px;border-radius:50%;background:#fff url('/fest/mascot_face.png') center bottom / 100% auto no-repeat;border:1.5px solid var(--line);box-shadow:0 1px 4px rgba(0,0,0,.12)}
-  .catgrid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:4px 0 2px}
-  .catcard{display:block;background:var(--card);border:1.5px solid var(--line);border-radius:14px;padding:16px 12px;font-size:14.5px;font-weight:700;color:var(--ink);text-align:center;line-height:1.25;box-shadow:0 2px 8px rgba(0,0,0,.055);transition:transform .15s ease}
+  .catgrid{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin:6px 0 2px}
+  .catcard{display:flex;align-items:center;justify-content:center;min-height:86px;background:var(--card);border:1.5px solid var(--line);border-radius:16px;padding:18px 14px;font-size:16.5px;font-weight:700;color:var(--ink);text-align:center;line-height:1.3;box-shadow:0 2px 10px rgba(0,0,0,.07);transition:transform .15s ease}
   .catcard:active{transform:scale(.97)}
   .catpic{display:none}
   .infob{width:38px;height:38px;padding:0;border-radius:50%;flex:0 0 auto;align-self:center;display:flex;align-items:center;justify-content:center}
@@ -360,7 +361,7 @@
 </head>
 <body>
 <div id="phone"><div id="bootveil"><img class="bootlogo" src="/fest/logo_kimchi.png" alt="Bon Bon"></div>
-  <img id="lanterns" src="/fest/kimchi_lanterns.png" alt=""><header class="woodhdr"><button id="back"></button><h1 id="hname"></h1><div id="hsub"></div><img class="woodlogo" src="/fest/logo_kimchi.png" alt="Bon Bon"><button class="langtoggle" onclick="toggleLang()" aria-label="Language"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.3"/><path d="M2.7 12h18.6"/><path d="M12 2.7a14 14 0 0 1 3.7 9.3 14 14 0 0 1-3.7 9.3 14 14 0 0 1-3.7-9.3A14 14 0 0 1 12 2.7Z"/></svg></button></header>
+  <img id="lanterns" src="/fest/kimchi_lanterns.png" alt=""><header class="woodhdr"><button id="back"></button><h1 id="hname"></h1><div id="hsub"></div><img class="woodlogo" src="/fest/logo_kimchi.png" alt="Bon Bon"></header>
   <div class="awnbar"><img src="/fest/kimchi_awning.png?v=3" alt=""></div>
   <div class="langbar" id="langbar"></div>
   <div id="shutterframe"><div id="shutter"></div></div><div id="wm"></div>
@@ -421,11 +422,11 @@ const MENU={
  kr_mo_bubble:{n:"Bubble Gum Mojito",p:80,e:"🥤",h:[[8,23]],q:"",pt:8,ph:"",d:"",veg:1}
 };
 const CATS=[
- {name:"🍜 Soup",ids:["kr_soup_veg","kr_soup_chicken"]},
- {name:"🥟 Momos",ids:["kr_m_fried","kr_m_korean","kr_m_honey","kr_m_mongolian","kr_m_cfried","kr_m_ckorean","kr_m_choney","kr_m_cmongol"]},
- {name:"🍢 Starters",ids:["kr_s_honeyp","kr_s_dragonp","kr_s_manch","kr_s_mongolp","kr_s_koreanp","kr_s_dragonc","kr_s_honeyc","kr_s_kwings","kr_s_mwings","kr_s_hwings","kr_s_kwingst","kr_s_mwingst","kr_s_hwingst"]},
- {name:"🍚 Main Course",ids:["kr_mc_veg","kr_mc_schez","kr_mc_mongolv","kr_mc_paneer","kr_mc_pschez","kr_mc_pramen","kr_mc_kvrice","kr_mc_kvnood","kr_mc_kricet","kr_mc_ktowern","kr_mc_svramen","kr_mc_cramen","kr_mc_scramen","kr_mc_egg","kr_mc_eggschez","kr_mc_mongolc","kr_mc_crice","kr_mc_cschez","kr_mc_kcrice","kr_mc_kctower","kr_mc_kcnood"]},
- {name:"🥤 Mojito",ids:["kr_mo_mint","kr_mo_blue","kr_mo_bubble"]}
+ {name:"Soup",ids:["kr_soup_veg","kr_soup_chicken"]},
+ {name:"Momos",ids:["kr_m_fried","kr_m_korean","kr_m_honey","kr_m_mongolian","kr_m_cfried","kr_m_ckorean","kr_m_choney","kr_m_cmongol"]},
+ {name:"Starters",ids:["kr_s_honeyp","kr_s_dragonp","kr_s_manch","kr_s_mongolp","kr_s_koreanp","kr_s_dragonc","kr_s_honeyc","kr_s_kwings","kr_s_mwings","kr_s_hwings","kr_s_kwingst","kr_s_mwingst","kr_s_hwingst"]},
+ {name:"Main Course",ids:["kr_mc_veg","kr_mc_schez","kr_mc_mongolv","kr_mc_paneer","kr_mc_pschez","kr_mc_pramen","kr_mc_kvrice","kr_mc_kvnood","kr_mc_kricet","kr_mc_ktowern","kr_mc_svramen","kr_mc_cramen","kr_mc_scramen","kr_mc_egg","kr_mc_eggschez","kr_mc_mongolc","kr_mc_crice","kr_mc_cschez","kr_mc_kcrice","kr_mc_kctower","kr_mc_kcnood"]},
+ {name:"Mojito",ids:["kr_mo_mint","kr_mo_blue","kr_mo_bubble"]}
 ];
 const OUTLETS=["Bon Bon"];
 const LOGO="/fest/logo_kimchi.png";

@@ -88,8 +88,13 @@ const SKIN = {
             gold: "#ffc400", card: "#ffffff", brandtop: "#1d1d1f", brandbot: "#050505" },
     wood: "", awning: "", shutter: "/fest/dvour_shutter.png", logo: "/fest/logo_dvour.png",
     greet: "Hi! 🍔 Welcome to D'VOUR — what are you craving today?",
-    // flat black board, yellow rule along the bottom, no image and no awning at all
-    board: "header.woodhdr{background:#0b0b0c;border-bottom:3px solid #ffc400;box-shadow:none}",
+    // Flat black board, yellow rule along the bottom, no image and no awning at all.
+    // The other two stalls read as a tall header because the board (~145px) has an awning
+    // hanging under it — 105-125px of art less its -42px pull, so ~63-83px more. With no
+    // awning D'VOUR looked half the height, so the board itself carries it: 210px.
+    board: "header.woodhdr{background:#0b0b0c;border-bottom:3px solid #ffc400;box-shadow:none;" +
+           "min-height:210px;padding:20px 12px 26px}" +
+           "\n  .woodhdr .woodlogo{width:68%;max-width:296px}",
     hasAwning: false,
   },
 };
@@ -98,7 +103,11 @@ const SKIN = {
 function menuJs(stall) {
   const entries = [];
   for (const c of stall.cats) {
-    const emoji = (c.label.match(/^\S+/) || ["🍽️"])[0];
+    // The emoji still tags each dish card, but it is stripped off the category NAME —
+    // the category blocks are plain text. Match pictographs specifically so a category
+    // that happens to start with a normal word doesn't lose it.
+    const em = c.label.match(/^([\p{Extended_Pictographic}️]+)\s*/u);
+    const emoji = em ? em[1] : "🍽️";
     for (const it of c.items) {
       let o = `{n:${JSON.stringify(it.n)},p:${it.p},e:${JSON.stringify(emoji)},h:[[8,23]],q:"",pt:8,ph:"",d:${JSON.stringify(it.d)},veg:${it.veg ? 1 : 0}`;
       if (!it.veg) o += ",nv:1";
@@ -108,7 +117,11 @@ function menuJs(stall) {
       entries.push(` ${it.id}:${o}`);
     }
   }
-  const cats = stall.cats.map((c) => ` {name:${JSON.stringify(c.label)},ids:${JSON.stringify(c.items.map((i) => i.id))}}`);
+  const cats = stall.cats.map((c) => {
+    const em = c.label.match(/^([\p{Extended_Pictographic}️]+)\s*/u);
+    const name = em ? c.label.slice(em[0].length) : c.label;
+    return ` {name:${JSON.stringify(name)},ids:${JSON.stringify(c.items.map((i) => i.id))}}`;
+  });
   return { menu: "const MENU={\n" + entries.join(",\n") + "\n};", cats: "const CATS=[\n" + cats.join(",\n") + "\n];" };
 }
 
@@ -253,12 +266,21 @@ function build(stallKey, stalls) {
   // 4d ── D'VOUR has no awning at all, so the chat's awning allowance goes with it.
   if (!sk.hasAwning) extra.push(".awnbar{display:none}", "#chat{padding-top:14px}");
 
-  // 4e ── Kim Chi's lanterns hang from the top of the board. z-index 2 keeps them under the
-  // awning (z-index 3), so the tassels tuck behind it instead of floating over.
+  // 4e ── Kim Chi's lanterns hang from the very top, flanking the logo on the board.
+  // z-index 4 puts them over the awning (3) so they read as hanging in front, and 86% width
+  // keeps them off the screen edges and stops them growing taller than the board.
   if (sk.lanterns) {
-    extra.push("#lanterns{position:absolute;top:0;left:0;width:100%;z-index:2;pointer-events:none}");
+    extra.push("#lanterns{position:absolute;top:0;left:7%;width:86%;z-index:4;pointer-events:none}");
     s = s.replace(/(<header class="woodhdr")/, `<img id="lanterns" src="${sk.lanterns}" alt="">$1`);
   }
+
+  // 4f ── no language globe. It isn't just unused here, it's broken: setLang() re-runs
+  // showGreeting(), which reads GREET[lang], and the fest build ships English only — any
+  // other language would throw. #langbar stays in the DOM (init writes to it) but hidden.
+  const langBefore = s;
+  s = s.replace(/<button class="langtoggle"[\s\S]*?<\/button>/, "");
+  if (s === langBefore) throw new Error("language toggle not found");
+  extra.push("#langbar{display:none!important}");
 
   // 5 ── mascot face beside every waiter bubble.
   // mascot_face.png is a head crop with transparent headroom, so plain center/contain shows
@@ -277,10 +299,11 @@ function build(stallKey, stalls) {
     ' var _cg=block("catgrid",cs.map((c)=>`<button class="catcard" onclick="openCat(${CATS.indexOf(c)})">${cn(c.name)}</button>`).join(""));_bigTarget=_cg;\n' +
     ' block("chips",`<button class="chip alt" onclick="mainChips()">${IC.home}${lbl("home")}</button>`);}');
   extra.push(
-    ".catgrid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:4px 0 2px}",
-    ".catcard{display:block;background:var(--card);border:1.5px solid var(--line);border-radius:14px;" +
-      "padding:16px 12px;font-size:14.5px;font-weight:700;color:var(--ink);text-align:center;line-height:1.25;" +
-      "box-shadow:0 2px 8px rgba(0,0,0,.055);transition:transform .15s ease}",
+    ".catgrid{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin:6px 0 2px}",
+    ".catcard{display:flex;align-items:center;justify-content:center;min-height:86px;" +
+      "background:var(--card);border:1.5px solid var(--line);border-radius:16px;" +
+      "padding:18px 14px;font-size:16.5px;font-weight:700;color:var(--ink);text-align:center;line-height:1.3;" +
+      "box-shadow:0 2px 10px rgba(0,0,0,.07);transition:transform .15s ease}",
     ".catcard:active{transform:scale(.97)}",
     ".catpic{display:none}"
   );
