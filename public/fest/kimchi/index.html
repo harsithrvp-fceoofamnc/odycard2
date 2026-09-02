@@ -812,6 +812,11 @@ function filterLabel(){return FILTER==='veg'?'Veg':FILTER==='nonveg'?'Non-veg'
 function showFiltered(){var ids=Object.keys(MENU).filter(avail);
  if(!ids.length){bot('Nothing on the menu matches that.');block('chips',filterChips());return;}
  bot('<b>'+filterLabel()+'</b>:');anchorGrid(renderGrid(ids));}
+function showAll(){FILTER="";LASTCAT=-1;me('View full menu');
+ var ids=Object.keys(MENU).filter(avail);
+ ids.sort(function(a,b){return (MENU[a].nv?1:0)-(MENU[b].nv?1:0);});
+ odyga('view_full_list',{count:ids.length});
+ bot('Here is the whole menu \u{1F447}');anchorGrid(renderGrid(ids));}
 function refilter(){if(FILTER){LASTCAT=-1;showFiltered();}else if(LASTCAT>=0)openCat(LASTCAT);else showCats();}
 function odyga(n,p){try{if(window.parent&&window.parent!==window)window.parent.postMessage({__odyga:{name:n,params:Object.assign({stall:STALL_KEY},p||{})}},location.origin);}catch(e){}}
 const STALL_KEY="kimchi";
@@ -900,7 +905,7 @@ function upsell(){if(upsold)return;const ids=Object.keys(cart);if(!ids.length||i
  setTimeout(()=>{block("pair",`<p>Add a drink? Our <b>${names}</b> go beautifully with your order.</p><div class="row">${sug.map(s=>`<div class="pi" data-id="${s}"><div class="e"><img src="${LOGO}"></div><div class="n">${dn(s)}</div><div class="pifoot">${pairFoot(s)}</div></div>`).join("")}</div>`);exploreBar();},420);}
 
 /* ---------- conversation ---------- */
-function exploreBar(){block("chips",`<button class="chip go" onclick="explore()">${IC.menu}${lbl("exploreMore")}</button><button class="chip alt" onclick="showSpecials()">${IC.star}${lbl("specials")}</button>`+filterChips());}
+function exploreBar(){block("chips",`<button class="chip go" onclick="explore()">${IC.menu}${lbl("exploreMore")}</button><button class="chip alt" onclick="showAll()">${IC.menu}View full menu</button><button class="chip alt" onclick="showSpecials()">${IC.star}${lbl("specials")}</button>`+filterChips());}
 function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
 function typingBubble(){const d=document.createElement("div");d.className="msg bot typing";d.innerHTML='<span class="dot"></span><span class="dot"></span><span class="dot"></span>';chat.appendChild(d);toBottom();return d;}
 function topDishes(){var pr=Object.keys(MENU).filter(i=>MENU[i].promoted&&avail(i));if(pr.length)return pr.slice(0,6);
@@ -924,14 +929,14 @@ async function showGreeting(instant){window.__bbHold=true;var pre=chat.querySele
  if(!instant)await sleep(300);
  const best=topDishes();const g=block("grid","");
  for(const id of best){g.insertAdjacentHTML("beforeend",dishCard(id));toBottom();if(!instant)await sleep(260);}
- if(!instant)await sleep(200);mainChips();}
+ if(!instant)await sleep(200);mainChips();window.__bbHold=false;_bigTarget=g;toBottom();}
 function returningChips(){block("chips",`<button class="chip go" onclick="showUsual()">${IC.star}${lbl("myUsual")}</button><button class="chip" onclick="showNew()">${IC.star}${lbl("somethingNew")}</button><button class="chip alt" onclick="explore()">${IC.menu}${lbl("exploreFull")}</button><button class="chip alt" onclick="forgetMe()">${IC.x}${lbl("notYou")}</button>`);}
 function showUsual(){var c=getCustomer()||{};var ids=(c.last||[]).filter(function(i){return MENU[i]&&avail(i);});me(lbl("myUsual"));if(!ids.length){bot(T("noUsual"));return showNew(true);}var rb=bot(T("usualIntro"));renderGrid(ids.slice(0,6));exploreBar();anchorReply(rb);}
 function showNew(skipMe){var c=getCustomer()||{};var prev=c.last||[];if(!skipMe)me(lbl("somethingNew"));var pool=Object.keys(MENU).filter(function(i){return MENU[i].best&&avail(i)&&prev.indexOf(i)<0;});if(pool.length<4)pool=Object.keys(MENU).filter(function(i){return avail(i)&&prev.indexOf(i)<0;});var rb=bot(T("newIntro"));renderGrid(shuffle(pool).slice(0,6));exploreBar();anchorReply(rb);}
 function showSpecials(quiet){FILTER="";LASTCAT=-1;const best=topDishes();if(!quiet)me("Today's picks");
  odyga("view_promotion",{promotion_name:"Today's specials"});
  bot(`Here are today's specials 🍜👇`);anchorGrid(renderGrid(best),mainChips);}
-function mainChips(){block("chips",`<button class="chip go" onclick="explore()">${IC.menu}${lbl("exploreFull")}</button><button class="chip alt" onclick="showSpecials()">${IC.star}${lbl("specialsLong")}</button>`+filterChips());}
+function mainChips(){block("chips",`<button class="chip go" onclick="explore()">${IC.menu}${lbl("exploreFull")}</button><button class="chip alt" onclick="showAll()">${IC.menu}View full menu</button><button class="chip alt" onclick="showSpecials()">${IC.star}${lbl("specialsLong")}</button>`+filterChips());}
 let fbRating=0,fbCur="";
 const FBTOPICS=["Food & Taste","Service","Cleanliness","Ambience","Staff","Value for Money","App Experience"];
 function openFeedback(){const rb=bot("What would you like to share feedback about? 😊");block("chips",FBTOPICS.map(a=>`<button class="chip" onclick="fbTopic('${a}')">${a}</button>`).join("")+`<button class="chip alt" onclick="fbCustom()">${IC.note}Something else</button><button class="chip alt" onclick="mainChips()">${IC.back}Done</button>`);}

@@ -437,6 +437,14 @@ function build(stallKey, stalls) {
       "function showFiltered(){var ids=Object.keys(MENU).filter(avail);\n" +
       " if(!ids.length){bot('Nothing on the menu matches that.');block('chips',filterChips());return;}\n" +
       " bot('<b>'+filterLabel()+'</b>:');anchorGrid(renderGrid(ids));}\n" +
+      // "View full menu" for a guest with no time to browse categories: the whole menu
+      // in one grid, veg first then non-veg. sort() is stable, so within each half the
+      // dishes stay in printed-menu order.
+      "function showAll(){FILTER=\"\";LASTCAT=-1;me('View full menu');\n" +
+      " var ids=Object.keys(MENU).filter(avail);\n" +
+      " ids.sort(function(a,b){return (MENU[a].nv?1:0)-(MENU[b].nv?1:0);});\n" +
+      " odyga('view_full_list',{count:ids.length});\n" +
+      " bot('Here is the whole menu \\u{1F447}');anchorGrid(renderGrid(ids));}\n" +
       "function refilter(){if(FILTER){LASTCAT=-1;showFiltered();}else if(LASTCAT>=0)openCat(LASTCAT);else showCats();}\n" +
       "const avail=id=>filterPass(id)&&(!TIME_FILTER||!OPEN||(HOUR>=MENU[id].h[0]&&HOUR<MENU[id].h[1]));"
     );
@@ -526,6 +534,14 @@ function build(stallKey, stalls) {
     'function showSpecials(quiet){FILTER="";LASTCAT=-1;const best=topDishes();if(!quiet)me("Today\'s picks");\n' +
     ` odyga("view_promotion",{promotion_name:"Today's specials"});\n bot(\`Here are today's specials ${sk.emoji}\u{1F447}\`);anchorGrid(renderGrid(best),mainChips);}`);
 
+  // 7a ── let the greeting scroll.
+  // showGreeting sets window.__bbHold=true and the chatbot only clears it on a real
+  // pointer or key event, so toBottom() did nothing for the greeting's own grid — the
+  // first set of dishes never scrolled into view, and it only started working after the
+  // guest tapped something. Release the hold at the end and anchor to that grid.
+  s = s.replace(' if(!instant)await sleep(200);mainChips();window.__bbHold=false;_bigTarget=g;toBottom();}'.replace("window.__bbHold=false;_bigTarget=g;toBottom();",""), ' if(!instant)await sleep(200);mainChips();window.__bbHold=false;_bigTarget=g;toBottom();}');
+  if (!s.includes("window.__bbHold=false;_bigTarget=g")) throw new Error("greeting tail not found");
+
   // 7 ── the opening line
   s = s.replace(/const GREET=\{[\s\S]*?\};/, `const GREET={en:${JSON.stringify(sk.greet)}};`);
 
@@ -536,9 +552,11 @@ function build(stallKey, stalls) {
   // button-only, so the rows keep just the two that browse: full menu and today's picks.
   s = replaceFn(s, "mainChips",
     'function mainChips(){block("chips",`<button class="chip go" onclick="explore()">${IC.menu}${lbl("exploreFull")}</button>' +
+    '<button class="chip alt" onclick="showAll()">${IC.menu}View full menu</button>' +
     '<button class="chip alt" onclick="showSpecials()">${IC.star}${lbl("specialsLong")}</button>`+filterChips());}');
   s = replaceFn(s, "exploreBar",
     'function exploreBar(){block("chips",`<button class="chip go" onclick="explore()">${IC.menu}${lbl("exploreMore")}</button>' +
+    '<button class="chip alt" onclick="showAll()">${IC.menu}View full menu</button>' +
     '<button class="chip alt" onclick="showSpecials()">${IC.star}${lbl("specials")}</button>`+filterChips());}');
 
   // 8 ── every per-stall override lands here, at the very end of the stylesheet.

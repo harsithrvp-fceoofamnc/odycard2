@@ -11,7 +11,7 @@ const STALLS = [
   { key: "bonbon", name: "Bon Bon",         tag: "THE GOURMET ICE CREAM",    pic: "/bon_bon_scoop.png" },
   { key: "kimchi", name: "Kim Chi & Ramen", tag: "INDO ASIAN FOOD",          pic: "/kimchi_ramen.png" },
 ];
-const V = 25; // bump to bust the iframe cache after a rebuild
+const V = 26; // bump to bust the iframe cache after a rebuild
 
 export default function FestApp() {
   const [phase, setPhase] = useState<"splash" | "intro" | "pick">("splash");
@@ -75,8 +75,15 @@ export default function FestApp() {
       <style>{CSS}</style>
       <div id="phone">
 
+        {/* All three, so a guest knows up front that this one code opens every stall.
+            Each sits on a white tile: Kim Chi's mark is mostly black and would vanish
+            against the black splash otherwise. */}
         <div className={"splash" + (phase === "splash" ? " in" : "")}>
-          <img src="/logo_web.png" alt="" />
+          <div className="lg3">
+            {STALLS.map((s) => (
+              <span key={s.key}><img src={`/fest/logo_${s.key}.png`} alt={s.name} /></span>
+            ))}
+          </div>
         </div>
 
         <div className={"craving" + (phase === "pick" ? " in" : "")}>
@@ -146,7 +153,10 @@ const CSS = `
 .splash{position:absolute;inset:0;z-index:60;background:#000;display:flex;align-items:center;
   justify-content:center;opacity:0;pointer-events:none;transition:opacity 1.5s ease}
 .splash.in{opacity:1}
-.splash img{width:80%;max-width:330px;filter:drop-shadow(0 0 40px rgba(255,120,160,.35))}
+.lg3{display:flex;flex-direction:column;align-items:center;gap:16px;width:80%;max-width:330px}
+.lg3 span{width:100%;height:96px;background:#fff;border-radius:18px;display:flex;align-items:center;
+  justify-content:center;padding:12px 18px;box-shadow:0 10px 34px rgba(255,120,160,.18)}
+.lg3 img{max-width:100%;max-height:100%;object-fit:contain;display:block}
 
 .hero{position:absolute;left:0;bottom:0;z-index:30;height:70vh;max-height:540px;transform:translateX(-120%);
   opacity:0;transition:transform 1.7s cubic-bezier(.33,.02,.2,1),opacity .9s ease}
