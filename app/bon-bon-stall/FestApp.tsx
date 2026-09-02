@@ -11,7 +11,7 @@ const STALLS = [
   { key: "bonbon", name: "Bon Bon",         tag: "THE GOURMET ICE CREAM",    pic: "/bon_bon_scoop.png" },
   { key: "kimchi", name: "Kim Chi & Ramen", tag: "INDO ASIAN FOOD",          pic: "/kimchi_ramen.png" },
 ];
-const V = 30; // bump to bust the iframe cache after a rebuild
+const V = 31; // bump to bust the iframe cache after a rebuild
 
 export default function FestApp() {
   const [phase, setPhase] = useState<"splash" | "intro" | "pick">("splash");
@@ -209,11 +209,11 @@ const CSS = `
   border:1.5px solid rgba(255,255,255,.5);box-shadow:inset 0 1.5px 0 rgba(255,255,255,.7)}
 .sheen{position:absolute;inset:0;z-index:4;pointer-events:none;
   background:linear-gradient(148deg,rgba(255,255,255,.24) 0%,rgba(255,255,255,0) 46%)}
-/* Each card's halo is its own stall's colour. Maroon and red carry enough luminance to
-   glow on black; D'VOUR's is white, since amber would read as a third warm tone. */
-.k-bonbon{box-shadow:0 0 34px rgba(158,26,56,.85),0 18px 42px rgba(0,0,0,.75)}
-.k-kimchi{box-shadow:0 0 34px rgba(214,28,36,.8),0 18px 42px rgba(0,0,0,.78)}
-.k-dvour{box-shadow:0 0 32px rgba(255,255,255,.5),0 18px 42px rgba(0,0,0,.8)}
+/* A hint of the stall's colour at the card's edge, not a halo around it: tight blur, low
+   alpha, so it reads as the card being lit rather than glowing. */
+.k-bonbon{box-shadow:0 0 12px rgba(158,26,56,.30),0 8px 22px rgba(0,0,0,.55)}
+.k-kimchi{box-shadow:0 0 12px rgba(214,28,36,.28),0 8px 22px rgba(0,0,0,.55)}
+.k-dvour{box-shadow:0 0 12px rgba(255,255,255,.16),0 8px 22px rgba(0,0,0,.58)}
 
 /* the stall's own menu page */
 .stallframe{position:absolute;inset:0;z-index:70;background:#000;
