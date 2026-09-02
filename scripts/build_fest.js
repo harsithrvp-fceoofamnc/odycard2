@@ -373,6 +373,15 @@ function build(stallKey, stalls) {
   // were what made the cards uneven in the first place.
   s = replaceFn(s, "tagsHTML", 'function tagsHTML(){return "";}');
 
+  // Every dish card the same size: veg dot, name, price, info button and nothing else.
+  // A fixed min-height with the price pinned to the bottom means a two-line name never
+  // leaves the card beside it looking half empty, and rows line up with each other.
+  extra.push(".grid{align-items:stretch}",
+    ".dish.simple{min-height:104px}",
+    ".dish.simple .sbd{padding:13px;gap:4px}",
+    ".sfoot{margin-top:auto}",
+    ".tags,.tag{display:none}");
+
   // 5a2 ── the description leaves the card; it belongs to the info button.
   // Everything else about the card is untouched: veg dot, name, badge, price, the button.
   s = replaceFn(s, "compactCard",
