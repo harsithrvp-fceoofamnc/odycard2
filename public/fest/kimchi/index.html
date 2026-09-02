@@ -798,22 +798,24 @@ const HOUR=new Date().getHours();
 const part=()=>HOUR<11?"morning":HOUR<16?"afternoon":"evening";
 const TIME_FILTER=false; // DEMO: false = show ALL dishes/categories. Set to true for the real time-based menu.
 const OPEN=Object.keys(MENU).some(id=>HOUR>=MENU[id].h[0]&&HOUR<MENU[id].h[1]);
-var FDIET=0,FTAG="",LASTCAT=-1;
+var FILTER="",LASTCAT=-1;
 function hasTag(id,t){return (MENU[id].tagtxt||"").split(",").indexOf(t)>=0;}
-function anchorGrid(g){exploreBar();_bigTarget=g;toBottom();}
-function filterChips(){return '<button class="chip '+(FDIET===1?'go':'alt')+'" onclick="setDiet(1)">Veg only</button>'+'<button class="chip '+(FDIET===2?'go':'alt')+'" onclick="setDiet(2)">Non-veg only</button>'+'<button class="chip '+(FTAG==="BESTSELLER"?'go':'alt')+'" onclick="setTag(&quot;BESTSELLER&quot;)">\u2605 Bestsellers</button>'+'<button class="chip '+(FTAG==="MUST TRY"?'go':'alt')+'" onclick="setTag(&quot;MUST TRY&quot;)">\u2726 Must try</button>'+'<button class="chip '+(FTAG==="NEW"?'go':'alt')+'" onclick="setTag(&quot;NEW&quot;)">\u2726 New</button>';}
-function setDiet(v){FDIET=(FDIET===v?0:v);odyga('filter_click',{filter:v===1?'veg':'non-veg',active:FDIET===v});refilter();}
-function setTag(t){FTAG=(FTAG===t?"":t);odyga('filter_click',{filter:t,active:FTAG===t});refilter();}
-function filterLabel(){var p=[];if(FDIET===1)p.push('Veg');if(FDIET===2)p.push('Non-veg');
- if(FTAG)p.push(FTAG==='BESTSELLER'?'Bestsellers':FTAG==='NEW'?'New':'Must try');
- return p.join(' \u00b7 ');}
+function filterPass(id){if(!FILTER)return true;
+ if(FILTER==='veg')return !MENU[id].nv;
+ if(FILTER==='nonveg')return !!MENU[id].nv;
+ return hasTag(id,FILTER);}
+function anchorGrid(g,after){(after||exploreBar)();_bigTarget=g;toBottom();}
+function filterChips(){return '<button class="chip '+(FILTER==="veg"?'go':'alt')+'" onclick="setFilter(&quot;veg&quot;)">Veg only</button>'+'<button class="chip '+(FILTER==="nonveg"?'go':'alt')+'" onclick="setFilter(&quot;nonveg&quot;)">Non-veg only</button>'+'<button class="chip '+(FILTER==="BESTSELLER"?'go':'alt')+'" onclick="setFilter(&quot;BESTSELLER&quot;)">★ Bestsellers</button>'+'<button class="chip '+(FILTER==="MUST TRY"?'go':'alt')+'" onclick="setFilter(&quot;MUST TRY&quot;)">✦ Must try</button>'+'<button class="chip '+(FILTER==="NEW"?'go':'alt')+'" onclick="setFilter(&quot;NEW&quot;)">✦ New</button>';}
+function setFilter(v){FILTER=(FILTER===v?"":v);odyga('filter_click',{filter:v,active:FILTER===v});refilter();}
+function filterLabel(){return FILTER==='veg'?'Veg':FILTER==='nonveg'?'Non-veg'
+  :FILTER==='BESTSELLER'?'Bestsellers':FILTER==='NEW'?'New':'Must try';}
 function showFiltered(){var ids=Object.keys(MENU).filter(avail);
  if(!ids.length){bot('Nothing on the menu matches that.');block('chips',filterChips());return;}
  bot('<b>'+filterLabel()+'</b>:');anchorGrid(renderGrid(ids));}
-function refilter(){if(FDIET||FTAG){LASTCAT=-1;showFiltered();}else if(LASTCAT>=0)openCat(LASTCAT);else showCats();}
+function refilter(){if(FILTER){LASTCAT=-1;showFiltered();}else if(LASTCAT>=0)openCat(LASTCAT);else showCats();}
 function odyga(n,p){try{if(window.parent&&window.parent!==window)window.parent.postMessage({__odyga:{name:n,params:Object.assign({stall:STALL_KEY},p||{})}},location.origin);}catch(e){}}
 const STALL_KEY="kimchi";
-const avail=id=>(FDIET!==1||!MENU[id].nv)&&(FDIET!==2||!!MENU[id].nv)&&(!FTAG||hasTag(id,FTAG))&&(!TIME_FILTER||!OPEN||(HOUR>=MENU[id].h[0]&&HOUR<MENU[id].h[1]));
+const avail=id=>filterPass(id)&&(!TIME_FILTER||!OPEN||(HOUR>=MENU[id].h[0]&&HOUR<MENU[id].h[1]));
 const SHOW_TIMING=TIME_FILTER; // the "timed" build shows serving times on dishes; the all-time build hides them
 const LOGO_PICS=false; // when true, dishes without a real photo show an image block with the logo centred
 const chat=document.getElementById("chat");
@@ -880,7 +882,7 @@ function aoOf(k){return (MENU[k]&&MENU[k].ao&&MENU[MENU[k].ao])?MENU[k].ao:null;
 function explainDish(id){const m=MENU[id];
  odyga("select_item",{item_id:id,item_name:dn(id),price:m.p});
  bot(`<b>${dn(id)}</b> — ${desc(id)} <span style="color:#7a4a24;font-weight:700">₹${m.p}</span><br><span class="meta">${dishMeta(id)}</span>`);
- block("grid",[dishCard(id)]);exploreBar();}
+ anchorGrid(block("grid",[dishCard(id)]));}
 function grid(ids){ids=ids.filter(avail);if(!ids.length){bot("Those aren't being served right now — here's what's hot at this hour.");return showSpecials();}renderGrid(ids);exploreBar();}
 function refreshCart(){let n=0,t=0;for(const k in cart){n+=cart[k];t+=cart[k]*MENU[k].p;}for(const k in cartAO){var _a=aoOf(k);if(_a&&cartAO[k]){t+=cartAO[k]*MENU[_a].p;}}const b=document.getElementById("cartbar"),c=document.getElementById("cartcount");if(n){b.style.display="flex";if(c)c.textContent=n;b.title=`${T("viewCart")} (${n}) · ₹${t}`;b.setAttribute("aria-label",`${T("viewCart")} (${n}) ₹${t}`);}else b.style.display="none";document.getElementById("phone").classList.toggle("hascart",n>0);}
 
@@ -926,9 +928,9 @@ async function showGreeting(instant){window.__bbHold=true;var pre=chat.querySele
 function returningChips(){block("chips",`<button class="chip go" onclick="showUsual()">${IC.star}${lbl("myUsual")}</button><button class="chip" onclick="showNew()">${IC.star}${lbl("somethingNew")}</button><button class="chip alt" onclick="explore()">${IC.menu}${lbl("exploreFull")}</button><button class="chip alt" onclick="forgetMe()">${IC.x}${lbl("notYou")}</button>`);}
 function showUsual(){var c=getCustomer()||{};var ids=(c.last||[]).filter(function(i){return MENU[i]&&avail(i);});me(lbl("myUsual"));if(!ids.length){bot(T("noUsual"));return showNew(true);}var rb=bot(T("usualIntro"));renderGrid(ids.slice(0,6));exploreBar();anchorReply(rb);}
 function showNew(skipMe){var c=getCustomer()||{};var prev=c.last||[];if(!skipMe)me(lbl("somethingNew"));var pool=Object.keys(MENU).filter(function(i){return MENU[i].best&&avail(i)&&prev.indexOf(i)<0;});if(pool.length<4)pool=Object.keys(MENU).filter(function(i){return avail(i)&&prev.indexOf(i)<0;});var rb=bot(T("newIntro"));renderGrid(shuffle(pool).slice(0,6));exploreBar();anchorReply(rb);}
-function showSpecials(quiet){const best=topDishes();if(!quiet)me("Today's picks");
+function showSpecials(quiet){FILTER="";LASTCAT=-1;const best=topDishes();if(!quiet)me("Today's picks");
  odyga("view_promotion",{promotion_name:"Today's specials"});
- bot(`Here are today's specials 🍜👇`);renderGrid(best);mainChips();}
+ bot(`Here are today's specials 🍜👇`);anchorGrid(renderGrid(best),mainChips);}
 function mainChips(){block("chips",`<button class="chip go" onclick="explore()">${IC.menu}${lbl("exploreFull")}</button><button class="chip alt" onclick="showSpecials()">${IC.star}${lbl("specialsLong")}</button>`+filterChips());}
 let fbRating=0,fbCur="";
 const FBTOPICS=["Food & Taste","Service","Cleanliness","Ambience","Staff","Value for Money","App Experience"];
@@ -948,7 +950,7 @@ function showCats(){const cs=CATS.filter(c=>(c.ids||(c.subs||[]).flatMap(s=>s.id
  if(!cs.length){bot("Nothing veg on this menu just now.");block("chips",filterChips());return;}
  bot(`${T("whatExplore")}`);
  block("chips",cs.map((c)=>`<button class="chip" onclick="openCat(${CATS.indexOf(c)})">${cn(c.name)}</button>`).join("")+filterChips()+`<button class="chip alt" onclick="mainChips()">${IC.home}${lbl("home")}</button>`);}
-function explore(){me(T("exploreMore"));odyga("view_full_menu");showCats();}
+function explore(){FILTER="";me(T("exploreMore"));odyga("view_full_menu");showCats();}
 function openCat(i){if(!CATS[i])return;LASTCAT=i;const c=CATS[i];me(cn(c.name));
  odyga("view_item_list",{item_list_id:c.key||String(i),item_list_name:cn(c.name)});
  var ids=(c.ids||[]).filter(avail);

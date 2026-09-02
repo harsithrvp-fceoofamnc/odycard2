@@ -400,39 +400,45 @@ function build(stallKey, stalls) {
   //   FTAG   "" | BESTSELLER | MUST TRY | NEW          (one at a time; they overlap)
   // Diet and tag stack, so "Veg only + Must try" is a valid, useful combination.
   {
+    // ONE filter at a time. Diet and tag used to be two independent variables, so you could
+    // hold "Non-veg only" and "Must try" together; they are a single FILTER value now, and
+    // tapping a chip either selects it or, if it was already on, clears it.
+    const FILTERS = {
+      veg:    ["veg",        "Veg only"],
+      nonveg: ["nonveg",     "Non-veg only"],
+      best:   ["BESTSELLER", "\u2605 Bestsellers"],
+      must:   ["MUST TRY",   "\u2726 Must try"],
+      neu:    ["NEW",        "\u2726 New"],
+    };
     const chips = (sk.filters || []).map((f) => {
-      const [kind, val, icon, label] = {
-        veg:    ["diet", 1, "", "Veg only"],
-        nonveg: ["diet", 2, "", "Non-veg only"],
-        best:   ["tag", "BESTSELLER", "\\u2605", "Bestsellers"],
-        must:   ["tag", "MUST TRY", "\\u2726", "Must try"],
-        neu:    ["tag", "NEW", "\\u2726", "New"],
-      }[f];
-      const on = kind === "diet" ? `FDIET===${val}` : `FTAG===${JSON.stringify(val)}`;
-      const arg = kind === "diet" ? val : `&quot;${val}&quot;`;
-      const fn = kind === "diet" ? `setDiet(${val})` : `setTag(${arg})`;
-      return `'<button class="chip '+(${on}?'go':'alt')+'" onclick="${fn}">${(icon+" "+label).trim()}</button>'`;
+      const [val, label] = FILTERS[f];
+      return `'<button class="chip '+(FILTER===${JSON.stringify(val)}?'go':'alt')`
+        + `+'" onclick="setFilter(&quot;${val}&quot;)">${label}</button>'`;
     });
     if (!chips.length) chips.push("''");
 
     s = s.replace(
       "const avail=id=>!TIME_FILTER||!OPEN||(HOUR>=MENU[id].h[0]&&HOUR<MENU[id].h[1]);",
-      "var FDIET=0,FTAG=\"\",LASTCAT=-1;\n" +
+      "var FILTER=\"\",LASTCAT=-1;\n" +
       "function hasTag(id,t){return (MENU[id].tagtxt||\"\").split(\",\").indexOf(t)>=0;}\n" +
-      "function anchorGrid(g){exploreBar();_bigTarget=g;toBottom();}\n" +
+      "function filterPass(id){if(!FILTER)return true;\n" +
+      " if(FILTER==='veg')return !MENU[id].nv;\n" +
+      " if(FILTER==='nonveg')return !!MENU[id].nv;\n" +
+      " return hasTag(id,FILTER);}\n" +
+      // renderGrid anchors the scroll to the grid, then the chip row that follows calls
+      // toBottom() again with no anchor and lands on chat.scrollHeight. Re-anchor after it,
+      // unconditionally — renderGrid only self-anchors past 2 dishes, so a 2-dish result
+      // used to scroll straight past itself.
+      "function anchorGrid(g,after){(after||exploreBar)();_bigTarget=g;toBottom();}\n" +
       "function filterChips(){return " + chips.join("+") + ";}\n" +
-      "function setDiet(v){FDIET=(FDIET===v?0:v);odyga('filter_click',{filter:v===1?'veg':'non-veg',active:FDIET===v});refilter();}\n" +
-      "function setTag(t){FTAG=(FTAG===t?\"\":t);odyga('filter_click',{filter:t,active:FTAG===t});refilter();}\n" +
-      "function filterLabel(){var p=[];if(FDIET===1)p.push('Veg');if(FDIET===2)p.push('Non-veg');\n" +
-      " if(FTAG)p.push(FTAG==='BESTSELLER'?'Bestsellers':FTAG==='NEW'?'New':'Must try');\n" +
-      " return p.join(' \\u00b7 ');}\n" +
+      "function setFilter(v){FILTER=(FILTER===v?\"\":v);odyga('filter_click',{filter:v,active:FILTER===v});refilter();}\n" +
+      "function filterLabel(){return FILTER==='veg'?'Veg':FILTER==='nonveg'?'Non-veg'\n" +
+      "  :FILTER==='BESTSELLER'?'Bestsellers':FILTER==='NEW'?'New':'Must try';}\n" +
       "function showFiltered(){var ids=Object.keys(MENU).filter(avail);\n" +
       " if(!ids.length){bot('Nothing on the menu matches that.');block('chips',filterChips());return;}\n" +
       " bot('<b>'+filterLabel()+'</b>:');anchorGrid(renderGrid(ids));}\n" +
-      "function refilter(){if(FDIET||FTAG){LASTCAT=-1;showFiltered();}else if(LASTCAT>=0)openCat(LASTCAT);else showCats();}\n" +
-      "const avail=id=>(FDIET!==1||!MENU[id].nv)&&(FDIET!==2||!!MENU[id].nv)" +
-        "&&(!FTAG||hasTag(id,FTAG))" +
-        "&&(!TIME_FILTER||!OPEN||(HOUR>=MENU[id].h[0]&&HOUR<MENU[id].h[1]));"
+      "function refilter(){if(FILTER){LASTCAT=-1;showFiltered();}else if(LASTCAT>=0)openCat(LASTCAT);else showCats();}\n" +
+      "const avail=id=>filterPass(id)&&(!TIME_FILTER||!OPEN||(HOUR>=MENU[id].h[0]&&HOUR<MENU[id].h[1]));"
     );
 
     // openCat has to remember where we are, so a filter tap re-renders THIS category
@@ -464,7 +470,7 @@ function build(stallKey, stalls) {
     ' odyga("select_item",{item_id:id,item_name:dn(id),price:m.p});\n' +
     ' bot(`<b>${dn(id)}</b> — ${desc(id)} <span style="color:#7a4a24;font-weight:700">\u20b9${m.p}</span>' +
       '<br><span class="meta">${dishMeta(id)}</span>`);\n' +
-    ' block("grid",[dishCard(id)]);exploreBar();}');
+    ' anchorGrid(block("grid",[dishCard(id)]));}');
 
   // 5b ── categories exactly as Sree Annapoorna does them: a wrapping row of chips.
   // No photo, which also kills the bug where Bon Bon's ice-cream shot was the fallback
@@ -475,7 +481,7 @@ function build(stallKey, stalls) {
     ' bot(`${T("whatExplore")}`);\n' +
     ' block("chips",cs.map((c)=>`<button class="chip" onclick="openCat(${CATS.indexOf(c)})">${cn(c.name)}</button>`).join("")' +
     '+filterChips()+`<button class="chip alt" onclick="mainChips()">${IC.home}${lbl("home")}</button>`);}\n' +
-    'function explore(){me(T("exploreMore"));odyga("view_full_menu");showCats();}');
+    'function explore(){FILTER="";me(T("exploreMore"));odyga("view_full_menu");showCats();}');
   extra.push(
     ".chips{gap:9px}",
     ".chip{font-size:15.5px;padding:10px 17px;border-radius:22px}",
@@ -517,8 +523,8 @@ function build(stallKey, stalls) {
   s = s.replace(/const FRESH=\{[\s\S]*?\};/,
     `const FRESH={en:"These are today's specials ${sk.emoji}\u{1F447}"};`);
   s = replaceFn(s, "showSpecials",
-    'function showSpecials(quiet){const best=topDishes();if(!quiet)me("Today\'s picks");\n' +
-    ` odyga("view_promotion",{promotion_name:"Today's specials"});\n bot(\`Here are today's specials ${sk.emoji}\u{1F447}\`);renderGrid(best);mainChips();}`);
+    'function showSpecials(quiet){FILTER="";LASTCAT=-1;const best=topDishes();if(!quiet)me("Today\'s picks");\n' +
+    ` odyga("view_promotion",{promotion_name:"Today's specials"});\n bot(\`Here are today's specials ${sk.emoji}\u{1F447}\`);anchorGrid(renderGrid(best),mainChips);}`);
 
   // 7 ── the opening line
   s = s.replace(/const GREET=\{[\s\S]*?\};/, `const GREET={en:${JSON.stringify(sk.greet)}};`);
