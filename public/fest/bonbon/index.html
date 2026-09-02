@@ -33,7 +33,6 @@
   #wm img{width:250px}
   .msg{max-width:88%;font-size:15.5px;line-height:1.45;padding:10px 13px;border-radius:15px}
   .bot{align-self:flex-start;position:relative;margin-left:42px;background:#fff;color:var(--ink);border:1px solid var(--line);border-bottom-left-radius:5px}
-  .bot:before{content:"";position:absolute;left:-42px;bottom:0;width:34px;height:34px;border-radius:50%;background:#fff url('/fest/mascot_face.png') center 12% / 150% no-repeat;border:1.5px solid var(--line);box-shadow:0 1px 4px rgba(0,0,0,.12)}
   .me{align-self:flex-end;background:var(--blue);color:#fff;border-bottom-right-radius:5px}
   .msg,.dish,.pair{animation:pop .42s cubic-bezier(.16,1,.3,1) both}
   @keyframes pop{from{opacity:0;transform:translateY(12px) scale(.97);filter:blur(3px)}to{opacity:1;transform:none;filter:blur(0)}}
@@ -202,7 +201,7 @@
   /* ---------- elegant polish & animations ---------- */
   /* Doodle wallpaper sits behind the WHOLE screen, so the translucent input bar reveals it too */
   #phone{
-    background:#f2e0de;
+    background:var(--cream);
     background-size:cover,cover;background-position:center top;background-repeat:no-repeat;
   }
   .dish .pic img{width:86%;max-height:124px;object-fit:contain;opacity:.62}
@@ -346,6 +345,14 @@
   .catpic img.lg{width:56%;height:56%;object-fit:contain;opacity:.5}
   .catpic.lg2{font-size:40px}
   .catlabel{font-size:14px;font-weight:700;color:var(--ink);text-align:center;line-height:1.15}
+
+  /* ---- fest stall overrides ---- */
+  .bot:before{content:"";position:absolute;left:-42px;bottom:0;width:34px;height:34px;border-radius:50%;background:#fff url('/fest/mascot_face.png') center bottom / 100% auto no-repeat;border:1.5px solid var(--line);box-shadow:0 1px 4px rgba(0,0,0,.12)}
+  .catgrid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:4px 0 2px}
+  .catcard{display:block;background:var(--card);border:1.5px solid var(--line);border-radius:14px;padding:16px 12px;font-size:14.5px;font-weight:700;color:var(--ink);text-align:center;line-height:1.25;box-shadow:0 2px 8px rgba(0,0,0,.055);transition:transform .15s ease}
+  .catcard:active{transform:scale(.97)}
+  .catpic{display:none}
+  .infob{width:38px;height:38px;padding:0;border-radius:50%;flex:0 0 auto;align-self:center;display:flex;align-items:center;justify-content:center}
   #bar{display:none!important}
   </style>
 </head>
@@ -861,8 +868,9 @@ var CATPIC={};
 function catFallback(el){el.onerror=null;el.src="/cat_default.jpg";}
 function catImg(c){if(CATPIC[c.name])return CATPIC[c.name];var ids=(c.ids||(c.subs||[]).flatMap(function(s){return s.ids;})).filter(avail);for(var k=0;k<ids.length;k++){if(MENU[ids[k]]&&MENU[ids[k]].ph)return MENU[ids[k]].ph;}return "/cat_default.jpg";}
 function explore(){me(T("exploreMore"));const cs=CATS.filter(c=>(c.ids||(c.subs||[]).flatMap(s=>s.ids)).some(avail));
- bot(`${T("whatExplore")} <span style='color:#7b8190'>${T("timeNote")}</span>`);
- var _cg=block("catgrid",cs.map((c)=>`<button class="catcard" onclick="openCat(${CATS.indexOf(c)})"><span class="catpic"><img class="${catImg(c)===LOGO?"lg":"ph"}" src="${catImg(c)}" loading="lazy" onerror="catFallback(this)"></span><span class="catlabel">${cn(c.name)}</span></button>`).join(""));_bigTarget=_cg;block("chips",`<button class="chip alt" onclick="mainChips()">${IC.home}${lbl("home")}</button>`);}
+ bot(`${T("whatExplore")}`);
+ var _cg=block("catgrid",cs.map((c)=>`<button class="catcard" onclick="openCat(${CATS.indexOf(c)})">${cn(c.name)}</button>`).join(""));_bigTarget=_cg;
+ block("chips",`<button class="chip alt" onclick="mainChips()">${IC.home}${lbl("home")}</button>`);}
 function openCat(i){const c=CATS[i];me(cn(c.name));if(c.subs){const ss=c.subs.filter(s=>s.ids.some(avail));bot(`<b>${cn(c.name)}</b> — ${T("pickType")}:`);
   block("chips",ss.map((s)=>`<button class="chip" onclick="openSub(${i},${c.subs.indexOf(s)})">${cn(s.name)}</button>`).join("")+`<button class="chip alt" onclick="explore()">${IC.back}${lbl("back")}</button>`);
  }else{bot(`<b>${cn(c.name)}</b> — ${T("tapAdd")}:`);grid(c.ids);}}

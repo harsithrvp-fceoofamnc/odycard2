@@ -73,20 +73,24 @@ const SKIN = {
   },
   kimchi: {
     file: "kimchi", title: "Kim Chi & Ramen — Menu",
-    vars: { blue: "#c8141e", ink: "#1a1412", mut: "#8e8285", line: "#f4dcde", cream: "#fdeff0",
+    vars: { blue: "#c8141e", ink: "#1a1412", mut: "#8e8285", line: "#f4dcde", cream: "#fbe6e6",
             gold: "#c8141e", card: "#ffffff", brandtop: "#d8323c", brandbot: "#96101c" },
     wood: "/fest/kimchi_board.png", awning: "/fest/kimchi_awning.png",
     shutter: "/fest/kimchi_shutter.png", logo: "/fest/logo_kimchi.png",
     greet: "Hi! 🍜 Welcome to Kim Chi & Ramen — what are you craving today?",
+    // its own board art is white — the stock dark scrim is what was turning it grey
+    board: "header.woodhdr{background:#fff url('/fest/kimchi_board.png') center/cover;box-shadow:inset 0 -8px 16px rgba(0,0,0,.10)}",
     hasAwning: true, lanterns: "/fest/kimchi_lanterns.png",
   },
   dvour: {
     file: "dvour", title: "D'VOUR — Menu",
-    vars: { blue: "#a87c00", ink: "#16151a", mut: "#8b8a92", line: "#e8e8ec", cream: "#f6f6f7",
+    vars: { blue: "#a87c00", ink: "#16151a", mut: "#8b8a92", line: "#e8e8ec", cream: "#eeeef0",
             gold: "#ffc400", card: "#ffffff", brandtop: "#1d1d1f", brandbot: "#050505" },
     wood: "", awning: "", shutter: "/fest/dvour_shutter.png", logo: "/fest/logo_dvour.png",
     greet: "Hi! 🍔 Welcome to D'VOUR — what are you craving today?",
-    hasAwning: false, blackBoard: true,
+    // flat black board, yellow rule along the bottom, no image and no awning at all
+    board: "header.woodhdr{background:#0b0b0c;border-bottom:3px solid #ffc400;box-shadow:none}",
+    hasAwning: false,
   },
 };
 
@@ -160,6 +164,7 @@ function build(stallKey, stalls) {
   const sk = SKIN[stallKey];
   let s = fs.readFileSync(SRC, "utf8");
   const { menu, cats } = menuJs(stall);
+  const extra = []; // CSS appended last, so it wins on source order without !important spam
 
   // 1 ── swap MENU and CATS
   let [a, b] = replaceBlock(s, "const MENU=", "{", "}");
@@ -232,27 +237,57 @@ function build(stallKey, stalls) {
   s = s.replace(/var CATPIC=\{[^}]*\};/, "var CATPIC={};");
   s = s.replace(/setTimeout\(function\(\)\{\["\/cat_[\s\S]*?\n/, "\n");
 
-  // D'VOUR: flat black board with a yellow rule, and no awning hanging under it
-  if (sk.blackBoard) {
-    s = s.replace(/#board\{[^}]*\}/, "#board{background:#0e0e0e;border-bottom:3px solid #ffc400}");
-    s = s.replace(/#awning\{[^}]*\}/, "#awning{display:none}");
-  }
+  // 4b ── the page background.
+  // :root --cream is per-stall, but a later rule hardcodes #phone{background:#f2e0de},
+  // which is Bon Bon's pink — so every stall came out pink no matter what --cream said.
+  // Point it at the variable instead. (String.replace with no match is a silent no-op,
+  // which is exactly how the old #board/#awning patches below "worked" for weeks.)
+  const bgBefore = s;
+  s = s.replace(/(#phone\{\s*)background:#f2e0de;/, "$1background:var(--cream);");
+  if (s === bgBefore) throw new Error("page background rule not found — chatbot CSS changed");
+
+  // 4c ── the board (header.woodhdr). Bon Bon keeps the wood and its dark scrim; the other
+  // two get their own rule appended, so it wins on source order.
+  if (sk.board) extra.push(sk.board);
+
+  // 4d ── D'VOUR has no awning at all, so the chat's awning allowance goes with it.
+  if (!sk.hasAwning) extra.push(".awnbar{display:none}", "#chat{padding-top:14px}");
+
+  // 4e ── Kim Chi's lanterns hang from the top of the board. z-index 2 keeps them under the
+  // awning (z-index 3), so the tassels tuck behind it instead of floating over.
   if (sk.lanterns) {
-    s = s.replace(/#board\{/, `#lanterns{position:absolute;top:0;left:0;width:100%;z-index:3;pointer-events:none}\n  #board{`);
-    s = s.replace(/(<div id="board")/, `<img id="lanterns" src="${sk.lanterns}" alt="">$1`);
+    extra.push("#lanterns{position:absolute;top:0;left:0;width:100%;z-index:2;pointer-events:none}");
+    s = s.replace(/(<header class="woodhdr")/, `<img id="lanterns" src="${sk.lanterns}" alt="">$1`);
   }
 
-  // 5 ── mascot face beside every waiter bubble
-  s = s.replace(
-    /\.bot\{align-self:flex-start;/,
-    `.bot{align-self:flex-start;position:relative;margin-left:42px;`
+  // 5 ── mascot face beside every waiter bubble.
+  // mascot_face.png is a head crop with transparent headroom, so plain center/contain shows
+  // the whole head. The old "center 12% / 150%" zoomed in and sliced the top of his hair off.
+  s = s.replace(/\.bot\{align-self:flex-start;/, ".bot{align-self:flex-start;position:relative;margin-left:42px;");
+  extra.push(
+    '.bot:before{content:"";position:absolute;left:-42px;bottom:0;width:34px;height:34px;border-radius:50%;' +
+      "background:#fff url('/fest/mascot_face.png') center bottom / 100% auto no-repeat;" +
+      "border:1.5px solid var(--line);box-shadow:0 1px 4px rgba(0,0,0,.12)}"
   );
-  s = s.replace(
-    /(\.bot\{align-self:flex-start;[^}]*\})/,
-    `$1\n  .bot:before{content:"";position:absolute;left:-42px;bottom:0;width:34px;height:34px;border-radius:50%;` +
-      `background:#fff url('/fest/mascot_face.png') center 12% / 150% no-repeat;` +
-      `border:1.5px solid var(--line);box-shadow:0 1px 4px rgba(0,0,0,.12)}`
+
+  // 5b ── categories are plain text blocks: no photo, so no ice cream cup on the ramen menu.
+  s = replaceFn(s, "explore",
+    'function explore(){me(T("exploreMore"));const cs=CATS.filter(c=>(c.ids||(c.subs||[]).flatMap(s=>s.ids)).some(avail));\n' +
+    ' bot(`${T("whatExplore")}`);\n' +
+    ' var _cg=block("catgrid",cs.map((c)=>`<button class="catcard" onclick="openCat(${CATS.indexOf(c)})">${cn(c.name)}</button>`).join(""));_bigTarget=_cg;\n' +
+    ' block("chips",`<button class="chip alt" onclick="mainChips()">${IC.home}${lbl("home")}</button>`);}');
+  extra.push(
+    ".catgrid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:4px 0 2px}",
+    ".catcard{display:block;background:var(--card);border:1.5px solid var(--line);border-radius:14px;" +
+      "padding:16px 12px;font-size:14.5px;font-weight:700;color:var(--ink);text-align:center;line-height:1.25;" +
+      "box-shadow:0 2px 8px rgba(0,0,0,.055);transition:transform .15s ease}",
+    ".catcard:active{transform:scale(.97)}",
+    ".catpic{display:none}"
   );
+
+  // 5c ── the ⓘ button is a circle
+  extra.push(".infob{width:38px;height:38px;padding:0;border-radius:50%;flex:0 0 auto;align-self:center;" +
+    "display:flex;align-items:center;justify-content:center}");
 
   // 6 ── no letter-by-letter typing: the whole line lands at once
   s = replaceFn(s, "bot",
@@ -279,9 +314,11 @@ function build(stallKey, stalls) {
     'function exploreBar(){block("chips",`<button class="chip go" onclick="explore()">${IC.menu}${lbl("exploreMore")}</button>' +
     '<button class="chip alt" onclick="showSpecials()">${IC.star}${lbl("specials")}</button>`);}');
 
-  // 8 ── belt and braces: whatever the script sets on #bar.style.display, it stays gone.
-  // bbBoot and chooseOutlet both put the bar back ("" / visibility:"") as the shutter lifts.
-  s = s.replace(/<\/style>/, "  #bar{display:none!important}\n  </style>");
+  // 8 ── every per-stall override lands here, at the very end of the stylesheet.
+  // #bar needs !important: bbBoot and chooseOutlet both put the bar back by setting
+  // element styles (display:"" / visibility:"") as the shutter lifts.
+  extra.push("#bar{display:none!important}");
+  s = s.replace(/<\/style>/, "\n  /* ---- fest stall overrides ---- */\n  " + extra.join("\n  ") + "\n  </style>");
 
   const out = path.join(ROOT, "public", "fest", sk.file, "index.html");
   fs.mkdirSync(path.dirname(out), { recursive: true });
