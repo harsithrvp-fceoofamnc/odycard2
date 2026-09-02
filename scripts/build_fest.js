@@ -97,7 +97,7 @@ const SKIN = {
     file: "dvour", title: "D'VOUR — Menu",
     vars: { blue: "#a87c00", ink: "#f1f1f1", mut: "#9d9d9d", line: "#242424", cream: "#000000",
             gold: "#ffc400", card: "#161616", brandtop: "#1d1d1f", brandbot: "#050505" },
-    wood: "", awning: "", shutter: "/shutter_web.jpg", logo: "/fest/logo_dvour.png",
+    wood: "", awning: "", shutter: "/fest/dvour_shutter.png", logo: "/fest/logo_dvour.png",
     greet: "Hi! 🍔 Welcome to D'VOUR — what are you craving today?", emoji: "🍔",
     // Chicken versions where the dish comes both ways: Signature ₹290, Mexican Rice ₹220,
     // Seoul Street Wrap ₹230. Green Flag Burger only exists the one way.
@@ -415,7 +415,7 @@ function build(stallKey, stalls) {
       // toBottom() again with no anchor and lands on chat.scrollHeight. Re-anchor after it,
       // unconditionally — renderGrid only self-anchors past 2 dishes, so a 2-dish result
       // used to scroll straight past itself.
-      "function anchorGrid(g,after){(after||exploreBar)();_bigTarget=g;toBottom();}\n" +
+      "function anchorGrid(g,after){window.__userScroll=false;(after||exploreBar)();_bigTarget=g;toBottom();}\n" +
       "function filterChips(){return " + chips.join("+") + ";}\n" +
       "function setFilter(v){FILTER=(FILTER===v?\"\":v);odyga('filter_click',{filter:v,active:FILTER===v});refilter();}\n" +
       "function filterLabel(){return FILTER==='veg'?'Veg':FILTER==='nonveg'?'Non-veg'\n" +
@@ -528,7 +528,7 @@ function build(stallKey, stalls) {
   const GREET_TAIL = " if(!instant)await sleep(200);mainChips();}";
   if (!s.includes(GREET_TAIL)) throw new Error("greeting tail not found");
   s = s.replace(GREET_TAIL,
-    " if(!instant)await sleep(200);mainChips();window.__bbHold=false;" +
+    " if(!instant)await sleep(200);mainChips();window.__bbHold=false;window.__userScroll=false;" +
     "_bigTarget=chat.firstElementChild||g;toBottom();}");
 
   // 7a0 ── how far the logo header is allowed to collapse.
@@ -544,10 +544,23 @@ function build(stallKey, stalls) {
     if (!s.includes(OLD)) throw new Error("header collapse not found");
     s = s.replace(OLD,
       'wd.style.marginTop = v ? (-Math.round(wd.offsetHeight*(window.__started?1:0.45)))+"px" : "";');
-    // and let it start collapsing during the greeting, not only after the first tap
+    // Let it start collapsing during the greeting, not only after the first tap — and give
+    // it hysteresis. With one threshold the collapse re-triggers its own test: collapsing
+    // shifts the content up, that fires a scroll event, scrollTop drops back under the line,
+    // it expands, everything shifts down again. That loop is the up-and-down judder you get
+    // the moment you scroll by hand. Two thresholds break it.
     const OLD2 = 'var show = (!window.__started) || ce.scrollTop<=6;';
     if (!s.includes(OLD2)) throw new Error("header show test not found");
-    s = s.replace(OLD2, 'var show = ce.scrollTop<=6;');
+    s = s.replace(OLD2, 'var show = col ? (ce.scrollTop<=8) : (ce.scrollTop<=44);');
+
+    // And once the guest scrolls for themselves, stop auto-scrolling entirely. Auto-scroll
+    // exists to place NEW content after a tap; it has no business moving the view while
+    // someone is reading. anchorGrid clears the flag, so the next tap scrolls normally.
+    const OLD3 = 'ce.addEventListener("scroll",update,{passive:true});';
+    if (!s.includes(OLD3)) throw new Error("chat scroll listener not found");
+    s = s.replace(OLD3, OLD3 +
+      'ce.addEventListener("touchmove",function(){window.__userScroll=true;},{passive:true});' +
+      'ce.addEventListener("wheel",function(){window.__userScroll=true;},{passive:true});');
   }
 
   // 7a1 ── gentle, boundary-aware auto-scroll.
@@ -558,7 +571,7 @@ function build(stallKey, stalls) {
   // to the real maximum scroll, so it never scrolls further than there is content — which
   // is what leaves the chips at the bottom on screen.
   s = replaceFn(s, "toBottom",
-    'function toBottom(){if(window.__bbHold)return;clearTimeout(_bt);_bt=setTimeout(function(){\n' +
+    'function toBottom(){if(window.__bbHold||window.__userScroll)return;clearTimeout(_bt);_bt=setTimeout(function(){\n' +
     '  var max=Math.max(0,chat.scrollHeight-chat.clientHeight);\n' +
     '  var top=_bigTarget?Math.min(max,Math.max(0,_bigTarget.offsetTop-14)):chat.scrollHeight;\n' +
     '  _bigTarget=null;\n' +
@@ -566,10 +579,10 @@ function build(stallKey, stalls) {
     '},80);}');
 
   // `s` here is the generated page, so match the emitted JS, not this file's own source.
-  const AG_OLD = "function anchorGrid(g,after){(after||exploreBar)();_bigTarget=g;toBottom();}";
+  const AG_OLD = "function anchorGrid(g,after){window.__userScroll=false;(after||exploreBar)();_bigTarget=g;toBottom();}";
   if (!s.includes(AG_OLD)) throw new Error("anchorGrid not found in the generated page");
   s = s.replace(AG_OLD,
-    "function anchorGrid(g,after){(after||exploreBar)();" +
+    "function anchorGrid(g,after){window.__userScroll=false;(after||exploreBar)();" +
       "var p=g.previousElementSibling;" +
       "_bigTarget=(p&&/msg/.test(p.className))?p:g;toBottom();}");
 

@@ -334,7 +334,7 @@
 
   #shutterframe{position:absolute;left:0;right:0;bottom:0;top:150px;z-index:2;overflow:hidden;display:none}
   #shutterframe.on{display:block}
-  #shutter{position:absolute;left:0;right:0;top:0;height:100%;background:#5a0c1a url('/shutter_web.jpg') center/cover no-repeat;box-shadow:0 7px 16px rgba(0,0,0,.30);transform:translateY(0);transition:transform 1.15s cubic-bezier(.5,.05,.2,1);will-change:transform}
+  #shutter{position:absolute;left:0;right:0;top:0;height:100%;background:#5a0c1a url('/fest/dvour_shutter.png') center/cover no-repeat;box-shadow:0 7px 16px rgba(0,0,0,.30);transform:translateY(0);transition:transform 1.15s cubic-bezier(.5,.05,.2,1);will-change:transform}
   #shutter.up{transform:translateY(-100%)}
 
   .catgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:4px 0 2px}
@@ -820,7 +820,7 @@ function filterPass(id){if(!FILTER)return true;
  if(FILTER==='veg')return !MENU[id].nv;
  if(FILTER==='nonveg')return !!MENU[id].nv;
  return hasTag(id,FILTER);}
-function anchorGrid(g,after){(after||exploreBar)();var p=g.previousElementSibling;_bigTarget=(p&&/msg/.test(p.className))?p:g;toBottom();}
+function anchorGrid(g,after){window.__userScroll=false;(after||exploreBar)();var p=g.previousElementSibling;_bigTarget=(p&&/msg/.test(p.className))?p:g;toBottom();}
 function filterChips(){return '<button class="chip '+(FILTER==="veg"?'go':'alt')+'" onclick="setFilter(&quot;veg&quot;)">Veg only</button>'+'<button class="chip '+(FILTER==="nonveg"?'go':'alt')+'" onclick="setFilter(&quot;nonveg&quot;)">Non-veg only</button>'+'<button class="chip '+(FILTER==="BESTSELLER"?'go':'alt')+'" onclick="setFilter(&quot;BESTSELLER&quot;)">★ Bestsellers</button>'+'<button class="chip '+(FILTER==="MUST TRY"?'go':'alt')+'" onclick="setFilter(&quot;MUST TRY&quot;)">✦ Must try</button>';}
 function setFilter(v){FILTER=(FILTER===v?"":v);odyga('filter_click',{filter:v,active:FILTER===v});refilter();}
 function filterLabel(){return FILTER==='veg'?'Veg':FILTER==='nonveg'?'Non-veg'
@@ -860,7 +860,7 @@ function me(t){window.__started=true;if(window.__bbHdrUpdate)setTimeout(window._
 function block(cls,html){const d=document.createElement("div");d.className=cls;d.innerHTML=html;chat.appendChild(d);toBottom();return d;}
 let _bt=null,_bigTarget=null,_sc=null;
 function bbScrollTo(el,to,dur){if(_sc)cancelAnimationFrame(_sc);var s=el.scrollTop,dif=to-s;if(Math.abs(dif)<2){el.scrollTop=to;return;}var t0=null;function st(ts){if(t0===null)t0=ts;var p=Math.min(1,(ts-t0)/dur);var e=p<.5?2*p*p:1-Math.pow(-2*p+2,2)/2;el.scrollTop=s+dif*e;if(p<1)_sc=requestAnimationFrame(st);}_sc=requestAnimationFrame(st);}
-function toBottom(){if(window.__bbHold)return;clearTimeout(_bt);_bt=setTimeout(function(){
+function toBottom(){if(window.__bbHold||window.__userScroll)return;clearTimeout(_bt);_bt=setTimeout(function(){
   var max=Math.max(0,chat.scrollHeight-chat.clientHeight);
   var top=_bigTarget?Math.min(max,Math.max(0,_bigTarget.offsetTop-14)):chat.scrollHeight;
   _bigTarget=null;
@@ -949,7 +949,7 @@ async function showGreeting(instant){window.__bbHold=true;var pre=chat.querySele
  await new Promise(function(r){bot(FRESH[lang],r);});
  if(!instant)await sleep(300);
  const best=topDishes();const g=block("grid",best.map(dishCard).join(""));
- if(!instant)await sleep(200);mainChips();window.__bbHold=false;_bigTarget=chat.firstElementChild||g;toBottom();}
+ if(!instant)await sleep(200);mainChips();window.__bbHold=false;window.__userScroll=false;_bigTarget=chat.firstElementChild||g;toBottom();}
 function returningChips(){block("chips",`<button class="chip go" onclick="showUsual()">${IC.star}${lbl("myUsual")}</button><button class="chip" onclick="showNew()">${IC.star}${lbl("somethingNew")}</button><button class="chip alt" onclick="explore()">${IC.menu}${lbl("exploreFull")}</button><button class="chip alt" onclick="forgetMe()">${IC.x}${lbl("notYou")}</button>`);}
 function showUsual(){var c=getCustomer()||{};var ids=(c.last||[]).filter(function(i){return MENU[i]&&avail(i);});me(lbl("myUsual"));if(!ids.length){bot(T("noUsual"));return showNew(true);}var rb=bot(T("usualIntro"));renderGrid(ids.slice(0,6));exploreBar();anchorReply(rb);}
 function showNew(skipMe){var c=getCustomer()||{};var prev=c.last||[];if(!skipMe)me(lbl("somethingNew"));var pool=Object.keys(MENU).filter(function(i){return MENU[i].best&&avail(i)&&prev.indexOf(i)<0;});if(pool.length<4)pool=Object.keys(MENU).filter(function(i){return avail(i)&&prev.indexOf(i)<0;});var rb=bot(T("newIntro"));renderGrid(shuffle(pool).slice(0,6));exploreBar();anchorReply(rb);}
@@ -1569,7 +1569,7 @@ function bbBoot(){
   var sh=document.getElementById("shutter");
   var bar=document.getElementById("bar");
   var start=Date.now(),MIN=1900,done=false;   // hold long enough for the slow fade-in + a beat
-  var imgs=["/wood_web.jpg","/fest/logo_dvour.png","/awning_web.png?v=3","/shutter_web.jpg"],left=imgs.length;
+  var imgs=["/wood_web.jpg","/fest/logo_dvour.png","/awning_web.png?v=3","/fest/dvour_shutter.png"],left=imgs.length;
   function showShutter(){ if(!frame)return;
     frame.style.top="0px";
     if(bar)bar.style.visibility="hidden";
@@ -1599,10 +1599,10 @@ function bbBoot(){
   }
   function update(){
     if(lock)return;
-    var show = ce.scrollTop<=6;
+    var show = col ? (ce.scrollTop<=8) : (ce.scrollTop<=44);
     setCol(!show);
   }
-  ce.addEventListener("scroll",update,{passive:true});
+  ce.addEventListener("scroll",update,{passive:true});ce.addEventListener("touchmove",function(){window.__userScroll=true;},{passive:true});ce.addEventListener("wheel",function(){window.__userScroll=true;},{passive:true});
   window.__bbHdrUpdate=update;ce.addEventListener("click",function(){window.__bbHold=false;});document.addEventListener("keydown",function(){window.__bbHold=false;});   // let me() nudge it the moment the customer first chats
 })();
 
