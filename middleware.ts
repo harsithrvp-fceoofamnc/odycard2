@@ -30,14 +30,19 @@ function bbSessionAlive(token?: string): boolean {
 const BONBON_MENU_HOSTS = new Set(["bonbonicecreams.com", "www.bonbonicecreams.com"]);
 
 // ── EVENT LOCKDOWN ─────────────────────────────────────────────────────────────
-// Set EVENT_ONLY=1 in the Vercel environment for the duration of the VIT pop-up and the
-// site becomes the food stall and nothing else: the stall pages serve normally, the bare
-// domain redirects to them, and every other route 404s. Unset it (or set it to anything
-// other than "1") and the whole site is back, instantly, with no code to restore.
+// ON BY DEFAULT for the VIT pop-up. The site is the food stall and nothing else:
+// odysra.com redirects to /bon-bon-stall, the stall pages serve, every other route 404s.
 //
-// Deliberately NOT a redirect for the blocked routes — a 404 tells a curious guest there
-// is nothing there, where a redirect advertises that /bon-bon-stall exists.
-const EVENT_ONLY = process.env.EVENT_ONLY === "1";
+// TO BRING THE WHOLE SITE BACK AFTER THE EVENT — either is enough, no code to restore:
+//   • set EVENT_ONLY=0 in the Vercel environment and redeploy, or
+//   • change the line below to `=== "1"` and push.
+//
+// It defaults to locked rather than open on purpose: forgetting to set an env var should
+// leave the site safe, not leave every admin page exposed on the day of the event.
+//
+// Blocked routes get a 404, deliberately, not a redirect — a 404 tells a curious guest
+// there is nothing there, where a redirect would advertise that /bon-bon-stall exists.
+const EVENT_ONLY = process.env.EVENT_ONLY !== "0";
 
 // What stays reachable during the event.
 function eventAllows(pathname: string): boolean {
