@@ -374,6 +374,7 @@
   .woodhdr .woodlogo{position:relative;z-index:2;width:62%;max-width:262px;animation:none}
   .awnbar{display:none}
   #bootveil{background:#000}
+  #shutterframe{top:0;z-index:6}
   .bot{background:#161616;border:1px solid #242424;color:var(--ink)}
   .dish.simple{background:#161616;border:1px solid #242424}
   .vegdot{background:#161616}
@@ -1579,9 +1580,7 @@ function bbBoot(){
   var start=Date.now(),MIN=1900,done=false;   // hold long enough for the slow fade-in + a beat
   var imgs=["/fest/kimchi_board.png","/kimchi_new_logo.png","/fest/kimchi_awning.png?v=3","/kimchi_shutter.png"],left=imgs.length;
   function showShutter(){ if(!frame)return;
-    var aw=document.querySelector(".awnbar"),hd=document.querySelector("header.woodhdr"),ph=document.getElementById("phone");
-    var ref=(aw&&aw.offsetParent!==null)?aw.getBoundingClientRect().top:(hd?hd.getBoundingClientRect().bottom:0);
-    if(ph)frame.style.top=Math.max(0,ref-ph.getBoundingClientRect().top)+"px";
+    frame.style.top="0px";
     if(bar)bar.style.visibility="hidden";
     frame.classList.add("on");
   }

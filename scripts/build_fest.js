@@ -332,15 +332,13 @@ function build(stallKey, stalls) {
   if (s === langBefore) throw new Error("language toggle not found");
   extra.push("#langbar{display:none!important}");
 
-  // 4j ── the shutter must reveal the CHAT only, leaving the board on show.
-  // showShutter anchors the shutter's top to the awning — but Kim Chi and D'VOUR have no
-  // awning, and a display:none element reports top 0, so the shutter covered the whole
-  // screen and the board was hidden until it rolled up. Fall back to the board's bottom.
+  // 4j ── the shutter covers the WHOLE screen, logo included, then rolls up off it.
+  // It used to anchor to the awning's top, which on a stall with no awning resolved to 0
+  // anyway; now it is pinned to 0 deliberately and lifted above the lanterns so nothing
+  // pokes through the closed shutter.
   s = replaceFn(s, "showShutter",
     'function showShutter(){ if(!frame)return;\n' +
-    '    var aw=document.querySelector(".awnbar"),hd=document.querySelector("header.woodhdr"),ph=document.getElementById("phone");\n' +
-    '    var ref=(aw&&aw.offsetParent!==null)?aw.getBoundingClientRect().top:(hd?hd.getBoundingClientRect().bottom:0);\n' +
-    '    if(ph)frame.style.top=Math.max(0,ref-ph.getBoundingClientRect().top)+"px";\n' +
+    '    frame.style.top="0px";\n' +
     '    if(bar)bar.style.visibility="hidden";\n' +
     '    frame.classList.add("on");\n' +
     '  }');
@@ -648,6 +646,7 @@ function build(stallKey, stalls) {
     ".woodhdr .woodlogo{position:relative;z-index:2;width:62%;max-width:262px;animation:none}",
     ".awnbar{display:none}",
     "#bootveil{background:#000}",
+    "#shutterframe{top:0;z-index:6}",
 
     // dark surfaces
     ".bot{background:#161616;border:1px solid #242424;color:var(--ink)}",
