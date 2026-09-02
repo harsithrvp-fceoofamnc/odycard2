@@ -527,8 +527,34 @@ function build(stallKey, stalls) {
   // pointer or key event, so toBottom() did nothing for the greeting's own grid — the
   // first set of dishes never scrolled into view, and it only started working after the
   // guest tapped something. Release the hold at the end and anchor to that grid.
-  s = s.replace(' if(!instant)await sleep(200);mainChips();window.__bbHold=false;_bigTarget=g;toBottom();}'.replace("window.__bbHold=false;_bigTarget=g;toBottom();",""), ' if(!instant)await sleep(200);mainChips();window.__bbHold=false;_bigTarget=g;toBottom();}');
-  if (!s.includes("window.__bbHold=false;_bigTarget=g")) throw new Error("greeting tail not found");
+  const GREET_TAIL = " if(!instant)await sleep(200);mainChips();}";
+  if (!s.includes(GREET_TAIL)) throw new Error("greeting tail not found");
+  s = s.replace(GREET_TAIL,
+    " if(!instant)await sleep(200);mainChips();window.__bbHold=false;" +
+    "var _p=g.previousElementSibling;_bigTarget=(_p&&/msg/.test(_p.className))?_p:g;toBottom();}");
+
+  // 7a1 ── gentle, boundary-aware auto-scroll.
+  // The old target was grid.offsetTop-82, an arbitrary offset that regularly landed
+  // half-way through the bot line above the grid. Against a black page a half-cut bubble
+  // reads as the logo header covering it. Two changes: anchor on the MESSAGE that
+  // introduces the grid, not the grid, so a whole element sits at the top edge; and clamp
+  // to the real maximum scroll, so it never scrolls further than there is content — which
+  // is what leaves the chips at the bottom on screen.
+  s = replaceFn(s, "toBottom",
+    'function toBottom(){if(window.__bbHold)return;clearTimeout(_bt);_bt=setTimeout(function(){\n' +
+    '  var max=Math.max(0,chat.scrollHeight-chat.clientHeight);\n' +
+    '  var top=_bigTarget?Math.min(max,Math.max(0,_bigTarget.offsetTop-14)):chat.scrollHeight;\n' +
+    '  _bigTarget=null;\n' +
+    '  try{bbScrollTo(chat,top,650);}catch(e){chat.scrollTop=top;}\n' +
+    '},80);}');
+
+  // `s` here is the generated page, so match the emitted JS, not this file's own source.
+  const AG_OLD = "function anchorGrid(g,after){(after||exploreBar)();_bigTarget=g;toBottom();}";
+  if (!s.includes(AG_OLD)) throw new Error("anchorGrid not found in the generated page");
+  s = s.replace(AG_OLD,
+    "function anchorGrid(g,after){(after||exploreBar)();" +
+      "var p=g.previousElementSibling;" +
+      "_bigTarget=(p&&/msg/.test(p.className))?p:g;toBottom();}");
 
   // 7a2 ── one typing animation per line, and the grid lands whole.
   // showGreeting used to raise its own typingBubble() and then call bot(), which raises a
