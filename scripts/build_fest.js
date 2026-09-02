@@ -73,15 +73,16 @@ const SKIN = {
   },
   kimchi: {
     file: "kimchi", title: "Kim Chi & Ramen — Menu",
-    vars: { blue: "#c8141e", ink: "#1a1412", mut: "#8e8285", line: "#f0cccc", cream: "#e9bcbc",
+    vars: { blue: "#c8141e", ink: "#1a1412", mut: "#8e8285", line: "#e8b4b4", cream: "#d08484",
             gold: "#c8141e", card: "#ffffff", brandtop: "#d8323c", brandbot: "#96101c" },
     wood: "/fest/kimchi_board.png", awning: "/fest/kimchi_awning.png",
     shutter: "/fest/kimchi_shutter.png", logo: "/fest/logo_kimchi.png",
     greet: "Hi! 🍜 Welcome to Kim Chi & Ramen — what are you craving today?", emoji: "🍜",
+    accentRgb: "168,16,26",
     // its own board art is white — the stock dark scrim is what was turning it grey.
     // No awning here either, so the board needs its own height, as D'VOUR's does.
     board: "header.woodhdr{background:#fff url('/fest/kimchi_board.png') center/cover;" +
-           "box-shadow:inset 0 -8px 16px rgba(0,0,0,.10);min-height:196px;padding:16px 12px 22px}",
+           "box-shadow:inset 0 -8px 16px rgba(0,0,0,.10);min-height:196px;padding:16px 12px 22px;position:relative}",
     hasAwning: false, lanterns: true,
   },
   dvour: {
@@ -90,6 +91,7 @@ const SKIN = {
             gold: "#ffc400", card: "#ffffff", brandtop: "#1d1d1f", brandbot: "#050505" },
     wood: "", awning: "", shutter: "/fest/dvour_shutter.png", logo: "/fest/logo_dvour.png",
     greet: "Hi! 🍔 Welcome to D'VOUR — what are you craving today?", emoji: "🍔",
+    accentRgb: "0,0,0",
     // Flat black board, yellow rule along the bottom, no image and no awning at all.
     // The other two stalls read as a tall header because the board (~145px) has an awning
     // hanging under it — 105-125px of art less its -42px pull, so ~63-83px more. With no
@@ -277,16 +279,31 @@ function build(stallKey, stalls) {
   // the crop), and the two run at different speeds so they don't march in lockstep.
   if (sk.lanterns) {
     extra.push(
+      // Inside the header, not on #phone: the chatbot collapses header.woodhdr with a
+      // negative margin-top as you scroll the chat, and lanterns parked on #phone stayed
+      // put and floated over the messages. As children of the board they leave with it.
       ".lantern{position:absolute;top:0;width:17%;z-index:4;pointer-events:none}",
       ".lantern.l{left:3%;transform-origin:45% 0;animation:swayL 5.2s ease-in-out infinite}",
       ".lantern.r{right:3%;transform-origin:54% 0;animation:swayR 6.1s ease-in-out infinite}",
       "@keyframes swayL{0%,100%{transform:rotate(-3.5deg)}50%{transform:rotate(3.5deg)}}",
       "@keyframes swayR{0%,100%{transform:rotate(3deg)}50%{transform:rotate(-3deg)}}"
     );
-    s = s.replace(/(<header class="woodhdr")/,
-      '<img class="lantern l" src="/fest/kimchi_lantern_l.png" alt="">' +
-      '<img class="lantern r" src="/fest/kimchi_lantern_r.png" alt="">$1');
+    s = s.replace(/(<header class="woodhdr">)/,
+      '$1<img class="lantern l" src="/fest/kimchi_lantern_l.png" alt="">' +
+      '<img class="lantern r" src="/fest/kimchi_lantern_r.png" alt="">');
   }
+
+  // 4h ── the selection glow. Twenty-odd shadows across the stylesheet hardcode Bon Bon's
+  // maroon rgba(129,18,38,…) — on D'VOUR every chip and card lit up purple. One global
+  // swap of the RGB triple keeps each shadow's own alpha.
+  if (sk.accentRgb) s = s.split("rgba(129,18,38,").join(`rgba(${sk.accentRgb},`);
+  // Same story for the solid maroon: the typing dots, spinner and a few gradients name
+  // #811226 directly rather than var(--blue), so they ignored the theme entirely.
+  if (sk.vars.blue !== "#811226") s = s.split("#811226").join(sk.vars.blue);
+
+  // 4i ── the boot logo is forced to Bon Bon's 480x248. D'VOUR's mark is 620x181 and
+  // Kim Chi's 620x372, so both were stretched to a shape they aren't. Let the image decide.
+  extra.push("#bootveil .bootlogo{aspect-ratio:auto}");
 
   // 4g ── the boot splash behind the shutter, which shows the stall logo while art loads.
   if (sk.bootveil) extra.push(`#bootveil{background:${sk.bootveil}}`);
@@ -298,6 +315,19 @@ function build(stallKey, stalls) {
   s = s.replace(/<button class="langtoggle"[\s\S]*?<\/button>/, "");
   if (s === langBefore) throw new Error("language toggle not found");
   extra.push("#langbar{display:none!important}");
+
+  // 4j ── the shutter must reveal the CHAT only, leaving the board on show.
+  // showShutter anchors the shutter's top to the awning — but Kim Chi and D'VOUR have no
+  // awning, and a display:none element reports top 0, so the shutter covered the whole
+  // screen and the board was hidden until it rolled up. Fall back to the board's bottom.
+  s = replaceFn(s, "showShutter",
+    'function showShutter(){ if(!frame)return;\n' +
+    '    var aw=document.querySelector(".awnbar"),hd=document.querySelector("header.woodhdr"),ph=document.getElementById("phone");\n' +
+    '    var ref=(aw&&aw.offsetParent!==null)?aw.getBoundingClientRect().top:(hd?hd.getBoundingClientRect().bottom:0);\n' +
+    '    if(ph)frame.style.top=Math.max(0,ref-ph.getBoundingClientRect().top)+"px";\n' +
+    '    if(bar)bar.style.visibility="hidden";\n' +
+    '    frame.classList.add("on");\n' +
+    '  }');
 
   // 5 ── mascot face beside every waiter bubble.
   // mascot_face.png is a head crop with transparent headroom, so plain center/contain shows

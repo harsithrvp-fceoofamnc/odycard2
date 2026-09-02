@@ -10,7 +10,7 @@ const STALLS = [
   { key: "bonbon", name: "Bon Bon",         tag: "THE GOURMET ICE CREAM",    pic: "/bon_bon_scoop.png" },
   { key: "kimchi", name: "Kim Chi & Ramen", tag: "INDO ASIAN FOOD",          pic: "/kimchi_ramen.png" },
 ];
-const V = 6; // bump to bust the iframe cache after a rebuild
+const V = 7; // bump to bust the iframe cache after a rebuild
 
 export default function FestApp() {
   const [phase, setPhase] = useState<"splash" | "intro" | "pick">("splash");
@@ -219,6 +219,6 @@ const CSS = `
   background:rgba(255,255,255,.22);backdrop-filter:blur(8px);color:#fff;font-size:23px;line-height:0;
   padding-bottom:4px;display:flex;align-items:center;justify-content:center}
 /* Bon Bon's wood and D'VOUR's black board carry a white chevron fine. Kim Chi's board is
-   white, so the white-on-translucent button vanished — give that one a solid dark chip. */
-.fb-kimchi{background:rgba(12,8,8,.72);border:1px solid rgba(255,255,255,.35)}
+   white, so a white-on-translucent button vanished into it — that one is solid black. */
+.fb-kimchi{background:#111;color:#fff;backdrop-filter:none;box-shadow:0 2px 8px rgba(0,0,0,.3)}
 `;

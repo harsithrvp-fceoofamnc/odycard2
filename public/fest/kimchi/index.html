@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
 <title>Kim Chi & Ramen — Menu</title>
 <style>
-  :root{--blue:#c8141e;--ink:#1a1412;--mut:#8e8285;--line:#f0cccc;--cream:#e9bcbc;--gold:#c8141e;--card:#ffffff;--brandtop:#d8323c;--brandbot:#96101c;}
+  :root{--blue:#c8141e;--ink:#1a1412;--mut:#8e8285;--line:#e8b4b4;--cream:#d08484;--gold:#c8141e;--card:#ffffff;--brandtop:#d8323c;--brandbot:#96101c;}
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   html{height:100%;overscroll-behavior:none}
   body{margin:0;background:#000;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;display:flex;justify-content:center;align-items:center;min-height:100vh;min-height:100dvh;height:100dvh;overflow:hidden;overscroll-behavior:none}
@@ -37,7 +37,7 @@
   .msg,.dish,.pair{animation:pop .42s cubic-bezier(.16,1,.3,1) both}
   @keyframes pop{from{opacity:0;transform:translateY(12px) scale(.97);filter:blur(3px)}to{opacity:1;transform:none;filter:blur(0)}}
   .typing{display:inline-flex;gap:5px;align-items:center}
-  .typing .dot{width:7px;height:7px;border-radius:50%;background:#811226;display:inline-block;animation:bob 1.3s ease-in-out infinite}
+  .typing .dot{width:7px;height:7px;border-radius:50%;background:#c8141e;display:inline-block;animation:bob 1.3s ease-in-out infinite}
   .typing .dot:nth-child(2){animation-delay:.16s}
   .typing .dot:nth-child(3){animation-delay:.32s}
   @keyframes bob{0%,80%,100%{transform:translateY(0) scale(1);opacity:.35}40%{transform:translateY(-5px) scale(1.15);opacity:1}}
@@ -70,18 +70,18 @@
   .pair .pi{flex:1;background:#fff;border:1px solid var(--line);border-radius:11px;padding:7px;text-align:center}
   .pair .pi .e{font-size:27px}.pair .pi .n{font-size:12.5px;font-weight:700;margin:2px 0}
   .barwrap{position:absolute;left:0;right:0;bottom:0;z-index:5;background:transparent;padding:8px 10px 10px}
-  #cartbar{display:none;margin-right:auto;width:46px;height:46px;border-radius:50%;align-items:center;justify-content:center;background:linear-gradient(135deg,#a83048,#811226);border:0;cursor:pointer;box-shadow:0 3px 11px rgba(129,18,38,.55);-webkit-tap-highlight-color:transparent}
+  #cartbar{display:none;margin-right:auto;width:46px;height:46px;border-radius:50%;align-items:center;justify-content:center;background:linear-gradient(135deg,#a83048,#c8141e);border:0;cursor:pointer;box-shadow:0 3px 11px rgba(168,16,26,.55);-webkit-tap-highlight-color:transparent}
   #cartbar .carticon{width:23px;height:23px;fill:none;stroke:#fff;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
   .cartbadge{position:absolute;top:-4px;right:-4px;min-width:19px;height:19px;padding:0 5px;border-radius:10px;background:var(--brandbot);color:var(--cream);font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;box-sizing:border-box;box-shadow:0 1px 4px rgba(0,0,0,.3);border:1.5px solid #a83048}
   .inputrow{display:flex;gap:7px;align-items:flex-end;position:relative}
   .microw{display:flex;justify-content:flex-end;align-items:center;margin-bottom:9px}
   #bar.busy .send,#bar.busy #mic{opacity:.45;pointer-events:none}
-  .micpill{display:inline-flex;align-items:center;height:46px;border-radius:27px;background:linear-gradient(135deg,var(--brandtop),var(--brandbot));border:0;cursor:pointer;overflow:hidden;box-shadow:0 3px 11px rgba(129,18,38,.55);-webkit-tap-highlight-color:transparent;transition:background .25s,box-shadow .25s}
+  .micpill{display:inline-flex;align-items:center;height:46px;border-radius:27px;background:linear-gradient(135deg,var(--brandtop),var(--brandbot));border:0;cursor:pointer;overflow:hidden;box-shadow:0 3px 11px rgba(168,16,26,.55);-webkit-tap-highlight-color:transparent;transition:background .25s,box-shadow .25s}
   .micpill .microt{max-width:0;opacity:0;white-space:nowrap;overflow:hidden;color:var(--cream);font-size:13.5px;font-weight:600;letter-spacing:.35px;padding:0;transition:max-width .45s cubic-bezier(.4,0,.2,1),opacity .32s ease,padding .45s cubic-bezier(.4,0,.2,1)}
   .micpill.show .microt{max-width:230px;opacity:1;padding:0 4px 0 19px}
   .micpill .miccirc{width:46px;height:46px;flex:0 0 auto;display:flex;align-items:center;justify-content:center}
   .micpill .micicon{width:23px;height:23px;fill:none;stroke:#fff;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;transition:stroke .25s}
-  .micpill.on{background:linear-gradient(135deg,#a83048,#811226);box-shadow:0 4px 16px rgba(129,18,38,.6)}
+  .micpill.on{background:linear-gradient(135deg,#a83048,#c8141e);box-shadow:0 4px 16px rgba(168,16,26,.6)}
   .micpill.on .microt{color:#fff}
   .micpill.on .micicon{stroke:#fff}
   #lwave{position:absolute;left:58px;top:0;bottom:0;display:none;align-items:center;font-size:15.5px;color:var(--mut);pointer-events:none}
@@ -94,7 +94,7 @@
   .inputrow textarea{flex:1;border:1px solid var(--line);border-radius:22px;padding:12px 15px;font-size:15.5px;outline:none;font-family:inherit;line-height:1.4;resize:none;min-height:46px;max-height:140px;overflow-y:auto;display:block;scrollbar-width:none;-ms-overflow-style:none}
   .inputrow textarea::-webkit-scrollbar{display:none}
   .mic{position:relative;background:#fffdf7;border:1px solid var(--line);color:var(--blue);width:46px;height:46px;border-radius:50%;font-size:18px;cursor:pointer}
-  .mic.on{background:linear-gradient(135deg,#a83048,#811226);color:#fff;border-color:#811226}
+  .mic.on{background:linear-gradient(135deg,#a83048,#c8141e);color:#fff;border-color:#c8141e}
   .inputrow{position:relative}
   #bar.recording .microw{display:none}
   .wform{position:absolute;inset:0;display:none;align-items:center;gap:9px;padding:0 7px 0 16px;background:#fff;border:1.5px solid var(--line);border-radius:24px;overflow:hidden}
@@ -106,7 +106,7 @@
   .wx{background:#efe3e3}.wx svg{stroke:var(--ink)}
   .wok{background:var(--blue)}.wok svg{stroke:#fff}
   .wbtn:active{transform:scale(.92)}
-  .mic.on::before,.mic.on::after{content:"";position:absolute;inset:-1px;border-radius:50%;border:2px solid rgba(129,18,38,.5);animation:ripple 1.9s cubic-bezier(.22,1,.36,1) infinite;pointer-events:none}
+  .mic.on::before,.mic.on::after{content:"";position:absolute;inset:-1px;border-radius:50%;border:2px solid rgba(168,16,26,.5);animation:ripple 1.9s cubic-bezier(.22,1,.36,1) infinite;pointer-events:none}
   .mic.on::after{animation-delay:.95s}
   @keyframes ripple{0%{transform:scale(1);opacity:.65}70%{opacity:.18}100%{transform:scale(2.3);opacity:0}}
   .send{background:var(--blue);color:#fff;border:0;width:46px;height:46px;border-radius:50%;font-size:18px;cursor:pointer}
@@ -158,7 +158,7 @@
   .tskip{background:none;border:0;color:var(--mut);font-weight:700;font-size:14px;cursor:pointer;padding:6px 2px}
   .tbody{flex:1;overflow-y:auto;padding:8px 22px 0;display:flex;flex-direction:column;animation:tslide .28s ease}
   @keyframes tslide{from{opacity:0;transform:translateX(16px)}to{opacity:1;transform:none}}
-  .ticon{width:62px;height:62px;border-radius:50%;background:rgba(129,18,38,.12);display:flex;align-items:center;justify-content:center;margin:8px 0 16px}
+  .ticon{width:62px;height:62px;border-radius:50%;background:rgba(168,16,26,.12);display:flex;align-items:center;justify-content:center;margin:8px 0 16px}
   .ticon svg{width:32px;height:32px;fill:none;stroke:var(--blue);stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
   .tsub{font-size:13px;color:var(--mut);margin:-4px 0 14px;font-weight:600}
   .tqh{font-size:23px;font-weight:800;line-height:1.18;color:var(--ink);margin-bottom:8px;letter-spacing:-.3px}
@@ -167,9 +167,9 @@
   .topts2.c2{grid-template-columns:repeat(2,1fr)}
   .topts2.c3{grid-template-columns:repeat(3,1fr)}
   .to{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:9px;text-align:center;background:var(--card);border:1.6px solid var(--line);border-radius:15px;padding:15px 8px 12px;cursor:pointer;font-size:13px;font-weight:700;color:var(--ink);min-height:98px;transition:transform .07s,border-color .15s,background .15s,color .15s}
-  .to.on{border-color:var(--gold);background:rgba(129,18,38,.10)}
+  .to.on{border-color:var(--gold);background:rgba(168,16,26,.10)}
   .to:active{transform:scale(.97)}
-  .tobadge{width:48px;height:48px;border-radius:14px;background:rgba(129,18,38,.14);display:flex;align-items:center;justify-content:center;transition:background .15s}
+  .tobadge{width:48px;height:48px;border-radius:14px;background:rgba(168,16,26,.14);display:flex;align-items:center;justify-content:center;transition:background .15s}
   .tobadge svg{width:26px;height:26px;fill:none;stroke:var(--blue);stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
   .tobadge .lett{font-size:23px;font-weight:800;color:var(--blue);line-height:1}
   .to.on .tobadge{background:var(--gold)}
@@ -181,14 +181,14 @@
   .topts2.txt .to{flex-direction:row;justify-content:center;min-height:56px;padding:16px 12px;font-size:15px;gap:0}
   .topts2.txt .to.on{background:var(--gold);color:#fff;border-color:var(--gold)}
   .tfoot{padding:12px 22px 18px}
-  .tnext{display:block;width:100%;background:var(--gold);color:#fff;border:0;font-weight:800;font-size:16.5px;padding:14px;border-radius:13px;cursor:pointer;box-shadow:0 4px 14px rgba(129,18,38,.4)}
+  .tnext{display:block;width:100%;background:var(--gold);color:#fff;border:0;font-weight:800;font-size:16.5px;padding:14px;border-radius:13px;cursor:pointer;box-shadow:0 4px 14px rgba(168,16,26,.4)}
   .tnext:active{transform:scale(.98)}
   .tback{background:none;border:0;color:var(--mut);font-weight:700;font-size:14px;cursor:pointer;padding:9px;margin-top:4px;width:100%}
   /* processing screen — glowing gradient orb */
   .tproc{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:26px;text-align:center;padding:0 30px}
   .pstage{position:relative;width:210px;height:210px;display:flex;align-items:center;justify-content:center}
-  .pstage .porbglow{position:absolute;width:200px;height:200px;border-radius:50%;background:conic-gradient(from 0deg,#811226,#e6b95e,#7a4a24,#e3a23c,#f0d089,#811226);filter:blur(22px);opacity:.72;animation:tspin 3.4s linear infinite}
-  .pstage .porbglow2{position:absolute;width:160px;height:160px;border-radius:50%;background:conic-gradient(from 180deg,#7a4a24,#811226,#f0d089,#811226,#7a4a24);filter:blur(16px);opacity:.52;animation:tspinr 2.6s linear infinite}
+  .pstage .porbglow{position:absolute;width:200px;height:200px;border-radius:50%;background:conic-gradient(from 0deg,#c8141e,#e6b95e,#7a4a24,#e3a23c,#f0d089,#c8141e);filter:blur(22px);opacity:.72;animation:tspin 3.4s linear infinite}
+  .pstage .porbglow2{position:absolute;width:160px;height:160px;border-radius:50%;background:conic-gradient(from 180deg,#7a4a24,#c8141e,#f0d089,#c8141e,#7a4a24);filter:blur(16px);opacity:.52;animation:tspinr 2.6s linear infinite}
   .pstage .pcore{position:absolute;width:88px;height:88px;border-radius:22px;background:var(--card);border:1px solid var(--line);z-index:1}
   .pstage .plogo{width:72px;height:72px;border-radius:17px;object-fit:contain;z-index:2;animation:tbreath 2.6s ease-in-out infinite}
   @keyframes tspin{to{transform:rotate(360deg)}}
@@ -197,7 +197,7 @@
   .tproc .ptxt{font-size:16px;font-weight:700;color:var(--ink);min-height:24px;letter-spacing:.2px;transition:opacity .35s ease}
   .ok{text-align:center;padding:14px 4px}
   .ok .big{font-size:46px}.ok h2{margin:8px 0 4px}.ok p{color:var(--mut);font-size:14.5px;margin:4px 0}
-  .payspin{width:44px;height:44px;margin:6px auto 0;border-radius:50%;border:4px solid #efe6d6;border-top-color:#811226;animation:tspin .8s linear infinite}
+  .payspin{width:44px;height:44px;margin:6px auto 0;border-radius:50%;border:4px solid #efe6d6;border-top-color:#c8141e;animation:tspin .8s linear infinite}
   /* ---------- elegant polish & animations ---------- */
   /* Doodle wallpaper sits behind the WHOLE screen, so the translucent input bar reveals it too */
   #phone{
@@ -251,26 +251,26 @@
   .pi .pifoot{display:flex;justify-content:center;margin-top:4px}
   .pi .qtys{flex:0 0 auto;min-width:104px}
   .opt button{display:inline-flex;align-items:center;justify-content:center}
-  .okcheck{width:58px;height:58px;fill:none;stroke:#811226;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+  .okcheck{width:58px;height:58px;fill:none;stroke:#c8141e;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
   .chip{display:inline-flex;align-items:center}
   #chat{background:transparent;padding-bottom:150px}
   #phone.hascart #chat{padding-bottom:150px}
   #phone.outletview #chat{padding-bottom:40px}
-  .bot{box-shadow:0 1px 6px rgba(129,18,38,.28)}
-  .me{box-shadow:0 3px 12px rgba(129,18,38,.4)}
-  .dish{box-shadow:0 2px 10px rgba(129,18,38,.25);transition:transform .2s ease,box-shadow .25s ease,border-color .2s ease}
-  .dish:hover{transform:translateY(-3px);box-shadow:0 10px 26px rgba(129,18,38,.42);border-color:#e0cda3}
+  .bot{box-shadow:0 1px 6px rgba(168,16,26,.28)}
+  .me{box-shadow:0 3px 12px rgba(168,16,26,.4)}
+  .dish{box-shadow:0 2px 10px rgba(168,16,26,.25);transition:transform .2s ease,box-shadow .25s ease,border-color .2s ease}
+  .dish:hover{transform:translateY(-3px);box-shadow:0 10px 26px rgba(168,16,26,.42);border-color:#e0cda3}
   .add,.chip,.infob,.noteb,.radd,.btn,.opt button,.outlet button,.qtys,.qty button,.send,.mic,.lang{transition:transform .16s ease,box-shadow .2s ease,background .2s ease,border-color .2s ease,color .2s ease}
-  .add:hover,.chip:hover,.infob:hover,.radd:hover,.outlet button:hover{box-shadow:0 3px 13px rgba(129,18,38,.38)}
+  .add:hover,.chip:hover,.infob:hover,.radd:hover,.outlet button:hover{box-shadow:0 3px 13px rgba(168,16,26,.38)}
   .add:active,.chip:active,.infob:active,.noteb:active,.radd:active,.btn:active,.opt button:active,.outlet button:active,.send:active,.mic:active,.qty button:active{transform:scale(.95)}
   .outlet button:hover{transform:translateY(-2px);border-color:var(--gold)}
-  .btn{box-shadow:0 4px 16px rgba(129,18,38,.45)}
-  .btn:hover{transform:translateY(-1px);box-shadow:0 8px 22px rgba(129,18,38,.55)}
-  .btn.g{background:linear-gradient(135deg,#a83048,#811226);box-shadow:0 4px 14px rgba(129,18,38,.4)}
-  .chip.go{background:linear-gradient(135deg,var(--brandtop),var(--brandbot));box-shadow:0 3px 13px rgba(129,18,38,.5)}
-  .send{background:linear-gradient(135deg,var(--brandtop),var(--brandbot));box-shadow:0 3px 11px rgba(129,18,38,.55)}
+  .btn{box-shadow:0 4px 16px rgba(168,16,26,.45)}
+  .btn:hover{transform:translateY(-1px);box-shadow:0 8px 22px rgba(168,16,26,.55)}
+  .btn.g{background:linear-gradient(135deg,#a83048,#c8141e);box-shadow:0 4px 14px rgba(168,16,26,.4)}
+  .chip.go{background:linear-gradient(135deg,var(--brandtop),var(--brandbot));box-shadow:0 3px 13px rgba(168,16,26,.5)}
+  .send{background:linear-gradient(135deg,var(--brandtop),var(--brandbot));box-shadow:0 3px 11px rgba(168,16,26,.55)}
   .inputrow textarea{transition:border-color .2s ease,box-shadow .2s ease;background:#fffdf7}
-  .inputrow textarea:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(129,18,38,.18)}
+  .inputrow textarea:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(168,16,26,.18)}
   .tag{opacity:.92}
   @keyframes tagglow{0%,100%{opacity:.85}50%{opacity:1}}
   #cartbar{transition:transform .16s ease,box-shadow .2s ease}
@@ -305,7 +305,7 @@
   header .logo::after{background:linear-gradient(100deg,transparent,rgba(255,255,255,.6),transparent);animation-duration:6s}
   @keyframes sweep{0%{left:-70%}50%,100%{left:150%}}
   /* gentle breathing glow on bestseller tags */
-  .tag{text-shadow:0 0 0 rgba(129,18,38,0)}
+  .tag{text-shadow:0 0 0 rgba(168,16,26,0)}
   @media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
 
   header.woodhdr{background:linear-gradient(rgba(0,0,0,.30),rgba(0,0,0,.30)),url('/fest/kimchi_board.png') center/cover;padding:12px 12px 20px;min-height:118px;display:flex;align-items:center;justify-content:center;gap:0;border-bottom:0;box-shadow:inset 0 -10px 20px rgba(0,0,0,.38);overflow:visible;transition:margin-top .34s ease}
@@ -347,7 +347,7 @@
   .catlabel{font-size:14px;font-weight:700;color:var(--ink);text-align:center;line-height:1.15}
 
   /* ---- fest stall overrides ---- */
-  header.woodhdr{background:#fff url('/fest/kimchi_board.png') center/cover;box-shadow:inset 0 -8px 16px rgba(0,0,0,.10);min-height:196px;padding:16px 12px 22px}
+  header.woodhdr{background:#fff url('/fest/kimchi_board.png') center/cover;box-shadow:inset 0 -8px 16px rgba(0,0,0,.10);min-height:196px;padding:16px 12px 22px;position:relative}
   .awnbar{display:none}
   #chat{padding-top:14px}
   .lantern{position:absolute;top:0;width:17%;z-index:4;pointer-events:none}
@@ -355,6 +355,7 @@
   .lantern.r{right:3%;transform-origin:54% 0;animation:swayR 6.1s ease-in-out infinite}
   @keyframes swayL{0%,100%{transform:rotate(-3.5deg)}50%{transform:rotate(3.5deg)}}
   @keyframes swayR{0%,100%{transform:rotate(3deg)}50%{transform:rotate(-3deg)}}
+  #bootveil .bootlogo{aspect-ratio:auto}
   #langbar{display:none!important}
   .bot:before{content:"";position:absolute;left:-42px;bottom:0;width:34px;height:34px;border-radius:50%;background:#fff url('/fest/mascot_face.png') center bottom / 100% auto no-repeat;border:1.5px solid var(--line);box-shadow:0 1px 4px rgba(0,0,0,.12)}
   .chips{gap:9px}
@@ -366,7 +367,7 @@
 </head>
 <body>
 <div id="phone"><div id="bootveil"><img class="bootlogo" src="/fest/logo_kimchi.png" alt="Bon Bon"></div>
-  <img class="lantern l" src="/fest/kimchi_lantern_l.png" alt=""><img class="lantern r" src="/fest/kimchi_lantern_r.png" alt=""><header class="woodhdr"><button id="back"></button><h1 id="hname"></h1><div id="hsub"></div><img class="woodlogo" src="/fest/logo_kimchi.png" alt="Bon Bon"></header>
+  <header class="woodhdr"><img class="lantern l" src="/fest/kimchi_lantern_l.png" alt=""><img class="lantern r" src="/fest/kimchi_lantern_r.png" alt=""><button id="back"></button><h1 id="hname"></h1><div id="hsub"></div><img class="woodlogo" src="/fest/logo_kimchi.png" alt="Bon Bon"></header>
   <div class="awnbar"><img src="/fest/kimchi_awning.png?v=3" alt=""></div>
   <div class="langbar" id="langbar"></div>
   <div id="shutterframe"><div id="shutter"></div></div><div id="wm"></div>
@@ -1512,11 +1513,11 @@ function bbBoot(){
   var start=Date.now(),MIN=1900,done=false;   // hold long enough for the slow fade-in + a beat
   var imgs=["/fest/kimchi_board.png","/fest/logo_kimchi.png","/fest/kimchi_awning.png?v=3","/fest/kimchi_shutter.png"],left=imgs.length;
   function showShutter(){ if(!frame)return;
-    // extend the shutter up UNDER the awning (from its top edge) so it shows through the scallop gaps
-    var aw=document.querySelector(".awnbar"),ph=document.getElementById("phone");
-    if(aw&&ph)frame.style.top=Math.max(0,(aw.getBoundingClientRect().top-ph.getBoundingClientRect().top))+"px";
-    if(bar)bar.style.visibility="hidden";                                     // keep the input bar hidden behind the closed shutter
-    frame.classList.add("on");                                                // closed shutter behind the awning + over the chat
+    var aw=document.querySelector(".awnbar"),hd=document.querySelector("header.woodhdr"),ph=document.getElementById("phone");
+    var ref=(aw&&aw.offsetParent!==null)?aw.getBoundingClientRect().top:(hd?hd.getBoundingClientRect().bottom:0);
+    if(ph)frame.style.top=Math.max(0,ref-ph.getBoundingClientRect().top)+"px";
+    if(bar)bar.style.visibility="hidden";
+    frame.classList.add("on");
   }
   function finish(){ if(done)return; done=true;
     showShutter();                                                            // put the shutter up (still hidden behind the white veil)
