@@ -1,0 +1,1408 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Bon Bon — Menu</title>
+<style>
+  :root{--blue:#811226;--ink:#2a1212;--mut:#9a8585;--line:#ecdcdc;--cream:#f2e0de;--gold:#811226;--card:#fffdfc;--brandtop:#811226;--brandbot:#5a0c1a;}
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html{height:100%;overscroll-behavior:none}
+  body{margin:0;background:#000;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;display:flex;justify-content:center;align-items:center;min-height:100vh;min-height:100dvh;height:100dvh;overflow:hidden;overscroll-behavior:none}
+  #phone{width:100%;max-width:520px;height:100vh;height:100dvh;background:var(--cream);overflow:hidden;display:flex;flex-direction:column;position:relative}
+  @media(min-width:480px){
+    body{padding:0}
+    #phone{height:100dvh;box-shadow:0 0 44px rgba(0,0,0,.5)}
+  }
+  header{background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'%3E%3Cg fill='none' stroke='%23ffffff' stroke-width='1' stroke-opacity='0.07'%3E%3Ccircle cx='0' cy='0' r='20'/%3E%3Ccircle cx='40' cy='0' r='20'/%3E%3Ccircle cx='0' cy='40' r='20'/%3E%3Ccircle cx='40' cy='40' r='20'/%3E%3Ccircle cx='20' cy='20' r='20'/%3E%3C/g%3E%3C/svg%3E"),linear-gradient(135deg,var(--brandtop),var(--brandbot));background-size:40px 40px,cover;color:#fff;padding:12px 16px 10px;display:flex;align-items:center;gap:10px;box-shadow:0 2px 14px rgba(62,39,19,.35);border-bottom:2px solid var(--gold);position:relative;z-index:2;overflow:hidden}
+  header .logo{width:38px;height:38px;border-radius:9px;background:#fff8ec;color:var(--brandbot);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:19px;box-shadow:0 0 0 1.5px var(--gold),0 2px 6px rgba(0,0,0,.18)}
+  header h1{font-size:18px;margin:0;font-weight:700;letter-spacing:.2px}
+  header .sub{font-size:12.5px;opacity:.9;margin-top:1px;color:#f3e2c4}
+  header .hback{background:rgba(255,255,255,.18);border:0;color:#fff;width:32px;height:32px;border-radius:9px;font-size:20px;line-height:1;cursor:pointer;flex:0 0 auto;display:none;transition:background .2s}
+  header .hback:hover{background:rgba(255,255,255,.3)}
+  .langbar{display:flex;gap:6px;overflow-x:auto;padding:8px 12px;background:#5a0c1a;scrollbar-width:none;-ms-overflow-style:none}
+  .langbar::-webkit-scrollbar{display:none;width:0;height:0}
+  .lang{flex:0 0 auto;font-size:13.5px;color:#f0e2cb;background:rgba(255,255,255,.12);border:0;padding:5px 11px;border-radius:20px;cursor:pointer;transition:all .2s ease}
+  .lang:hover{background:rgba(255,255,255,.2)}
+  .lang.on{background:var(--blue);color:#fff;font-weight:700;box-shadow:0 1px 5px rgba(0,0,0,.2)}
+  #chat{flex:1;overflow-y:auto;padding:14px 9px 6px;display:flex;flex-direction:column;gap:10px;position:relative;z-index:1;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;min-height:0}
+  .wmark{align-self:center;text-align:center;margin-top:auto;padding-top:20px;padding-bottom:6px}
+  .wmark img{width:155px}
+  .wmark .cap{font-size:12px;color:var(--mut);letter-spacing:2px;margin-top:8px;text-transform:uppercase}
+  #wm{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:0;pointer-events:none;opacity:.05}
+  #wm img{width:250px}
+  .msg{max-width:88%;font-size:15.5px;line-height:1.45;padding:10px 13px;border-radius:15px}
+  .bot{align-self:flex-start;position:relative;margin-left:42px;background:#fff;color:var(--ink);border:1px solid var(--line);border-bottom-left-radius:5px}
+  .bot:before{content:"";position:absolute;left:-42px;bottom:0;width:34px;height:34px;border-radius:50%;background:#fff url('/fest/mascot_face.png') center 12% / 150% no-repeat;border:1.5px solid var(--line);box-shadow:0 1px 4px rgba(0,0,0,.12)}
+  .me{align-self:flex-end;background:var(--blue);color:#fff;border-bottom-right-radius:5px}
+  .msg,.dish,.pair{animation:pop .42s cubic-bezier(.16,1,.3,1) both}
+  @keyframes pop{from{opacity:0;transform:translateY(12px) scale(.97);filter:blur(3px)}to{opacity:1;transform:none;filter:blur(0)}}
+  .typing{display:inline-flex;gap:5px;align-items:center}
+  .typing .dot{width:7px;height:7px;border-radius:50%;background:#811226;display:inline-block;animation:bob 1.3s ease-in-out infinite}
+  .typing .dot:nth-child(2){animation-delay:.16s}
+  .typing .dot:nth-child(3){animation-delay:.32s}
+  @keyframes bob{0%,80%,100%{transform:translateY(0) scale(1);opacity:.35}40%{transform:translateY(-5px) scale(1.15);opacity:1}}
+  .outlet{display:grid;grid-template-columns:1fr 1fr;gap:10px;align-self:stretch;padding:0}
+  .outlet button{background:#fff;border:1.4px solid var(--blue);color:var(--blue);font-weight:700;padding:15px 8px;border-radius:13px;font-size:15.5px;cursor:pointer}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;align-self:stretch;padding:0}
+  .dish{background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden;display:flex;flex-direction:column}
+  .dish .pic{height:165px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='30' height='30' viewBox='0 0 30 30'%3E%3Cg fill='none' stroke='%23a8752a' stroke-width='1' stroke-opacity='0.14'%3E%3Ccircle cx='0' cy='0' r='15'/%3E%3Ccircle cx='30' cy='0' r='15'/%3E%3Ccircle cx='0' cy='30' r='15'/%3E%3Ccircle cx='30' cy='30' r='15'/%3E%3Ccircle cx='15' cy='15' r='15'/%3E%3C/g%3E%3C/svg%3E"),linear-gradient(135deg,#f3e7e6,#ead9d7);background-size:30px 30px,cover;display:flex;align-items:center;justify-content:center;font-size:34px}
+  .dish .bd{padding:11px 12px;display:flex;flex-direction:column;gap:5px;flex:1}
+  .dish .nm{font-size:16px;font-weight:700;color:var(--ink);line-height:1.25;min-height:2.1em;overflow-wrap:anywhere}
+  .dish .pr{font-size:15.5px;color:var(--blue);font-weight:700}
+  .dish .tag{font-size:12.5px;color:var(--gold);font-weight:700}
+  .dish .tag.must{color:var(--gold)}
+  .frow{display:flex;gap:5px;margin-top:auto;align-items:center}
+  .add{flex:1;border:1.4px solid var(--blue);background:#fff;color:var(--blue);font-weight:700;font-size:15px;padding:9px;border-radius:10px;cursor:pointer}
+  .add.in{background:var(--blue);color:#fff}
+  .qtys{flex:1;display:flex;align-items:center;justify-content:space-between;border:1.4px solid var(--blue);border-radius:9px;padding:1px 4px}
+  .qtys button{width:30px;height:28px;border:0;background:transparent;color:var(--blue);font-size:19px;font-weight:800;cursor:pointer;line-height:1}
+  .qtys span{font-size:14.5px;font-weight:800;color:var(--ink)}
+  .infob{border:1.3px solid var(--line);background:#fff;color:var(--blue);font-size:14.5px;padding:6px 8px;border-radius:9px;cursor:pointer}
+  .noteb{border:1.3px solid var(--line);background:#fff;color:var(--mut);font-size:14.5px;padding:5px 8px;border-radius:9px;cursor:pointer}
+  .noteb.has{border-color:var(--gold);color:#b8860b;background:#fff7e6}
+  .chips{display:flex;flex-wrap:wrap;gap:7px;align-self:flex-start;max-width:100%}
+  .chip{font-size:14px;background:#fff;border:1.3px solid var(--blue);color:var(--blue);padding:7px 12px;border-radius:20px;cursor:pointer;font-weight:600}
+  .chip.alt{border-color:var(--line);color:var(--ink)}
+  .chip.go{background:var(--blue);color:#fff}
+  .pair{align-self:stretch;background:#fff7e6;border:1px solid #f0dca8;border-radius:14px;padding:10px 11px}
+  .pair p{margin:0 0 8px;font-size:14.5px;color:#6b541a}
+  .pair .row{display:flex;gap:8px}
+  .pair .pi{flex:1;background:#fff;border:1px solid var(--line);border-radius:11px;padding:7px;text-align:center}
+  .pair .pi .e{font-size:27px}.pair .pi .n{font-size:12.5px;font-weight:700;margin:2px 0}
+  .barwrap{position:absolute;left:0;right:0;bottom:0;z-index:5;background:transparent;padding:8px 10px 10px}
+  #cartbar{display:none;margin-right:auto;width:46px;height:46px;border-radius:50%;align-items:center;justify-content:center;background:linear-gradient(135deg,#a83048,#811226);border:0;cursor:pointer;box-shadow:0 3px 11px rgba(129,18,38,.55);-webkit-tap-highlight-color:transparent}
+  #cartbar .carticon{width:23px;height:23px;fill:none;stroke:#fff;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+  .cartbadge{position:absolute;top:-4px;right:-4px;min-width:19px;height:19px;padding:0 5px;border-radius:10px;background:var(--brandbot);color:var(--cream);font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;box-sizing:border-box;box-shadow:0 1px 4px rgba(0,0,0,.3);border:1.5px solid #a83048}
+  .inputrow{display:flex;gap:7px;align-items:flex-end;position:relative}
+  .microw{display:flex;justify-content:flex-end;align-items:center;margin-bottom:9px}
+  #bar.busy .send,#bar.busy #mic{opacity:.45;pointer-events:none}
+  .micpill{display:inline-flex;align-items:center;height:46px;border-radius:27px;background:linear-gradient(135deg,var(--brandtop),var(--brandbot));border:0;cursor:pointer;overflow:hidden;box-shadow:0 3px 11px rgba(129,18,38,.55);-webkit-tap-highlight-color:transparent;transition:background .25s,box-shadow .25s}
+  .micpill .microt{max-width:0;opacity:0;white-space:nowrap;overflow:hidden;color:var(--cream);font-size:13.5px;font-weight:600;letter-spacing:.35px;padding:0;transition:max-width .45s cubic-bezier(.4,0,.2,1),opacity .32s ease,padding .45s cubic-bezier(.4,0,.2,1)}
+  .micpill.show .microt{max-width:230px;opacity:1;padding:0 4px 0 19px}
+  .micpill .miccirc{width:46px;height:46px;flex:0 0 auto;display:flex;align-items:center;justify-content:center}
+  .micpill .micicon{width:23px;height:23px;fill:none;stroke:#fff;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;transition:stroke .25s}
+  .micpill.on{background:linear-gradient(135deg,#a83048,#811226);box-shadow:0 4px 16px rgba(129,18,38,.6)}
+  .micpill.on .microt{color:#fff}
+  .micpill.on .micicon{stroke:#fff}
+  #lwave{position:absolute;left:58px;top:0;bottom:0;display:none;align-items:center;font-size:15.5px;color:var(--mut);pointer-events:none}
+  #lwave i{width:5px;height:5px;border-radius:50%;background:var(--mut);display:inline-block;margin-left:4px;opacity:1}
+  #lwave i:nth-child(1){margin-left:6px}
+  #lwave i:nth-child(2){animation:lc2 1.5s steps(1,end) infinite}
+  #lwave i:nth-child(3){animation:lc3 1.5s steps(1,end) infinite}
+  @keyframes lc2{0%,32%{opacity:0}33%,100%{opacity:1}}
+  @keyframes lc3{0%,65%{opacity:0}66%,100%{opacity:1}}
+  .inputrow textarea{flex:1;border:1px solid var(--line);border-radius:22px;padding:12px 15px;font-size:15.5px;outline:none;font-family:inherit;line-height:1.4;resize:none;min-height:46px;max-height:140px;overflow-y:auto;display:block;scrollbar-width:none;-ms-overflow-style:none}
+  .inputrow textarea::-webkit-scrollbar{display:none}
+  .mic{position:relative;background:#fffdf7;border:1px solid var(--line);color:var(--blue);width:46px;height:46px;border-radius:50%;font-size:18px;cursor:pointer}
+  .mic.on{background:linear-gradient(135deg,#a83048,#811226);color:#fff;border-color:#811226}
+  .inputrow{position:relative}
+  #bar.recording .microw{display:none}
+  .wform{position:absolute;inset:0;display:none;align-items:center;gap:9px;padding:0 7px 0 16px;background:#fff;border:1.5px solid var(--line);border-radius:24px;overflow:hidden}
+  .wform.show{display:flex}
+  .wbars{flex:1;height:32px;display:flex;align-items:center;justify-content:flex-end;gap:2px;overflow:hidden}
+  .wbars .wbar{width:2px;flex:0 0 2px;height:3px;background:var(--blue);border-radius:2px;opacity:.9}
+  .wbtn{flex:0 0 auto;width:34px;height:34px;border-radius:50%;border:0;display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0}
+  .wbtn svg{width:18px;height:18px;fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+  .wx{background:#efe3e3}.wx svg{stroke:var(--ink)}
+  .wok{background:var(--blue)}.wok svg{stroke:#fff}
+  .wbtn:active{transform:scale(.92)}
+  .mic.on::before,.mic.on::after{content:"";position:absolute;inset:-1px;border-radius:50%;border:2px solid rgba(129,18,38,.5);animation:ripple 1.9s cubic-bezier(.22,1,.36,1) infinite;pointer-events:none}
+  .mic.on::after{animation-delay:.95s}
+  @keyframes ripple{0%{transform:scale(1);opacity:.65}70%{opacity:.18}100%{transform:scale(2.3);opacity:0}}
+  .send{background:var(--blue);color:#fff;border:0;width:46px;height:46px;border-radius:50%;font-size:18px;cursor:pointer}
+  .foot{text-align:center;font-size:11px;color:var(--mut);background:var(--cream);margin:0 -10px -10px;padding:7px 10px 10px}
+  #modal{position:absolute;inset:0;background:rgba(20,16,10,.45);display:none;align-items:flex-end;z-index:9}
+  #lb{position:absolute;inset:0;background:rgba(24,14,4,.78);display:none;align-items:center;justify-content:center;z-index:12;padding:26px;-webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px)}
+  .lbcard{background:#fffdf7;border-radius:20px;width:300px;max-width:92%;overflow:hidden;box-shadow:0 18px 50px rgba(0,0,0,.5);animation:pop .3s cubic-bezier(.16,1,.3,1) both;position:relative}
+  .lbclose{position:absolute;top:8px;right:8px;width:30px;height:30px;border-radius:50%;border:0;background:rgba(0,0,0,.35);color:#fff;font-size:18px;line-height:1;cursor:pointer;z-index:2;display:flex;align-items:center;justify-content:center}
+  .lbpic{height:300px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='30' height='30' viewBox='0 0 30 30'%3E%3Cg fill='none' stroke='%23a8752a' stroke-width='1' stroke-opacity='0.14'%3E%3Ccircle cx='0' cy='0' r='15'/%3E%3Ccircle cx='30' cy='0' r='15'/%3E%3Ccircle cx='0' cy='30' r='15'/%3E%3Ccircle cx='30' cy='30' r='15'/%3E%3Ccircle cx='15' cy='15' r='15'/%3E%3C/g%3E%3C/svg%3E"),linear-gradient(135deg,#f3e9d2,#e9dcbf);background-size:30px 30px,cover;display:flex;align-items:center;justify-content:center}
+  .lbpic img{width:86%;max-height:240px;object-fit:contain;opacity:.72}
+  .sheet{background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'%3E%3Cg fill='none' stroke='%23b9842b' stroke-width='1' stroke-opacity='0.06'%3E%3Ccircle cx='0' cy='0' r='20'/%3E%3Ccircle cx='40' cy='0' r='20'/%3E%3Ccircle cx='0' cy='40' r='20'/%3E%3Ccircle cx='40' cy='40' r='20'/%3E%3Ccircle cx='20' cy='20' r='20'/%3E%3C/g%3E%3C/svg%3E"),#fffdf7;background-size:40px 40px,cover;width:100%;max-height:92%;overflow-y:auto;border-radius:18px 18px 0 0;padding:16px 16px 20px}
+  .sheet h2{margin:2px 0 12px;font-size:19px;color:var(--ink)}
+  .ci{display:flex;align-items:flex-start;gap:10px;padding:9px 0;border-bottom:1px solid var(--line)}
+  .ci .e{font-size:27px}.ci .g{flex:1}.ci .g .n{font-size:15.5px;font-weight:700}.ci .g .p{font-size:13.5px;color:var(--mut)}
+  .ci .g .cnote{font-size:12.5px;color:#b8860b;margin-top:2px;font-style:italic}
+  .rc{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--line)}
+  .rc .e{font-size:22px}
+  .rc .rg{flex:1}.rc .rn{font-size:14.5px;font-weight:700;color:var(--ink)}.rc .rp{font-size:13.5px;color:var(--blue);font-weight:700}
+  .radd{flex:0 0 auto;border:1.4px solid var(--blue);background:#fff;color:var(--blue);font-weight:700;font-size:13.5px;padding:7px 15px;border-radius:9px;cursor:pointer}
+  .recohd{margin:16px 0 4px;font-weight:700;font-size:15.5px;color:var(--ink)}
+  .qty{display:flex;align-items:center;gap:9px}
+  .qty button{width:30px;height:30px;border-radius:7px;border:1px solid var(--line);background:#fff;font-size:17px;cursor:pointer;color:var(--blue);font-weight:800}
+  .tot{display:flex;justify-content:space-between;font-size:15.5px;padding:5px 0;color:var(--ink)}
+  .tot.big{font-size:18px;font-weight:800;border-top:2px solid var(--line);margin-top:6px;padding-top:9px}
+  .btn{display:block;width:100%;background:var(--blue);color:#fff;border:0;font-weight:700;font-size:16.5px;padding:12px;border-radius:12px;cursor:pointer;margin-top:12px}
+  .btn.g{background:var(--gold);color:#fff}
+  .opt{display:flex;gap:10px;margin:6px 0 2px}
+  .opt button{flex:1;border:1.5px solid var(--blue);background:#fff;color:var(--blue);font-weight:700;padding:14px;border-radius:12px;cursor:pointer;font-size:15.5px}
+  .opt button.on{background:var(--blue);color:#fff}
+  .fld{margin:9px 0}
+  .fld label{font-size:13.5px;color:var(--mut);font-weight:600;display:block;margin-bottom:4px}
+  .fld input,.fld textarea{width:100%;border:1px solid var(--line);border-radius:10px;padding:11px;font-size:15.5px;outline:none;font-family:inherit}
+  .note{font-size:13px;color:var(--mut);background:#f3eee3;border-radius:9px;padding:8px 10px;margin-top:8px}
+  .paygrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:4px}
+  .paym{border:0;border-radius:14px;padding:13px 6px 11px;color:#fff;font-weight:700;font-size:12px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:8px;min-height:90px;justify-content:center;text-align:center;line-height:1.2}
+  .paym:active{transform:scale(.96)}
+  .paym .pi{width:34px;height:34px;background:#fff;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:17px;color:#333}
+  .bill{margin:12px 0 4px;text-align:left;border:1px solid var(--line);border-radius:10px;padding:9px 13px;background:#fffaf0}
+  .brow{display:flex;justify-content:space-between;gap:10px;font-size:13px;padding:3px 0;color:var(--ink)}
+  .brow.tot{font-weight:800;border-top:1px solid var(--line);margin-top:4px;padding-top:6px;font-size:14.5px;color:#7a4a24}
+  /* taste onboarding overlay */
+  #taste{position:absolute;inset:0;z-index:30;background:var(--card);display:none;flex-direction:column;animation:tfade .25s ease}
+  #taste.on{display:flex}
+  @keyframes tfade{from{opacity:0}to{opacity:1}}
+  .tbar{display:flex;align-items:center;gap:10px;padding:16px 18px 2px}
+  .tdots{display:flex;gap:6px;flex:1;align-items:center}
+  .tdot{width:7px;height:7px;border-radius:50%;background:var(--line);transition:all .25s}
+  .tdot.act{background:var(--gold);width:20px;border-radius:4px}
+  .tskip{background:none;border:0;color:var(--mut);font-weight:700;font-size:14px;cursor:pointer;padding:6px 2px}
+  .tbody{flex:1;overflow-y:auto;padding:8px 22px 0;display:flex;flex-direction:column;animation:tslide .28s ease}
+  @keyframes tslide{from{opacity:0;transform:translateX(16px)}to{opacity:1;transform:none}}
+  .ticon{width:62px;height:62px;border-radius:50%;background:rgba(129,18,38,.12);display:flex;align-items:center;justify-content:center;margin:8px 0 16px}
+  .ticon svg{width:32px;height:32px;fill:none;stroke:var(--blue);stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+  .tsub{font-size:13px;color:var(--mut);margin:-4px 0 14px;font-weight:600}
+  .tqh{font-size:23px;font-weight:800;line-height:1.18;color:var(--ink);margin-bottom:8px;letter-spacing:-.3px}
+  .tqhint{font-size:13.5px;color:var(--mut);margin-bottom:2px}
+  .topts2{display:grid;gap:10px;padding-bottom:8px;margin-top:24px}
+  .topts2.c2{grid-template-columns:repeat(2,1fr)}
+  .topts2.c3{grid-template-columns:repeat(3,1fr)}
+  .to{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:9px;text-align:center;background:var(--card);border:1.6px solid var(--line);border-radius:15px;padding:15px 8px 12px;cursor:pointer;font-size:13px;font-weight:700;color:var(--ink);min-height:98px;transition:transform .07s,border-color .15s,background .15s,color .15s}
+  .to.on{border-color:var(--gold);background:rgba(129,18,38,.10)}
+  .to:active{transform:scale(.97)}
+  .tobadge{width:48px;height:48px;border-radius:14px;background:rgba(129,18,38,.14);display:flex;align-items:center;justify-content:center;transition:background .15s}
+  .tobadge svg{width:26px;height:26px;fill:none;stroke:var(--blue);stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+  .tobadge .lett{font-size:23px;font-weight:800;color:var(--blue);line-height:1}
+  .to.on .tobadge{background:var(--gold)}
+  .to.on .tobadge svg{stroke:#fff}
+  .to.on .tobadge .lett{color:#fff}
+  .tolb{line-height:1.2}
+  .toflames{display:flex;align-items:center;justify-content:center;gap:3px;height:48px}
+  .toflames svg{width:20px;height:20px;fill:#e8702f;stroke:none}
+  .topts2.txt .to{flex-direction:row;justify-content:center;min-height:56px;padding:16px 12px;font-size:15px;gap:0}
+  .topts2.txt .to.on{background:var(--gold);color:#fff;border-color:var(--gold)}
+  .tfoot{padding:12px 22px 18px}
+  .tnext{display:block;width:100%;background:var(--gold);color:#fff;border:0;font-weight:800;font-size:16.5px;padding:14px;border-radius:13px;cursor:pointer;box-shadow:0 4px 14px rgba(129,18,38,.4)}
+  .tnext:active{transform:scale(.98)}
+  .tback{background:none;border:0;color:var(--mut);font-weight:700;font-size:14px;cursor:pointer;padding:9px;margin-top:4px;width:100%}
+  /* processing screen — glowing gradient orb */
+  .tproc{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:26px;text-align:center;padding:0 30px}
+  .pstage{position:relative;width:210px;height:210px;display:flex;align-items:center;justify-content:center}
+  .pstage .porbglow{position:absolute;width:200px;height:200px;border-radius:50%;background:conic-gradient(from 0deg,#811226,#e6b95e,#7a4a24,#e3a23c,#f0d089,#811226);filter:blur(22px);opacity:.72;animation:tspin 3.4s linear infinite}
+  .pstage .porbglow2{position:absolute;width:160px;height:160px;border-radius:50%;background:conic-gradient(from 180deg,#7a4a24,#811226,#f0d089,#811226,#7a4a24);filter:blur(16px);opacity:.52;animation:tspinr 2.6s linear infinite}
+  .pstage .pcore{position:absolute;width:88px;height:88px;border-radius:22px;background:var(--card);border:1px solid var(--line);z-index:1}
+  .pstage .plogo{width:72px;height:72px;border-radius:17px;object-fit:contain;z-index:2;animation:tbreath 2.6s ease-in-out infinite}
+  @keyframes tspin{to{transform:rotate(360deg)}}
+  @keyframes tspinr{to{transform:rotate(-360deg)}}
+  @keyframes tbreath{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+  .tproc .ptxt{font-size:16px;font-weight:700;color:var(--ink);min-height:24px;letter-spacing:.2px;transition:opacity .35s ease}
+  .ok{text-align:center;padding:14px 4px}
+  .ok .big{font-size:46px}.ok h2{margin:8px 0 4px}.ok p{color:var(--mut);font-size:14.5px;margin:4px 0}
+  .payspin{width:44px;height:44px;margin:6px auto 0;border-radius:50%;border:4px solid #efe6d6;border-top-color:#811226;animation:tspin .8s linear infinite}
+  /* ---------- elegant polish & animations ---------- */
+  /* Doodle wallpaper sits behind the WHOLE screen, so the translucent input bar reveals it too */
+  #phone{
+    background:#f2e0de;
+    background-size:cover,cover;background-position:center top;background-repeat:no-repeat;
+  }
+  .dish .pic img{width:86%;max-height:124px;object-fit:contain;opacity:.62}
+  .dish .pic img.ph{width:100%;height:100%;max-height:none;object-fit:cover;opacity:1}
+  .dish .pic img.piclogo{width:60%;max-height:104px;object-fit:contain;opacity:.5}
+  .lbpic img.piclogo{width:48%;max-height:170px;object-fit:contain;opacity:.55}
+  .dish .pic .demoji{font-size:62px;line-height:1;filter:drop-shadow(0 3px 6px rgba(120,74,36,.18))}
+  .lbpic .demoji.lg{font-size:128px;line-height:1;filter:drop-shadow(0 4px 10px rgba(120,74,36,.18))}
+  .dish .meta{font-size:11.5px;color:var(--mut);line-height:1.35;overflow-wrap:anywhere}
+  .dish.simple{background:var(--card);border:1px solid var(--line)}
+  .dish.simple .sbd{padding:13px 14px;display:flex;flex-direction:column;gap:6px;flex:1}
+  .dish.simple .srow{display:flex;align-items:center;gap:8px}
+  .dish.simple .sem{font-size:22px;line-height:1}
+  .dish.simple .nm{min-height:0}
+  .dish.simple .sdesc{font-size:12.5px;color:var(--mut);line-height:1.4;overflow-wrap:anywhere}
+  .dish.simple .sfoot{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:auto}
+  .dish.simple .sfoot .frow{flex:0 0 auto;margin-top:0}
+  .vegdot{width:15px;height:15px;border:2px solid #2e7d32;border-radius:3px;position:relative;flex:0 0 auto;background:#fff}
+  .vegdot::after{content:"";position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:7px;height:7px;border-radius:50%;background:#2e7d32}
+  .vegdot.nv{border-color:#c0392b}
+  .vegdot.nv::after{background:#c0392b;border-radius:0;clip-path:polygon(50% 0,100% 100%,0 100%)}
+  .lbpic img.ph{width:100%;height:100%;max-height:none;object-fit:cover;opacity:1}
+  .lbinfo{padding:14px 16px 16px}
+  .lbinfo .lbnm{font-size:19px;font-weight:800;color:var(--ink);display:flex;align-items:center;gap:8px}
+  .lbinfo .meta{margin:6px 0;font-size:12.5px;color:var(--mut)}
+  .lbinfo .lbpr{font-size:17px;font-weight:800;color:var(--blue)}
+  .lbinfo .lbdesc{margin-top:6px;font-size:14px;color:var(--ink);line-height:1.5}
+  .dish .pic{position:relative}
+  .vegbadge{position:absolute;top:8px;left:8px;width:16px;height:16px;border:2px solid #2e7d32;border-radius:3px;background:#fff;z-index:2}
+  .vegbadge::after{content:"";position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:8px;height:8px;border-radius:50%;background:#2e7d32}
+  .vegbadge.nv{border-color:#c0392b}
+  .vegbadge.nv::after{background:#c0392b;border-radius:0;clip-path:polygon(50% 0,100% 100%,0 100%)}
+  .stars{display:flex;gap:8px;justify-content:center;margin:4px 0 14px}
+  .stars span{font-size:36px;line-height:1;color:#e3d8c2;cursor:pointer;transition:color .15s,transform .15s}
+  .stars span:hover{transform:scale(1.12)}
+  .stars span.on{color:var(--gold)}
+  /* hide scrollbars everywhere (keep scrolling) */
+  #chat,.sheet{scrollbar-width:none;-ms-overflow-style:none}
+  #chat::-webkit-scrollbar,.sheet::-webkit-scrollbar{display:none;width:0;height:0}
+  .ic{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;vertical-align:-2.5px;margin-right:5px;flex:0 0 auto}
+  .icbtn{width:23px;height:23px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+  .mic,.send{display:flex;align-items:center;justify-content:center}
+  .infob{display:flex;align-items:center;justify-content:center;line-height:0;padding:0 12px;align-self:stretch}
+  .infob .ic{margin:0;width:22px;height:22px;vertical-align:0;display:block}
+  .ci .e img,.rc .e img{width:42px;height:30px;object-fit:contain;opacity:.6;display:block}
+  .pair .pi .e img{width:46px;height:32px;object-fit:contain;opacity:.6;display:block;margin:2px auto}
+  .pi .pifoot{display:flex;justify-content:center;margin-top:4px}
+  .pi .qtys{flex:0 0 auto;min-width:104px}
+  .opt button{display:inline-flex;align-items:center;justify-content:center}
+  .okcheck{width:58px;height:58px;fill:none;stroke:#811226;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+  .chip{display:inline-flex;align-items:center}
+  #chat{background:transparent;padding-bottom:150px}
+  #phone.hascart #chat{padding-bottom:150px}
+  #phone.outletview #chat{padding-bottom:40px}
+  .bot{box-shadow:0 1px 6px rgba(129,18,38,.28)}
+  .me{box-shadow:0 3px 12px rgba(129,18,38,.4)}
+  .dish{box-shadow:0 2px 10px rgba(129,18,38,.25);transition:transform .2s ease,box-shadow .25s ease,border-color .2s ease}
+  .dish:hover{transform:translateY(-3px);box-shadow:0 10px 26px rgba(129,18,38,.42);border-color:#e0cda3}
+  .add,.chip,.infob,.noteb,.radd,.btn,.opt button,.outlet button,.qtys,.qty button,.send,.mic,.lang{transition:transform .16s ease,box-shadow .2s ease,background .2s ease,border-color .2s ease,color .2s ease}
+  .add:hover,.chip:hover,.infob:hover,.radd:hover,.outlet button:hover{box-shadow:0 3px 13px rgba(129,18,38,.38)}
+  .add:active,.chip:active,.infob:active,.noteb:active,.radd:active,.btn:active,.opt button:active,.outlet button:active,.send:active,.mic:active,.qty button:active{transform:scale(.95)}
+  .outlet button:hover{transform:translateY(-2px);border-color:var(--gold)}
+  .btn{box-shadow:0 4px 16px rgba(129,18,38,.45)}
+  .btn:hover{transform:translateY(-1px);box-shadow:0 8px 22px rgba(129,18,38,.55)}
+  .btn.g{background:linear-gradient(135deg,#a83048,#811226);box-shadow:0 4px 14px rgba(129,18,38,.4)}
+  .chip.go{background:linear-gradient(135deg,var(--brandtop),var(--brandbot));box-shadow:0 3px 13px rgba(129,18,38,.5)}
+  .send{background:linear-gradient(135deg,var(--brandtop),var(--brandbot));box-shadow:0 3px 11px rgba(129,18,38,.55)}
+  .inputrow textarea{transition:border-color .2s ease,box-shadow .2s ease;background:#fffdf7}
+  .inputrow textarea:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(129,18,38,.18)}
+  .tag{opacity:.92}
+  @keyframes tagglow{0%,100%{opacity:.85}50%{opacity:1}}
+  #cartbar{transition:transform .16s ease,box-shadow .2s ease}
+  #cartbar:hover{transform:translateY(-1px)}
+  #cartbar:active{transform:scale(.99)}
+  /* graceful staggered reveal for menu grids & chips */
+  .grid .dish:nth-child(1){animation-delay:.02s}
+  .grid .dish:nth-child(2){animation-delay:.08s}
+  .grid .dish:nth-child(3){animation-delay:.14s}
+  .grid .dish:nth-child(4){animation-delay:.2s}
+  .grid .dish:nth-child(5){animation-delay:.26s}
+  .grid .dish:nth-child(6){animation-delay:.32s}
+  .outlet button,.chip{animation:rise .45s cubic-bezier(.16,1,.3,1) both}
+  .chips .chip:nth-child(2){animation-delay:.06s}
+  .chips .chip:nth-child(3){animation-delay:.12s}
+  .chips .chip:nth-child(4){animation-delay:.18s}
+  .chips .chip:nth-child(5){animation-delay:.24s}
+  @keyframes rise{from{opacity:0;transform:translateY(9px)}to{opacity:1;transform:none}}
+  /* soft sheen sweeping across the header */
+  header::after{content:"";position:absolute;top:0;left:0;height:100%;width:40%;
+    background:linear-gradient(100deg,transparent,rgba(255,245,224,.16),transparent);
+    transform:skewX(-18deg);animation:sheen 7s ease-in-out infinite;pointer-events:none}
+  @keyframes sheen{0%{left:-50%}55%,100%{left:130%}}
+  /* glossy light sweep on the gold/brown elements */
+  .btn.g,.btn,.chip.go,.send,header .logo,.lang.on,.add.in{position:relative;overflow:hidden}
+  .btn.g::after,.btn::after,.chip.go::after,.send::after,header .logo::after,.lang.on::after,.add.in::after{
+    content:"";position:absolute;top:0;left:-70%;width:55%;height:100%;
+    background:linear-gradient(100deg,transparent,rgba(255,255,255,.5),transparent);
+    transform:skewX(-20deg);animation:sweep 4.8s ease-in-out infinite;pointer-events:none}
+  .btn.g::after{animation-duration:4s}
+  .chip.go::after,.send::after,.add.in::after{background:linear-gradient(100deg,transparent,rgba(255,255,255,.32),transparent);animation-duration:5.5s}
+  header .logo::after{background:linear-gradient(100deg,transparent,rgba(255,255,255,.6),transparent);animation-duration:6s}
+  @keyframes sweep{0%{left:-70%}50%,100%{left:150%}}
+  /* gentle breathing glow on bestseller tags */
+  .tag{text-shadow:0 0 0 rgba(129,18,38,0)}
+  @media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+
+  header.woodhdr{background:linear-gradient(rgba(0,0,0,.30),rgba(0,0,0,.30)),url('/wood_web.jpg') center/cover;padding:12px 12px 20px;min-height:118px;display:flex;align-items:center;justify-content:center;gap:0;border-bottom:0;box-shadow:inset 0 -10px 20px rgba(0,0,0,.38);overflow:visible;transition:margin-top .34s ease}
+  .woodhdr #back,.woodhdr #hname,.woodhdr #hsub{display:none}
+  .woodhdr .woodlogo{width:60%;max-width:258px;display:block;animation:hglow 4s ease-in-out infinite}
+  header.woodhdr::after{display:none!important;content:none!important}
+  @keyframes hglow{0%,100%{filter:drop-shadow(0 0 6px rgba(255,255,255,.55)) drop-shadow(0 0 16px rgba(255,255,255,.32)) drop-shadow(0 3px 5px rgba(0,0,0,.45))}50%{filter:drop-shadow(0 0 9px rgba(255,255,255,.75)) drop-shadow(0 0 26px rgba(255,255,255,.45)) drop-shadow(0 3px 5px rgba(0,0,0,.45))}}
+  .woodhdr .langtoggle{position:absolute;right:12px;top:12px;width:42px;height:42px;border-radius:50%;background:rgba(255,255,255,.15);-webkit-backdrop-filter:blur(10px) saturate(1.3);backdrop-filter:blur(10px) saturate(1.3);color:#fff;border:1px solid rgba(255,255,255,.42);cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 3px 10px rgba(0,0,0,.22),inset 0 1px 0 rgba(255,255,255,.3)}
+  .woodhdr .langtoggle svg{width:20px;height:20px;fill:none;stroke:#fff;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+  .awnbar{position:relative;z-index:3;width:130%;margin:-3px 0 -42px -15%;line-height:0;pointer-events:none}
+  .awnbar img{width:100%;display:block}
+  /* pull the chat up behind the awning so dish cards show through the see-through scallop gaps */
+  #chat{padding-top:52px}
+  #wm{top:54%}
+  #wm img{width:440px;max-width:94%}
+  #langbar{position:absolute;top:54px;right:10px;z-index:30;display:none;flex-direction:column;gap:3px;padding:6px;background:#fff;border-radius:12px;box-shadow:0 10px 26px rgba(0,0,0,.28);min-width:134px;border:1px solid var(--line)}
+  #langbar.open{display:flex}
+  #langbar .lang{flex:0 0 auto;font-size:14px;color:var(--ink);background:transparent;border:0;padding:8px 12px;border-radius:8px;cursor:pointer;text-align:left;width:100%}
+  #langbar .lang:hover{background:#f3e7e6}
+  #langbar .lang.on{background:var(--blue);color:#fff;font-weight:700}
+  /* boot screen: plain white; the Bon Bon logo fades in, then fades out just before the screen lifts (Apple-style) */
+  #bootveil{position:absolute;inset:0;z-index:50;background:#fff;transition:opacity 1.1s ease;opacity:1}
+  #bootveil.gone{opacity:0;pointer-events:none}
+  #bootveil .bootlogo{position:absolute;left:50%;top:48%;width:360px;max-width:88%;aspect-ratio:480/248;height:auto;transform:translate(-50%,-50%);animation:bootlogoin 1.4s ease both}
+  @keyframes bootlogoin{from{opacity:0;transform:translate(-50%,-50%) scale(.94)}to{opacity:1;transform:translate(-50%,-50%) scale(1)}}
+
+  #shutterframe{position:absolute;left:0;right:0;bottom:0;top:150px;z-index:2;overflow:hidden;display:none}
+  #shutterframe.on{display:block}
+  #shutter{position:absolute;left:0;right:0;top:0;height:100%;background:#5a0c1a url('/shutter_web.jpg') center/cover no-repeat;box-shadow:0 7px 16px rgba(0,0,0,.30);transform:translateY(0);transition:transform 1.15s cubic-bezier(.5,.05,.2,1);will-change:transform}
+  #shutter.up{transform:translateY(-100%)}
+
+  .catgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:4px 0 2px}
+  .catcard{display:flex;flex-direction:column;align-items:center;gap:7px;background:transparent;border:0;padding:0;cursor:pointer;-webkit-tap-highlight-color:transparent}
+  .catpic{width:100%;height:165px;border-radius:14px;overflow:hidden;background:linear-gradient(135deg,#f7e8e7,#eed7d6);display:flex;align-items:center;justify-content:center;box-shadow:0 2px 10px rgba(122,17,33,.16);transition:transform .15s ease}
+  .catcard:active .catpic{transform:scale(.96)}
+  .catpic img.ph{width:100%;height:100%;object-fit:cover;display:block}
+  .catpic img.lg{width:56%;height:56%;object-fit:contain;opacity:.5}
+  .catpic.lg2{font-size:40px}
+  .catlabel{font-size:14px;font-weight:700;color:var(--ink);text-align:center;line-height:1.15}
+</style>
+</head>
+<body>
+<div id="phone"><div id="bootveil"><img class="bootlogo" src="/logo_web.png" alt="Bon Bon"></div>
+  <header class="woodhdr"><button id="back"></button><h1 id="hname"></h1><div id="hsub"></div><img class="woodlogo" src="/logo_web.png" alt="Bon Bon"><button class="langtoggle" onclick="toggleLang()" aria-label="Language"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.3"/><path d="M2.7 12h18.6"/><path d="M12 2.7a14 14 0 0 1 3.7 9.3 14 14 0 0 1-3.7 9.3 14 14 0 0 1-3.7-9.3A14 14 0 0 1 12 2.7Z"/></svg></button></header>
+  <div class="awnbar"><img src="/awning_web.png?v=3" alt=""></div>
+  <div class="langbar" id="langbar"></div>
+  <div id="shutterframe"><div id="shutter"></div></div><div id="wm"></div>
+  <div id="chat"></div>
+  
+  <div id="modal" onclick="if(event.target.id==='modal')closeModal()"><div class="sheet" id="sheet"></div></div>
+  <div id="lb" onclick="if(event.target.id==='lb')closeLb()"></div>
+  <div id="taste"></div>
+</div>
+<script>
+const MENU={
+ bb_vanilla:{n:"Vanilla",p:60,e:"🍨",h:[[8,23]],q:"",pt:8,ph:"",d:"",veg:1,tagtxt:"BESTSELLER"},
+ bb_cookies:{n:"Cookies & Cream",p:60,e:"🍨",h:[[8,23]],q:"",pt:8,ph:"",d:"",veg:1,tagtxt:"BESTSELLER"},
+ bb_belgian:{n:"Belgian Chocolate",p:60,e:"🍨",h:[[8,23]],q:"",pt:8,ph:"",d:"",veg:1,tagtxt:"MUST TRY"},
+ bb_lotus:{n:"Lotus Biscoff",p:60,e:"🍨",h:[[8,23]],q:"",pt:8,ph:"",d:"",veg:1,tagtxt:"MUST TRY"},
+ bb_caramel:{n:"Caramel Nutty Crunch",p:60,e:"🍨",h:[[8,23]],q:"",pt:8,ph:"",d:"",veg:1},
+ bb_cotton:{n:"Cotton Candy",p:60,e:"🍨",h:[[8,23]],q:"",pt:8,ph:"",d:"",veg:1},
+ bb_spanish:{n:"Spanish Delight",p:60,e:"🍨",h:[[8,23]],q:"",pt:8,ph:"",d:"",veg:1},
+ bb_bub_hops:{n:"Hopscotch Butterscotch",p:150,e:"🧋",h:[[8,23]],q:"",pt:8,ph:"",d:"",veg:1,tagtxt:"BESTSELLER"},
+ bb_bub_belgian:{n:"Belgian Chocolate",p:150,e:"🧋",h:[[8,23]],q:"",pt:8,ph:"",d:"",veg:1},
+ bb_bub_cookie:{n:"Cookie and Cream",p:150,e:"🧋",h:[[8,23]],q:"",pt:8,ph:"",d:"",veg:1},
+ bb_th_hops:{n:"Hopscotch Butterscotch",p:130,e:"🥤",h:[[8,23]],q:"",pt:8,ph:"",d:"",veg:1,tagtxt:"MUST TRY"},
+ bb_th_belgian:{n:"Belgian Chocolate",p:130,e:"🥤",h:[[8,23]],q:"",pt:8,ph:"",d:"",veg:1},
+ bb_th_cookie:{n:"Cookie and Cream",p:130,e:"🥤",h:[[8,23]],q:"",pt:8,ph:"",d:"",veg:1}
+};
+const CATS=[
+ {name:"🍨 Ice Creams",ids:["bb_vanilla","bb_cookies","bb_belgian","bb_lotus","bb_caramel","bb_cotton","bb_spanish"]},
+ {name:"🧋 Bubble Shakes",ids:["bb_bub_hops","bb_bub_belgian","bb_bub_cookie"]},
+ {name:"🥤 Milk Shakes – Thick Shakes",ids:["bb_th_hops","bb_th_belgian","bb_th_cookie"]}
+];
+const OUTLETS=["Bon Bon"];
+const LOGO="/logo_web.png";
+const GREET={en:"Hi! 🍦 Welcome to Bon Bon Ice Creams — what are you craving today?"};
+const LANGS=[["en","English"],["ta","தமிழ்"],["hi","हिन्दी"],["ml","മലയാളം"],["te","తెలుగు"],["kn","ಕನ್ನಡ"]];
+const FRESH={en:"Here are some of our favourites 🍨👇",ta:"எங்கள் சில பிடித்தவை 🍨👇",hi:"हमारी कुछ पसंदीदा 🍨👇",ml:"ഞങ്ങളുടെ ചില പ്രിയപ്പെട്ടവ 🍨👇",te:"మా కొన్ని ఇష్టమైనవి 🍨👇",kn:"ನಮ್ಮ ಕೆಲವು ಮೆಚ್ಚಿನವು 🍨👇"};
+const NAMES={
+ idli:{ta:"இட்லி",hi:"इडली",ml:"ഇഡ്ലി",te:"ఇడ్లీ",kn:"ಇಡ್ಲಿ"},
+ vada:{ta:"மெது வடா",hi:"मेदु वड़ा",ml:"മേദു വട",te:"మేదు వడ",kn:"ಮೇದು ವಡ"},
+ pongal:{ta:"வெண் பொங்கல்",hi:"वेन पोंगल",ml:"വെൻ പൊങ്കൽ",te:"వెన్ పొంగల్",kn:"ವೆನ್ ಪೊಂಗಲ್"},
+ masaladosa:{ta:"மசாலா தோசா",hi:"मसाला डोसा",ml:"മസാല ദോശ",te:"మసాలా దోస",kn:"ಮಸಾಲಾ ದೋಸೆ"},
+ plaindosa:{ta:"பிளைன் தோசா",hi:"प्लेन डोसा",ml:"പ്ലെയിൻ ദോശ",te:"ప్లెయిన్ దోస",kn:"ಪ್ಲೇನ್ ದೋಸೆ"},
+ ravadosa:{ta:"ரவா தோசா",hi:"रवा डोसा",ml:"റവ ദോശ",te:"రవ్వ దోస",kn:"ರವಾ ದೋಸೆ"},
+ meals:{ta:"சவுத் இந்தியன் மீல்ஸ்",hi:"साउथ इंडियन मील्स",ml:"സൗത്ത് ഇന്ത്യൻ മീൽസ്",te:"సౌత్ ఇండియన్ మీల్స్",kn:"ಸೌತ್ ಇಂಡಿಯನ್ ಮೀಲ್ಸ್"},
+ minimeals:{ta:"மினி மீல்ஸ்",hi:"मिनी मील्स",ml:"മിനി മീൽസ്",te:"మినీ మీల్స్",kn:"ಮಿನಿ ಮೀಲ್ಸ್"},
+ curdrice:{ta:"கர்ட் ரைஸ்",hi:"कर्ड राइस",ml:"കർഡ് റൈസ്",te:"కర్డ్ రైస్",kn:"ಕರ್ಡ್ ರೈಸ್"},
+ chilliparotta:{ta:"சில்லி பரோட்டா",hi:"चिल्ली परोट्टा",ml:"ചില്ലി പൊറോട്ട",te:"చిల్లీ పరోటా",kn:"ಚಿಲ್ಲಿ ಪರೋಟಾ"},
+ parotta:{ta:"பரோட்டா",hi:"परोट्टा",ml:"പൊറോട്ട",te:"పరోటా",kn:"ಪರೋಟಾ"},
+ chapati:{ta:"சப்பாத்தி",hi:"चपाती",ml:"ചപ്പാത്തി",te:"చపాతీ",kn:"ಚಪಾತಿ"},
+ samosa:{ta:"சமோசா",hi:"समोसा",ml:"സമോസ",te:"సమోసా",kn:"ಸಮೋಸಾ"},
+ panipuri:{ta:"பானி பூரி",hi:"पानी पूरी",ml:"പാനി പൂരി",te:"పానీ పూరీ",kn:"ಪಾನಿ ಪೂರಿ"},
+ coffee:{ta:"பில்டர் காபி",hi:"फ़िल्टर कॉफ़ी",ml:"ഫിൽറ്റർ കോഫി",te:"ఫిల్టర్ కాఫీ",kn:"ಫಿಲ್ಟರ್ ಕಾಫಿ"},
+ mango:{ta:"மேங்கோ மில்க்‌ஷேக்",hi:"मैंगो मिल्कशेक",ml:"മാംഗോ മിൽക്ക്ഷേക്ക്",te:"మాంగో మిల్క్‌షేక్",kn:"ಮ್ಯಾಂಗೋ ಮಿಲ್ಕ್‌ಶೇಕ್"},
+ rosemilk:{ta:"ரோஸ் மில்க்",hi:"रोज़ मिल्क",ml:"റോസ് മിൽക്ക്",te:"రోజ్ మిల్క్",kn:"ರೋಸ್ ಮಿಲ್ಕ್"},
+ badam:{ta:"பாதாம் மில்க்",hi:"बादाम मिल्क",ml:"ബാദാം മിൽക്ക്",te:"బాదాం మిల్క్",kn:"ಬಾದಾಮ್ ಮಿಲ್ಕ್"},
+ tea:{ta:"டீ",hi:"टी",ml:"ടീ",te:"టీ",kn:"ಟೀ"},
+ gulab:{ta:"குலாப் ஜாமூன்",hi:"गुलाब जामुन",ml:"ഗുലാബ് ജാമൂൻ",te:"గులాబ్ జామూన్",kn:"ಗುಲಾಬ್ ಜಾಮೂನ್"},
+ kesari:{ta:"ரவா கேசரி",hi:"रवा केसरी",ml:"റവ കേസരി",te:"రవ్వ కేసరి",kn:"ರವಾ ಕೇಸರಿ"},
+ idli1:{ta:"இட்லி (1)",hi:"इडली (1)",ml:"ഇഡ്ലി (1)",te:"ఇడ్లీ (1)",kn:"ಇಡ್ಲಿ (1)"},
+ sambaridli:{ta:"சாம்பார் இட்லி (2)",hi:"सांभर इडली (2)",ml:"സാമ്പാർ ഇഡ്ലി (2)",te:"సాంబార్ ఇడ్లీ (2)",kn:"ಸಾಂಬಾರ್ ಇಡ್ಲಿ (2)"},
+ sambaridli1:{ta:"சாம்பார் இட்லி (1)",hi:"सांभर इडली (1)",ml:"സാമ്പാർ ഇഡ്ലി (1)",te:"సాంబార్ ఇడ్లీ (1)",kn:"ಸಾಂಬಾರ್ ಇಡ್ಲಿ (1)"},
+ sambarvadai:{ta:"சாம்பார் வடை (1)",hi:"सांभर वड़ा (1)",ml:"സാമ്പാർ വട (1)",te:"సాంబార్ వడ (1)",kn:"ಸಾಂಬಾರ್ ವಡೆ (1)"},
+ ravakitchadi:{ta:"வெஜ் ரவா கிச்சடி",hi:"वेज रवा किचड़ी",ml:"വെജ് റവ കിച്ചടി",te:"వెజ్ రవ్వ కిచిడీ",kn:"ವೆಜ್ ರವಾ ಕಿಚಡಿ"},
+ poori2:{ta:"பூரி – உருளை மசால் (2)",hi:"पूरी – आलू मसाला (2)",ml:"പൂരി – ഉരുളക്കിഴങ്ങ് മസാല (2)",te:"పూరి – ఆలూ మసాలా (2)",kn:"ಪೂರಿ – ಆಲೂ ಮಸಾಲಾ (2)"},
+ poori1:{ta:"பூரி – உருளை மசால் (1)",hi:"पूरी – आलू मसाला (1)",ml:"പൂരി – ഉരുളക്കിഴങ്ങ് മസാല (1)",te:"పూరి – ఆలూ మసాలా (1)",kn:"ಪೂರಿ – ಆಲೂ ಮಸಾಲಾ (1)"},
+ idiyappam:{ta:"இடியாப்பம் – தேங்காய் பால் & ஸ்டூ",hi:"इडियप्पम – नारियल दूध & स्टू",ml:"ഇടിയപ്പം – തേങ്ങാപ്പാൽ & സ്റ്റൂ",te:"ఇడియప్పం – కొబ్బరి పాలు & స్టూ",kn:"ಇಡಿಯಪ್ಪಂ – ತೆಂಗಿನ ಹಾಲು & ಸ್ಟ್ಯೂ"},
+ lemonsevai:{ta:"எலுமிச்சை சேவை",hi:"लेमन सेवई",ml:"ലെമൺ സേവൈ",te:"లెమన్ సేవై",kn:"ಲೆಮನ್ ಸೇವೈ"},
+ gheeminiidli:{ta:"நெய் மினி இட்லி – சாம்பாரில்",hi:"घी मिनी इडली – सांभर में",ml:"നെയ്യ് മിനി ഇഡ്ലി – സാമ്പാറിൽ",te:"నెయ్యి మినీ ఇడ్లీ – సాంబార్‌లో",kn:"ತುಪ್ಪ ಮಿನಿ ಇಡ್ಲಿ – ಸಾಂಬಾರ್‌ನಲ್ಲಿ"},
+ wheatuppuma:{ta:"கோதுமை உப்புமா",hi:"गेहूं उपमा",ml:"ഗോതമ്പ് ഉപ്പുമാവ്",te:"గోధుమ ఉప్మా",kn:"ಗೋಧಿ ಉಪ್ಪಿಟ್ಟು"},
+ wheatuppumacurd:{ta:"கோதுமை உப்புமா – தயிருடன்",hi:"गेहूं उपमा – दही के साथ",ml:"ഗോതമ്പ് ഉപ്പുമാവ് – തൈരോടെ",te:"గోధుమ ఉప్మా – పెరుగుతో",kn:"ಗೋಧಿ ಉಪ್ಪಿಟ್ಟು – ಮೊಸರಿನೊಂದಿಗೆ"},
+ channabhatura:{ta:"சன்னா பாதுரா (சோலா பூரி)",hi:"छोले भटूरे",ml:"ചന്ന ഭട്ടൂര",te:"ఛనా భటూరా",kn:"ಛನಾ ಭಟೂರಾ"},
+ gheeroast:{ta:"நெய் ரோஸ்ட்",hi:"घी रोस्ट",ml:"നെയ്യ് റോസ്റ്റ്",te:"నెయ్యి రోస్ట్",kn:"ತುಪ್ಪ ರೋಸ್ಟ್"},
+ paperroast:{ta:"பேப்பர் ரோஸ்ட்",hi:"पेपर रोस्ट",ml:"പേപ്പർ റോസ്റ്റ്",te:"పేపర్ రోస్ట్",kn:"ಪೇಪರ್ ರೋಸ್ಟ್"},
+ familyroast:{ta:"ஃபேமிலி ரோஸ்ட்",hi:"फैमिली रोस्ट",ml:"ഫാമിലി റോസ്റ്റ്",te:"ఫ్యామిలీ రోస్ట్",kn:"ಫ್ಯಾಮಿಲಿ ರೋಸ್ಟ್"},
+ masalroast:{ta:"மசால் ரோஸ்ட் (உருளை மசால்)",hi:"मसाल रोस्ट (आलू मसाला)",ml:"മസാല റോസ്റ്റ് (ഉരുളക്കിഴങ്ങ് മസാല)",te:"మసాల్ రోస్ట్ (ఆలూ మసాలా)",kn:"ಮಸಾಲ್ ರೋಸ್ಟ್ (ಆಲೂ ಮಸಾಲಾ)"},
+ gheemasalroast:{ta:"நெய் மசால் ரோஸ்ட் (உருளை மசால்)",hi:"घी मसाल रोस्ट (आलू मसाला)",ml:"നെയ്യ് മസാല റോസ്റ്റ് (ഉരുളക്കിഴങ്ങ് മസാല)",te:"నెయ్యి మసాల్ రోస్ట్ (ఆలూ మసాలా)",kn:"ತುಪ್ಪ ಮಸಾಲ್ ರೋಸ್ಟ್ (ಆಲೂ ಮಸಾಲಾ)"},
+ buttermasalroast:{ta:"பட்டர் மசால் ரோஸ்ட் (உருளை மசால்)",hi:"बटर मसाल रोस्ट (आलू मसाला)",ml:"ബട്ടർ മസാല റോസ്റ്റ് (ഉരുളക്കിഴങ്ങ് മസാല)",te:"బటర్ మసాల్ రోస్ట్ (ఆలూ మసాలా)",kn:"ಬಟರ್ ಮಸಾಲ್ ರೋಸ್ಟ್ (ಆಲೂ ಮಸಾಲಾ)"},
+ onionroast:{ta:"வெங்காய ரோஸ்ட்",hi:"प्याज़ रोस्ट",ml:"ഉള്ളി റോസ്റ്റ്",te:"ఉల్లి రోస్ట్",kn:"ಈರುಳ್ಳಿ ರೋಸ್ಟ್"},
+ gheeonionroast:{ta:"நெய் வெங்காய ரோஸ்ட்",hi:"घी प्याज़ रोस्ट",ml:"നെയ്യ് ഉള്ളി റോസ്റ്റ്",te:"నెయ్యి ఉల్లి రోస్ట్",kn:"ತುಪ್ಪ ಈರುಳ್ಳಿ ರೋಸ್ಟ್"},
+ podiroast:{ta:"பொடி ரோஸ்ட்",hi:"पोडी रोस्ट",ml:"പൊടി റോസ്റ്റ്",te:"పొడి రోస్ట్",kn:"ಪೊಡಿ ರೋಸ್ಟ್"},
+ uthappam:{ta:"உத்தப்பம்",hi:"उत्तपम",ml:"ഉത്തപ്പം",te:"ఉత్తపం",kn:"ಉತ್ತಪ್ಪಂ"},
+ gheeuthappam:{ta:"நெய் உத்தப்பம்",hi:"घी उत्तपम",ml:"നെയ്യ് ഉത്തപ്പം",te:"నెయ్యి ఉత్తపం",kn:"ತುಪ್ಪ ಉತ್ತಪ್ಪಂ"},
+ onionuthappam:{ta:"வெங்காய உத்தப்பம்",hi:"प्याज़ उत्तपम",ml:"ഉള്ളി ഉത്തപ്പം",te:"ఉల్లి ఉత్తపం",kn:"ಈರುಳ್ಳಿ ಉತ್ತಪ್ಪಂ"},
+ gheeonionuthappam:{ta:"நெய் வெங்காய உத்தப்பம்",hi:"घी प्याज़ उत्तपम",ml:"നെയ്യ് ഉള്ളി ഉത്തപ്പം",te:"నెయ్యి ఉల్లి ఉత్తపం",kn:"ತುಪ್ಪ ಈರುಳ್ಳಿ ಉತ್ತಪ್ಪಂ"},
+ podiuthappam:{ta:"பொடி உத்தப்பம்",hi:"पोडी उत्तपम",ml:"പൊടി ഉത്തപ്പം",te:"పొడి ఉత్తపం",kn:"ಪೊಡಿ ಉತ್ತಪ್ಪಂ"},
+ tomatouthappam:{ta:"தக்காளி உத்தப்பம்",hi:"टमाटर उत्तपम",ml:"തക്കാളി ഉത്തപ്പം",te:"టమాటా ఉత్తపం",kn:"ಟೊಮ್ಯಾಟೊ ಉತ್ತಪ್ಪಂ"},
+ ravaroast:{ta:"ரவா ரோஸ்ட்",hi:"रवा रोस्ट",ml:"റവ റോസ്റ്റ്",te:"రవ్వ రోస్ట్",kn:"ರವಾ ರೋಸ್ಟ್"},
+ gheeravaroast:{ta:"நெய் ரவா ரோஸ்ட்",hi:"घी रवा रोस्ट",ml:"നെയ്യ് റവ റോസ്റ്റ്",te:"నెయ్యి రవ్వ రోస్ట్",kn:"ತುಪ್ಪ ರವಾ ರೋಸ್ಟ್"},
+ onionravaroast:{ta:"வெங்காய ரவா ரோஸ்ட்",hi:"प्याज़ रवा रोस्ट",ml:"ഉള്ളി റവ റോസ്റ്റ്",te:"ఉల్లి రవ్వ రోస్ట్",kn:"ಈರುಳ್ಳಿ ರವಾ ರೋಸ್ಟ್"},
+ ravamasalroast:{ta:"ரவா மசால் ரோஸ்ட்",hi:"रवा मसाल रोस्ट",ml:"റവ മസാല റോസ്റ്റ്",te:"రవ్వ మసాల్ రోస్ట్",kn:"ರವಾ ಮಸಾಲ್ ರೋಸ್ಟ್"},
+ chocolateroast:{ta:"சாக்லேட் ரோஸ்ட்",hi:"चॉकलेट रोस्ट",ml:"ചോക്ലേറ്റ് റോസ്റ്റ്",te:"చాక్లెట్ రోస్ట్",kn:"ಚಾಕ್ಲೇಟ್ ರೋಸ್ಟ್"},
+ cauliflowerroast:{ta:"காலிஃபிளவர் மசால் ரோஸ்ட்",hi:"फूलगोभी मसाल रोस्ट",ml:"കോളിഫ്ലവർ മസാല റോസ്റ്റ്",te:"కాలీఫ్లవర్ మసాల్ రోస్ట్",kn:"ಹೂಕೋಸು ಮಸಾಲ್ ರೋಸ್ಟ್"},
+ mushroomroast:{ta:"மஷ்ரூம் மசால் ரோஸ்ட்",hi:"मशरूम मसाल रोस्ट",ml:"മഷ്റൂം മസാല റോസ്റ്റ്",te:"మష్రూమ్ మసాల్ రోస్ట్",kn:"ಮಶ್ರೂಮ್ ಮಸಾಲ್ ರೋಸ್ಟ್"},
+ paneerroast:{ta:"பன்னீர் மசால் ரோஸ்ட்",hi:"पनीर मसाल रोस्ट",ml:"പനീർ മസാല റോസ്റ്റ്",te:"పనీర్ మసాల్ రోస్ట్",kn:"ಪನೀರ್ ಮಸಾಲ್ ರೋಸ್ಟ್"},
+ garlicroast:{ta:"பூண்டு மசால் ரோஸ்ட்",hi:"लहसुन मसाल रोस्ट",ml:"വെളുത്തുള്ളി മസാല റോസ്റ്റ്",te:"వెల్లుల్లి మసాల్ రోస్ట్",kn:"ಬೆಳ್ಳುಳ್ಳಿ ಮಸಾಲ್ ರೋಸ್ಟ್"},
+ tomatoroast:{ta:"தக்காளி மசால் ரோஸ்ட்",hi:"टमाटर मसाल रोस्ट",ml:"തക്കാളി മസാല റോസ്റ്റ്",te:"టమాటా మసాల్ రోస్ట్",kn:"ಟೊಮ್ಯಾಟೊ ಮಸಾಲ್ ರೋಸ್ಟ್"},
+ vendhayadosa:{ta:"வெந்தய தோசை – பூண்டு குழம்புடன்",hi:"वेंधय डोसा – लहसुन कुलंबु",ml:"വെന്തയ ദോശ – വെളുത്തുള്ളി കുഴമ്പ്",te:"వెంధయ దోస – వెల్లుల్లి కొలంబు",kn:"ವೆಂದಯ ದೋಸೆ – ಬೆಳ್ಳುಳ್ಳಿ ಕೊಳಂಬು"},
+ adaiaviyal:{ta:"அடை ஆவியல்",hi:"अडई अवियल",ml:"അട അവിയൽ",te:"అడై అవియల్",kn:"ಅಡೈ ಅವಿಯಲ್"},
+ setdosa:{ta:"செட் தோசை – வடகறியுடன்",hi:"सेट डोसा – वड़ा करी",ml:"സെറ്റ് ദോശ – വട കറി",te:"సెట్ దోస – వడ కర్రీ",kn:"ಸೆಟ್ ದೋಸೆ – ವಡ ಕರಿ"},
+ vegomelette:{ta:"வெஜ் ஆம்லெட்",hi:"वेज ऑमलेट",ml:"വെജ് ഓംലെറ്റ്",te:"వెజ్ ఆమ్‌లెట్",kn:"ವೆಜ್ ಆಮ್ಲೆಟ್"},
+ siparotta:{ta:"தென்னிந்திய பரோட்டா (1)",hi:"साउथ इंडियन परोट्टा (1)",ml:"സൗത്ത് ഇന്ത്യൻ പൊറോട്ട (1)",te:"సౌత్ ఇండియన్ పరోటా (1)",kn:"ಸೌತ್ ಇಂಡಿಯನ್ ಪರೋಟಾ (1)"},
+ chapathi2:{ta:"சப்பாத்தி (2)",hi:"चपाती (2)",ml:"ചപ്പാത്തി (2)",te:"చపాతీ (2)",kn:"ಚಪಾತಿ (2)"},
+ kothuparotta:{ta:"கொத்து பரோட்டா",hi:"कोत्तु परोट्टा",ml:"കൊത്ത് പൊറോട്ട",te:"కొత్తు పరోటా",kn:"ಕೊತ್ತು ಪರೋಟಾ"},
+ mushroomkothu:{ta:"மஷ்ரூம் கொத்து பரோட்டா",hi:"मशरूम कोत्तु परोट्टा",ml:"മഷ്റൂം കൊത്ത് പൊറോട്ട",te:"మష్రూమ్ కొత్తు పరోటా",kn:"ಮಶ್ರೂಮ್ ಕೊತ್ತು ಪರೋಟಾ"},
+ paneerkothu:{ta:"பன்னீர் கொத்து பரோட்டா",hi:"पनीर कोत्तु परोट्टा",ml:"പനീർ കൊത്ത് പൊറോട്ട",te:"పనీర్ కొత్తు పరోటా",kn:"ಪನೀರ್ ಕೊತ್ತು ಪರೋಟಾ"},
+ curdvadai:{ta:"தயிர் வடை (1)",hi:"दही वड़ा (1)",ml:"തൈര് വട (1)",te:"పెరుగు వడ (1)",kn:"ಮೊಸರು ವಡೆ (1)"},
+ potatobonda:{ta:"உருளை போண்டா (2)",hi:"आलू बोंडा (2)",ml:"ഉരുളക്കിഴങ്ങ് ബോണ്ട (2)",te:"ఆలూ బోండా (2)",kn:"ಆಲೂ ಬೋಂಡಾ (2)"},
+ mysorebonda:{ta:"மைசூர் போண்டா (2)",hi:"मैसूर बोंडा (2)",ml:"മൈസൂർ ബോണ്ട (2)",te:"మైసూర్ బోండా (2)",kn:"ಮೈಸೂರು ಬೋಂಡಾ (2)"},
+ rawbananabajji:{ta:"வாழைக்காய் பஜ்ஜி (2)",hi:"कच्चा केला बज्जी (2)",ml:"പച്ചക്കായ ബജ്ജി (2)",te:"అరటికాయ బజ్జీ (2)",kn:"ಬಾಳೆಕಾಯಿ ಬಜ್ಜಿ (2)"},
+ onionbajji:{ta:"வெங்காய பஜ்ஜி (2)",hi:"प्याज़ बज्जी (2)",ml:"ഉള്ളി ബജ്ജി (2)",te:"ఉల్లి బజ్జీ (2)",kn:"ಈರುಳ್ಳಿ ಬಜ್ಜಿ (2)"},
+ masalvadai:{ta:"மசால் வடை (2)",hi:"मसाल वड़ा (2)",ml:"മസാല വട (2)",te:"మసాల్ వడ (2)",kn:"ಮಸಾಲ್ ವಡೆ (2)"},
+ frenchfries:{ta:"ஃப்ரெஞ்ச் ஃப்ரைஸ்",hi:"फ्रेंच फ्राइज़",ml:"ഫ്രെഞ്ച് ഫ്രൈസ്",te:"ఫ్రెంచ్ ఫ్రైస్",kn:"ಫ್ರೆಂಚ್ ಫ್ರೈಸ್"},
+ rajabhojanam:{ta:"ராஜபோஜனம் (முழு தாலி)",hi:"राजभोजनम (फुल थाली)",ml:"രാജഭോജനം (ഫുൾ താലി)",te:"రాజభోజనం (ఫుల్ తాలి)",kn:"ರಾಜಭೋಜನಂ (ಫುಲ್ ತಾಲಿ)"},
+ execlunch:{ta:"எக்ஸிக்யூட்டிவ் லஞ்ச் (லிமிடெட்)",hi:"एग्ज़िक्यूटिव लंच (लिमिटेड)",ml:"എക്സിക്യൂട്ടീവ് ലഞ്ച് (ലിമിറ്റഡ്)",te:"ఎగ్జిక్యూటివ్ లంచ్ (లిమిటెడ్)",kn:"ಎಕ್ಸಿಕ್ಯೂಟಿವ್ ಲಂಚ್ (ಲಿಮಿಟೆಡ್)"},
+ vegbriyani:{ta:"வெஜ் பிரியாணி",hi:"वेज बिरयानी",ml:"വെജ് ബിരിയാണി",te:"వెజ్ బిర్యానీ",kn:"ವೆಜ್ ಬಿರಿಯಾನಿ"},
+ mushroombiriyani:{ta:"மஷ்ரூம் பிரியாணி",hi:"मशरूम बिरयानी",ml:"മഷ്റൂം ബിരിയാണി",te:"మష్రూమ్ బిర్యానీ",kn:"ಮಶ್ರೂಮ್ ಬಿರಿಯಾನಿ"},
+ hydmushroombriyani:{ta:"ஸ்பெஷல் ஹைதராபாதி மஷ்ரூம் பிரியாணி",hi:"स्पेशल हैदराबादी मशरूम बिरयानी",ml:"സ്പെഷ്യൽ ഹൈദരാബാദി മഷ്റൂം ബിരിയാണി",te:"స్పెషల్ హైదరాబాదీ మష్రూమ్ బిర్యానీ",kn:"ಸ್ಪೆಷಲ್ ಹೈದರಾಬಾದಿ ಮಶ್ರೂಮ್ ಬಿರಿಯಾನಿ"},
+ sambarrice:{ta:"சாம்பார் சாதம்",hi:"सांभर राइस",ml:"സാമ്പാർ റൈസ്",te:"సాంబార్ రైస్",kn:"ಸಾಂಬಾರ್ ರೈಸ್"},
+ curdsemiya:{ta:"தயிர் செமியா",hi:"दही सेवइयां",ml:"തൈര് സേമിയ",te:"పెరుగు సేమియా",kn:"ಮೊಸರು ಸೇಮಿಯಾ"},
+ lemonrice:{ta:"எலுமிச்சை சாதம்",hi:"लेमन राइस",ml:"ലെമൺ റൈസ്",te:"లెమన్ రైస్",kn:"ಲೆಮನ್ ರೈಸ್"},
+ tomatorice:{ta:"தக்காளி சாதம்",hi:"टमाटर राइस",ml:"തക്കാളി റൈസ്",te:"టమాటా రైస్",kn:"ಟೊಮ್ಯಾಟೊ ರೈಸ್"},
+ tomatosoup:{ta:"தக்காளி சூப்",hi:"टमाटर सूप",ml:"തക്കാളി സൂപ്പ്",te:"టమాటా సూప్",kn:"ಟೊಮ್ಯಾಟೊ ಸೂಪ್"},
+ sweetcornsoup:{ta:"ஸ்வீட் கார்ன் சூப்",hi:"स्वीट कॉर्न सूप",ml:"സ്വീറ്റ് കോൺ സൂപ്പ്",te:"స్వీట్ కార్న్ సూప్",kn:"ಸ್ವೀಟ್ ಕಾರ್ನ್ ಸೂಪ್"},
+ milagusoup:{ta:"மிளகு தனியா சூப்",hi:"मिलगु धनिया सूप",ml:"മിളക് മല്ലി സൂപ്പ്",te:"మిరియాల ధనియా సూప్",kn:"ಮೆಣಸು ಧನಿಯಾ ಸೂಪ್"},
+ vegclearsoup:{ta:"வெஜ் கிளியர் சூப்",hi:"वेज क्लियर सूप",ml:"വെജ് ക്ലിയർ സൂപ്പ്",te:"వెజ్ క్లియర్ సూప్",kn:"ವೆಜ್ ಕ್ಲಿಯರ್ ಸೂಪ್"},
+ creammushroomsoup:{ta:"க்ரீம் ஆஃப் மஷ்ரூம் / வெஜ்",hi:"क्रीम ऑफ मशरूम / वेज",ml:"ക്രീം ഓഫ് മഷ്റൂം / വെജ്",te:"క్రీమ్ ఆఫ్ మష్రూమ్ / వెజ్",kn:"ಕ್ರೀಮ್ ಆಫ್ ಮಶ್ರೂಮ್ / ವೆಜ್"},
+ vegnoodles:{ta:"வெஜ் நூடுல்ஸ்",hi:"वेज नूडल्स",ml:"വെജ് നൂഡിൽസ്",te:"వెజ్ నూడుల్స్",kn:"ವೆಜ್ ನೂಡಲ್ಸ್"},
+ vegfriedrice:{ta:"வெஜ் ஃப்ரைடு ரைஸ்",hi:"वेज फ्राइड राइस",ml:"വെജ് ഫ്രൈഡ് റൈസ്",te:"వెజ్ ఫ్రైడ్ రైస్",kn:"ವೆಜ್ ಫ್ರೈಡ್ ರೈಸ್"},
+ mushfriedrice:{ta:"மஷ்ரூம் ஃப்ரைடு ரைஸ்",hi:"मशरूम फ्राइड राइस",ml:"മഷ്റൂം ഫ്രൈഡ് റൈസ്",te:"మష్రూమ్ ఫ్రైడ్ రైస్",kn:"ಮಶ್ರೂಮ್ ಫ್ರೈಡ್ ರೈಸ್"},
+ mushnoodles:{ta:"மஷ்ரூம் நூடுல்ஸ்",hi:"मशरूम नूडल्स",ml:"മഷ്റൂം നൂഡിൽസ്",te:"మష్రూమ్ నూడుల్స్",kn:"ಮಶ್ರೂಮ್ ನೂಡಲ್ಸ್"},
+ szechfriedrice:{ta:"வெஜ் செஸ்வான் ஃப்ரைடு ரைஸ்",hi:"वेज शेज़वान फ्राइड राइस",ml:"വെജ് ഷെസ്വാൻ ഫ്രൈഡ് റൈസ്",te:"వెజ్ షెజ్వాన్ ఫ్రైడ్ రైస్",kn:"ವೆಜ್ ಶೆಜ್ವಾನ್ ಫ್ರೈಡ್ ರೈಸ್"},
+ szechnoodles:{ta:"வெஜ் செஸ்வான் நூடுல்ஸ்",hi:"वेज शेज़वान नूडल्स",ml:"വെജ് ഷെസ്വാൻ നൂഡിൽസ്",te:"వెజ్ షెజ్వాన్ నూడుల్స్",kn:"ವೆಜ್ ಶೆಜ್ವಾನ್ ನೂಡಲ್ಸ್"},
+ paneerfriedrice:{ta:"பன்னீர் ஃப்ரைடு ரைஸ்",hi:"पनीर फ्राइड राइस",ml:"പനീർ ഫ്രൈഡ് റൈസ്",te:"పనీర్ ఫ్రైడ్ రైస్",kn:"ಪನೀರ್ ಫ್ರೈಡ್ ರೈಸ್"},
+ paneernoodles:{ta:"பன்னீர் நூடுல்ஸ்",hi:"पनीर नूडल्स",ml:"പനീർ നൂഡിൽസ്",te:"పనీర్ నూడుల్స్",kn:"ಪನೀರ್ ನೂಡಲ್ಸ್"},
+ paneertikka:{ta:"பன்னீர் டிக்கா",hi:"पनीर टिक्का",ml:"പനീർ ടിക്ക",te:"పనీర్ టిక్కా",kn:"ಪನೀರ್ ಟಿಕ್ಕಾ"},
+ broccolitikka:{ta:"ப்ரோக்கோலி டிக்கா",hi:"ब्रोकली टिक्का",ml:"ബ്രോക്കോളി ടിക്ക",te:"బ్రోకలీ టిక్కా",kn:"ಬ್ರೊಕೊಲಿ ಟಿಕ್ಕಾ"},
+ masalapapad:{ta:"மசாலா பப்படம்",hi:"मसाला पापड़",ml:"മസാല പപ്പടം",te:"మసాలా అప్పడం",kn:"ಮಸಾಲಾ ಪಾಪಡ್"},
+ roastedpapad:{ta:"வறுத்த பப்படம்",hi:"रोस्टेड पापड़",ml:"റോസ്റ്റഡ് പപ്പടം",te:"రోస్టెడ్ అప్పడం",kn:"ರೋಸ್ಟೆಡ್ ಪಾಪಡ್"},
+ chilligobi:{ta:"சில்லி கோபி",hi:"चिल्ली गोबी",ml:"ചില്ലി ഗോബി",te:"చిల్లీ గోబీ",kn:"ಚಿಲ್ಲಿ ಗೋಬಿ"},
+ chillipaneer:{ta:"சில்லி பன்னீர்",hi:"चिल्ली पनीर",ml:"ചില്ലി പനീർ",te:"చిల్లీ పనీర్",kn:"ಚಿಲ್ಲಿ ಪನೀರ್"},
+ chillimushroom:{ta:"சில்லி மஷ்ரூம்",hi:"चिल्ली मशरूम",ml:"ചില്ലി മഷ്റൂം",te:"చిల్లీ మష్రూమ్",kn:"ಚಿಲ್ಲಿ ಮಶ್ರೂಮ್"},
+ mushpepperfry:{ta:"மஷ்ரூம் மிளகு வறுவல்",hi:"मशरूम पेपर फ्राई",ml:"മഷ്റൂം പെപ്പർ ഫ്രൈ",te:"మష్రూమ్ పెప్పర్ ఫ్రై",kn:"ಮಶ್ರೂಮ್ ಪೆಪ್ಪರ್ ಫ್ರೈ"},
+ paneerpepperfry:{ta:"பன்னீர் மிளகு வறுவல்",hi:"पनीर पेपर फ्राई",ml:"പനീർ പെപ്പർ ഫ്രൈ",te:"పనీర్ పెప్పర్ ఫ్రై",kn:"ಪನೀರ್ ಪೆಪ್ಪರ್ ಫ್ರೈ"},
+ gobipepperfry:{ta:"கோபி மிளகு வறுவல்",hi:"गोबी पेपर फ्राई",ml:"ഗോബി പെപ്പർ ഫ്രൈ",te:"గోబీ పెప్పర్ ఫ్రై",kn:"ಗೋಬಿ ಪೆಪ್ಪರ್ ಫ್ರೈ"},
+ chinchilligobi:{ta:"சைனீஸ் சில்லி கோபி",hi:"चाइनीज़ चिल्ली गोबी",ml:"ചൈനീസ് ചില്ലി ഗോബി",te:"చైనీస్ చిల్లీ గోబీ",kn:"ಚೈನೀಸ್ ಚಿಲ್ಲಿ ಗೋಬಿ"},
+ chinchillimush:{ta:"சைனீஸ் சில்லி மஷ்ரூம்",hi:"चाइनीज़ चिल्ली मशरूम",ml:"ചൈനീസ് ചില്ലി മഷ്റൂം",te:"చైనీస్ చిల్లీ మష్రూమ్",kn:"ಚೈನೀಸ್ ಚಿಲ್ಲಿ ಮಶ್ರೂಮ್"},
+ chinchillipaneer:{ta:"சைனீஸ் சில்லி பன்னீர்",hi:"चाइनीज़ चिल्ली पनीर",ml:"ചൈനീസ് ചില്ലി പനീർ",te:"చైనీస్ చిల్లీ పనీర్",kn:"ಚೈನೀಸ್ ಚಿಲ್ಲಿ ಪನೀರ್"},
+ vegspringroll:{ta:"வெஜ் ஸ்பிரிங் ரோல் (5)",hi:"वेज स्प्रिंग रोल (5)",ml:"വെജ് സ്പ്രിംഗ് റോൾ (5)",te:"వెజ్ స్ప్రింగ్ రోల్ (5)",kn:"ವೆಜ್ ಸ್ಪ್ರಿಂಗ್ ರೋಲ್ (5)"},
+ paneerspringroll:{ta:"பன்னீர் ஸ்பிரிங் ரோல் (5)",hi:"पनीर स्प्रिंग रोल (5)",ml:"പനീർ സ്പ്രിംഗ് റോൾ (5)",te:"పనీర్ స్ప్రింగ్ రోల్ (5)",kn:"ಪನೀರ್ ಸ್ಪ್ರಿಂಗ್ ರೋಲ್ (5)"},
+ szechpaneer:{ta:"செஸ்வான் பன்னீர்",hi:"शेज़वान पनीर",ml:"ഷെസ്വാൻ പനീർ",te:"షెజ్వాన్ పనీర్",kn:"ಶೆಜ್ವಾನ್ ಪನೀರ್"},
+ dragonpaneer:{ta:"டிராகன் பன்னீர்",hi:"ड्रैगन पनीर",ml:"ഡ്രാഗൺ പനീർ",te:"డ్రాగన్ పనీర్",kn:"ಡ್ರ್ಯಾಗನ್ ಪನೀರ್"},
+ gobimanch:{ta:"கோபி மஞ்சூரியன்",hi:"गोबी मंचूरियन",ml:"ഗോബി മഞ്ചൂരിയൻ",te:"గోబీ మంచూరియన్",kn:"ಗೋಬಿ ಮಂಚೂರಿಯನ್"},
+ paneermanch:{ta:"பன்னீர் மஞ்சூரியன்",hi:"पनीर मंचूरियन",ml:"പനീർ മഞ്ചൂരിയൻ",te:"పనీర్ మంచూరియన్",kn:"ಪನೀರ್ ಮಂಚೂರಿಯನ್"},
+ mushmanch:{ta:"மஷ்ரூம் மஞ்சூரியன்",hi:"मशरूम मंचूरियन",ml:"മഷ്റൂം മഞ്ചൂരിയൻ",te:"మష్రూమ్ మంచూరియన్",kn:"ಮಶ್ರೂಮ್ ಮಂಚೂರಿಯನ್"},
+ babycornmanch:{ta:"பேபி கார்ன் மஞ்சூரியன்",hi:"बेबी कॉर्न मंचूरियन",ml:"ബേബി കോൺ മഞ്ചൂരിയൻ",te:"బేబీ కార్న్ మంచూరియన్",kn:"ಬೇಬಿ ಕಾರ್ನ್ ಮಂಚೂರಿಯನ್"},
+ vegballmanch:{ta:"வெஜ் பால் மஞ்சூரியன்",hi:"वेज बॉल मंचूरियन",ml:"വെജ് ബോൾ മഞ്ചൂരിയൻ",te:"వెజ్ బాల్ మంచూరియన్",kn:"ವೆಜ್ ಬಾಲ್ ಮಂಚೂರಿಯನ್"},
+ paneerbuttermasala:{ta:"பன்னீர் பட்டர் மசாலா",hi:"पनीर बटर मसाला",ml:"പനീർ ബട്ടർ മസാല",te:"పనీర్ బటర్ మసాలా",kn:"ಪನೀರ್ ಬಟರ್ ಮಸಾಲಾ"},
+ mushroommasala:{ta:"மஷ்ரூம் மசாலா",hi:"मशरूम मसाला",ml:"മഷ്റൂം മസാല",te:"మష్రూమ్ మసాలా",kn:"ಮಶ್ರೂಮ್ ಮಸಾಲಾ"},
+ vegchettinadu:{ta:"வெஜ் செட்டிநாடு",hi:"वेज चेट्टीनाडु",ml:"വെജ് ചെട്ടിനാട്",te:"వెజ్ చెట్టినాడు",kn:"ವೆಜ್ ಚೆಟ್ಟಿನಾಡು"},
+ paneerchettinadu:{ta:"பன்னீர் செட்டிநாடு",hi:"पनीर चेट्टीनाडु",ml:"പനീർ ചെട്ടിനാട്",te:"పనీర్ చెట్టినాడు",kn:"ಪನೀರ್ ಚೆಟ್ಟಿನಾಡು"},
+ mushchettinadu:{ta:"மஷ்ரூம் செட்டிநாடு",hi:"मशरूम चेट्टीनाडु",ml:"മഷ്റൂം ചെട്ടിനാട്",te:"మష్రూమ్ చెట్టినాడు",kn:"ಮಶ್ರೂಮ್ ಚೆಟ್ಟಿನಾಡು"},
+ kadaiveg:{ta:"கடாய் வெஜ்",hi:"कड़ाही वेज",ml:"കടായി വെജ്",te:"కడాయి వెజ్",kn:"ಕಡಾಯಿ ವೆಜ್"},
+ kadaipaneer:{ta:"கடாய் பன்னீர்",hi:"कड़ाही पनीर",ml:"കടായി പനീർ",te:"కడాయి పనీర్",kn:"ಕಡಾಯಿ ಪನೀರ್"},
+ kadaimushroom:{ta:"கடாய் மஷ்ரூம்",hi:"कड़ाही मशरूम",ml:"കടായി മഷ്റൂം",te:"కడాయి మష్రూమ్",kn:"ಕಡಾಯಿ ಮಶ್ರೂಮ್"},
+ malaikofta:{ta:"மலாய் கோஃப்தா கறி",hi:"मलाई कोफ्ता करी",ml:"മലായ് കോഫ്ത കറി",te:"మలాయ్ కోఫ్తా కర్రీ",kn:"ಮಲಾಯ್ ಕೋಫ್ತಾ ಕರಿ"},
+ mixedvegcurry:{ta:"மிக்ஸ்டு வெஜ் கறி",hi:"मिक्स्ड वेज करी",ml:"മിക്സഡ് വെജ് കറി",te:"మిక్స్‌డ్ వెజ్ కర్రీ",kn:"ಮಿಕ್ಸ್ಡ್ ವೆಜ್ ಕರಿ"},
+ greenpeasmasala:{ta:"பட்டாணி மசாலா",hi:"ग्रीन पीस मसाला",ml:"ഗ്രീൻ പീസ് മസാല",te:"గ్రీన్ పీస్ మసాలా",kn:"ಗ್ರೀನ್ ಪೀಸ್ ಮಸಾಲಾ"},
+ channamasala:{ta:"சன்னா மசாலா",hi:"छोले मसाला",ml:"ചന്ന മസാല",te:"ఛనా మసాలా",kn:"ಛನಾ ಮಸಾಲಾ"},
+ paneerhyderabadi:{ta:"பன்னீர் ஹைதராபாதி",hi:"पनीर हैदराबादी",ml:"പനീർ ഹൈദരാബാദി",te:"పనీర్ హైదరాబాదీ",kn:"ಪನೀರ್ ಹೈದರಾಬಾದಿ"},
+ paneermatar:{ta:"பன்னீர் மட்டர் கறி",hi:"पनीर मटर करी",ml:"പനീർ മട്ടർ കറി",te:"పనీర్ మటర్ కర్రీ",kn:"ಪನೀರ್ ಮಟರ್ ಕರಿ"},
+ paneertikkamasala:{ta:"பன்னீர் டிக்கா மசாலா",hi:"पनीर टिक्का मसाला",ml:"പനീർ ടിക്ക മസാല",te:"పనీర్ టిక్కా మసాలా",kn:"ಪನೀರ್ ಟಿಕ್ಕಾ ಮಸಾಲಾ"},
+ mushhyderabadi:{ta:"மஷ்ரூம் ஹைதராபாதி",hi:"मशरूम हैदराबादी",ml:"മഷ്റൂം ഹൈദരാബാദി",te:"మష్రూమ్ హైదరాబాదీ",kn:"ಮಶ್ರೂಮ್ ಹೈದರಾಬಾದಿ"},
+ mushvartha:{ta:"மஷ்ரூம் வர்த்தா கறி",hi:"मशरूम वर्था करी",ml:"മഷ്റൂം വർത്ത കറി",te:"మష్రూమ్ వర్తా కర్రీ",kn:"ಮಶ್ರೂಮ್ ವರ್ತಾ ಕರಿ"},
+ dalfry:{ta:"தால் ஃப்ரை",hi:"दाल फ्राई",ml:"ദാൽ ഫ്രൈ",te:"దాల్ ఫ్రై",kn:"ದಾಲ್ ಫ್ರೈ"},
+ cashewmasala:{ta:"முந்திரி மசாலா",hi:"काजू मसाला",ml:"കശുവണ്ടി മസാല",te:"జీడిపప్పు మసాలా",kn:"ಗೋಡಂಬಿ ಮಸಾಲಾ"},
+ aloogobimasala:{ta:"ஆலூ கோபி மசாலா",hi:"आलू गोबी मसाला",ml:"ആലൂ ഗോബി മസാല",te:"ఆలూ గోబీ మసాలా",kn:"ಆಲೂ ಗೋಬಿ ಮಸಾಲಾ"},
+ roti:{ta:"ரொட்டி",hi:"रोटी",ml:"റൊട്ടി",te:"రోటీ",kn:"ರೊಟ್ಟಿ"},
+ naan:{ta:"நான்",hi:"नान",ml:"നാൻ",te:"నాన్",kn:"ನಾನ್"},
+ kulcha:{ta:"குல்ச்சா",hi:"कुलचा",ml:"കുൽച്ച",te:"కుల్చా",kn:"ಕುಲ್ಚಾ"},
+ butterbread:{ta:"பட்டர் ரொட்டி / நான் / குல்ச்சா",hi:"बटर रोटी / नान / कुलचा",ml:"ബട്ടർ റൊട്ടി / നാൻ / കുൽച്ച",te:"బటర్ రోటీ / నాన్ / కుల్చా",kn:"ಬಟರ್ ರೊಟ್ಟಿ / ನಾನ್ / ಕುಲ್ಚಾ"},
+ rumaliroti:{ta:"ருமாலி ரொட்டி",hi:"रुमाली रोटी",ml:"റുമാലി റൊട്ടി",te:"రుమాలీ రోటీ",kn:"ರುಮಾಲಿ ರೊಟ್ಟಿ"},
+ garlicroti:{ta:"பூண்டு ரொட்டி",hi:"लहसुन रोटी",ml:"വെളുത്തുള്ളി റൊട്ടി",te:"వెల్లుల్లి రోటీ",kn:"ಬೆಳ್ಳುಳ್ಳಿ ರೊಟ್ಟಿ"},
+ garlickulcha:{ta:"பூண்டு குல்ச்சா",hi:"लहसुन कुलचा",ml:"വെളുത്തുള്ളി കുൽച്ച",te:"వెల్లుల్లి కుల్చా",kn:"ಬೆಳ್ಳುಳ್ಳಿ ಕುಲ್ಚಾ"},
+ tandooriparatha:{ta:"தந்தூரி பராத்தா",hi:"तंदूरी पराठा",ml:"തന്തൂരി പറാത്ത",te:"తందూరీ పరాఠా",kn:"ತಂದೂರಿ ಪರಾಠಾ"},
+ garlicbutternaan:{ta:"பூண்டு பட்டர் நான்",hi:"लहसुन बटर नान",ml:"വെളുത്തുള്ളി ബട്ടർ നാൻ",te:"వెల్లుల్లి బటర్ నాన్",kn:"ಬೆಳ್ಳುಳ್ಳಿ ಬಟರ್ ನಾನ್"},
+ vegpulav:{ta:"வெஜ் புலாவ்",hi:"वेज पुलाव",ml:"വെജ് പുലാവ്",te:"వెజ్ పులావ్",kn:"ವೆಜ್ ಪುಲಾವ್"},
+ paneerpulav:{ta:"பன்னீர் புலாவ்",hi:"पनीर पुलाव",ml:"പനീർ പുലാവ്",te:"పనీర్ పులావ్",kn:"ಪನೀರ್ ಪುಲಾವ್"},
+ mushpulav:{ta:"மஷ்ரூம் புலாவ்",hi:"मशरूम पुलाव",ml:"മഷ്റൂം പുലാവ്",te:"మష్రూమ్ పులావ్",kn:"ಮಶ್ರೂಮ್ ಪುಲಾವ್"},
+ peaspulav:{ta:"பட்டாணி புலாவ்",hi:"मटर पुलाव",ml:"പീസ് പുലാവ്",te:"పీస్ పులావ్",kn:"ಪೀಸ್ ಪುಲಾವ್"},
+ cashewpulav:{ta:"முந்திரி புலாவ்",hi:"काजू पुलाव",ml:"കശുവണ്ടി പുലാവ്",te:"జీడిపప్పు పులావ్",kn:"ಗೋಡಂಬಿ ಪುಲಾವ್"},
+ jeerarice:{ta:"ஜீரா ரைஸ்",hi:"जीरा राइस",ml:"ജീര റൈസ്",te:"జీరా రైస్",kn:"ಜೀರಾ ರೈಸ್"},
+ gheerice:{ta:"நெய் சாதம்",hi:"घी राइस",ml:"നെയ്യ് റൈസ്",te:"నెయ్యి రైస్",kn:"ತುಪ್ಪ ರೈಸ್"},
+ chillyidly:{ta:"சில்லி இட்லி",hi:"चिल्ली इडली",ml:"ചില്ലി ഇഡ്ലി",te:"చిల్లీ ఇడ్లీ",kn:"ಚಿಲ್ಲಿ ಇಡ್ಲಿ"},
+ pepperidly:{ta:"மிளகு இட்லி",hi:"पेपर इडली",ml:"പെപ്പർ ഇഡ്ലി",te:"పెప్పర్ ఇడ్లీ",kn:"ಪೆಪ್ಪರ್ ಇಡ್ಲಿ"},
+ podiidly:{ta:"பொடி இட்லி",hi:"पोडी इडली",ml:"പൊടി ഇഡ്ലി",te:"పొడి ఇడ్లీ",kn:"ಪೊಡಿ ಇಡ್ಲಿ"},
+ specialsevai:{ta:"இன்றைய ஸ்பெஷல் சேவை",hi:"आज की स्पेशल सेवई",ml:"ഇന്നത്തെ സ്പെഷ്യൽ സേവൈ",te:"నేటి స్పెషల్ సేవై",kn:"ಇಂದಿನ ಸ್ಪೆಷಲ್ ಸೇವೈ"},
+ aappam:{ta:"ஆப்பம் – தேங்காய் பால் & ஸ்டூ",hi:"आप्पम – नारियल दूध & स्टू",ml:"അപ്പം – തേങ്ങാപ്പാൽ & സ്റ്റൂ",te:"ఆప్పం – కొబ్బరి పాలు & స్టూ",kn:"ಆಪ್ಪಂ – ತೆಂಗಿನ ಹಾಲು & ಸ್ಟ್ಯೂ"},
+ paniyaram:{ta:"பணியாரம் (6)",hi:"पनियारम (6)",ml:"പണിയാരം (6)",te:"పనియారం (6)",kn:"ಪನಿಯಾರಂ (6)"},
+ kuzhaputtu:{ta:"குழல் புட்டு – கடலை கறியுடன்",hi:"कुष़ा पुट्टु – कडला करी",ml:"കുഴൽ പുട്ട് – കടല കറി",te:"కుఝా పుట్టు – కడల కర్రీ",kn:"ಕುಝಾ ಪುಟ್ಟು – ಕಡಲೆ ಕರಿ"},
+ blackcoffee:{ta:"பிளாக் காபி",hi:"ब्लैक कॉफ़ी",ml:"ബ്ലാക്ക് കോഫി",te:"బ్లాక్ కాఫీ",kn:"ಬ್ಲ್ಯಾಕ್ ಕಾಫಿ"},
+ hotmilk:{ta:"சூடான பால்",hi:"गर्म दूध",ml:"ചൂട് പാല്",te:"వేడి పాలు",kn:"ಬಿಸಿ ಹಾಲು"},
+ blacktea:{ta:"பிளாக் டீ",hi:"ब्लैक टी",ml:"ബ്ലാക്ക് ടീ",te:"బ్లాక్ టీ",kn:"ಬ್ಲ್ಯಾಕ್ ಟೀ"},
+ greentea:{ta:"கிரீன் டீ",hi:"ग्रीन टी",ml:"ഗ്രീൻ ടീ",te:"గ్రీన్ టీ",kn:"ಗ್ರೀನ್ ಟೀ"},
+ lemontea:{ta:"எலுமிச்சை டீ",hi:"लेमन टी",ml:"ലെമൺ ടീ",te:"లెమన్ టీ",kn:"ಲೆಮನ್ ಟೀ"},
+ bournvita:{ta:"போர்ன்விட்டா",hi:"बॉर्नविटा",ml:"ബോൺവിറ്റ",te:"బోర్న్‌విటా",kn:"ಬೋರ್ನ್‌ವಿಟಾ"},
+ horlicks:{ta:"ஹார்லிக்ஸ்",hi:"हॉर्लिक्स",ml:"ഹോർലിക്സ്",te:"హార్లిక్స్",kn:"ಹಾರ್ಲಿಕ್ಸ್"},
+ coldcoffee:{ta:"கோல்டு காபி",hi:"कोल्ड कॉफ़ी",ml:"കോൾഡ് കോഫി",te:"కోల్డ్ కాఫీ",kn:"ಕೋಲ್ಡ್ ಕಾಫಿ"},
+ saltlassi:{ta:"உப்பு லஸ்ஸி",hi:"नमक लस्सी",ml:"സാൾട്ട് ലസ്സി",te:"సాల్ట్ లస్సీ",kn:"ಉಪ್ಪು ಲಸ್ಸಿ"},
+ sweetlassi:{ta:"ஸ்வீட் லஸ்ஸி",hi:"मीठी लस्सी",ml:"സ്വീറ്റ് ലസ്സി",te:"స్వీట్ లస్సీ",kn:"ಸ್ವೀಟ್ ಲಸ್ಸಿ"},
+ applejuice:{ta:"ஆப்பிள் ஜூஸ்",hi:"सेब जूस",ml:"ആപ്പിൾ ജ്യൂസ്",te:"యాపిల్ జ్యూస్",kn:"ಆಪಲ್ ಜ್ಯೂಸ್"},
+ sweetlimejuice:{ta:"சாத்துக்குடி ஜூஸ்",hi:"मौसंबी जूस",ml:"സ്വീറ്റ് ലൈം ജ്യൂസ്",te:"బత్తాయి జ్యూస్",kn:"ಮೂಸಂಬಿ ಜ್ಯೂಸ್"},
+ orangejuice:{ta:"ஆரஞ்சு ஜூஸ்",hi:"संतरा जूस",ml:"ഓറഞ്ച് ജ്യൂസ്",te:"ఆరెంజ్ జ్యూస్",kn:"ಆರೆಂಜ್ ಜ್ಯೂಸ್"},
+ muskmelonjuice:{ta:"முலாம்பழம் ஜூஸ்",hi:"खरबूजा जूस",ml:"മസ്ക് മെലൺ ജ്യൂസ്",te:"ఖర్బూజ జ్యూస్",kn:"ಕರ್ಬೂಜ ಜ್ಯೂಸ್"},
+ pineapplejuice:{ta:"அன்னாசி ஜூஸ்",hi:"अनानास जूस",ml:"പൈനാപ്പിൾ ജ്യൂസ്",te:"పైనాపిల్ జ్యూస్",kn:"ಪೈನಾಪಲ್ ಜ್ಯೂಸ್"},
+ watermelonjuice:{ta:"தர்பூசணி ஜூஸ்",hi:"तरबूज़ जूस",ml:"വാട്ടർമെലൺ ജ്യൂസ്",te:"పుచ్చకాయ జ్యూస్",kn:"ಕಲ್ಲಂಗಡಿ ಜ್ಯೂಸ್"},
+ limesoda:{ta:"ஃப்ரெஷ் லைம் சோடா",hi:"फ्रेश लाइम सोडा",ml:"ഫ്രെഷ് ലൈം സോഡ",te:"ఫ్రెష్ లైమ్ సోడా",kn:"ಫ್ರೆಶ್ ಲೈಮ್ ಸೋಡಾ"},
+ limejuice:{ta:"ஃப்ரெஷ் லைம் ஜூஸ்",hi:"फ्रेश लाइम जूस",ml:"ഫ്രെഷ് ലൈം ജ്യൂസ്",te:"ఫ్రెష్ లైమ్ జ్యూస్",kn:"ಫ್ರೆಶ್ ಲೈಮ್ ಜ್ಯೂಸ್"},
+ mintlime:{ta:"புதினா லைம் ஜூஸ்",hi:"मिंट लाइम जूस",ml:"മിന്റ് ലൈം ജ്യൂസ്",te:"మింట్ లైమ్ జ్యూస్",kn:"ಮಿಂಟ್ ಲೈಮ್ ಜ್ಯೂಸ್"},
+ carrotjuice:{ta:"காரட் ஜூஸ்",hi:"गाजर जूस",ml:"കാരറ്റ് ജ്യൂസ്",te:"క్యారెట్ జ్యూస్",kn:"ಕ್ಯಾರೆಟ್ ಜ್ಯೂಸ್"},
+ strawberryshake:{ta:"ஸ்ட்ராபெர்ரி மில்க்‌ஷேக்",hi:"स्ट्रॉबेरी मिल्कशेक",ml:"സ്ട്രോബെറി മിൽക്ക്ഷേക്ക്",te:"స్ట్రాబెర్రీ మిల్క్‌షేక్",kn:"ಸ್ಟ್ರಾಬೆರಿ ಮಿಲ್ಕ್‌ಶೇಕ್"},
+ butterscotchshake:{ta:"பட்டர்ஸ்காட்ச் மில்க்‌ஷேக்",hi:"बटरस्कॉच मिल्कशेक",ml:"ബട്ടർസ്കോച്ച് മിൽക്ക്ഷേക്ക്",te:"బటర్‌స్కాచ్ మిల్క్‌షేక్",kn:"ಬಟರ್‌ಸ್ಕಾಚ್ ಮಿಲ್ಕ್‌ಶೇಕ್"},
+ chocolateshake:{ta:"சாக்லேட் மில்க்‌ஷேக்",hi:"चॉकलेट मिल्कशेक",ml:"ചോക്ലേറ്റ് മിൽക്ക്ഷേക്ക്",te:"చాక్లెట్ మిల్క్‌షేక్",kn:"ಚಾಕ್ಲೇಟ್ ಮಿಲ್ಕ್‌ಶೇಕ್"},
+ vanillashake:{ta:"வெனிலா மில்க்‌ஷேக்",hi:"वनीला मिल्कशेक",ml:"വാനില മിൽക്ക്ഷേക്ക്",te:"వనిలా మిల్క్‌షేక్",kn:"ವೆನಿಲಾ ಮಿಲ್ಕ್‌ಶೇಕ್"},
+ pistashake:{ta:"பிஸ்தா மில்க்‌ஷேக்",hi:"पिस्ता मिल्कशेक",ml:"പിസ്ത മിൽക്ക്ഷേക്ക്",te:"పిస్తా మిల్క్‌షేక్",kn:"ಪಿಸ್ತಾ ಮಿಲ್ಕ್‌ಶೇಕ್"},
+ almondshake:{ta:"பாதாம் மில்க்‌ஷேக்",hi:"बादाम मिल्कशेक",ml:"ബദാം മിൽക്ക്ഷേക്ക്",te:"బాదం మిల్క్‌షేక్",kn:"ಬಾದಾಮಿ ಮಿಲ್ಕ್‌ಶೇಕ್"},
+ icecreamshake:{ta:"ஐஸ்கிரீம் மில்க்‌ஷேக்",hi:"आइसक्रीम मिल्कशेक",ml:"ഐസ്ക്രീം മിൽക്ക്ഷേക്ക്",te:"ఐస్‌క్రీమ్ మిల్క్‌షేక్",kn:"ಐಸ್‌ಕ್ರೀಮ್ ಮಿಲ್ಕ್‌ಶೇಕ್"},
+ rasamalai:{ta:"ரஸமலாய்",hi:"रसमलाई",ml:"രസമലായ്",te:"రసమలాయ్",kn:"ರಸಮಲಾಯ್"},
+ rasagulla:{ta:"ரஸகுல்லா",hi:"रसगुल्ला",ml:"രസഗുള്ള",te:"రసగుల్లా",kn:"ರಸಗುಲ್ಲಾ"},
+ carrothalwa:{ta:"காரட் அல்வா – ஐஸ்கிரீமுடன்",hi:"गाजर हलवा – आइसक्रीम के साथ",ml:"കാരറ്റ് ഹൽവ – ഐസ്ക്രീമിനൊപ്പം",te:"క్యారెట్ హల్వా – ఐస్‌క్రీమ్‌తో",kn:"ಕ್ಯಾರೆಟ್ ಹಲ್ವಾ – ಐಸ್‌ಕ್ರೀಮ್‌ನೊಂದಿಗೆ"},
+ hotjamun:{ta:"ஹாட் ஜாமூன் – ஐஸ்கிரீமுடன்",hi:"हॉट जामुन – आइसक्रीम के साथ",ml:"ഹോട്ട് ജാമൂൻ – ഐസ്ക്രീമിനൊപ്പം",te:"హాట్ జామూన్ – ఐస్‌క్రీమ్‌తో",kn:"ಹಾಟ್ ಜಾಮೂನ್ – ಐಸ್‌ಕ್ರೀಮ್‌ನೊಂದಿಗೆ"},
+ fruitsalad:{ta:"ஃப்ரூட் சாலட் – ஐஸ்கிரீமுடன்",hi:"फ्रूट सलाद – आइसक्रीम के साथ",ml:"ഫ്രൂട്ട് സലാഡ് – ഐസ്ക്രീമിനൊപ്പം",te:"ఫ్రూట్ సలాడ్ – ఐస్‌క్రీమ్‌తో",kn:"ಫ್ರೂಟ್ ಸಲಾಡ್ – ಐಸ್‌ಕ್ರೀಮ್‌ನೊಂದಿಗೆ"},
+ falooda:{ta:"ஃபலூதா",hi:"फालूदा",ml:"ഫലൂദ",te:"ఫలూదా",kn:"ಫಲೂದಾ"},
+ chocobrownie:{ta:"சாக்லேட் பிரௌனி – ஐஸ்கிரீமுடன்",hi:"चॉकलेट ब्राउनी – आइसक्रीम के साथ",ml:"ചോക്ലേറ്റ് ബ്രൗണി – ഐസ്ക്രീമിനൊപ്പം",te:"చాక్లెట్ బ్రౌనీ – ఐస్‌క్రీమ్‌తో",kn:"ಚಾಕ್ಲೇಟ್ ಬ್ರೌನಿ – ಐಸ್‌ಕ್ರೀಮ್‌ನೊಂದಿಗೆ"},
+ icecreamnuts:{ta:"ஐஸ்கிரீம் – சாக் சாஸ் & நட்ஸ்",hi:"आइसक्रीम – चॉक सॉस & नट्स",ml:"ഐസ്ക്രീം – ചോക് സോസ് & നട്സ്",te:"ఐస్‌క్రీమ్ – చాక్ సాస్ & నట్స్",kn:"ಐಸ್‌ಕ್ರೀಮ್ – ಚಾಕ್ ಸಾಸ್ & ನಟ್ಸ್"},
+ choiceicecream:{ta:"உங்கள் விருப்ப ஐஸ்கிரீம்",hi:"आपकी पसंद की आइसक्रीम",ml:"നിങ്ങളുടെ ഇഷ്ട ഐസ്ക്രീം",te:"మీ ఇష్టమైన ఐస్‌క్రీమ్",kn:"ನಿಮ್ಮ ಆಯ್ಕೆಯ ಐಸ್‌ಕ್ರೀಮ್"}};
+function dn(id){return lang==="en"?MENU[id].n:((NAMES[id]&&NAMES[id][lang])||MENU[id].n);}
+const CATNAMES={
+ "Tiffin":{ta:"டிஃபன்",hi:"टिफ़िन",ml:"ടിഫിൻ",te:"టిఫిన్",kn:"ಟಿಫಿನ್"},
+ "Roast & Uthappam":{ta:"ரோஸ்ட் & உத்தப்பம்",hi:"रोस्ट & उत्तपम",ml:"റോസ്റ്റ് & ഉത്തപ്പം",te:"రోస్ట్ & ఉత్తపం",kn:"ರೋಸ್ಟ್ & ಉತ್ತಪ್ಪಂ"},
+ "Parotta & Chapathi":{ta:"பரோட்டா & சப்பாத்தி",hi:"परोट्टा & चपाती",ml:"പൊറോട്ട & ചപ്പാത്തി",te:"పరోటా & చపాతీ",kn:"ಪರೋಟಾ & ಚಪಾತಿ"},
+ "Meals":{ta:"மீல்ஸ்",hi:"मील्स",ml:"മീൽസ്",te:"మీల్స్",kn:"ಮೀಲ್ಸ್"},
+ "Lunch (Rice)":{ta:"லஞ்ச் (சாதம்)",hi:"लंच (राइस)",ml:"ലഞ്ച് (റൈസ്)",te:"లంచ్ (రైస్)",kn:"ಲಂಚ್ (ರೈಸ್)"},
+ "Soups":{ta:"சூப்",hi:"सूप",ml:"സൂപ്പ്",te:"సూప్",kn:"ಸೂಪ್"},
+ "Rice & Noodles":{ta:"ரைஸ் & நூடுல்ஸ்",hi:"राइस & नूडल्स",ml:"റൈസ് & നൂഡിൽസ്",te:"రైస్ & నూడుల్స్",kn:"ರೈಸ್ & ನೂಡಲ್ಸ್"},
+ "Starters":{ta:"ஸ்டார்ட்டர்ஸ்",hi:"स्टार्टर्स",ml:"സ്റ്റാർട്ടേഴ്സ്",te:"స్టార్టర్స్",kn:"ಸ್ಟಾರ್ಟರ್ಸ್"},
+ "North Indian":{ta:"வட இந்திய",hi:"नॉर्थ इंडियन",ml:"നോർത്ത് ഇന്ത്യൻ",te:"నార్త్ ఇండియన్",kn:"ನಾರ್ತ್ ಇಂಡಿಯನ್"},
+ "Evening Specials":{ta:"மாலை ஸ்பெஷல்",hi:"इवनिंग स्पेशल",ml:"ഈവനിംഗ് സ്പെഷ്യൽ",te:"ఈవినింగ్ స్పెషల్స్",kn:"ಈವ್‌ನಿಂಗ್ ಸ್ಪೆಷಲ್ಸ್"},
+ "Beverages":{ta:"பானங்கள்",hi:"बेवरेजेस",ml:"പാനീയങ്ങൾ",te:"పానీయాలు",kn:"ಪಾನೀಯಗಳು"},
+ "Desserts & Ice Cream":{ta:"டெசர்ட் & ஐஸ்கிரீம்",hi:"डेज़र्ट & आइसक्रीम",ml:"ഡെസേർട്ട് & ഐസ്ക്രീം",te:"డెజర్ట్ & ఐస్‌క్రీమ్",kn:"ಡೆಸರ್ಟ್ & ಐಸ್‌ಕ್ರೀಮ್"},
+ "Roast":{ta:"ரோஸ்ட்",hi:"रोस्ट",ml:"റോസ്റ്റ്",te:"రోస్ట్",kn:"ರೋಸ್ಟ್"},
+ "Uthappam":{ta:"உத்தப்பம்",hi:"उत्तपम",ml:"ഉത്തപ്പം",te:"ఉత్తపం",kn:"ಉತ್ತಪ್ಪಂ"},
+ "Rava Roast":{ta:"ரவா ரோஸ்ட்",hi:"रवा रोस्ट",ml:"റവ റോസ്റ്റ്",te:"రవ్వ రోస్ట్",kn:"ರವಾ ರೋಸ್ಟ್"},
+ "Roast Varieties":{ta:"ரோஸ்ட் வகைகள்",hi:"रोस्ट किस्में",ml:"റോസ്റ്റ് ഇനങ്ങൾ",te:"రోస్ట్ రకాలు",kn:"ರೋಸ್ಟ್ ಬಗೆಗಳು"},
+ "Special Dosa":{ta:"ஸ்பெஷல் தோசை",hi:"स्पेशल डोसा",ml:"സ്പെഷ്യൽ ദോശ",te:"స్పెషల్ దోస",kn:"ಸ್ಪೆಷಲ್ ದೋಸೆ"},
+ "Chapathi & Parotta":{ta:"சப்பாத்தி & பரோட்டா",hi:"चपाती & परोट्टा",ml:"ചപ്പാത്തി & പൊറോട്ട",te:"చపాతీ & పరోటా",kn:"ಚಪಾತಿ & ಪರೋಟಾ"},
+ "Kothu & Chilly":{ta:"கொத்து & சில்லி",hi:"कोत्तु & चिल्ली",ml:"കൊത്ത് & ചില്ലി",te:"కొత్తు & చిల్లీ",kn:"ಕೊತ್ತು & ಚಿಲ್ಲಿ"},
+ "Chinese":{ta:"சைனீஸ்",hi:"चाइनीज़",ml:"ചൈനീസ്",te:"చైనీస్",kn:"ಚೈನೀಸ್"},
+ "Gravies":{ta:"கிரேவிகள்",hi:"ग्रेवी",ml:"ഗ്രേവികൾ",te:"గ్రేవీలు",kn:"ಗ್ರೇವಿಗಳು"},
+ "Breads":{ta:"ப்ரெட்ஸ்",hi:"ब्रेड्स",ml:"ബ്രെഡുകൾ",te:"బ్రెడ్స్",kn:"ಬ್ರೆಡ್ಸ್"},
+ "Pulav":{ta:"புலாவ்",hi:"पुलाव",ml:"പുലാവ്",te:"పులావ్",kn:"ಪುಲಾವ್"},
+ "Hot":{ta:"சூடானவை",hi:"गर्म",ml:"ചൂട്",te:"వేడి",kn:"ಬಿಸಿ"},
+ "Cold":{ta:"குளிர்ந்தவை",hi:"ठंडा",ml:"തണുപ്പ്",te:"చల్లని",kn:"ತಂಪು"},
+ "Fresh Juices":{ta:"ஃப்ரெஷ் ஜூஸ்",hi:"फ्रेश जूस",ml:"ഫ്രെഷ് ജ്യൂസ്",te:"ఫ్రెష్ జ్యూస్",kn:"ಫ್ರೆಶ್ ಜ್ಯೂಸ್"},
+ "Milkshakes":{ta:"மில்க்‌ஷேக்ஸ்",hi:"मिल्कशेक",ml:"മിൽക്ക്ഷേക്സ്",te:"మిల్క్‌షేక్స్",kn:"ಮಿಲ್ಕ್‌ಶೇಕ್ಸ್"}};
+function cn(name){return lang==="en"?name:((CATNAMES[name]&&CATNAMES[name][lang])||name);}
+const TXT={
+ exploreFull:{en:"🍽️ Explore full menu",ta:"🍽️ முழு மெனு",hi:"🍽️ पूरा मेन्यू",ml:"🍽️ മുഴുവൻ മെനു",te:"🍽️ పూర్తి మెను",kn:"🍽️ ಪೂರ್ಣ ಮೆನು"},
+ exploreMore:{en:"🍽️ Explore more",ta:"🍽️ மேலும் பார்க்க",hi:"🍽️ और देखें",ml:"🍽️ കൂടുതൽ കാണുക",te:"🍽️ మరిన్ని చూడండి",kn:"🍽️ ಇನ್ನಷ್ಟು ನೋಡಿ"},
+ specialsLong:{en:"⭐ Today's specials",ta:"⭐ இன்றைய ஸ்பெஷல்",hi:"⭐ आज के स्पेशल",ml:"⭐ ഇന്നത്തെ സ്പെഷ്യൽ",te:"⭐ నేటి స్పెషల్స్",kn:"⭐ ಇಂದಿನ ಸ್ಪೆಷಲ್"},
+ findForMe:{en:"✨ Find what's for me",ta:"✨ எனக்கு ஏற்றதைக் கண்டுபிடி",hi:"✨ मेरे लिए ढूँढें",ml:"✨ എനിക്കുള്ളത് കണ്ടെത്തൂ",te:"✨ నాకోసం వెతకండి",kn:"✨ ನನಗಾಗಿ ಹುಡುಕಿ"},
+ payTitle:{en:"Pay ₹%a",ta:"₹%a செலுத்து",hi:"₹%a भुगतान करें",ml:"₹%a അടയ്ക്കുക",te:"₹%a చెల్లించండి",kn:"₹%a ಪಾವತಿಸಿ"},
+ payUsing:{en:"Pay using",ta:"இதன் மூலம் செலுத்துங்கள்",hi:"इससे भुगतान करें",ml:"ഇത് ഉപയോഗിച്ച് അടയ്ക്കൂ",te:"దీని ద్వారా చెల్లించండి",kn:"ಇದರ ಮೂಲಕ ಪಾವತಿಸಿ"},
+ paySuccess:{en:"Payment successful!",ta:"பணம் செலுத்தப்பட்டது!",hi:"भुगतान सफल!",ml:"പേയ്മെന്റ് വിജയകരം!",te:"చెల్లింపు విజయవంతం!",kn:"ಪಾವತಿ ಯಶಸ್ವಿ!"},
+ payThanks:{en:"Thanks %n! Your order is confirmed and sent to the %o kitchen.",ta:"நன்றி %n! உங்கள் ஆர்டர் உறுதிசெய்யப்பட்டு %o சமையலறைக்கு அனுப்பப்பட்டது.",hi:"धन्यवाद %n! आपका ऑर्डर कन्फर्म होकर %o किचन भेज दिया गया है।",ml:"നന്ദി %n! നിങ്ങളുടെ ഓർഡർ സ്ഥിരീകരിച്ച് %o അടുക്കളയിലേക്ക് അയച്ചു.",te:"ధన్యవాదాలు %n! మీ ఆర్డర్ నిర్ధారించబడి %o వంటగదికి పంపబడింది.",kn:"ಧನ್ಯವಾದ %n! ನಿಮ್ಮ ಆರ್ಡರ್ ದೃಢೀಕರಿಸಿ %o ಅಡುಗೆಮನೆಗೆ ಕಳುಹಿಸಲಾಗಿದೆ."},
+ payWhatsapp:{en:"Bill sent on WhatsApp to",ta:"வாட்ஸ்அப்பில் பில் அனுப்பப்பட்டது:",hi:"व्हाट्सएप पर बिल भेजा गया:",ml:"വാട്ട്സ്ആപ്പിൽ ബിൽ അയച്ചു:",te:"వాట్సాప్‌లో బిల్లు పంపబడింది:",kn:"ವಾಟ್ಸಾಪ್‌ನಲ್ಲಿ ಬಿಲ್ ಕಳುಹಿಸಲಾಗಿದೆ:"},
+ takeaway:{en:"Takeaway",ta:"டேக்அவே",hi:"टेकअवे",ml:"ടേക്ക്എവേ",te:"టేకావే",kn:"ಟೇಕ್‌ಅವೇ"},
+ persons:{en:"persons",ta:"நபர்கள்",hi:"लोग",ml:"പേർ",te:"మంది",kn:"ಜನ"},
+ paidVia:{en:"Paid via",ta:"செலுத்தியது:",hi:"भुगतान:",ml:"അടച്ചത്:",te:"చెల్లించినది:",kn:"ಪಾವತಿಸಿದ್ದು:"},
+ done:{en:"Done",ta:"முடிந்தது",hi:"हो गया",ml:"പൂർത്തിയായി",te:"పూర్తయింది",kn:"ಮುಗಿದಿದೆ"},
+ totalPaid:{en:"Total paid",ta:"மொத்தம் செலுத்தியது",hi:"कुल भुगतान",ml:"ആകെ അടച്ചത്",te:"మొత్తం చెల్లించినది",kn:"ಒಟ್ಟು ಪಾವತಿ"},
+ orderThanks:{en:"Enjoy your meal! 😊 Would you like to explore more?",ta:"உணவை ரசியுங்கள்! 😊 மேலும் பார்க்க விரும்புகிறீர்களா?",hi:"भोजन का आनंद लें! 😊 क्या आप और देखना चाहेंगे?",ml:"ഭക്ഷണം ആസ്വദിക്കൂ! 😊 കൂടുതൽ കാണാൻ ആഗ്രഹിക്കുന്നുണ്ടോ?",te:"భోజనం ఆస్వాదించండి! 😊 మరిన్ని చూడాలనుకుంటున్నారా?",kn:"ಊಟ ಆನಂದಿಸಿ! 😊 ಇನ್ನಷ್ಟು ನೋಡಲು ಬಯಸುತ್ತೀರಾ?"},
+ welcomeBack:{en:"Welcome back, %n! 😊 Same as last time, or something different today?",ta:"மீண்டும் வரவேற்கிறோம், %n! 😊 முந்தைய அதே, அல்லது இன்று வேறு ஏதாவது?",hi:"वापसी पर स्वागत है, %n! 😊 पिछली बार जैसा, या आज कुछ अलग?",ml:"വീണ്ടും സ്വാഗതം, %n! 😊 കഴിഞ്ഞ തവണത്തേത് തന്നെ, അതോ ഇന്ന് വ്യത്യസ്തമായി?",te:"మళ్లీ స్వాగతం, %n! 😊 గత సారిలాగే, లేదా ఈరోజు ఏదైనా కొత్తది?",kn:"ಮತ್ತೆ ಸ್ವಾಗತ, %n! 😊 ಕಳೆದ ಬಾರಿಯಂತೆಯೇ, ಅಥವಾ ಇಂದು ಏನಾದರೂ ಬೇರೆ?"},
+ myUsual:{en:"🔁 My usual",ta:"🔁 வழக்கமானது",hi:"🔁 मेरा हमेशा वाला",ml:"🔁 പതിവ് വിഭവം",te:"🔁 నా రెగ్యులర్",kn:"🔁 ನನ್ನ ಎಂದಿನದು"},
+ somethingNew:{en:"✨ Something new",ta:"✨ புதிதாக ஏதாவது",hi:"✨ कुछ नया",ml:"✨ പുതിയ എന്തെങ്കിലും",te:"✨ ఏదైనా కొత్తది",kn:"✨ ಏನಾದರೂ ಹೊಸದು"},
+ usualIntro:{en:"Here's what you had last time 👇",ta:"முந்தைய முறை நீங்கள் சாப்பிட்டது 👇",hi:"पिछली बार आपने यह लिया था 👇",ml:"കഴിഞ്ഞ തവണ കഴിച്ചത് ഇതാ 👇",te:"గత సారి మీరు తీసుకున్నది 👇",kn:"ಕಳೆದ ಬಾರಿ ನೀವು ತಿಂದದ್ದು 👇"},
+ newIntro:{en:"Let's try something different today! ✨",ta:"இன்று வேறு ஏதாவது முயற்சிப்போம்! ✨",hi:"आज कुछ अलग आज़माते हैं! ✨",ml:"ഇന്ന് വ്യത്യസ്തമായി എന്തെങ്കിലും നോക്കാം! ✨",te:"ఈరోజు ఏదైనా కొత్తది ప్రయత్నిద్దాం! ✨",kn:"ಇಂದು ಏನಾದರೂ ಬೇರೆ ಪ್ರಯತ್ನಿಸೋಣ! ✨"},
+ noUsual:{en:"Couldn't find your past dishes — here's something fresh!",ta:"உங்கள் முந்தைய உணவுகள் கிடைக்கவில்லை — இதோ புதிது!",hi:"आपके पिछले व्यंजन नहीं मिले — यह लीजिए कुछ नया!",ml:"പഴയ വിഭവങ്ങൾ കണ്ടെത്താനായില്ല — ഇതാ പുതിയത്!",te:"మీ గత వంటకాలు దొరకలేదు — ఇదిగో కొత్తది!",kn:"ನಿಮ್ಮ ಹಿಂದಿನ ಖಾದ್ಯಗಳು ಸಿಗಲಿಲ್ಲ — ಇಗೋ ಹೊಸದು!"},
+ notYou:{en:"Not you?",ta:"நீங்கள் இல்லையா?",hi:"आप नहीं?",ml:"നിങ്ങളല്ലേ?",te:"మీరు కాదా?",kn:"ನೀವಲ್ಲವೇ?"},
+ confirmNumTitle:{en:"Confirm your number",ta:"உங்கள் எண்ணை உறுதிசெய்யுங்கள்",hi:"अपना नंबर पुष्टि करें",ml:"നിങ്ങളുടെ നമ്പർ ഉറപ്പിക്കൂ",te:"మీ నంబర్‌ను నిర్ధారించండి",kn:"ನಿಮ್ಮ ಸಂಖ್ಯೆಯನ್ನು ದೃಢೀಕರಿಸಿ"},
+ confirmNumSub:{en:"We'll link your order to this number. Is it correct?",ta:"உங்கள் ஆர்டரை இந்த எண்ணுடன் இணைப்போம். சரியா?",hi:"हम आपका ऑर्डर इस नंबर से जोड़ेंगे। क्या यह सही है?",ml:"നിങ്ങളുടെ ഓർഡർ ഈ നമ്പറുമായി ബന്ധിപ്പിക്കും. ശരിയാണോ?",te:"మీ ఆర్డర్‌ను ఈ నంబర్‌తో లింక్ చేస్తాం. ఇది సరియేనా?",kn:"ನಿಮ್ಮ ಆರ್ಡರ್ ಅನ್ನು ಈ ಸಂಖ್ಯೆಗೆ ಲಿಂಕ್ ಮಾಡುತ್ತೇವೆ. ಸರಿಯೇ?"},
+ confirmYes:{en:"✓ Yes, continue",ta:"✓ ஆம், தொடரவும்",hi:"✓ हाँ, आगे बढ़ें",ml:"✓ അതെ, തുടരൂ",te:"✓ అవును, కొనసాగించండి",kn:"✓ ಹೌದು, ಮುಂದುವರಿಸಿ"},
+ confirmEdit:{en:"Edit number",ta:"எண்ணை மாற்று",hi:"नंबर बदलें",ml:"നമ്പർ തിരുത്തുക",te:"నంబర్ మార్చండి",kn:"ಸಂಖ್ಯೆ ಬದಲಿಸಿ"},
+ payOpening:{en:"Opening %m…",ta:"%m திறக்கிறது…",hi:"%m खोल रहे हैं…",ml:"%m തുറക്കുന്നു…",te:"%m తెరుస్తోంది…",kn:"%m ತೆರೆಯಲಾಗುತ್ತಿದೆ…"},
+ payComplete:{en:"Finish the payment in the app, then tap below.",ta:"செயலியில் பணம் செலுத்தி, கீழே தட்டவும்.",hi:"ऐप में भुगतान पूरा करें, फिर नीचे टैप करें।",ml:"ആപ്പിൽ പേയ്മെന്റ് പൂർത്തിയാക്കി താഴെ ടാപ്പ് ചെയ്യൂ.",te:"యాప్‌లో చెల్లింపు పూర్తి చేసి, కింద నొక్కండి.",kn:"ಆ್ಯಪ್‌ನಲ್ಲಿ ಪಾವತಿ ಪೂರ್ಣಗೊಳಿಸಿ, ನಂತರ ಕೆಳಗೆ ಟ್ಯಾಪ್ ಮಾಡಿ."},
+ payIvePaid:{en:"✓ I've paid ₹%a",ta:"✓ ₹%a செலுத்திவிட்டேன்",hi:"✓ मैंने ₹%a भुगतान कर दिया",ml:"✓ ഞാൻ ₹%a അടച്ചു",te:"✓ నేను ₹%a చెల్లించాను",kn:"✓ ನಾನು ₹%a ಪಾವತಿಸಿದೆ"},
+ payCancelPay:{en:"Cancel payment",ta:"பணம் செலுத்துவதை ரத்துசெய்",hi:"भुगतान रद्द करें",ml:"പേയ്മെന്റ് റദ്ദാക്കൂ",te:"చెల్లింపును రద్దు చేయండి",kn:"ಪಾವತಿ ರದ್ದುಮಾಡಿ"},
+ payFailTitle:{en:"Payment failed",ta:"பணம் செலுத்துதல் தோல்வி",hi:"भुगतान विफल",ml:"പേയ്മെന്റ് പരാജയപ്പെട്ടു",te:"చెల్లింపు విఫలమైంది",kn:"ಪಾವತಿ ವಿಫಲವಾಗಿದೆ"},
+ payFailSub:{en:"Your payment didn't go through. Don't worry — nothing was charged.",ta:"உங்கள் பணம் செலுத்துதல் நிறைவடையவில்லை. கவலை வேண்டாம் — எந்தத் தொகையும் கழிக்கப்படவில்லை.",hi:"आपका भुगतान पूरा नहीं हुआ। चिंता न करें — कोई राशि नहीं कटी है।",ml:"നിങ്ങളുടെ പേയ്മെന്റ് പൂർത്തിയായില്ല. വിഷമിക്കേണ്ട — പണമൊന്നും ഈടാക്കിയിട്ടില്ല.",te:"మీ చెల్లింపు పూర్తి కాలేదు. చింతించకండి — ఎలాంటి మొత్తం వసూలు కాలేదు.",kn:"ನಿಮ್ಮ ಪಾವತಿ ಪೂರ್ಣಗೊಳ್ಳಲಿಲ್ಲ. ಚಿಂತಿಸಬೇಡಿ — ಯಾವುದೇ ಮೊತ್ತ ಕಡಿತವಾಗಿಲ್ಲ."},
+ payRetry:{en:"🔄 Try payment again",ta:"🔄 மீண்டும் முயற்சிக்கவும்",hi:"🔄 दोबारा भुगतान करें",ml:"🔄 വീണ്ടും ശ്രമിക്കൂ",te:"🔄 మళ్లీ ప్రయత్నించండి",kn:"🔄 ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ"},
+ payCancelOrder:{en:"Cancel order",ta:"ஆர்டரை ரத்துசெய்",hi:"ऑर्डर रद्द करें",ml:"ഓർഡർ റദ്ദാക്കൂ",te:"ఆర్డర్ రద్దు చేయండి",kn:"ಆರ್ಡರ್ ರದ್ದುಮಾಡಿ"},
+ tapStop:{en:"● Recording — tap to stop",ta:"● பதிவாகிறது — நிறுத்த தட்டவும்",hi:"● रिकॉर्ड हो रहा है — रोकने के लिए टैप करें",ml:"● റെക്കോർഡ് ചെയ്യുന്നു — നിർത്താൻ ടാപ്പ് ചെയ്യൂ",te:"● రికార్డ్ అవుతోంది — ఆపడానికి నొక్కండి",kn:"● ರೆಕಾರ್ಡ್ ಆಗುತ್ತಿದೆ — ನಿಲ್ಲಿಸಲು ಟ್ಯಾಪ್ ಮಾಡಿ"},
+ voiceRefining:{en:"✨ Refining…",ta:"✨ மெருகூட்டுகிறது…",hi:"✨ सुधार रहे हैं…",ml:"✨ മെച്ചപ്പെടുത്തുന്നു…",te:"✨ మెరుగుపరుస్తోంది…",kn:"✨ ಸುಧಾರಿಸಲಾಗುತ್ತಿದೆ…"},
+ payCancelledMsg:{en:"No problem — the payment was cancelled and nothing was charged. Your items are still in your cart whenever you'd like to try again. 🙂",ta:"பரவாயில்லை — பணம் செலுத்துதல் ரத்துசெய்யப்பட்டது, எந்தத் தொகையும் கழிக்கப்படவில்லை. நீங்கள் மீண்டும் முயற்சிக்க விரும்பினால் உங்கள் உணவுகள் கூடையில் உள்ளன. 🙂",hi:"कोई बात नहीं — भुगतान रद्द कर दिया गया और कोई राशि नहीं कटी। जब भी आप दोबारा कोशिश करना चाहें, आपके आइटम कार्ट में मौजूद हैं। 🙂",ml:"കുഴപ്പമില്ല — പേയ്മെന്റ് റദ്ദാക്കി, പണമൊന്നും ഈടാക്കിയിട്ടില്ല. വീണ്ടും ശ്രമിക്കാൻ ആഗ്രഹിക്കുമ്പോൾ നിങ്ങളുടെ വിഭവങ്ങൾ കാർട്ടിൽ ഉണ്ട്. 🙂",te:"ఫర్వాలేదు — చెల్లింపు రద్దు చేయబడింది, ఎలాంటి మొత్తం వసూలు కాలేదు. మీరు మళ్లీ ప్రయత్నించాలనుకున్నప్పుడు మీ వస్తువులు కార్ట్‌లో ఉన్నాయి. 🙂",kn:"ಪರವಾಗಿಲ್ಲ — ಪಾವತಿ ರದ್ದಾಗಿದೆ, ಯಾವುದೇ ಮೊತ್ತ ಕಡಿತವಾಗಿಲ್ಲ. ನೀವು ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಲು ಬಯಸಿದಾಗ ನಿಮ್ಮ ಐಟಂಗಳು ಕಾರ್ಟ್‌ನಲ್ಲಿವೆ. 🙂"},
+ downloadBill:{en:"⬇ Download bill",ta:"⬇ பில் பதிவிறக்கு",hi:"⬇ बिल डाउनलोड करें",ml:"⬇ ബിൽ ഡൗൺലോഡ് ചെയ്യൂ",te:"⬇ బిల్లు డౌన్‌లోడ్",kn:"⬇ ಬಿಲ್ ಡೌನ್‌ಲೋಡ್"},
+ specials:{en:"⭐ Specials",ta:"⭐ ஸ்பெஷல்",hi:"⭐ स्पेशल",ml:"⭐ സ്പെഷ്യൽ",te:"⭐ స్పెషల్స్",kn:"⭐ ಸ್ಪೆಷಲ್"},
+ info:{en:"ℹ️ Store info",ta:"ℹ️ உணவகத் தகவல்",hi:"ℹ️ रेस्टोरेंट जानकारी",ml:"ℹ️ റെസ്റ്റോറന്റ് വിവരം",te:"ℹ️ రెస్టారెంట్ సమాచారం",kn:"ℹ️ ರೆಸ್ಟೋರೆಂಟ್ ಮಾಹಿತಿ"},
+ banquet:{en:"🎉 Banquet hall",ta:"🎉 விருந்து மண்டபம்",hi:"🎉 बैंक्वेट हॉल",ml:"🎉 ബാങ്ക്വറ്റ് ഹാൾ",te:"🎉 బాంక్వెట్ హాల్",kn:"🎉 ಬ್ಯಾಂಕ್ವೆಟ್ ಹಾಲ್"},
+ changeOutlet:{en:"📍 Change outlet",ta:"📍 கிளையை மாற்று",hi:"📍 आउटलेट बदलें",ml:"📍 ഔട്ട്‌ലെറ്റ് മാറ്റുക",te:"📍 అవుట్‌లెట్ మార్చండి",kn:"📍 ಔಟ್‌ಲೆಟ್ ಬದಲಿಸಿ"},
+ feedback:{en:"Give feedback",ta:"கருத்து தெரிவிக்க",hi:"प्रतिक्रिया दें",ml:"അഭിപ്രായം നൽകുക",te:"అభిప్రాయం ఇవ్వండి",kn:"ಪ್ರತಿಕ್ರಿಯೆ ನೀಡಿ"},
+ fbThanks:{en:"Thank you for your feedback! 🙏 We truly value it.",ta:"உங்கள் கருத்துக்கு நன்றி! 🙏 நாங்கள் அதை மதிக்கிறோம்.",hi:"आपकी प्रतिक्रिया के लिए धन्यवाद! 🙏",ml:"നിങ്ങളുടെ അഭിപ്രായത്തിന് നന്ദി! 🙏",te:"మీ అభిప్రాయానికి ధన్యవాదాలు! 🙏",kn:"ನಿಮ್ಮ ಪ್ರತಿಕ್ರಿಯೆಗೆ ಧನ್ಯವಾದಗಳು! 🙏"},
+ viewCart:{en:"View cart",ta:"கார்ட்டைப் பார்க்க",hi:"कार्ट देखें",ml:"കാർട്ട് കാണുക",te:"కార్ట్ చూడండి",kn:"ಕಾರ್ಟ್ ನೋಡಿ"},
+ ask:{en:"Ask me anything…",ta:"எதையும் கேளுங்கள்…",hi:"कुछ भी पूछें…",ml:"എന്തും ചോദിക്കൂ…",te:"ఏదైనా అడగండి…",kn:"ಏನಾದರೂ ಕೇಳಿ…"},
+ home:{en:"⌂ Home",ta:"⌂ முகப்பு",hi:"⌂ होम",ml:"⌂ ഹോം",te:"⌂ హోమ్",kn:"⌂ ಮುಖಪುಟ"},
+ back:{en:"← Explore more",ta:"← மேலும்",hi:"← और देखें",ml:"← കൂടുതൽ",te:"← మరిన్ని",kn:"← ಇನ್ನಷ್ಟು"},
+ whatExplore:{en:"What would you like to explore?",ta:"எதைப் பார்க்க விரும்புகிறீர்கள்?",hi:"आप क्या देखना चाहेंगे?",ml:"നിങ്ങൾ എന്ത് കാണാൻ ആഗ്രഹിക്കുന്നു?",te:"మీరు ఏం చూడాలనుకుంటున్నారు?",kn:"ನೀವು ಏನು ನೋಡಲು ಬಯಸುತ್ತೀರಿ?"},
+ timeNote:{en:"(menu changes by time of day)",ta:"(நேரத்துக்கேற்ப மெனு மாறும்)",hi:"(समय अनुसार मेन्यू बदलता है)",ml:"(സമയത്തിനനുസരിച്ച് മെനു മാറും)",te:"(సమయాన్ని బట్టి మెను మారుతుంది)",kn:"(ಸಮಯಕ್ಕೆ ತಕ್ಕಂತೆ ಮೆನು ಬದಲಾಗುತ್ತದೆ)"},
+ pickType:{en:"pick a type",ta:"வகையைத் தேர்ந்தெடுக்கவும்",hi:"एक प्रकार चुनें",ml:"ഒരു തരം തിരഞ്ഞെടുക്കൂ",te:"ఒక రకాన్ని ఎంచుకోండి",kn:"ಒಂದು ಪ್ರಕಾರ ಆಯ್ಕೆಮಾಡಿ"},
+ tapAdd:{en:"tap to add",ta:"சேர்க்க தட்டவும்",hi:"जोड़ने के लिए टैप करें",ml:"ചേർക്കാൻ ടാപ്പ് ചെയ്യൂ",te:"జోడించడానికి ట్యాప్ చేయండి",kn:"ಸೇರಿಸಲು ಟ್ಯಾಪ್ ಮಾಡಿ"},
+ bestseller:{en:"BESTSELLER",ta:"பெஸ்ட்செல்லர்",hi:"बेस्टसेलर",ml:"ബെസ്റ്റ്സെല്ലർ",te:"బెస్ట్‌సెల్లర్",kn:"ಬೆಸ್ಟ್‌ಸೆಲ್ಲರ್"},
+ musttry:{en:"MUST TRY",ta:"கட்டாயம் சுவை",hi:"ज़रूर आज़माएँ",ml:"തീർച്ചയായും രുചിക്കൂ",te:"తప్పక రుచి చూడండి",kn:"ತಪ್ಪದೆ ಸವಿಯಿರಿ"},
+ addonAsk:{en:"Want to add %n for ₹%p? 😋",ta:"%n ₹%p-க்கு சேர்க்கவா? 😋",hi:"%n ₹%p में जोड़ें? 😋",ml:"%n ₹%p-ന് ചേർക്കണോ? 😋",te:"%n ₹%p కి జోడించాలా? 😋",kn:"%n ₹%p ಕ್ಕೆ ಸೇರಿಸಲೇ? 😋"},
+ addonYes:{en:"Yes, add it",ta:"ஆம், சேர்",hi:"हाँ, जोड़ें",ml:"അതെ, ചേർക്കൂ",te:"అవును, జోడించు",kn:"ಹೌದು, ಸೇರಿಸಿ"},
+ addonNo:{en:"No thanks",ta:"வேண்டாம்",hi:"नहीं शुक्रिया",ml:"വേണ്ട",te:"వద్దు",kn:"ಬೇಡ"},
+ addonAdded:{en:"Added! 🍨",ta:"சேர்க்கப்பட்டது! 🍨",hi:"जोड़ दिया! 🍨",ml:"ചേർത്തു! 🍨",te:"జోడించాను! 🍨",kn:"ಸೇರಿಸಿದೆ! 🍨"},
+ transcribing:{en:"Transcribing…",ta:"எழுத்தாக்குகிறது…",hi:"लिख रहा हूँ…",ml:"പകർത്തുന്നു…",te:"రాస్తోంది…",kn:"ಬರೆಯುತ್ತಿದೆ…"},
+ welcome:{en:"Welcome to <b>Bon Bon</b> Which outlet are you dining at today?",ta:"<b>ஸ்ரீ அன்னபூர்ணா</b>விற்கு வரவேற்கிறோம் இன்று எந்தக் கிளையில் சாப்பிடுகிறீர்கள்?",hi:"<b>श्री अन्नपूर्णा</b> में आपका स्वागत है आज आप किस आउटलेट पर हैं?",ml:"<b>ശ്രീ അന്നപൂർണ</b>യിലേക്ക് സ്വാഗതം ഇന്ന് ഏത് ഔട്ട്‌ലെറ്റിലാണ്?",te:"<b>శ్రీ అన్నపూర్ణ</b>కు స్వాగతం ఈ రోజు మీరు ఏ అవుట్‌లెట్‌లో ఉన్నారు?",kn:"<b>ಶ್ರೀ ಅನ್ನಪೂರ್ಣ</b>ಗೆ ಸ್ವಾಗತ ಇಂದು ನೀವು ಯಾವ ಔಟ್‌ಲೆಟ್‌ನಲ್ಲಿ ಇದ್ದೀರಿ?"},
+ pureVeg:{en:"Ice cream parlour",ta:"ஐஸ்கிரீம் பார்லர்",hi:"आइसक्रीम पार्लर",ml:"ഐസ്ക്രീം പാർലർ",te:"ఐస్‌క్రీం పార్లర్",kn:"ಐಸ್‌ಕ್ರೀಂ ಪಾರ್ಲರ್"},
+ chooseSub:{en:"Choose your outlet — AI Waiter by Odysra",ta:"உங்கள் கிளையைத் தேர்வுசெய்க — Odysra",hi:"अपना आउटलेट चुनें — Odysra",ml:"നിങ്ങളുടെ ഔട്ട്‌ലെറ്റ് തിരഞ്ഞെടുക്കൂ — Odysra",te:"మీ అవుట్‌లెట్‌ను ఎంచుకోండి — Odysra",kn:"ನಿಮ್ಮ ಔಟ್‌ಲೆಟ್ ಆಯ್ಕೆಮಾಡಿ — Odysra"},
+ alsoLike:{en:"You might also like",ta:"இவையும் பிடிக்கும்",hi:"ये भी पसंद आ सकते हैं",ml:"ഇതും ഇഷ്ടപ്പെടാം",te:"ఇవి కూడా నచ్చవచ్చు",kn:"ಇವೂ ಇಷ್ಟವಾಗಬಹುದು"},
+ add:{en:"Add",ta:"சேர்",hi:"जोड़ें",ml:"ചേർക്കൂ",te:"జోడించు",kn:"ಸೇರಿಸಿ"},
+ confirmQ:{en:"Shall I confirm your order?",ta:"உங்கள் ஆர்டரை உறுதிசெய்யவா?",hi:"क्या मैं आपका ऑर्डर कन्फर्म करूँ?",ml:"നിങ്ങളുടെ ഓർഡർ ഉറപ്പിക്കട്ടെ?",te:"మీ ఆర్డర్‌ను నిర్ధారించమంటారా?",kn:"ನಿಮ್ಮ ಆರ್ಡರ್ ದೃಢೀಕರಿಸಲೇ?"},
+ yes:{en:"✅ Yes, view cart",ta:"✅ ஆம், கார்ட்",hi:"✅ हाँ, कार्ट देखें",ml:"✅ അതെ, കാർട്ട്",te:"✅ అవును, కార్ట్",kn:"✅ ಹೌದು, ಕಾರ್ಟ್"},
+ no:{en:"✗ No, add more",ta:"✗ இல்லை, மேலும்",hi:"✗ नहीं, और जोड़ें",ml:"✗ വേണ്ട, കൂടുതൽ",te:"✗ వద్దు, మరిన్ని",kn:"✗ ಬೇಡ, ಇನ್ನಷ್ಟು"},
+ noMore:{en:"No problem! What else would you like?",ta:"பரவாயில்லை! வேறு என்ன வேண்டும்?",hi:"कोई बात नहीं! और क्या चाहिए?",ml:"കുഴപ്പമില്ല! വേറെ എന്ത് വേണം?",te:"ఫర్వాలేదు! ఇంకా ఏం కావాలి?",kn:"ಪರವಾಗಿಲ್ಲ! ಇನ್ನೇನು ಬೇಕು?"},
+ tasteSub:{en:"Optional — for picks made just for you",ta:"விருப்பம் — உங்களுக்கான பரிந்துரைகளுக்கு",hi:"वैकल्पिक — आपके लिए ख़ास सुझाव",ml:"ഓപ്ഷണൽ — നിങ്ങൾക്കായുള്ള തിരഞ്ഞെടുപ്പുകൾ",te:"ఐచ్ఛికం — మీ కోసం ప్రత్యేక ఎంపికలు",kn:"ಐಚ್ಛಿಕ — ನಿಮಗಾಗಿ ವಿಶೇಷ ಆಯ್ಕೆಗಳು"},
+ tasteSkip:{en:"Skip",ta:"தவிர்",hi:"छोड़ें",ml:"ഒഴിവാക്കൂ",te:"దాటవేయి",kn:"ಬಿಟ್ಟುಬಿಡಿ"},
+ tasteNext:{en:"Next",ta:"அடுத்து",hi:"आगे",ml:"അടുത്തത്",te:"తదుపరి",kn:"ಮುಂದೆ"},
+ tasteSee:{en:"See my picks",ta:"எனக்கான பரிந்துரைகள்",hi:"मेरे सुझाव देखें",ml:"എനിക്കുള്ളവ കാണൂ",te:"నా ఎంపికలు చూడండి",kn:"ನನ್ನ ಆಯ್ಕೆಗಳು ನೋಡಿ"},
+ tasteBack:{en:"Back",ta:"பின்",hi:"पीछे",ml:"പിന്നോട്ട്",te:"వెనుకకు",kn:"ಹಿಂದೆ"},
+ tasteMulti:{en:"Pick any that apply",ta:"பொருந்துவதைத் தேர்ந்தெடுக்கவும்",hi:"जो भी लागू हो चुनें",ml:"ബാധകമായവ തിരഞ്ഞെടുക്കൂ",te:"వర్తించేవి ఎంచుకోండి",kn:"ಅನ್ವಯಿಸುವವನ್ನು ಆಯ್ಕೆಮಾಡಿ"},
+ tasteMine:{en:"My taste",ta:"என் ரசனை",hi:"मेरा स्वाद",ml:"എന്റെ രുചി",te:"నా అభిరుచి",kn:"ನನ್ನ ಅಭಿರುಚಿ"},
+ recoIntro:{en:"Based on your taste, here are picks you'll love:",ta:"உங்கள் ரசனைக்கேற்ப, இவை உங்களுக்குப் பிடிக்கும்:",hi:"आपके स्वाद के अनुसार, ये आपको पसंद आएंगे:",ml:"നിങ്ങളുടെ രുചിക്കനുസരിച്ച്, ഇവ ഇഷ്ടമാകും:",te:"మీ అభిరుచికి తగ్గట్టు, ఇవి మీకు నచ్చుతాయి:",kn:"ನಿಮ್ಮ ಅಭಿರುಚಿಗೆ ತಕ್ಕಂತೆ, ಇವು ನಿಮಗೆ ಇಷ್ಟವಾಗುತ್ತವೆ:"},
+ proc1:{en:"Reading your taste…",ta:"உங்கள் ரசனையைப் படிக்கிறேன்…",hi:"आपका स्वाद समझ रहा हूँ…",ml:"നിങ്ങളുടെ രുചി വായിക്കുന്നു…",te:"మీ అభిరుచిని చదువుతున్నా…",kn:"ನಿಮ್ಮ ಅಭಿರುಚಿ ಓದುತ್ತಿದ್ದೇನೆ…"},
+ proc2:{en:"Matching the menu…",ta:"மெனுவுடன் பொருத்துகிறேன்…",hi:"मेन्यू से मिला रहा हूँ…",ml:"മെനുവുമായി ചേർക്കുന്നു…",te:"మెనూతో సరిపోలుస్తున్నా…",kn:"ಮೆನುವಿನೊಂದಿಗೆ ಹೊಂದಿಸುತ್ತಿದ್ದೇನೆ…"},
+ proc3:{en:"Picking the best dishes for you…",ta:"உங்களுக்கான சிறந்த உணவுகளைத் தேர்கிறேன்…",hi:"आपके लिए बेहतरीन व्यंजन चुन रहा हूँ…",ml:"നിങ്ങൾക്കായി മികച്ച വിഭവങ്ങൾ തിരഞ്ഞെടുക്കുന്നു…",te:"మీ కోసం ఉత్తమ వంటకాలు ఎంచుకుంటున్నా…",kn:"ನಿಮಗಾಗಿ ಅತ್ಯುತ್ತಮ ಖಾದ್ಯಗಳನ್ನು ಆರಿಸುತ್ತಿದ್ದೇನೆ…"}};
+function T(k){return (TXT[k]&&TXT[k][lang])||TXT[k].en;}
+const TQ={
+ lang:{en:"Which language would you like to chat in?",ta:"எந்த மொழியில் உரையாட விரும்புகிறீர்கள்?",hi:"आप किस भाषा में बात करना चाहेंगे?",ml:"ഏത് ഭാഷയിൽ സംസാരിക്കാൻ ആഗ്രഹിക്കുന്നു?",te:"మీరు ఏ భాషలో మాట్లాడాలనుకుంటున్నారు?",kn:"ನೀವು ಯಾವ ಭಾಷೆಯಲ್ಲಿ ಮಾತನಾಡಲು ಬಯಸುತ್ತೀರಿ?"},
+ diet:{en:"What do you eat?",ta:"நீங்கள் என்ன சாப்பிடுவீர்கள்?",hi:"आप क्या खाते हैं?",ml:"നിങ്ങൾ എന്ത് കഴിക്കും?",te:"మీరు ఏం తింటారు?",kn:"ನೀವು ಏನು ತಿನ್ನುತ್ತೀರಿ?"},
+ spice:{en:"How spicy do you like it?",ta:"எவ்வளவு காரம் பிடிக்கும்?",hi:"कितना तीखा पसंद है?",ml:"എത്ര എരിവ് ഇഷ്ടം?",te:"ఎంత కారం ఇష్టం?",kn:"ಎಷ್ಟು ಖಾರ ಇಷ್ಟ?"},
+ loves:{en:"What do you enjoy most?",ta:"உங்களுக்கு எது அதிகம் பிடிக்கும்?",hi:"आपको सबसे ज़्यादा क्या पसंद है?",ml:"നിങ്ങൾക്ക് ഏറ്റവും ഇഷ്ടം എന്താണ്?",te:"మీకు ఎక్కువగా ఏది ఇష్టం?",kn:"ನಿಮಗೆ ಹೆಚ್ಚು ಏನು ಇಷ್ಟ?"},
+ sweet:{en:"How's your sweet tooth?",ta:"இனிப்பு எவ்வளவு பிடிக்கும்?",hi:"मीठे का कितना शौक है?",ml:"മധുരം എത്ര ഇഷ്ടം?",te:"తీపి ఎంత ఇష్టం?",kn:"ಸಿಹಿ ಎಷ್ಟು ಇಷ್ಟ?"},
+ avoid:{en:"Anything we should skip for you?",ta:"தவிர்க்க வேண்டியது ஏதேனும்?",hi:"कुछ है जो हम छोड़ दें?",ml:"ഒഴിവാക്കേണ്ടത് എന്തെങ്കിലും?",te:"మేము దాటవేయాల్సింది ఏదైనా?",kn:"ನಾವು ಬಿಡಬೇಕಾದದ್ದು ಏನಾದರೂ?"}};
+function tq(k){return (TQ[k]&&TQ[k][lang])||(TQ[k]&&TQ[k].en)||"";}
+const DESC={
+ idli:{en:"Soft steamed rice cakes, with chutney & sambar.",ta:"மென்மையான இட்லி, சட்னி மற்றும் சாம்பாருடன்.",hi:"नरम भाप में पकी इडली, चटनी और सांभर के साथ।",ml:"മൃദുവായ ഇഡ്ഡലി, ചട്നിയും സാമ്പാറും.",te:"మృదువైన ఇడ్లీ, చట్నీ మరియు సాంబార్‌తో.",kn:"ಮೃದುವಾದ ಇಡ್ಲಿ, ಚಟ್ನಿ ಮತ್ತು ಸಾಂಬಾರ್‌ನೊಂದಿಗೆ."},
+ vada:{en:"Crispy fried lentil donuts, crunchy and savoury.",ta:"மொறுமொறுப்பான வடை, சுவையானது.",hi:"कुरकुरे तले हुए वड़े, स्वादिष्ट।",ml:"ക്രിസ്പി വട, രുചികരം.",te:"క్రిస్పీ వడ, రుచికరం.",kn:"ಗರಿಗರಿಯಾದ ವಡೆ, ರುಚಿಕರ."},
+ pongal:{en:"Rice & dal with ghee, pepper and cashews.",ta:"நெய், மிளகு, முந்திரியுடன் வெண் பொங்கல்.",hi:"घी, काली मिर्च और काजू के साथ पोंगल।",ml:"നെയ്യ്, കുരുമുളക്, കശുവണ്ടി ചേർത്ത പൊങ്കൽ.",te:"నెయ్యి, మిరియాలు, జీడిపప్పుతో పొంగల్.",kn:"ತುಪ್ಪ, ಕಾಳುಮೆಣಸು, ಗೋಡಂಬಿಯೊಂದಿಗೆ ಪೊಂಗಲ್."},
+ masaladosa:{en:"Crispy dosa with a spiced potato filling.",ta:"உருளைக்கிழங்கு மசாலா நிரப்பிய மொறுமொறு தோசை.",hi:"मसालेदार आलू भरी कुरकुरी डोसा।",ml:"മസാല ഉരുളക്കിഴങ്ങ് നിറച്ച ക്രിസ്പി ദോശ.",te:"మసాలా ఆలూ నింపిన క్రిస్పీ దోస.",kn:"ಮಸಾಲಾ ಆಲೂಗಡ್ಡೆ ತುಂಬಿದ ಗರಿಗರಿ ದೋಸೆ."},
+ plaindosa:{en:"Thin crispy rice crêpe with chutney & sambar.",ta:"மெல்லிய மொறுமொறு தோசை, சட்னி சாம்பாருடன்.",hi:"पतली कुरकुरी डोसा, चटनी और सांभर के साथ।",ml:"നേർത്ത ക്രിസ്പി ദോശ, ചട്നിയും സാമ്പാറും.",te:"పల్చని క్రిస్పీ దోస, చట్నీ సాంబార్‌తో.",kn:"ತೆಳ್ಳಗಿನ ಗರಿಗರಿ ದೋಸೆ, ಚಟ್ನಿ ಸಾಂಬಾರ್‌ನೊಂದಿಗೆ."},
+ ravadosa:{en:"Lacy, extra-crispy semolina dosa.",ta:"வலைபோன்ற, அதிக மொறுமொறுப்பான ரவா தோசை.",hi:"जालीदार, अतिरिक्त कुरकुरी रवा डोसा।",ml:"വലപോലെ, അധികം ക്രിസ്പിയായ റവ ദോശ.",te:"వలలాంటి, మరింత క్రిస్పీ రవ్వ దోస.",kn:"ಬಲೆಯಂತಹ, ಹೆಚ್ಚು ಗರಿಗರಿ ರವಾ ದೋಸೆ."},
+ meals:{en:"Unlimited thali — rice, sambar, rasam, sides, curd.",ta:"வரம்பற்ற உணவு — சாதம், சாம்பார், ரசம், கறிகள், தயிர்.",hi:"अनलिमिटेड थाली — चावल, सांभर, रसम, सब्ज़ियाँ, दही।",ml:"അൺലിമിറ്റഡ് ഭക്ഷണം — ചോറ്, സാമ്പാർ, രസം, കറികൾ, തൈര്.",te:"అపరిమిత భోజనం — అన్నం, సాంబార్, రసం, కూరలు, పెరుగు.",kn:"ಅನಿಯಮಿತ ಊಟ — ಅನ್ನ, ಸಾಂಬಾರ್, ರಸಂ, ಪಲ್ಯ, ಮೊಸರು."},
+ minimeals:{en:"A lighter thali with the essentials.",ta:"அத்தியாவசியங்களுடன் சிறிய உணவு.",hi:"ज़रूरी चीज़ों के साथ छोटी थाली।",ml:"അവശ്യവിഭവങ്ങളുള്ള ചെറിയ ഭക്ഷണം.",te:"అవసరమైనవాటితో చిన్న భోజనం.",kn:"ಅಗತ್ಯವಾದವುಗಳೊಂದಿಗೆ ಚಿಕ್ಕ ಊಟ."},
+ curdrice:{en:"Cool, creamy curd rice; soothing and light.",ta:"குளிர்ந்த, மென்மையான தயிர் சாதம்.",hi:"ठंडा, मलाईदार दही चावल; हल्का।",ml:"തണുത്ത, ക്രീമി തൈര് ചോറ്; ലഘു.",te:"చల్లని, క్రీమీ పెరుగు అన్నం; తేలికైనది.",kn:"ತಂಪಾದ, ಕ್ರೀಮಿ ಮೊಸರನ್ನ; ಹಗುರ."},
+ chilliparotta:{en:"Shredded parotta tossed in spicy chilli masala.",ta:"காரமான சில்லி மசாலாவில் கிழித்த பரோட்டா.",hi:"मसालेदार चिल्ली मसाले में परोट्टा।",ml:"എരിവുള്ള ചില്ലി മസാലയിൽ ചേർത്ത പൊറോട്ട.",te:"కారమైన చిల్లీ మసాలాలో కలిపిన పరోటా.",kn:"ಖಾರದ ಚಿಲ್ಲಿ ಮಸಾಲಾದಲ್ಲಿ ಬೆರೆಸಿದ ಪರೋಟಾ."},
+ parotta:{en:"Flaky layered flatbread, soft inside.",ta:"அடுக்கான, மென்மையான பரோட்டா.",hi:"परतदार, अंदर से नरम परोट्टा।",ml:"പാളികളുള്ള, അകത്ത് മൃദുവായ പൊറോട്ട.",te:"పొరలుగా, లోపల మృదువైన పరోటా.",kn:"ಪದರಗಳ, ಒಳಗೆ ಮೃದುವಾದ ಪರೋಟಾ."},
+ chapati:{en:"Soft wholewheat flatbread with kurma.",ta:"மென்மையான கோதுமை சப்பாத்தி, குருமாவுடன்.",hi:"नरम गेहूं की चपाती, कुर्मा के साथ।",ml:"മൃദുവായ ഗോതമ്പ് ചപ്പാത്തി, കുറുമയോടെ.",te:"మృదువైన గోధుమ చపాతీ, కుర్మాతో.",kn:"ಮೃದುವಾದ ಗೋಧಿ ಚಪಾತಿ, ಕುರ್ಮಾದೊಂದಿಗೆ."},
+ samosa:{en:"Crispy pastry with spiced potato filling.",ta:"மசாலா உருளைக்கிழங்கு நிரப்பிய சமோசா.",hi:"मसालेदार आलू भरा कुरकुरा समोसा।",ml:"മസാല ഉരുളക്കിഴങ്ങ് നിറച്ച സമോസ.",te:"మసాలా ఆలూ నింపిన క్రిస్పీ సమోసా.",kn:"ಮಸಾಲಾ ಆಲೂಗಡ್ಡೆ ತುಂಬಿದ ಸಮೋಸಾ."},
+ panipuri:{en:"Crispy puris with tangy spiced water.",ta:"புளிப்பான மசாலா நீருடன் பானி பூரி.",hi:"चटपटे मसालेदार पानी के साथ पानी पूरी।",ml:"പുളിയുള്ള മസാല വെള്ളത്തോടെ പാനി പൂരി.",te:"పుల్లని మసాలా నీటితో పానీ పూరీ.",kn:"ಹುಳಿ ಮಸಾಲಾ ನೀರಿನೊಂದಿಗೆ ಪಾನಿ ಪೂರಿ."},
+ coffee:{en:"Authentic South Indian filter coffee.",ta:"அசல் தென்னிந்திய பில்டர் காபி.",hi:"असली दक्षिण भारतीय फ़िल्टर कॉफ़ी।",ml:"അസ്സൽ ദക്ഷിണേന്ത്യൻ ഫിൽറ്റർ കോഫി.",te:"అసలైన దక్షిణ భారత ఫిల్టర్ కాఫీ.",kn:"ಅಸಲಿ ದಕ್ಷಿಣ ಭಾರತದ ಫಿಲ್ಟರ್ ಕಾಫಿ."},
+ mango:{en:"Thick, creamy mango milkshake.",ta:"கெட்டியான, கிரீமி மேங்கோ மில்க்‌ஷேக்.",hi:"गाढ़ा, मलाईदार मैंगो मिल्कशेक।",ml:"കട്ടിയുള്ള, ക്രീമി മാംഗോ മിൽക്ക്ഷേക്ക്.",te:"చిక్కని, క్రీమీ మాంగో మిల్క్‌షేక్.",kn:"ದಪ್ಪ, ಕ್ರೀಮಿ ಮ್ಯಾಂಗೋ ಮಿಲ್ಕ್‌ಶೇಕ್."},
+ rosemilk:{en:"Chilled milk with rose syrup; light and floral.",ta:"ரோஜா சிரப்புடன் குளிர்ந்த ரோஸ் மில்க்.",hi:"गुलाब सिरप के साथ ठंडा रोज़ मिल्क।",ml:"റോസ് സിറപ്പോടെ തണുത്ത റോസ് മിൽക്ക്.",te:"గులాబీ సిరప్‌తో చల్లని రోజ్ మిల్క్.",kn:"ಗುಲಾಬಿ ಸಿರಪ್‌ನೊಂದಿಗೆ ತಂಪಾದ ರೋಸ್ ಮಿಲ್ಕ್."},
+ badam:{en:"Almond milk with saffron and cardamom.",ta:"குங்குமப்பூ, ஏலக்காயுடன் பாதாம் மில்க்.",hi:"केसर और इलायची के साथ बादाम मिल्क।",ml:"കുങ്കുമപ്പൂവും ഏലക്കായും ചേർത്ത ബാദാം മിൽക്ക്.",te:"కుంకుమపువ్వు, యాలకులతో బాదాం మిల్క్.",kn:"ಕೇಸರಿ, ಏಲಕ್ಕಿಯೊಂದಿಗೆ ಬಾದಾಮ್ ಮಿಲ್ಕ್."},
+ tea:{en:"Hot, freshly brewed tea.",ta:"சூடான, புதிதாக தயாரித்த டீ.",hi:"गरम, ताज़ी बनी टी।",ml:"ചൂടുള്ള, പുതുതായി ഉണ്ടാക്കിയ ടീ.",te:"వేడి, తాజాగా తయారు చేసిన టీ.",kn:"ಬಿಸಿ, ತಾಜಾ ತಯಾರಿಸಿದ ಟೀ."},
+ gulab:{en:"Warm syrup-soaked milk dumplings; soft and sweet.",ta:"சிரப்பில் ஊறிய சூடான குலாப் ஜாமூன்.",hi:"चाशनी में डूबे गरम गुलाब जामुन।",ml:"സിറപ്പിൽ കുതിർന്ന ചൂടുള്ള ഗുലാബ് ജാമൂൻ.",te:"సిరప్‌లో నానిన వెచ్చని గులాబ్ జామూన్.",kn:"ಸಿರಪ್‌ನಲ್ಲಿ ನೆನೆದ ಬೆಚ್ಚಗಿನ ಗುಲಾಬ್ ಜಾಮೂನ್."},
+ kesari:{en:"Sweet semolina pudding with ghee and cashews.",ta:"நெய், முந்திரியுடன் இனிப்பான ரவா கேசரி.",hi:"घी और काजू के साथ मीठा रवा केसरी।",ml:"നെയ്യും കശുവണ്ടിയും ചേർത്ത മധുര റവ കേസരി.",te:"నెయ్యి, జీడిపప్పుతో తీపి రవ్వ కేసరి.",kn:"ತುಪ್ಪ, ಗೋಡಂಬಿಯೊಂದಿಗೆ ಸಿಹಿ ರವಾ ಕೇಸರಿ."}};
+function desc(id){return (DESC[id]&&DESC[id][lang])||(DESC[id]&&DESC[id].en)||MENU[id].d||"a house favourite, freshly prepared.";}
+let lang="en",outlet=null,cart={},notes={},cartAO={},upsold=false,lastBill=null;
+function getCustomer(){try{return JSON.parse(localStorage.getItem("ody_customer"))||null;}catch(e){return null;}}
+function saveCustomer(c){try{localStorage.setItem("ody_customer",JSON.stringify(c));}catch(e){}}
+function forgetMe(){try{localStorage.removeItem("ody_customer");}catch(e){}showGreeting();}
+function shuffle(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1)),t=a[i];a[i]=a[j];a[j]=t;}return a;}
+const IC={menu:"<svg class='ic' viewBox='0 0 24 24'><path d='M4 14a8 8 0 0 1 16 0'/><path d='M3 14h18'/><path d='M12 6V4'/></svg>",star:"<svg class='ic' viewBox='0 0 24 24'><path d='M12 4l2.3 5.3 5.7.5-4.3 3.7 1.3 5.5-5-3-5 3 1.3-5.5L4.3 9.8l5.7-.5z'/></svg>",info:"<svg class='ic' viewBox='0 0 24 24'><circle cx='12' cy='12' r='9'/><path d='M12 11v6'/><circle cx='12' cy='7.6' r='.7' fill='currentColor' stroke='none'/></svg>",hall:"<svg class='ic' viewBox='0 0 24 24'><path d='M4 21V10l8-5 8 5v11'/><path d='M9 21v-6a3 3 0 0 1 6 0v6'/><path d='M2 21h20'/></svg>",pin:"<svg class='ic' viewBox='0 0 24 24'><path d='M12 22c5-6 7-9 7-13a7 7 0 0 0-14 0c0 4 2 7 7 13z'/><circle cx='12' cy='9' r='2.4'/></svg>",cart:"<svg class='ic' viewBox='0 0 24 24'><path d='M3 4h2l2.4 11.5h10l2-8H7'/><circle cx='9.5' cy='20' r='1.4' fill='currentColor' stroke='none'/><circle cx='17.5' cy='20' r='1.4' fill='currentColor' stroke='none'/></svg>",home:"<svg class='ic' viewBox='0 0 24 24'><path d='M4 11l8-7 8 7'/><path d='M6 10v10h12V10'/></svg>",back:"<svg class='ic' viewBox='0 0 24 24'><path d='M15 5l-7 7 7 7'/></svg>",note:"<svg class='ic' viewBox='0 0 24 24'><path d='M4 20l4-1 11-11-3-3L5 16l-1 4z'/><path d='M14.5 5.5l3 3'/></svg>",bag:"<svg class='ic' viewBox='0 0 24 24'><path d='M6 8h12l-1.2 12H7.2z'/><path d='M9 8a3 3 0 0 1 6 0'/></svg>",check:"<svg class='okcheck' viewBox='0 0 24 24'><circle cx='12' cy='12' r='10'/><path d='M7.5 12.3l3 3 6-7'/></svg>",ok:"<svg class='ic' viewBox='0 0 24 24'><path d='M5 13l4 4 10-11'/></svg>",x:"<svg class='ic' viewBox='0 0 24 24'><path d='M6 6l12 12M18 6L6 18'/></svg>",fb:"<svg class='ic' viewBox='0 0 24 24'><path d='M4 5h16v11H8l-4 4z'/><path d='M8 9.5h8M8 12.5h5'/></svg>"};
+const lbl=k=>T(k).replace(/^[\p{Extended_Pictographic}\p{S}\p{M}\p{Z}\uFE0F\u20E3]+/u,"").trim();
+
+const HOUR=new Date().getHours();
+const part=()=>HOUR<11?"morning":HOUR<16?"afternoon":"evening";
+const TIME_FILTER=false; // DEMO: false = show ALL dishes/categories. Set to true for the real time-based menu.
+const OPEN=Object.keys(MENU).some(id=>HOUR>=MENU[id].h[0]&&HOUR<MENU[id].h[1]);
+const avail=id=>!TIME_FILTER||!OPEN||(HOUR>=MENU[id].h[0]&&HOUR<MENU[id].h[1]);
+const SHOW_TIMING=TIME_FILTER; // the "timed" build shows serving times on dishes; the all-time build hides them
+const LOGO_PICS=false; // when true, dishes without a real photo show an image block with the logo centred
+const chat=document.getElementById("chat");
+// ChatGPT-style bot bubble: plain-text messages reveal one character at a time.
+// Anything containing HTML markup (tags) renders instantly so markup never leaks.
+// Returns the bubble element immediately; the typing runs in the background.
+function bot(html,onDone){
+  var d=document.createElement("div");d.className="msg bot";chat.appendChild(d);
+  var s=String(html==null?"":html);
+  if(/<[a-z!\/][\s\S]*>/i.test(s))d.innerHTML=s;else d.textContent=s;
+  toBottom();if(onDone)onDone();return d;
+}
+function me(t){window.__started=true;if(window.__bbHdrUpdate)setTimeout(window.__bbHdrUpdate,60);const d=document.createElement("div");d.className="msg me";d.textContent=t;chat.appendChild(d);toBottom();}
+function block(cls,html){const d=document.createElement("div");d.className=cls;d.innerHTML=html;chat.appendChild(d);toBottom();return d;}
+let _bt=null,_bigTarget=null,_sc=null;
+function bbScrollTo(el,to,dur){if(_sc)cancelAnimationFrame(_sc);var s=el.scrollTop,dif=to-s;if(Math.abs(dif)<2){el.scrollTop=to;return;}var t0=null;function st(ts){if(t0===null)t0=ts;var p=Math.min(1,(ts-t0)/dur);var e=p<.5?2*p*p:1-Math.pow(-2*p+2,2)/2;el.scrollTop=s+dif*e;if(p<1)_sc=requestAnimationFrame(st);}_sc=requestAnimationFrame(st);}
+function toBottom(){if(window.__bbHold)return;clearTimeout(_bt);_bt=setTimeout(()=>{const top=_bigTarget?Math.max(0,_bigTarget.offsetTop-82):chat.scrollHeight;_bigTarget=null;try{bbScrollTo(chat,top,650);}catch(e){chat.scrollTop=top;}},80);}
+function renderGrid(ids){const el=block("grid",ids.map(dishCard).join(""));if(ids.length>2)_bigTarget=el;return el;}
+function anchorTop(){}
+function anchorReply(){}
+
+/* ---------- outlet picker ---------- */
+function renderOutlets(){chat.innerHTML="";document.getElementById("phone").classList.add("outletview");document.getElementById("bar").style.display="none";document.getElementById("wm").style.display="none";document.getElementById("back").style.display="none";document.getElementById("hname").textContent="Bon Bon";document.getElementById("hsub").textContent=T("chooseSub");bot(T("welcome"));
+ block("outlet",OUTLETS.map(o=>`<button onclick="chooseOutlet('${o}')">${IC.pin}${o}</button>`).join(""));
+ block("wmark",`<img src="${LOGO}"><div class="cap">${T("pureVeg")}</div>`);}
+function setUrl(path){try{if(window.parent&&window.parent!==window)window.parent.history.replaceState(null,"",path);}catch(e){}}
+function chooseOutlet(o,defer){document.getElementById("phone").classList.remove("outletview");document.getElementById("bar").style.display="";document.getElementById("wm").style.display="";document.getElementById("back").style.display="";document.getElementById("inp").placeholder=T("ask");outlet=o;document.getElementById("hname").textContent="Bon Bon";document.getElementById("hsub").textContent="AI Menu — powered by Odysra";setUrl("/bon-bon");if(defer){chat.innerHTML="";typingBubble();return;}showGreeting();}
+function goOutlets(){cart={};notes={};cartAO={};upsold=false;outlet=null;refreshCart();closeModal();setUrl("/bon-bon");renderOutlets();}
+
+/* ---------- dishes ---------- */
+function dishFooter(id){return `<button class="infob" onclick="explainDish('${id}')" title="Tell me about this">${IC.info}</button>`;}')">+ ${T("add")}</button><button class="infob" onclick="explainDish('${id}')" title="Tell me about this">${IC.info}</button>`;}
+function photoUrl(id){return MENU[id].ph||LOGO;}
+function fmtTime(t){var hr=Math.floor(t),mn=Math.round((t-hr)*60),ap=hr<12?"AM":"PM",hh=hr%12;if(hh===0)hh=12;return hh+(mn?":"+("0"+mn).slice(-2):"")+ap;}
+function fmtWin(id){var h=MENU[id].h;if(!h||!h.length)return"";return h.map(function(w){return fmtTime(w[0])+"–"+fmtTime(w[1]);}).join(", ");}
+function dishMeta(id){var m=MENU[id],p=[];if(m.q)p.push(m.q);return p.join(" · ");}
+function tagsHTML(m){var h="";if(m.best)h+='<div class="tag">★ '+T("bestseller")+'</div>';if(m.must)h+='<div class="tag must">✦ '+T("musttry")+'</div>';return h;}
+function compactCard(id){const m=MENU[id];
+ return `<div class="dish simple" data-id="${id}"><div class="sbd"><div class="srow"><span class="vegdot${m.nv?' nv':''}"></span><div class="nm">${dn(id)}</div></div>${tagsHTML(m)}<div class="meta">${dishMeta(id)}</div><div class="sdesc">${desc(id)}</div><div class="sfoot"><div class="pr">₹${m.p}</div><div class="frow">${dishFooter(id)}</div></div></div></div>`;}
+function dishCard(id){const m=MENU[id];
+ if(!m.ph&&!LOGO_PICS)return compactCard(id); // no photo & no logo-pics -> clean text card
+ var inner=m.ph?`<img class="ph" src="${m.ph}" loading="lazy" alt="${dn(id)}" onerror="this.style.display='none';">`:`<img class="piclogo" src="${LOGO}" alt="">`;
+ return `<div class="dish" data-id="${id}"><div class="pic" style="cursor:pointer" onclick="zoomDish('${id}')"><span class="vegbadge${m.nv?' nv':''}" title="${m.nv?'Non-veg':'Pure veg'}"></span>${inner}</div><div class="bd">${tagsHTML(m)}<div class="nm">${dn(id)}</div><div class="meta">${dishMeta(id)}</div><div class="pr">₹${m.p}</div><div class="frow">${dishFooter(id)}</div></div></div>`;}
+function sync(){refreshCart();document.querySelectorAll('.dish[data-id]').forEach(el=>{const f=el.querySelector('.frow');if(f)f.innerHTML=dishFooter(el.dataset.id);});document.querySelectorAll('.pi[data-id]').forEach(el=>{const f=el.querySelector('.pifoot');if(f)f.innerHTML=pairFoot(el.dataset.id);});}
+function buzz(){try{if(navigator.vibrate)navigator.vibrate(35);}catch(e){}}
+function dig(el,n){el.value=el.value.replace(/\D/g,"").slice(0,n);}
+function alpha(el){el.value=el.value.replace(/[^A-Za-z ]/g,"").replace(/\s{2,}/g," ").slice(0,30);}
+function pers(el){el.value=el.value.replace(/\D/g,"").replace(/^0+/,"").slice(0,3);}
+function addDish(){}
+function startRecording(){
+ if(!(navigator.mediaDevices&&navigator.mediaDevices.getUserMedia&&window.MediaRecorder)){simHeard();return;}
+ navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true,channelCount:1}}).then(function(stream){
+  micStream=stream;chunks=[];
+  var inp=document.getElementById("inp");
+  voiceBase=inp.value?inp.value.trim()+" ":"";oldPH=inp.placeholder;
+  try{mediaRec=new MediaRecorder(stream);}catch(e){try{mediaRec=new MediaRecorder(stream,{});}catch(e2){listening=false;setMic(false);return;}}
+  mediaRec.ondataavailable=function(e){if(e.data&&e.data.size>0)chunks.push(e.data);};
+  mediaRec.onstop=function(){
+   if(micStream){micStream.getTracks().forEach(function(t){t.stop();});micStream=null;}
+   stopWave();setMic(false);showListening(false);
+   var el=document.getElementById("inp");
+   if(voiceLocked){if(el)el.placeholder=T("ask");return;} // message already sent
+   if(el)el.placeholder=T("transcribing");
+   var blob=chunks.length?new Blob(chunks,{type:mediaRec.mimeType||'audio/webm'}):null;
+   if(blob){transcribe(blob);}else if(el){el.placeholder=T("ask");}
+  };
+  listening=true;setMic(true);
+  var bw=document.getElementById("bar");if(bw)bw.classList.add("recording");
+  try{mediaRec.start();}catch(e){}
+  startWave(stream); // sound-wave scrolls with the voice while recording
+ }).catch(function(){listening=false;setMic(false);bot("🎙️ Please allow microphone access to use voice.");});
+}
+// Cancel: stop recording and throw the audio away (the ✕ button).
+function cancelVoice(){
+ voiceLocked=true; // tells onstop to discard, not transcribe
+ var el=document.getElementById("inp");if(el){el.value=voiceBase.trim();autoGrow();el.placeholder=T("ask");}
+ if(mediaRec&&mediaRec.state&&mediaRec.state!=="inactive"){listening=false;setMic(false);try{mediaRec.stop();}catch(e){}return;}
+ listening=false;setMic(false);stopWave();
+}
+// Sound-wave (ChatGPT-style): a scrolling amplitude meter. Each tick we measure the mic's actual
+// loudness (RMS) with a noise floor, so bars stay as flat dots in silence and only rise when the
+// guest really speaks. Newest sample enters on the right and scrolls left.
+var waveRAF=null,waveCtx=null,waveData=null,waveLast=0;
+var WAVE_N=110;
+function startWave(stream){
+ var host=document.getElementById("wbars"),wf=document.getElementById("wform");if(!host||!wf)return;
+ if(!host.querySelector(".wbar")){var b="";for(var i=0;i<WAVE_N;i++)b+='<span class="wbar"></span>';host.innerHTML=b;}
+ waveData=new Array(WAVE_N).fill(0);
+ wf.classList.add("show");
+ try{
+  var AC=window.AudioContext||window.webkitAudioContext;waveCtx=new AC();
+  var src=waveCtx.createMediaStreamSource(stream),an=waveCtx.createAnalyser();an.fftSize=512;src.connect(an);
+  var tbuf=new Uint8Array(an.fftSize);
+  var bars=host.querySelectorAll(".wbar");
+  var loop=function(){
+   if(!listening){return;}
+   var now=performance.now();
+   if(now-waveLast>=55){ // ~18 fps scroll
+    waveLast=now;
+    an.getByteTimeDomainData(tbuf);
+    var sum=0;for(var i=0;i<tbuf.length;i++){var v=(tbuf[i]-128)/128;sum+=v*v;}
+    var rms=Math.sqrt(sum/tbuf.length);
+    var level=Math.max(0,rms-0.018); // noise floor -> silence reads as flat dots
+    var amp=Math.min(1,level/0.22);
+    waveData.push(amp);waveData.shift();
+    for(var j=0;j<bars.length;j++){bars[j].style.height=(3+waveData[j]*23).toFixed(1)+"px";}
+   }
+   waveRAF=requestAnimationFrame(loop);
+  };
+  loop();
+ }catch(e){}
+}
+function stopWave(){
+ if(waveRAF){cancelAnimationFrame(waveRAF);waveRAF=null;}
+ if(waveCtx){try{waveCtx.close();}catch(e){}waveCtx=null;}
+ var wf=document.getElementById("wform");if(wf)wf.classList.remove("show");
+ var bw=document.getElementById("bar");if(bw)bw.classList.remove("recording");
+}
+// FALLBACK: record audio and send it to Sarvam (good Indian-language accuracy) for transcription.
+function startSarvamRecording(){
+ if(!(navigator.mediaDevices&&navigator.mediaDevices.getUserMedia&&window.MediaRecorder)){
+  // no recording support either -> last-resort simulated demo line so the button still responds
+  if(window.SpeechRecognition||window.webkitSpeechRecognition){startBrowserSR();}else{simHeard();}
+  return;
+ }
+ navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true,channelCount:1}}).then(function(stream){
+  micStream=stream;segText="";
+  const inp=document.getElementById("inp");
+  voiceBase=inp.value?inp.value.trim()+" ":"";oldPH=inp.placeholder;
+  listening=true;setMic(true);showListening(true);
+  startMeter(stream); // mic pulses so the guest can SEE it's listening
+  recSegment(); // record in short segments so words appear WHILE speaking — no need to stop
+ }).catch(function(){listening=false;setMic(false);showListening(false);bot("🎙️ Please allow microphone access to use voice.");});
+}
+// Live server transcription without stopping. Record ~2s segments; each FINISHED segment is a complete
+// clip, so it converts to WAV and Sarvam accepts it — we transcribe it and append, so words keep
+// flowing as the guest talks. Used whenever the browser's own engine can't run (Brave, Firefox, iOS…).
+function recSegment(){
+ if(!listening||!micStream)return;
+ var segChunks=[];
+ try{mediaRec=new MediaRecorder(micStream);}catch(e){try{mediaRec=new MediaRecorder(micStream,{});}catch(e2){mediaRec=null;return;}}
+ var thisRec=mediaRec;
+ mediaRec.ondataavailable=function(e){if(e.data&&e.data.size>0)segChunks.push(e.data);};
+ mediaRec.onstop=function(){
+  var blob=segChunks.length?new Blob(segChunks,{type:thisRec.mimeType||'audio/webm'}):null;
+  if(blob&&!voiceLocked)transcribeSegment(blob);
+  if(listening){recSegment();return;} // roll straight into the next segment
+  if(micStream){micStream.getTracks().forEach(function(t){t.stop();});micStream=null;} // stopped -> clean up
+  stopMeter();setMic(false);showListening(false);
+  var el=document.getElementById("inp");if(el)el.placeholder=T("ask");
+ };
+ try{mediaRec.start();}catch(e){return;}
+ if(segTimer)clearTimeout(segTimer);
+ segTimer=setTimeout(function(){try{if(thisRec.state&&thisRec.state!=="inactive")thisRec.stop();}catch(e){}},SEG_MS);
+}
+async function transcribeSegment(blob){
+ try{
+  var wav;try{wav=await blobToWav(blob);}catch(e){return;} // a complete segment decodes fine
+  var fd=new FormData();fd.append('file',wav,'audio.wav');fd.append('lang',lang);
+  var res=await fetch('/api/stt',{method:'POST',body:fd});
+  var data={};try{data=await res.json();}catch(e){}
+  var t=((data&&data.text)||"").trim();
+  if(t&&!voiceLocked){segText=(segText?segText+" ":"")+t;var inp=document.getElementById("inp");if(inp){showListening(true);inp.value=(voiceBase+segText).trim();autoGrow();}}
+ }catch(e){}
+}
+// REAL-TIME: open a live WebSocket to Sarvam and stream raw PCM so words appear as they're spoken.
+// The key is fetched from a gated endpoint (only reachable after the password) and passed in the URL,
+// because browsers can't set WebSocket auth headers.
+async function startStream(stream){
+ let key="";
+ try{const r=await fetch('/api/stt-key');if(!r.ok)return;const j=await r.json();key=j.key||"";}catch(e){return;}
+ if(!key||!listening)return;
+ const qs=new URLSearchParams({'language-code':SLANG[lang]||'en-IN',model:'saarika:v2.5',mode:'transcribe',sample_rate:'16000',input_audio_codec:'pcm_s16le','api-subscription-key':key});
+ let ws;try{ws=new WebSocket('wss://api.sarvam.ai/speech-to-text/ws?'+qs.toString());}catch(e){return;}
+ sttWs=ws;
+ ws.onopen=()=>{
+  if(!listening){try{ws.close();}catch(e){}return;}
+  // Do NOT disable the chunked REST fallback yet — it reliably fills the box from the first second.
+  // The socket only "takes over" once it actually delivers a transcript (see onmessage below).
+  // If it never speaks, drop the dead socket after a few seconds; the chunked fallback keeps running.
+  setTimeout(function(){if(listening&&!wsGotData){try{ws.close();}catch(e){}}},6000);
+  try{
+   const AC=window.AudioContext||window.webkitAudioContext;pcmCtx=new AC({sampleRate:16000});
+   const ratio=pcmCtx.sampleRate/16000;
+   pcmSrc=pcmCtx.createMediaStreamSource(stream);
+   pcmNode=pcmCtx.createScriptProcessor(4096,1,1);
+   pcmNode.onaudioprocess=ev=>{
+    if(!sttWs||sttWs.readyState!==1)return;
+    const inb=ev.inputBuffer.getChannelData(0);
+    const outLen=Math.max(1,Math.floor(inb.length/ratio));
+    const i16=new Int16Array(outLen);
+    for(let i=0;i<outLen;i++){let s=inb[Math.floor(i*ratio)]||0;s=Math.max(-1,Math.min(1,s));i16[i]=s<0?s*0x8000:s*0x7FFF;}
+    const bytes=new Uint8Array(i16.buffer);let bin="";for(let i=0;i<bytes.length;i++)bin+=String.fromCharCode(bytes[i]);
+    try{sttWs.send(JSON.stringify({audio:{data:btoa(bin),sample_rate:"16000",encoding:"audio/wav"}}));}catch(e){}
+   };
+   const sink=pcmCtx.createGain();sink.gain.value=0; // mute so there's no echo
+   pcmSrc.connect(pcmNode);pcmNode.connect(sink);sink.connect(pcmCtx.destination);
+  }catch(e){}
+ };
+ ws.onmessage=ev=>{
+  try{const m=JSON.parse(ev.data);
+   if(m.type==='data'&&m.data&&m.data.transcript){
+    wsGotData=true;wsMode=true; // socket is actually delivering -> it takes over from the chunked fallback
+    wsText=(wsText?wsText+" ":"")+String(m.data.transcript).trim();
+    if(listening&&!voiceLocked){showListening(false);document.getElementById("inp").value=(voiceBase+wsText).trim();autoGrow();}
+   }}catch(e){}
+ };
+ ws.onerror=()=>{};
+ ws.onclose=()=>{};
+}
+function stopStream(){
+ if(pcmNode){try{pcmNode.disconnect();pcmNode.onaudioprocess=null;}catch(e){}pcmNode=null;}
+ if(pcmSrc){try{pcmSrc.disconnect();}catch(e){}pcmSrc=null;}
+ if(pcmCtx){try{pcmCtx.close();}catch(e){}pcmCtx=null;}
+ if(sttWs){try{sttWs.close();}catch(e){}sttWs=null;}
+}
+// Called once when recording stops: use the live streaming text if we got it, else do a final REST pass.
+function finishVoice(){
+ const inp=document.getElementById("inp");
+ if(voiceLocked){showListening(false);inp.placeholder=T("ask");return;}
+ if(wsMode&&wsGotData){
+  const t=wsText.trim();inp.placeholder=T("ask");
+  showListening(false);inp.value=(voiceBase+t).trim();autoGrow();inp.focus();
+  return;
+ }
+ inp.placeholder=T("transcribing");
+ transcribe(new Blob(chunks,{type:(mediaRec&&mediaRec.mimeType)||'audio/webm'}));
+}
+// CHUNKED fallback: only runs if real-time streaming didn't start. Sends audio-so-far every ~1.6s.
+async function liveTick(){
+ if(wsMode||!listening||liveBusy||chunks.length===0)return;
+ liveBusy=true;const seq=++liveSeq;
+ try{
+  const blob=new Blob(chunks.slice(),{type:(mediaRec&&mediaRec.mimeType)||'audio/webm'});
+  let wav;try{wav=await blobToWav(blob);}catch(e){liveBusy=false;return;}
+  const fd=new FormData();fd.append('file',wav,'audio.wav');fd.append('lang',lang);
+  const res=await fetch('/api/stt',{method:'POST',body:fd});
+  let data={};try{data=await res.json();}catch(e){}
+  if(!wsMode&&listening&&!voiceLocked&&seq===liveSeq&&data&&data.text){showListening(false);document.getElementById("inp").value=(voiceBase+data.text).trim();autoGrow();}
+ }catch(e){}
+ liveBusy=false;
+}
+function stopLive(){if(liveTimer){clearInterval(liveTimer);liveTimer=null;}liveSeq++;}
+// Live listening indicator: a timer in the bar + the mic pulsing with the guest's actual volume,
+// so they can SEE it's hearing them. Accurate words arrive from Sarvam when they stop.
+function startMeter(stream){
+ const inp=document.getElementById("inp"),mic=document.getElementById("mic");
+ recStart=Date.now();
+ if(!inp.value)showListening(true);
+ try{
+  const AC=window.AudioContext||window.webkitAudioContext;meterCtx=new AC();
+  const src=meterCtx.createMediaStreamSource(stream),an=meterCtx.createAnalyser();an.fftSize=256;src.connect(an);
+  const buf=new Uint8Array(an.frequencyBinCount);
+  const ic=mic?mic.querySelector('.micicon'):null;
+  const loop=()=>{if(!listening){if(ic){ic.style.transform="";}return;}
+   an.getByteFrequencyData(buf);let sum=0;for(let i=0;i<buf.length;i++)sum+=buf[i];const lvl=Math.min(1,sum/buf.length/110);
+   if(ic){ic.style.transformOrigin="center";ic.style.transform="scale("+(1+lvl*0.35).toFixed(2)+")";}
+   meterRAF=requestAnimationFrame(loop);};
+  loop();
+ }catch(e){}
+}
+function stopMeter(){
+ if(meterTimer){clearInterval(meterTimer);meterTimer=null;}
+ if(meterRAF){cancelAnimationFrame(meterRAF);meterRAF=null;}
+ const mic=document.getElementById("mic");if(mic){mic.style.transform="";mic.style.boxShadow="";var _ic=mic.querySelector('.micicon');if(_ic)_ic.style.transform="";}
+ if(meterCtx){try{meterCtx.close();}catch(e){}meterCtx=null;}
+}
+function autoGrow(){const el=document.getElementById("inp");if(!el)return;el.style.height="auto";el.style.height=Math.min(el.scrollHeight,140)+"px";}
+const MICWORDS=["Explore by voice","Discover dishes","Order through voice"];
+const MIC_SHOW=2600,MIC_GAP=550,MIC_REST=30000;
+function micRunSet(){var i=0;(function step(){if(typeof listening!=="undefined"&&listening){setTimeout(step,2500);return;}var p=document.getElementById("mic"),r=document.getElementById("microt");if(!p||!r){setTimeout(micRunSet,MIC_REST);return;}r.textContent=MICWORDS[i];p.classList.add("show");setTimeout(function(){if(!(typeof listening!=="undefined"&&listening))p.classList.remove("show");i++;if(i<MICWORDS.length){setTimeout(step,MIC_GAP);}else{setTimeout(micRunSet,MIC_REST);}},MIC_SHOW);})();}
+setTimeout(micRunSet,1400);
+function showListening(on){var p=document.getElementById("mic"),r=document.getElementById("microt");if(!r)return;if(on){r.textContent=T("tapStop");if(p)p.classList.add("show");}else{if(p)p.classList.remove("show");}}
+function stopVoice(){showListening(false);
+ if(mediaRec&&mediaRec.state&&mediaRec.state!=="inactive"){listening=false;setMic(false);try{mediaRec.stop();}catch(e){}return;} // -> onstop transcribes
+ listening=false;setMic(false);stopWave();stopMeter();if(recog){try{recog.stop();}catch(e){}}stopSidecar();
+}
+// Sarvam only accepts WAV/MP3, but browsers record webm/opus — so convert to 16 kHz mono WAV here.
+async function blobToWav(blob){
+ const AC=window.AudioContext||window.webkitAudioContext;
+ const ac=new AC();
+ const buf=await ac.decodeAudioData(await blob.arrayBuffer());
+ const len=buf.length,ch=buf.numberOfChannels;
+ const mono=new Float32Array(len);
+ for(let c=0;c<ch;c++){const d=buf.getChannelData(c);for(let i=0;i<len;i++)mono[i]+=d[i]/ch;}
+ const rate=16000,ratio=buf.sampleRate/rate,nl=Math.max(1,Math.round(len/ratio)),res=new Float32Array(nl);
+ for(let i=0;i<nl;i++){const x=i*ratio,i0=Math.floor(x),i1=Math.min(i0+1,len-1),f=x-i0;res[i]=mono[i0]*(1-f)+mono[i1]*f;}
+ if(ac.close)try{ac.close();}catch(e){}
+ const ab=new ArrayBuffer(44+res.length*2),v=new DataView(ab);
+ const ws=(o,s)=>{for(let i=0;i<s.length;i++)v.setUint8(o+i,s.charCodeAt(i));};
+ ws(0,"RIFF");v.setUint32(4,36+res.length*2,true);ws(8,"WAVE");ws(12,"fmt ");
+ v.setUint32(16,16,true);v.setUint16(20,1,true);v.setUint16(22,1,true);
+ v.setUint32(24,rate,true);v.setUint32(28,rate*2,true);v.setUint16(32,2,true);v.setUint16(34,16,true);
+ ws(36,"data");v.setUint32(40,res.length*2,true);
+ let off=44;for(let i=0;i<res.length;i++){let s=Math.max(-1,Math.min(1,res[i]));v.setInt16(off,s<0?s*0x8000:s*0x7FFF,true);off+=2;}
+ return new Blob([v],{type:"audio/wav"});
+}
+async function transcribe(blob){
+ const inp=document.getElementById("inp");
+ try{
+  let sendBlob=blob,fname='audio.webm';
+  try{sendBlob=await blobToWav(blob);fname='audio.wav';}catch(e){}
+  const fd=new FormData();fd.append('file',sendBlob,fname);fd.append('lang',lang);
+  var __t0=Date.now();vdbg("uploading audio to /api/stt…");
+  const res=await fetch('/api/stt',{method:'POST',body:fd});
+  let data={};try{data=await res.json();}catch(e){}
+  vdbg("/api/stt replied in "+(Date.now()-__t0)+"ms");
+  inp.placeholder=T("ask");
+  if(voiceLocked)return; // the message was already sent — don't refill the box or show errors
+  if(res.status===503){ // key not configured at all -> fall back to browser engine
+   sttBroken=true;bot("🎙️ High-accuracy voice isn't switched on yet — using the basic engine. Tap the mic and speak again.");return;
+  }
+  if(data.error){ // Sarvam returned an error — show the reason so we can see what's wrong
+   bot("🎙️ Voice error ("+(data.error)+(data.status?" "+data.status:"")+"): "+((data.detail||"").slice(0,180)||"no detail")+". Tap the mic and try again.");return;
+  }
+  const t=(data.text||"").trim();
+  if(t){showListening(false);inp.value=(voiceBase+t).trim();autoGrow();inp.focus();}
+  else {inp.value=voiceBase.trim();bot("🎙️ I couldn't catch that — please speak a bit longer and try again.");}
+ }catch(e){
+  inp.placeholder=T("ask");
+  if(voiceLocked)return;
+  bot("🎙️ Couldn't reach the voice service — please try again. ("+(e&&e.message?e.message:"network")+")");
+ }
+}
+function startBrowserSR(){
+ const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+ if(!SR){srBroken=true;startSarvamRecording();return;}
+ const inp=document.getElementById("inp");
+ const base=inp.value?inp.value.trim()+" ":"";let finalText=base;let gotAny=false;let srWatch=null;
+ voiceBase=base; // remembered for the accurate Sarvam pass on stop
+ try{recog=new SR();}catch(e){srBroken=true;startSarvamRecording();return;}
+ recog.lang=SLANG[lang]||'en-IN';recog.continuous=true;recog.interimResults=true;recog.maxAlternatives=1;
+ recog.onstart=()=>{vdbg("SR onstart — live engine running");showListening(true);};
+ recog.onresult=e=>{
+  let interim="";
+  for(let i=e.resultIndex;i<e.results.length;i++){const t=e.results[i][0].transcript;if(e.results[i].isFinal)finalText+=t+" ";else interim+=t;}
+  if(voiceLocked)return; // message already sent
+  if(!gotAny){if(srWatch){clearTimeout(srWatch);srWatch=null;}vdbg("SR LIVE ✓ words appearing");}
+  gotAny=true;showListening(true); // keep the "tap to stop" cue up the whole time
+  inp.value=(finalText+interim).trim();autoGrow();
+ };
+ recog.onerror=ev=>{
+  const er=ev&&ev.error;
+  vdbg("SR ERROR: "+er);
+  if(er==="not-allowed"){listening=false;setMic(false);showListening(false);bot("🎙️ Please allow microphone access to use voice.");return;}
+  if(er==="service-not-allowed"||er==="language-not-supported"||er==="audio-capture"){
+   // browser engine can't run here -> switch to the Sarvam recording fallback
+   srBroken=true;if(srWatch){clearTimeout(srWatch);srWatch=null;}try{recog.onend=null;recog.abort();}catch(e){}stopSidecar();
+   if(listening){listening=false;setMic(false);startSarvamRecording();}return;
+  }
+  // no-speech / aborted / network blips: keep listening (onend will restart)
+ };
+ recog.onend=()=>{
+  if(listening){try{recog.start();}catch(e){}return;}
+  setMic(false);showListening(false);
+  const el=document.getElementById("inp");if(el){el.placeholder=T("ask");if(gotAny&&!voiceLocked){autoGrow();el.focus();}} // keep whatever is in the box (incl. last interim words)
+ };
+ listening=true;setMic(true);
+ try{recog.start();}catch(e){srBroken=true;listening=false;setMic(false);startSarvamRecording();return;}
+ if(listening&&!srBroken)startSidecar(); // also record clean audio for the accurate final pass
+ // Watchdog: Brave & some privacy browsers start the engine but never deliver words and never error.
+ // If nothing arrives within ~2.2s, treat the engine as dead and switch to live server streaming.
+ if(srWatch)clearTimeout(srWatch);
+ srWatch=setTimeout(function(){
+  srWatch=null;
+  if(!listening||gotAny)return;
+  vdbg("SR silent 2.2s → switching to live server streaming");
+  srBroken=true;
+  try{recog.onend=null;recog.onerror=null;recog.abort();}catch(e){}
+  // tear the sidecar recorder down WITHOUT running its on-stop pass (avoids a duplicate transcription)
+  try{if(sideRec){sideRec.onstop=null;if(sideRec.state&&sideRec.state!=="inactive")sideRec.stop();}}catch(e){}
+  try{if(sideStream){sideStream.getTracks().forEach(function(t){t.stop();});}}catch(e){}
+  sideRec=null;sideStream=null;sideChunks=[];
+  listening=false;setMic(false);
+  startSarvamRecording();
+ },2200);
+}
+// Record clean, near-field audio alongside the live engine. On stop we run ONE accurate Sarvam
+// pass over the whole clip — full context + noise suppression = it locks onto the nearest (your)
+// voice and ignores the surrounding chatter, then refines the text. Costs one Sarvam call per
+// voice message; degrades gracefully (browser text stays) if the mic is busy or Sarvam is down.
+function startSidecar(){
+ if(!(navigator.mediaDevices&&navigator.mediaDevices.getUserMedia&&window.MediaRecorder))return;
+ sideChunks=[];sideRec=null;sideStream=null;
+ navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true,channelCount:1}}).then(function(stream){
+  if(!listening){stream.getTracks().forEach(function(t){t.stop();});return;}
+  sideStream=stream;
+  try{sideRec=new MediaRecorder(stream);}catch(e){try{sideRec=new MediaRecorder(stream,{});}catch(e2){sideStream=null;stream.getTracks().forEach(function(t){t.stop();});return;}}
+  sideRec.ondataavailable=function(e){if(e.data&&e.data.size>0)sideChunks.push(e.data);};
+  sideRec.onstop=function(){finalizeSidecar();};
+  try{sideRec.start();}catch(e){}
+ }).catch(function(){/* mic busy/denied -> the browser engine's live text still works on its own */});
+}
+function stopSidecar(){
+ if(sideRec&&sideRec.state&&sideRec.state!=="inactive"){try{sideRec.stop();}catch(e){}return;} // -> finalizeSidecar
+ if(sideStream){sideStream.getTracks().forEach(function(t){t.stop();});sideStream=null;}
+}
+async function finalizeSidecar(){
+ if(sideStream){sideStream.getTracks().forEach(function(t){t.stop();});sideStream=null;}
+ var blob=sideChunks.length?new Blob(sideChunks,{type:(sideRec&&sideRec.mimeType)||'audio/webm'}):null;
+ sideRec=null;sideChunks=[];
+ if(!blob||voiceLocked)return;
+ var inp=document.getElementById("inp");if(!inp)return;
+ var pill=document.getElementById("mic"),lab=document.getElementById("microt");
+ if(pill&&lab){lab.textContent=T("voiceRefining");pill.classList.add("show");} // subtle "✨ Refining…" hint
+ try{
+  var wav;try{wav=await blobToWav(blob);}catch(e){wav=blob;}
+  var fd=new FormData();fd.append('file',wav,'audio.wav');fd.append('lang',lang);
+  var res=await fetch('/api/stt',{method:'POST',body:fd});
+  var data={};try{data=await res.json();}catch(e){}
+  var t=((data&&data.text)||"").trim();
+  if(t&&!voiceLocked){inp.value=(voiceBase+t).trim();autoGrow();inp.focus();} // replace live guess with the clean transcript
+ }catch(e){/* keep whatever the browser engine produced */}
+ if(pill)pill.classList.remove("show");
+}
+
+/* ---------- free text "AI" ---------- */
+async function sendText(){if(busy)return;const inp=document.getElementById("inp");const v=inp.value.trim();if(!v)return;voiceLocked=true;if(listening)stopVoice();inp.value="";autoGrow();me(v);await askOdy(v);}
+function setBusy(on){var b=document.getElementById("bar");if(b)b.classList.toggle("busy",on);}
+async function askOdy(q){busy=true;setBusy(true);const typing=typingBubble();
+ try{const res=await fetch('/api/bonbon',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:q,lang,cart:Object.keys(cart),taste:tasteStr(),restaurant:"Bon Bon, an ice cream parlour",profile:bbProfileStr(),cid:bbCid(),off:bbOffStr(),promote:bbPushStr()})});
+  if(!res.ok)throw 0;const data=await res.json();typing.remove();bbMergeSignals(data.signals);
+  let rb=null;
+  const finish=function(){const added=runActions(data.actions);if(added){const cc=confirmOrder();anchorReply(cc||rb);}else{exploreBar();anchorReply(rb);}};
+  if(data.reply){rb=bot(data.reply,finish);}else{finish();}
+ }catch(e){typing.remove();ai(q.toLowerCase());}
+ finally{busy=false;setBusy(false);}}
+function runActions(acts){let added=0;(acts||[]).forEach(a=>{
+  if(a.type==="add"&&MENU[a.id]){const q=Math.max(1,a.qty||1);for(let i=0;i<q;i++)addDish(a.id);added+=q;}
+  else if(a.type==="show"&&a.ids){const ids=a.ids.filter(i=>MENU[i]&&avail(i));if(ids.length)renderGrid(ids);}
+  else if(a.type==="category"&&a.name){const i=CATS.findIndex(c=>c.name.toLowerCase()===String(a.name).toLowerCase());if(i>=0){const c=CATS[i];const ids=(c.ids||(c.subs||[]).flatMap(s=>s.ids)).filter(id=>MENU[id]&&avail(id)).slice(0,6);if(ids.length)renderGrid(ids);}}
+});return added>0;}
+function confirmOrder(){bot(T("confirmQ"));return block("chips",`<button class="chip go" onclick="openCart()">${IC.ok}${lbl("yes")}</button><button class="chip alt" onclick="orderNo()">${IC.x}${lbl("no")}</button>`);}
+function orderNo(){const rb=bot(T("noMore"));mainChips();anchorReply(rb);}
+function ai(q){const sug=(id,txt)=>{const rb=bot(txt);block("grid",[dishCard(id)]);exploreBar();anchorReply(rb);};
+ if(/banquet|hall|function|wedding|event/.test(q))return banquet();
+ if(/time|open|close|parking|address|location|where/.test(q))return info();
+ if(/jain|onion|garlic/.test(q)){bot("We're a fully <b>pure-vegetarian</b> restaurant 🟢. We don't do special Jain (no onion-garlic) preparations, but you can add a 📝 note on any dish and the kitchen will keep it simple where possible.");return exploreBar();}
+ if(/spicy|spice|hot/.test(q))return avail("chilliparotta")?sug("chilliparotta","If you want a kick 🌶️, our Chilli Parotta is a favourite right now:"):bot("For a bit of spice, our chaat and chutneys hit the spot. Tap Explore more for the chaat menu!");
+ if(/light|not heavy|simple/.test(q))return avail("idli")?sug("idli","Something light? Our soft Idli is gentle and comforting:"):sug("curdrice","Something light? Curd Rice is light and soothing:");
+ if(/sweet|dessert|jamun/.test(q)){const sw=["hotjamun","rasagulla","gulab"].find(i=>MENU[i]);return sug(sw,"For something sweet 🍮, here's a classic finish:");}
+ if(/coffee|drink|beverage|thirsty|cold/.test(q))return sug(avail("mango")?"mango":"coffee","Here's a refreshing pick for you:");
+ if(/breakfast|morning|tiffin/.test(q))return openCat(0);
+ if(/recommend|best|special|good|popular|suggest/.test(q))return showSpecials();
+ bot("I can help you explore Bon Bon's menu, recommend dishes, answer about ingredients or take your order. Tap <b>Explore more</b> or tell me what you feel like! 🙂");exploreBar();}
+
+/* ---------- cart & checkout ---------- */
+const modal=document.getElementById("modal"),sheet=document.getElementById("sheet"),lb=document.getElementById("lb");
+function zoomDish(id){const m=MENU[id];const pic=(m.ph||LOGO_PICS)?`<div class="lbpic"><span class="vegbadge${m.nv?' nv':''}"></span>${m.ph?`<img class="ph" src="${m.ph}" alt="${dn(id)}" onerror="this.style.display='none';">`:`<img class="piclogo" src="${LOGO}" alt="">`}</div>`:'';lb.innerHTML=`<div class="lbcard"><button class="lbclose" onclick="closeLb()">✕</button>${pic}<div class="lbinfo"><div class="lbnm"><span class="vegdot${m.nv?' nv':''}"></span>${dn(id)}</div><div class="meta">${dishMeta(id)}</div><div class="lbpr">₹${m.p}</div><div class="lbdesc">${desc(id)}</div></div></div>`;lb.style.display="flex";}
+function closeLb(){lb.style.display="none";lb.innerHTML="";}
+function openSheet(html){sheet.innerHTML=html;modal.style.display="flex";sheet.scrollTop=0;}
+function closeModal(){modal.style.display="none";}
+function cartTotal(){let t=0;for(const k in cart)t+=cart[k]*MENU[k].p;for(const k in cartAO){var _a=aoOf(k);if(_a&&cartAO[k])t+=cartAO[k]*MENU[_a].p;}return t;}
+function recos(){const inCart=Object.keys(cart);let r=[];
+ inCart.forEach(id=>(MENU[id].pairs||[]).forEach(p=>{if(MENU[p]&&avail(p)&&!cart[p]&&!r.includes(p))r.push(p);}));
+ if(!inCart.some(i=>MENU[i].bev)){const b=Object.keys(MENU).filter(i=>MENU[i].bev&&avail(i)&&!cart[i]&&!r.includes(i));if(b[0])r.push(b[0]);}
+ const dz=["hotjamun","rasagulla","rasamalai","gulab","kesari"];if(!inCart.some(i=>dz.includes(i))){const dd=dz.filter(i=>MENU[i]&&avail(i)&&!cart[i]&&!r.includes(i));if(dd[0])r.push(dd[0]);}
+ if(r.length<3)Object.keys(MENU).filter(i=>MENU[i].best&&avail(i)&&!cart[i]&&!r.includes(i)).forEach(i=>{if(r.length<3)r.push(i);});
+ return r.slice(0,3);}
+function recoHTML(){const r=recos();if(!r.length)return"";
+ return `<div class="recohd">${IC.star}${T("alsoLike")}</div>`+r.map(id=>`<div class="rc"><div class="e"><img src="${LOGO}"></div><div class="rg"><div class="rn">${dn(id)}</div><div class="rp">₹${MENU[id].p}</div></div><button class="radd" onclick="addReco('${id}')">+ ${T("add")}</button></div>`).join("");}
+function addReco(id){cart[id]=(cart[id]||0)+1;buzz();sync();openCart();}
+function openCart(){const ks=Object.keys(cart);if(!ks.length)return;
+ openSheet(`<h2>Your cart</h2><div class="note" style="margin:0 0 8px">Bill shown in English for clarity</div>${ks.map(k=>`<div class="ci"${aoOf(k)&&cartAO[k]?' style="border-bottom:0;padding-bottom:2px"':''}><div class="e"><img src="${LOGO}"></div><div class="g"><div class="n">${MENU[k].n}</div><div class="p">₹${MENU[k].p}</div>${notes[k]?`<div class="cnote">${IC.note}${notes[k]}</div>`:''}<button class="noteb ${notes[k]?'has':''}" style="margin-top:5px;font-size:12.5px" onclick="openNote('${k}')">${IC.note}${notes[k]?'Edit note':'Add note'}</button></div><div class="qty"><button onclick="dec('${k}')">−</button><span>${cart[k]}</span><button onclick="inc('${k}')">+</button></div></div>${aoOf(k)&&cartAO[k]?`<div style="display:flex;align-items:center;gap:10px;padding:4px 0 9px 52px;border-bottom:1px solid var(--line)"><div style="flex:1;font-size:13.5px;color:var(--mut)"><span style="color:var(--ink);font-weight:600">+ ${MENU[aoOf(k)].n}</span> · ₹${MENU[aoOf(k)].p}</div><div class="qty" style="transform:scale(.85);transform-origin:right center"><button onclick="decAO('${k}')">−</button><span>${cartAO[k]}</span><button onclick="incAO('${k}')">+</button></div></div>`:''}`).join("")}<div class="tot big"><span>Subtotal</span><span>₹${cartTotal()}</span></div>${recoHTML()}<button class="btn" style="background:#fff;color:#7a4a24;border:1.5px solid #7a4a24" onclick="closeModal()">${IC.menu}Explore more</button><button class="btn g" onclick="checkout()">Checkout →</button>`);}
+function inc(k){cart[k]++;buzz();sync();openCart();}
+function dec(k){cart[k]--;if(cart[k]<=0){delete cart[k];delete notes[k];delete cartAO[k];}sync();Object.keys(cart).length?openCart():closeModal();}
+let order={mode:null,table:null,room:null};
+function checkout(){order={mode:"dine",table:null,room:""};openSheet(`<h2>Which table are you at?</h2><div class="fld"><label>Table number</label><input id="tbl" inputmode="numeric" oninput="roomFromTable()" placeholder="Enter your table number"></div><div id="roomline"></div><div id="contbtn"></div>`);}
+function setMode(m){order.mode=m;document.getElementById("din").classList.toggle("on",m==="dine");document.getElementById("tak").classList.toggle("on",m==="take");
+ const b=document.getElementById("ckbody");
+ if(m==="dine")b.innerHTML=`<div class="fld"><label>Table number (1–24)</label><input id="tbl" inputmode="numeric" oninput="roomFromTable()"></div><div id="roomline"></div><div id="contbtn"></div>`;
+ else{b.innerHTML=`<div class="note">${IC.bag}Takeaway — packed fresh for pickup.</div><div id="contbtn"></div>`;document.getElementById("contbtn").innerHTML=`<button class="btn" onclick="contact()">Continue →</button>`;}}
+function roomFromTable(){const v=parseInt(document.getElementById("tbl").value);const rl=document.getElementById("roomline"),cb=document.getElementById("contbtn");
+ if(!v||v<1){rl.innerHTML="";cb.innerHTML="";return;}order.table=v;order.room="";
+ rl.innerHTML="";cb.innerHTML=`<button class="btn" onclick="contact()">Continue →</button>`;}
+function taxRate(){return order.mode==="dine"&&order.room==="AC"?0.075:0.05;}
+function contact(){const sub=cartTotal(),tax=Math.round(sub*taxRate()),gt=sub+tax;const personsFld=order.mode==="dine"?`<div class="fld"><label>Number of persons</label><input id="cpers" inputmode="numeric" maxlength="3" oninput="pers(this)" placeholder="e.g. 4"></div>`:"";
+ openSheet(`<h2>Confirm &amp; pay</h2><div class="tot"><span>Outlet</span><span>${outlet}</span></div><div class="tot"><span>Order type</span><span>Dine-in · Table ${order.table}</span></div><div class="tot"><span>Subtotal</span><span>₹${sub}</span></div><div class="tot"><span>GST &amp; charges (${(taxRate()*100)}%)</span><span>₹${tax}</span></div><div class="tot big"><span>Grand total</span><span>₹${gt}</span></div><div class="fld" style="margin-top:14px"><label>Your name</label><input id="cn" oninput="alpha(this)" maxlength="30" placeholder="Enter your name" value="${order.name||''}"></div>${personsFld}<div class="fld"><label>Phone number</label><input id="cp" inputmode="numeric" maxlength="10" oninput="dig(this,10)" placeholder="10-digit number" value="${order.phone||''}"></div><div id="cperr" style="color:#c0392b;font-size:13.5px;margin-top:2px;display:none">Please enter a valid 10-digit number.</div><div class="note">Your bill will be ready to <b>download</b> right after payment.</div><button class="btn g" onclick="pay(${gt})">Pay ₹${gt} →</button>`);}
+function pay(gt){const cp=document.getElementById("cp");const digits=((cp&&cp.value)||"").replace(/\D/g,"");if(digits.length!==10){const e=document.getElementById("cperr");if(e)e.style.display="block";if(cp){cp.style.borderColor="#c0392b";cp.focus();}return;}order.name=(document.getElementById("cn").value||"Guest");order.phone=digits;order.persons=(document.getElementById("cpers")&&document.getElementById("cpers").value)||"";confirmNum(gt);}
+function confirmNum(gt){openSheet('<h2>'+T("confirmNumTitle")+'</h2><div class="note" style="margin:0 0 6px">'+T("confirmNumSub")+'</div><div style="text-align:center;font-size:25px;font-weight:800;color:#7a4a24;letter-spacing:1.5px;margin:12px 0 18px">+91 '+order.phone+'</div><button class="btn g" onclick="payMethods('+gt+')">'+T("confirmYes")+'</button><button class="btn" style="background:#fff;color:#7a4a24;border:1.5px solid #7a4a24" onclick="contact()">'+T("confirmEdit")+'</button>');}
+function payMethods(gt){var M=[{k:"Card",l:"Credit & Debit Card",c:"#f47216",g:"💳"},{k:"PhonePe",l:"PhonePe",c:"#5f259f",g:'<b style="color:#5f259f">Pe</b>'},{k:"Google Pay",l:"Google Pay",c:"#4285f4",g:'<b style="color:#4285f4">G</b>'},{k:"Paytm UPI",l:"Paytm",c:"#012a6e",g:'<b style="color:#012a6e">P</b>'},{k:"Other UPI",l:"Other UPI",c:"#7c828c",g:"🏦"}];var tiles=M.map(function(m){return '<button class="paym" style="background:'+m.c+'" onclick="payGo(\''+m.k+'\','+gt+')"><span class="pi">'+m.g+'</span><span>'+m.l+'</span></button>';}).join("");openSheet('<h2>'+T("payTitle").replace("%a",gt)+'</h2><div class="note" style="margin:0 0 12px">'+T("payUsing")+'</div><div class="paygrid">'+tiles+'</div>');}
+// Simulated payment-app handoff (like being sent to PhonePe/GPay). The guest either completes
+// the payment or backs out — backing out shows the Swiggy-style "payment failed" choice.
+function payGo(method,gt){
+  openSheet('<div class="ok"><div class="payspin"></div><h2 style="margin-top:14px">'+T("payOpening").replace("%m",method)+'</h2><p>'+T("payComplete")+'</p>'+
+    '<button class="btn g" onclick="payDone(\''+method+'\','+gt+')">'+T("payIvePaid").replace("%a",gt)+'</button>'+
+    '<button class="btn" style="background:#fff;color:#c0392b;border:1.5px solid #e0b4ad" onclick="payFailed(\''+method+'\','+gt+')">'+T("payCancelPay")+'</button></div>');
+}
+// Swiggy-style failure sheet: try the payment again, or cancel the order.
+function payFailed(method,gt){
+  openSheet('<div class="ok"><div class="big" style="color:#c0392b">'+
+    "<svg class='okcheck' style='color:#c0392b' viewBox='0 0 24 24'><circle cx='12' cy='12' r='10'/><path d='M8 8l8 8M16 8l-8 8'/></svg>"+
+    '</div><h2>'+T("payFailTitle")+'</h2><p>'+T("payFailSub")+'</p>'+
+    '<button class="btn g" onclick="payMethods('+gt+')">'+T("payRetry")+'</button>'+
+    '<button class="btn" style="background:#fff;color:#7a4a24;border:1.5px solid #7a4a24" onclick="payCancel()">'+T("payCancelOrder")+'</button></div>');
+}
+// Order cancelled at payment: nothing charged, cart kept so they can retry whenever.
+function payCancel(){closeModal();var rb=bot(T("payCancelledMsg"));block("chips",'<button class="chip go" onclick="openCart()">'+lbl("viewCart")+'</button>');mainChips();anchorReply(rb);}
+function payDone(method,gt){var nm=order.name||"Guest",ph=order.phone||"",pers=order.persons||"";
+  var sub=cartTotal(),tax=Math.round(sub*taxRate());
+  var items=Object.keys(cart).map(function(k){return {n:MENU[k].n,q:cart[k],p:MENU[k].p*cart[k]};});
+  // add-ons ride along with their parent dish on the bill/kitchen ticket, labelled with the parent
+  Object.keys(cartAO).forEach(function(k){var a=aoOf(k);if(a&&cartAO[k])items.push({n:MENU[a].n+" (with "+MENU[k].n+")",q:cartAO[k],p:MENU[a].p*cartAO[k]});});
+  var orderedIds=Object.keys(cart);
+  lastBill={items:items,sub:sub,tax:tax,gt:gt,method:method,name:nm,phone:ph,type:("Dine-in · Table "+order.table),when:new Date().toLocaleString()};
+  saveCustomer({name:nm,phone:ph,last:orderedIds,at:Date.now(),visits:((getCustomer()||{}).visits||0)+1});try{fetch('/api/bonbon/orders',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({items:items.map(function(it){return {name:it.n,qty:it.q,price:it.p};}),total:gt,name:nm,phone:ph,mode:order.mode,table:(order.mode==='dine'?('Table '+order.table+(order.room?' ('+order.room+')':'')):'')})});}catch(e){}
+  var rows=items.map(function(it){return '<div class="brow"><span>'+it.n+' ×'+it.q+'</span><span>₹'+it.p+'</span></div>';}).join("");
+  var bill='<div class="bill">'+rows+'<div class="brow"><span>Subtotal</span><span>₹'+sub+'</span></div><div class="brow"><span>GST</span><span>₹'+tax+'</span></div><div class="brow tot"><span>'+T("totalPaid")+'</span><span>₹'+gt+'</span></div></div>';
+  openSheet('<div class="ok"><div class="big">'+IC.check+'</div><h2>'+T("paySuccess")+'</h2><p>'+T("payThanks").replace("%n",nm).replace("%o",outlet)+'</p>'+bill+'<p style="margin-top:8px;font-size:12px;color:var(--mut)">'+lastBill.type+(pers?" · "+pers+" "+T("persons"):"")+' · '+T("paidVia")+' '+method+'</p><div class="note" style="text-align:center;margin:4px 0 2px">📥 Download your bill below 👇</div><button class="btn g" onclick="downloadBill()">'+T("downloadBill")+'</button><button class="btn" style="background:#fff;color:var(--blue);border:1.5px solid var(--blue)" onclick="orderDone()">'+T("done")+'</button></div>');
+  cart={};notes={};cartAO={};sync();try{setTimeout(downloadBill,700);}catch(e){}}
+function downloadBill(){if(!lastBill)return;var b=lastBill;var rows=b.items.map(function(it){return '<tr><td style="padding:3px 0">'+it.n+' ×'+it.q+'</td><td style="text-align:right">₹'+it.p+'</td></tr>';}).join("");
+  var html='<!doctype html><html><head><meta charset="utf-8"><title>Bon Bon Bill</title></head><body style="font-family:Arial,sans-serif;max-width:380px;margin:20px auto;color:#222;padding:0 16px"><h2 style="color:#7a4a24;margin:0">Bon Bon</h2><div style="color:#888;font-size:13px;margin-bottom:8px">'+outlet+' · '+b.when+'</div><div style="font-size:13px;margin-bottom:12px">'+b.type+'<br>'+b.name+' · +91 '+b.phone+'</div><table style="width:100%;border-collapse:collapse;font-size:14px">'+rows+'<tr><td style="padding-top:6px">Subtotal</td><td style="text-align:right">₹'+b.sub+'</td></tr><tr><td>GST</td><td style="text-align:right">₹'+b.tax+'</td></tr><tr style="font-weight:bold;border-top:1px solid #ccc"><td style="padding-top:6px">Total paid</td><td style="text-align:right">₹'+b.gt+'</td></tr></table><div style="margin-top:12px;font-size:12px;color:#888">Paid via '+b.method+' · Thank you!</div></body></html>';
+  var blob=new Blob([html],{type:"text/html"});var url=URL.createObjectURL(blob);var a=document.createElement("a");a.href=url;a.download="Bon Bon_Bill.html";document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(url);},1500);}
+function orderDone(){closeModal();var rb=bot(T("orderThanks"));if(lastBill)block("chips",'<button class="chip" onclick="downloadBill()">'+lbl("downloadBill")+'</button>');mainChips();anchorReply(rb);}
+function reset_(){closeModal();upsold=false;showGreeting();}
+
+/* ---------- "Find what's for me" — per-visit AI helper ---------- */
+function tasteStr(){return "";}
+const FINDTX={
+ q:{en:"What are you in the mood for today? Tell me, or tap one 😋",ta:"இன்று எதைச் சாப்பிட விரும்புகிறீர்கள்? சொல்லுங்கள் அல்லது தேர்வுசெய்யுங்கள் 😋",hi:"आज आपका क्या खाने का मन है? बताइए या एक चुनिए 😋",ml:"ഇന്ന് എന്ത് കഴിക്കാൻ തോന്നുന്നു? പറയൂ അല്ലെങ്കിൽ ഒന്ന് തിരഞ്ഞെടുക്കൂ 😋",te:"ఈరోజు ఏం తినాలని ఉంది? చెప్పండి లేదా ఒకటి ఎంచుకోండి 😋",kn:"ಇಂದು ಏನು ತಿನ್ನಬೇಕೆನಿಸುತ್ತದೆ? ಹೇಳಿ ಅಥವಾ ಒಂದನ್ನು ಆಯ್ಕೆಮಾಡಿ 😋"},
+ intro:{en:"Here's what I'd go for today 😋",ta:"இன்று நான் பரிந்துரைப்பது 😋",hi:"आज के लिए मेरी पसंद 😋",ml:"ഇന്ന് ഞാൻ നിർദേശിക്കുന്നത് 😋",te:"ఈరోజుకి నా సూచనలు 😋",kn:"ಇಂದಿಗೆ ನನ್ನ ಸಲಹೆ 😋"},
+ back:{en:"Back",ta:"பின்",hi:"पीछे",ml:"പിന്നോട്ട്",te:"వెనుకకు",kn:"ಹಿಂದೆ"},
+ chat:{en:"💬 I'll just tell you",ta:"💬 நானே சொல்கிறேன்",hi:"💬 मैं खुद बताता हूँ",ml:"💬 ഞാൻ തന്നെ പറയാം",te:"💬 నేనే చెప్తాను",kn:"💬 ನಾನೇ ಹೇಳುತ್ತೇನೆ"},
+ chatReply:{en:"Sure! Just type what you're craving — a dish, an ingredient, or even a vibe — and I'll find it for you 😊",ta:"நிச்சயமாக! நீங்கள் என்ன விரும்புகிறீர்கள் என்று தட்டச்சு செய்யுங்கள் — ஒரு உணவு, ஒரு பொருள் அல்லது ஒரு மனநிலை — நான் கண்டுபிடிக்கிறேன் 😊",hi:"बिलकुल! बस लिखिए आपका क्या मन है — कोई व्यंजन, सामग्री या मूड — मैं ढूंढ दूँगा 😊",ml:"തീർച്ചയായും! നിങ്ങൾക്ക് എന്ത് വേണമെന്ന് ടൈപ്പ് ചെയ്യൂ — ഒരു വിഭവം, ചേരുവ, അല്ലെങ്കിൽ ഒരു മൂഡ് — ഞാൻ കണ്ടെത്തിത്തരാം 😊",te:"తప్పకుండా! మీకు ఏం కావాలో టైప్ చేయండి — ఒక వంటకం, పదార్థం, లేదా మూడ్ — నేను కనుగొంటాను 😊",kn:"ಖಂಡಿತ! ನಿಮಗೆ ಏನು ಬೇಕು ಎಂದು ಟೈಪ್ ಮಾಡಿ — ಒಂದು ಖಾದ್ಯ, ಪದಾರ್ಥ, ಅಥವಾ ಮೂಡ್ — ನಾನು ಹುಡುಕಿಕೊಡುತ್ತೇನೆ 😊"}
+};
+const MOODS=[{k:"chocolatey",prompt:"something rich and chocolatey",lab:{en:"Chocolatey",ta:"சாக்லேட்",hi:"चॉकलेटी",ml:"ചോക്ലേറ്റ്",te:"చాక్లెట్",kn:"ಚಾಕ್ಲೇಟ್"}},{k:"fruity",prompt:"something fruity and refreshing",lab:{en:"Fruity & fresh",ta:"பழச்சுவை",hi:"फ्रूटी",ml:"ഫ്രൂട്ടി",te:"ఫ్రూటీ",kn:"ಹಣ್ಣಿನ"}},{k:"nutty",prompt:"something nutty and crunchy",lab:{en:"Nutty & crunchy",ta:"நட்ஸ்",hi:"नट्स वाला",ml:"നട്ട്സ്",te:"నట్స్",kn:"ಬೀಜಗಳ"}},{k:"classic",prompt:"a classic, timeless ice cream flavour",lab:{en:"Classic flavour",ta:"கிளாசிக்",hi:"क्लासिक",ml:"ക്ലാസിക്",te:"క్లాసిక్",kn:"ಕ್ಲಾಸಿಕ್"}},{k:"shake",prompt:"a thick, creamy milkshake",lab:{en:"A thick shake",ta:"திக் ஷேக்",hi:"थिक शेक",ml:"തിക് ഷേക്ക്",te:"థిక్ షేక్",kn:"ತಿಕ್ ಶೇಕ್"}},{k:"waffle",prompt:"a warm waffle with ice cream",lab:{en:"Waffle treat",ta:"வாஃபிள்",hi:"वॉफल",ml:"വാഫിൾ",te:"వాఫిల్",kn:"ವಾಫಲ್"}},{k:"popular",prompt:"the most popular, best-loved treats",lab:{en:"Most loved",ta:"அதிகம் விரும்பப்படுவது",hi:"सबसे पसंदीदा",ml:"ഏറ്റവും പ്രിയം",te:"అత్యంత ఇష్టమైనవి",kn:"ಅತಿ ಪ್ರಿಯ"}},{k:"surprise",prompt:"surprise me with an exciting mix of treats",lab:{en:"Surprise me",ta:"ஆச்சரியப்படுத்து",hi:"सरप्राइज़ करें",ml:"അത്ഭുതപ്പെടുത്തൂ",te:"ఆశ్చర్యపరచండి",kn:"ಅಚ್ಚರಿ ಮಾಡಿ"}}];
+function findL(m){return (m[lang]||m.en);}
+function findForMe(){var rb=bot(findL(FINDTX.q));
+  block("chips",MOODS.map(function(m){return '<button class="chip" onclick="moodPick(\'' + m.k + '\')">'+findL(m.lab)+'</button>';}).join("")
+    +'<button class="chip go" onclick="findChat()">'+findL(FINDTX.chat)+'</button>'
+    +'<button class="chip alt" onclick="mainChips()">'+IC.back+findL(FINDTX.back)+'</button>');
+  anchorReply(rb);}
+function moodPick(k){var m=null;for(var i=0;i<MOODS.length;i++){if(MOODS[i].k===k)m=MOODS[i];}if(!m)return;me(findL(m.lab));findAsk(m.prompt);}
+function findChat(){var rb=bot(findL(FINDTX.chatReply));anchorReply(rb);var inp=document.getElementById("inp");if(inp){inp.focus();autoGrow&&autoGrow();}}
+var _procTimer=null;
+function closeFindOverlay(){var el=document.getElementById("taste");if(el){el.classList.remove("on");el.innerHTML="";}}
+function findProcessing(){var el=document.getElementById("taste");var msgs=[T("proc1"),T("proc2"),T("proc3")],mi=0;
+  el.innerHTML='<div class="tproc"><div class="pstage"><span class="porbglow"></span><span class="porbglow2"></span><span class="pcore"></span><img class="plogo" src="'+LOGO+'" alt=""></div><div class="ptxt" id="ptxt">'+msgs[0]+'</div></div>';el.classList.add("on");
+  clearInterval(_procTimer);_procTimer=setInterval(function(){var t=document.getElementById("ptxt");if(!t)return;t.style.opacity="0";setTimeout(function(){mi=(mi+1)%msgs.length;t.textContent=msgs[mi];t.style.opacity="1";},340);},1600);}
+async function findAsk(moodText){var _typing=typingBubble();
+  var picks=[],reply=null;
+  try{var msg="The guest is choosing a dessert at an ice cream parlour. Their craving: "+moodText+". Recommend 5-6 treats they'll love, MIXED across categories (scoops, sundaes, shakes, waffles, falooda) for variety, with a short warm intro. Use show actions with the dish ids.";
+    var res=await fetch('/api/bonbon',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:msg,lang,cart:Object.keys(cart),taste:""})});
+    if(res.ok){var data=await res.json();reply=data.reply;var ids=[];(data.actions||[]).forEach(function(a){if(a.type==="show"&&a.ids)ids=ids.concat(a.ids);else if(a.type==="add"&&a.id)ids.push(a.id);});picks=ids.filter(function(i){return MENU[i]&&avail(i);});}
+  }catch(e){}
+  if(_typing)_typing.remove();
+  if(!picks.length)picks=topDishes();
+  var seen={},uniq=[];picks.forEach(function(i){if(!seen[i]){seen[i]=1;uniq.push(i);}});
+  var rb=bot(reply||findL(FINDTX.intro));renderGrid(uniq.slice(0,6));exploreBar();anchorReply(rb);}
+
+function bbApplyLiveMenu(items){
+  try{
+    var order=["scoops","softy","waffle","icecream","sundae","mini","rolls","falooda","shakes","snacks"];
+    var labels={scoops:"Scoops",softy:"Softy",waffle:"Waffle",icecream:"Ice Cream Specials",sundae:"Sundae",mini:"Mini Sundae",rolls:"Roll Ice Cream",falooda:"Falooda",shakes:"Thick Shakes",snacks:"Snacks"};
+    Object.keys(MENU).forEach(function(k){delete MENU[k];});
+    var byCat={};
+    window.__bbOff=[];  // {name, reason} — asked-for items we can't serve right now, with the WHY
+    window.__bbPush=[]; // dishes the owner wants the waiter to promote / upsell
+    items.forEach(function(it){
+      // add-ons (e.g. extra ice cream) stay available but never appear as their own card;
+      // ordinary items only appear when they're not hidden and not sold out.
+      var isAddon=it.cat==="addon";
+      var st=it.status||"on";
+      var reason = st==="out"?"out of stock today" : st==="soon"?"not ready yet, available later" : st==="off"?"not served at this outlet" : (it.available===0?"sold out right now":"");
+      var unavailable = !isAddon && (it.hidden || it.available===0 || st!=="on");
+      if(unavailable){
+        // tell the guest the reason (unless the owner deliberately HID it — then stay quiet)
+        if(!it.hidden){var r=(it.offReason&&it.offReason.trim())||reason;if(r)window.__bbOff.push({name:it.name,reason:r});}
+        return;
+      }
+      MENU[it.key]={n:it.name,p:it.price,e:"\uD83C\uDF68",h:[[8,23]],q:it.q||"",pt:it.pt||0,ph:it.ph||"",d:it.desc||"",veg:1};
+      if(it.best)MENU[it.key].best=1;
+      if(it.must)MENU[it.key].must=1;
+      if(it.promoted)MENU[it.key].promoted=1;
+      if(it.ao)MENU[it.key].ao=it.ao;
+      if(!isAddon){
+        if((Number(it.push)||0)>=3 || it.promoted) window.__bbPush.push(it.name);
+        (byCat[it.cat]=byCat[it.cat]||[]).push(it);
+      }
+    });
+    CATS.length=0;
+    order.forEach(function(c){
+      var list=(byCat[c]||[]).sort(function(a,b){return (a.sort||0)-(b.sort||0);}).map(function(it){return it.key;});
+      if(list.length)CATS.push({name:labels[c],ids:list});
+    });
+  }catch(e){}
+}
+function toggleLang(){var e=document.getElementById("langbar");if(e)e.classList.toggle("open");}
+function closeLang(){var e=document.getElementById("langbar");if(e)e.classList.remove("open");}
+document.addEventListener("click",function(ev){var lb=document.getElementById("langbar"),tg=document.querySelector(".langtoggle");if(lb&&lb.classList.contains("open")&&!lb.contains(ev.target)&&(!tg||!tg.contains(ev.target)))lb.classList.remove("open");});
+// boot: the white screen + logo fade-in happen instantly via CSS (see #bootveil .bootlogo).
+// Here we just wait for the header assets, then fade the whole white screen out (logo fades
+// with it = fade-out at exit), and only THEN play the welcome greeting.
+function bbBoot(){
+  var veil=document.getElementById("bootveil");
+  var frame=document.getElementById("shutterframe");
+  var sh=document.getElementById("shutter");
+  var bar=document.getElementById("bar");
+  var start=Date.now(),MIN=1900,done=false;   // hold long enough for the slow fade-in + a beat
+  var imgs=["/wood_web.jpg","/logo_web.png","/awning_web.png?v=3","/shutter_web.jpg"],left=imgs.length;
+  function showShutter(){ if(!frame)return;
+    // extend the shutter up UNDER the awning (from its top edge) so it shows through the scallop gaps
+    var aw=document.querySelector(".awnbar"),ph=document.getElementById("phone");
+    if(aw&&ph)frame.style.top=Math.max(0,(aw.getBoundingClientRect().top-ph.getBoundingClientRect().top))+"px";
+    if(bar)bar.style.visibility="hidden";                                     // keep the input bar hidden behind the closed shutter
+    frame.classList.add("on");                                                // closed shutter behind the awning + over the chat
+  }
+  function finish(){ if(done)return; done=true;
+    showShutter();                                                            // put the shutter up (still hidden behind the white veil)
+    if(veil)veil.classList.add("gone");                                       // lift the white boot screen -> shutter revealed (shows through scallops)
+    setTimeout(function(){ if(veil&&veil.parentNode)veil.parentNode.removeChild(veil); }, 1160);
+    setTimeout(function(){ if(sh)sh.classList.add("up"); }, 1520);            // roll the shutter straight up behind the awning
+    setTimeout(function(){ if(bar)bar.style.visibility=""; }, 2450);          // input bar reappears as the shutter clears it
+    setTimeout(function(){ if(frame&&frame.parentNode)frame.parentNode.removeChild(frame); showGreeting(); }, 2780); // chat revealed -> welcome
+  }
+  function ready(){ setTimeout(finish, Math.max(0, MIN-(Date.now()-start))); }
+  imgs.forEach(function(src){ var im=new Image(); im.onload=im.onerror=function(){ if(--left<=0)ready(); }; im.src=src; });
+  setTimeout(function(){ if(!done)ready(); }, 3600);
+}
+(function(){
+  var ce=document.getElementById("chat"),wd=document.querySelector("header.woodhdr");
+  if(!ce||!wd)return;
+  var col=false,lock=false;
+  function setCol(v){
+    if(col===v||lock)return;
+    col=v;lock=true;
+    wd.style.marginTop = v ? (-wd.offsetHeight)+"px" : "";
+    setTimeout(function(){lock=false;update();},400);   // ignore our own reflow, then resync
+  }
+  function update(){
+    if(lock)return;
+    var show = (!window.__started) || ce.scrollTop<=6;
+    setCol(!show);
+  }
+  ce.addEventListener("scroll",update,{passive:true});
+  window.__bbHdrUpdate=update;ce.addEventListener("click",function(){window.__bbHold=false;});document.addEventListener("keydown",function(){window.__bbHold=false;});   // let me() nudge it the moment the customer first chats
+})();
+
+window.__cid=(Date.now().toString(36)+Math.random().toString(36).slice(2,8));
+window.__jrnl={flavors:[],avoid:[],mood:""};
+function bbCid(){return window.__cid;}
+function bbMergeSignals(s){if(!s)return;var j=window.__jrnl;
+  (s.flavors||[]).forEach(function(f){f=(""+f).trim();if(f&&j.flavors.indexOf(f)<0&&j.flavors.length<12)j.flavors.push(f);});
+  (s.avoid||[]).forEach(function(a){a=(""+a).trim();if(a&&j.avoid.indexOf(a)<0&&j.avoid.length<12)j.avoid.push(a);});
+  if(s.mood)j.mood=(""+s.mood).trim();}
+function bbProfileStr(){var j=window.__jrnl,p=[];
+  if(j.flavors.length)p.push("likes: "+j.flavors.join(", "));
+  if(j.avoid.length)p.push("avoids: "+j.avoid.join(", "));
+  if(j.mood)p.push("mood: "+j.mood);
+  return p.join("; ");}
+function bbOffStr(){return (window.__bbOff||[]).slice(0,24).map(function(o){return o.name+" ("+o.reason+")";}).join("; ");}
+function bbPushStr(){return (window.__bbPush||[]).slice(0,12).join(", ");}
+/* init */
+document.getElementById("langbar").innerHTML=LANGS.map(l=>`<button class="lang ${l[0]==='en'?'on':''}" data-l="${l[0]}" onclick="setLang('${l[0]}',this);closeLang()">${l[1]}</button>`).join("");
+function setLang(l,b){lang=l;document.querySelectorAll(".lang").forEach(x=>x.classList.remove("on"));b.classList.add("on");
+ document.getElementById("inp").placeholder=T("ask");outlet?showGreeting(true):renderOutlets();}
+document.getElementById("wm").innerHTML='<img src="/logo_web.png">';
+function slugify(s){return s.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");}
+(function(){
+  var pa=new URLSearchParams(location.search).get("outlet");
+  if(!pa){try{var pp=(window.parent&&window.parent!==window?window.parent.location.pathname:location.pathname).split("/").filter(Boolean);if(pp[0]==="bonbon"&&pp[1])pa=pp[1];}catch(e){}}
+  var o=pa&&OUTLETS.find(function(x){return slugify(x)===pa;});
+  chooseOutlet(o||OUTLETS[0],true);fetch('/api/bonbon/menu').then(function(r){return r.json();}).then(function(d){if(d&&d.items&&d.items.length)bbApplyLiveMenu(d.items);}).catch(function(){}).then(function(){bbBoot();});
+})();
+</script>
+</body>
+</html>
