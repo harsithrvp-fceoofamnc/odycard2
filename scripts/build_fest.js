@@ -108,6 +108,40 @@ function menuJs(stall) {
   return { menu: "const MENU={\n" + entries.join(",\n") + "\n};", cats: "const CATS=[\n" + cats.join(",\n") + "\n];" };
 }
 
+/** Replace a whole `function NAME(…){…}` with `replacement`.
+ *
+ *  This needs a real scanner, not a regex. The chatbot's functions are full of template
+ *  literals like `<button onclick="explainDish('${id}')">`, and a lazy [\s\S]*?\} stops at
+ *  the "}" of ${id} — leaving the tail of the old body dangling after the new one. That
+ *  produced a SyntaxError, which meant NO script on the page ran at all: the boot splash
+ *  sat there forever and the chat never appeared. So: walk the characters, and only count
+ *  braces while outside strings, template literals, regex-ish slashes and comments. */
+function replaceFn(src, name, replacement) {
+  const sig = new RegExp("function\\s+" + name + "\\s*\\(");
+  const m = sig.exec(src);
+  if (!m) throw new Error("function not found: " + name);
+  const start = m.index;
+  const body = src.indexOf("{", src.indexOf(")", m.index));
+  if (body < 0) throw new Error("no body for: " + name);
+
+  let depth = 0, quote = null, end = -1;
+  for (let j = body; j < src.length; j++) {
+    const c = src[j], n = src[j + 1];
+    if (quote) {
+      if (c === "\\") { j++; continue; }        // escaped char — skip it
+      if (c === quote) quote = null;            // ${…} inside a template stays "in string",
+      continue;                                 // so its braces are skipped as a matched pair
+    }
+    if (c === "/" && n === "/") { const nl = src.indexOf("\n", j); if (nl < 0) break; j = nl; continue; }
+    if (c === "/" && n === "*") { j = src.indexOf("*/", j) + 1; continue; }
+    if (c === '"' || c === "'" || c === "`") { quote = c; continue; }
+    if (c === "{") depth++;
+    else if (c === "}") { depth--; if (depth === 0) { end = j + 1; break; } }
+  }
+  if (end < 0) throw new Error("unterminated function: " + name);
+  return src.slice(0, start) + replacement + src.slice(end);
+}
+
 function replaceBlock(src, startNeedle, open, close) {
   const s = src.indexOf(startNeedle);
   if (s < 0) throw new Error("not found: " + startNeedle);
@@ -133,35 +167,56 @@ function build(stallKey, stalls) {
   [a, b] = replaceBlock(s, "const CATS=", "[", "]");
   s = a + cats + b;
 
-  // 2 ── remove the ask bar entirely (textarea, mic, send, cart button)
-  [a, b] = replaceBlock(s, '<div class="barwrap" id="bar">', "<", ">") // guard
-    ? (() => {
-        const st = s.indexOf('<div class="barwrap" id="bar">');
-        // walk div nesting to find the matching close
-        let depth = 0, i = st;
-        const re = /<div\b|<\/div>/g;
-        re.lastIndex = st;
-        let m, end = -1;
-        while ((m = re.exec(s))) {
-          if (m[0] === "</div>") { depth--; if (depth === 0) { end = m.index + 6; break; } }
-          else depth++;
-        }
-        return [s.slice(0, st), s.slice(end)];
-      })()
-    : [s, ""];
-  s = a + b;
+  // 2 ── the ask bar goes, but #bar and #inp stay as inert, permanently hidden stubs.
+  //
+  // Deleting the nodes outright was wrong. The chatbot's boot path runs
+  //     chooseOutlet() -> document.getElementById("bar").style.display=""
+  //                    -> document.getElementById("inp").placeholder=T("ask")
+  // with no null guard, so on a page with no bar that threw immediately and killed the
+  // script *during boot* — the white splash with the logo stayed up forever and the chat
+  // never rendered. Same story in setLang and the whole voice-input block.
+  //
+  // Keeping empty stubs costs nothing: there is no textarea to type into (it is readonly,
+  // inside a display:none container), no mic, no send, no cart button. Guests still can't
+  // type. Nothing throws.
+  {
+    const OPEN = '<div class="barwrap" id="bar">';
+    const st = s.indexOf(OPEN);
+    if (st < 0) throw new Error("ask bar not found — did the chatbot markup change?");
+    let depth = 0, end = -1, m;
+    const re = /<div\b|<\/div>/g;
+    re.lastIndex = st;
+    while ((m = re.exec(s))) {
+      if (m[0] === "</div>") { depth--; if (depth === 0) { end = m.index + 6; break; } }
+      else depth++;
+    }
+    if (end < 0) throw new Error("ask bar has no matching </div>");
+    s = s.slice(0, st) +
+        '<div class="barwrap" id="bar" aria-hidden="true"><textarea id="inp" tabindex="-1" readonly></textarea></div>' +
+        s.slice(end);
+  }
+
+  // 2b ── setUrl() must not touch the page that hosts us.
+  // The original does window.parent.history.replaceState(null,"","/bon-bon"), which rewrote
+  // the address bar from /bon-bon-stall to /bon-bon the instant a stall opened. Reload or
+  // Back then landed on /bon-bon — a gated page — so the guest got bounced to the access
+  // code screen and on to the hub. Inside the fest iframe the URL must stay put.
+  s = replaceFn(s, "setUrl", "function setUrl(){}");
+
+  // 2c ── no live-menu fetch. /api/bonbon/menu is staff-gated and would 302 for a guest,
+  // and even when it worked it would overwrite this stall's fixed fest menu with Bon Bon's.
+  s = s.replace(
+    /fetch\('\/api\/bonbon\/menu'\)[\s\S]*?\.then\(function\(\)\{bbBoot\(\);\}\);/,
+    "bbBoot();"
+  );
 
   // 3 ── no + Add anywhere: dish cards keep only the info button, pairings show the price
-  s = s.replace(
-    /function dishFooter\(id\)\{[\s\S]*?return `<button class="add"[\s\S]*?\}/,
-    'function dishFooter(id){return `<button class="infob" onclick="explainDish(\'${id}\')" title="Tell me about this">${IC.info}</button>`;}'
-  );
-  s = s.replace(
-    /function pairFoot\(id\)\{[\s\S]*?\}\n/,
-    'function pairFoot(id){return `<span class="pr">₹${MENU[id].p}</span>`;}\n'
-  );
+  s = replaceFn(s, "dishFooter",
+    'function dishFooter(id){return `<button class="infob" onclick="explainDish(\'${id}\')" title="Tell me about this">${IC.info}</button>`;}');
+  s = replaceFn(s, "pairFoot",
+    'function pairFoot(id){return `<span class="pr">₹${MENU[id].p}</span>`;}');
   // and make sure nothing else can add to a cart
-  s = s.replace(/function addDish\(id\)\{[\s\S]*?\n\}/, "function addDish(){}");
+  s = replaceFn(s, "addDish", "function addDish(){}");
 
   // 4 ── theme + artwork
   for (const [k, v] of Object.entries(sk.vars)) {
@@ -200,8 +255,7 @@ function build(stallKey, stalls) {
   );
 
   // 6 ── no letter-by-letter typing: the whole line lands at once
-  s = s.replace(
-    /function bot\(html,onDone\)\{[\s\S]*?\n\}/,
+  s = replaceFn(s, "bot",
     'function bot(html,onDone){\n' +
     '  var d=document.createElement("div");d.className="msg bot";chat.appendChild(d);\n' +
     '  var s=String(html==null?"":html);\n' +
@@ -212,6 +266,22 @@ function build(stallKey, stalls) {
 
   // 7 ── the opening line
   s = s.replace(/const GREET=\{[\s\S]*?\};/, `const GREET={en:${JSON.stringify(sk.greet)}};`);
+
+  // 9 ── browse-only chip rows.
+  // The stock rows offer "Find what's for me", which runs the AI chat flow and whose
+  // "Chat with me" branch calls inp.focus() on the input we removed, and "Give feedback",
+  // which opens a form to type in. Both are dead ends on a stall page. These stalls are
+  // button-only, so the rows keep just the two that browse: full menu and today's picks.
+  s = replaceFn(s, "mainChips",
+    'function mainChips(){block("chips",`<button class="chip go" onclick="explore()">${IC.menu}${lbl("exploreFull")}</button>' +
+    '<button class="chip alt" onclick="showSpecials()">${IC.star}${lbl("specialsLong")}</button>`);}');
+  s = replaceFn(s, "exploreBar",
+    'function exploreBar(){block("chips",`<button class="chip go" onclick="explore()">${IC.menu}${lbl("exploreMore")}</button>' +
+    '<button class="chip alt" onclick="showSpecials()">${IC.star}${lbl("specials")}</button>`);}');
+
+  // 8 ── belt and braces: whatever the script sets on #bar.style.display, it stays gone.
+  // bbBoot and chooseOutlet both put the bar back ("" / visibility:"") as the shutter lifts.
+  s = s.replace(/<\/style>/, "  #bar{display:none!important}\n  </style>");
 
   const out = path.join(ROOT, "public", "fest", sk.file, "index.html");
   fs.mkdirSync(path.dirname(out), { recursive: true });

@@ -346,7 +346,8 @@
   .catpic img.lg{width:56%;height:56%;object-fit:contain;opacity:.5}
   .catpic.lg2{font-size:40px}
   .catlabel{font-size:14px;font-weight:700;color:var(--ink);text-align:center;line-height:1.15}
-</style>
+  #bar{display:none!important}
+  </style>
 </head>
 <body>
 <div id="phone"><div id="bootveil"><img class="bootlogo" src="/fest/logo_kimchi.png" alt="Bon Bon"></div>
@@ -355,7 +356,7 @@
   <div class="langbar" id="langbar"></div>
   <div id="shutterframe"><div id="shutter"></div></div><div id="wm"></div>
   <div id="chat"></div>
-  
+  <div class="barwrap" id="bar" aria-hidden="true"><textarea id="inp" tabindex="-1" readonly></textarea></div>
   <div id="modal" onclick="if(event.target.id==='modal')closeModal()"><div class="sheet" id="sheet"></div></div>
   <div id="lb" onclick="if(event.target.id==='lb')closeLb()"></div>
   <div id="taste"></div>
@@ -801,12 +802,12 @@ function anchorReply(){}
 function renderOutlets(){chat.innerHTML="";document.getElementById("phone").classList.add("outletview");document.getElementById("bar").style.display="none";document.getElementById("wm").style.display="none";document.getElementById("back").style.display="none";document.getElementById("hname").textContent="Bon Bon";document.getElementById("hsub").textContent=T("chooseSub");bot(T("welcome"));
  block("outlet",OUTLETS.map(o=>`<button onclick="chooseOutlet('${o}')">${IC.pin}${o}</button>`).join(""));
  block("wmark",`<img src="${LOGO}"><div class="cap">${T("pureVeg")}</div>`);}
-function setUrl(path){try{if(window.parent&&window.parent!==window)window.parent.history.replaceState(null,"",path);}catch(e){}}
+function setUrl(){}
 function chooseOutlet(o,defer){document.getElementById("phone").classList.remove("outletview");document.getElementById("bar").style.display="";document.getElementById("wm").style.display="";document.getElementById("back").style.display="";document.getElementById("inp").placeholder=T("ask");outlet=o;document.getElementById("hname").textContent="Bon Bon";document.getElementById("hsub").textContent="AI Menu — powered by Odysra";setUrl("/bon-bon");if(defer){chat.innerHTML="";typingBubble();return;}showGreeting();}
 function goOutlets(){cart={};notes={};cartAO={};upsold=false;outlet=null;refreshCart();closeModal();setUrl("/bon-bon");renderOutlets();}
 
 /* ---------- dishes ---------- */
-function dishFooter(id){return `<button class="infob" onclick="explainDish('${id}')" title="Tell me about this">${IC.info}</button>`;}')">+ ${T("add")}</button><button class="infob" onclick="explainDish('${id}')" title="Tell me about this">${IC.info}</button>`;}
+function dishFooter(id){return `<button class="infob" onclick="explainDish('${id}')" title="Tell me about this">${IC.info}</button>`;}
 function photoUrl(id){return MENU[id].ph||LOGO;}
 function fmtTime(t){var hr=Math.floor(t),mn=Math.round((t-hr)*60),ap=hr<12?"AM":"PM",hh=hr%12;if(hh===0)hh=12;return hh+(mn?":"+("0"+mn).slice(-2):"")+ap;}
 function fmtWin(id){var h=MENU[id].h;if(!h||!h.length)return"";return h.map(function(w){return fmtTime(w[0])+"–"+fmtTime(w[1]);}).join(", ");}
@@ -824,6 +825,120 @@ function dig(el,n){el.value=el.value.replace(/\D/g,"").slice(0,n);}
 function alpha(el){el.value=el.value.replace(/[^A-Za-z ]/g,"").replace(/\s{2,}/g," ").slice(0,30);}
 function pers(el){el.value=el.value.replace(/\D/g,"").replace(/^0+/,"").slice(0,3);}
 function addDish(){}
+function offerAddon(srcId){var aid=MENU[srcId].ao;if(cartAO[srcId]){upsell();return;}var rb=bot(T("addonAsk").replace("%n",dn(aid)).replace("%p",MENU[aid].p));block("chips",'<button class="chip go" onclick="addAddon(\''+srcId+'\')">'+lbl("addonYes")+'</button><button class="chip alt" onclick="mainChips()">'+lbl("addonNo")+'</button>');anchorReply(rb);}
+function addAddon(srcId){cartAO[srcId]=(cartAO[srcId]||0)+1;buzz();sync();var rb=bot(T("addonAdded"));mainChips();anchorReply(rb);}
+function inc2(id){cart[id]++;buzz();sync();}
+function dec2(id){cart[id]--;if(cart[id]<=0){delete cart[id];delete notes[id];delete cartAO[id];}sync();}
+// add-ons live on their parent line (cartAO[parentId] = count), so they show WITH the dish, not as a separate item
+function incAO(k){cartAO[k]=(cartAO[k]||0)+1;buzz();sync();openCart();}
+function decAO(k){cartAO[k]=(cartAO[k]||0)-1;if(cartAO[k]<=0)delete cartAO[k];sync();openCart();}
+function aoOf(k){return (MENU[k]&&MENU[k].ao&&MENU[MENU[k].ao])?MENU[k].ao:null;}
+function explainDish(id){const m=MENU[id];bot(`<b>${dn(id)}</b> — ${desc(id)} <span style="color:#7a4a24;font-weight:700">₹${m.p}</span><br><span class="meta">${dishMeta(id)}</span>`);block("grid",[dishCard(id)]);exploreBar();}
+function grid(ids){ids=ids.filter(avail);if(!ids.length){bot("Those aren't being served right now — here's what's hot at this hour.");return showSpecials();}renderGrid(ids);exploreBar();}
+function refreshCart(){let n=0,t=0;for(const k in cart){n+=cart[k];t+=cart[k]*MENU[k].p;}for(const k in cartAO){var _a=aoOf(k);if(_a&&cartAO[k]){t+=cartAO[k]*MENU[_a].p;}}const b=document.getElementById("cartbar"),c=document.getElementById("cartcount");if(n){b.style.display="flex";if(c)c.textContent=n;b.title=`${T("viewCart")} (${n}) · ₹${t}`;b.setAttribute("aria-label",`${T("viewCart")} (${n}) ₹${t}`);}else b.style.display="none";document.getElementById("phone").classList.toggle("hascart",n>0);}
+
+/* ---------- per-dish note ---------- */
+function openNote(id){openSheet(`<h2>Note for ${dn(id)}</h2><div class="fld"><label>Any instructions for the kitchen?</label><textarea id="nt" rows="3" placeholder="e.g. less spicy, no coriander, extra crispy">${notes[id]||""}</textarea></div><button class="btn" onclick="saveNote('${id}')">Save note</button>`);}
+function saveNote(id){const v=document.getElementById("nt").value.trim();if(v){notes[id]=v;if(!cart[id])cart[id]=1;}else{delete notes[id];}
+ sync();closeModal();openCart();}
+
+/* ---------- upsell ---------- */
+function pairFoot(id){return `<span class="pr">₹${MENU[id].p}</span>`;}
+function upsell(){if(upsold)return;const ids=Object.keys(cart);if(!ids.length||ids.some(i=>MENU[i].bev))return;
+ let sug=[];ids.forEach(i=>(MENU[i].pairs||[]).forEach(p=>{if(MENU[p]&&MENU[p].bev&&avail(p)&&!cart[p]&&!sug.includes(p))sug.push(p);}));
+ if(!sug.length)sug=["coffee","mango"].filter(avail);sug=sug.slice(0,2);if(!sug.length)return;upsold=true;
+ const names=sug.map(s=>dn(s)).join(" & ");
+ setTimeout(()=>{block("pair",`<p>Add a drink? Our <b>${names}</b> go beautifully with your order.</p><div class="row">${sug.map(s=>`<div class="pi" data-id="${s}"><div class="e"><img src="${LOGO}"></div><div class="n">${dn(s)}</div><div class="pifoot">${pairFoot(s)}</div></div>`).join("")}</div>`);exploreBar();},420);}
+
+/* ---------- conversation ---------- */
+function exploreBar(){block("chips",`<button class="chip go" onclick="explore()">${IC.menu}${lbl("exploreMore")}</button><button class="chip alt" onclick="showSpecials()">${IC.star}${lbl("specials")}</button>`);}
+function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
+function typingBubble(){const d=document.createElement("div");d.className="msg bot typing";d.innerHTML='<span class="dot"></span><span class="dot"></span><span class="dot"></span>';chat.appendChild(d);toBottom();return d;}
+function topDishes(){var pr=Object.keys(MENU).filter(i=>MENU[i].promoted&&avail(i));if(pr.length)return pr.slice(0,6);
+ let b=Object.keys(MENU).filter(i=>MENU[i].best&&avail(i));
+ if(b.length<4)b=b.concat(Object.keys(MENU).filter(i=>avail(i)&&!b.includes(i)));
+ if(!b.length)b=Object.keys(MENU).filter(i=>MENU[i].best);
+ return b.slice(0,4);}
+async function showGreeting(instant){window.__bbHold=true;var pre=chat.querySelector(".typing");if(!pre)chat.innerHTML="";upsold=false;
+ var cust=getCustomer();
+ if(cust&&cust.name){
+   if(!instant){let t=pre||typingBubble();await sleep(pre?300:450);t.remove();pre=null;}else if(pre){pre.remove();pre=null;}
+   bot(T("welcomeBack").replace("%n",cust.name));
+   if(!instant)await sleep(220);
+   returningChips();
+   return;
+ }
+ if(!instant){let t=pre||typingBubble();await sleep(pre?300:500);t.remove();pre=null;}else if(pre){pre.remove();pre=null;}
+ bot(GREET[lang].replace("%t",part()).replace("%o",outlet||""));
+ if(!instant){await sleep(450);let t=typingBubble();await sleep(600);t.remove();}
+ bot(FRESH[lang]);
+ if(!instant)await sleep(300);
+ const best=topDishes();const g=block("grid","");
+ for(const id of best){g.insertAdjacentHTML("beforeend",dishCard(id));toBottom();if(!instant)await sleep(260);}
+ if(!instant)await sleep(200);mainChips();}
+function returningChips(){block("chips",`<button class="chip go" onclick="showUsual()">${IC.star}${lbl("myUsual")}</button><button class="chip" onclick="showNew()">${IC.star}${lbl("somethingNew")}</button><button class="chip alt" onclick="explore()">${IC.menu}${lbl("exploreFull")}</button><button class="chip alt" onclick="forgetMe()">${IC.x}${lbl("notYou")}</button>`);}
+function showUsual(){var c=getCustomer()||{};var ids=(c.last||[]).filter(function(i){return MENU[i]&&avail(i);});me(lbl("myUsual"));if(!ids.length){bot(T("noUsual"));return showNew(true);}var rb=bot(T("usualIntro"));renderGrid(ids.slice(0,6));exploreBar();anchorReply(rb);}
+function showNew(skipMe){var c=getCustomer()||{};var prev=c.last||[];if(!skipMe)me(lbl("somethingNew"));var pool=Object.keys(MENU).filter(function(i){return MENU[i].best&&avail(i)&&prev.indexOf(i)<0;});if(pool.length<4)pool=Object.keys(MENU).filter(function(i){return avail(i)&&prev.indexOf(i)<0;});var rb=bot(T("newIntro"));renderGrid(shuffle(pool).slice(0,6));exploreBar();anchorReply(rb);}
+function showSpecials(quiet){const best=topDishes();if(!quiet)me("Today's specials");
+ bot(`Here are our sweet favourites 🍨👇`);renderGrid(best);mainChips();}
+function mainChips(){block("chips",`<button class="chip go" onclick="explore()">${IC.menu}${lbl("exploreFull")}</button><button class="chip alt" onclick="showSpecials()">${IC.star}${lbl("specialsLong")}</button>`);}
+let fbRating=0,fbCur="";
+const FBTOPICS=["Food & Taste","Service","Cleanliness","Ambience","Staff","Value for Money","App Experience"];
+function openFeedback(){const rb=bot("What would you like to share feedback about? 😊");block("chips",FBTOPICS.map(a=>`<button class="chip" onclick="fbTopic('${a}')">${a}</button>`).join("")+`<button class="chip alt" onclick="fbCustom()">${IC.note}Something else</button><button class="chip alt" onclick="mainChips()">${IC.back}Done</button>`);}
+function fbTopic(a){fbRating=0;fbCur=a;openSheet(`<h2>Feedback · ${a}</h2><div class="note" style="margin:0 0 10px">How would you rate our <b>${a.toLowerCase()}</b>?</div><div class="stars" id="fbstars">${[1,2,3,4,5].map(n=>`<span onclick="setStars(${n})">★</span>`).join("")}</div><div class="fld"><label>Comments (optional)</label><textarea id="fbtext" rows="3" placeholder="Tell us more…"></textarea></div><button class="btn g" onclick="submitFeedback(false)">Submit</button>`);}
+function fbCustom(){fbRating=0;fbCur="General";openSheet(`<h2>Your feedback</h2><div class="fld"><label>Your message</label><textarea id="fbtext" rows="4" placeholder="Share anything you'd like us to know…"></textarea></div><div id="fberr" style="color:#c0392b;font-size:12px;margin-top:2px;display:none">Please type a message first.</div><button class="btn g" onclick="submitFeedback(true)">Send feedback</button>`);}
+function setStars(n){fbRating=n;document.querySelectorAll("#fbstars span").forEach((s,i)=>s.classList.toggle("on",i<n));}
+function submitFeedback(custom){const ta=document.getElementById("fbtext");const txt=((ta&&ta.value)||"").trim();
+ if(custom&&!txt){const e=document.getElementById("fberr");if(e)e.style.display="block";if(ta)ta.focus();return;}
+ if(!custom&&!fbRating&&!txt){const e=document.getElementById("fbstars");if(e)e.style.outline="2px solid #c0392b";return;}
+ closeModal();bot(T("fbThanks"));
+ const rb=bot("Would you like to share feedback on anything else?");block("chips",FBTOPICS.map(a=>`<button class="chip" onclick="fbTopic('${a}')">${a}</button>`).join("")+`<button class="chip alt" onclick="fbCustom()">${IC.note}Something else</button><button class="chip alt" onclick="mainChips()">${IC.back}Done</button>`);}
+var CATPIC={};
+function catFallback(el){el.onerror=null;el.src="/cat_default.jpg";}
+function catImg(c){if(CATPIC[c.name])return CATPIC[c.name];var ids=(c.ids||(c.subs||[]).flatMap(function(s){return s.ids;})).filter(avail);for(var k=0;k<ids.length;k++){if(MENU[ids[k]]&&MENU[ids[k]].ph)return MENU[ids[k]].ph;}return "/cat_default.jpg";}
+function explore(){me(T("exploreMore"));const cs=CATS.filter(c=>(c.ids||(c.subs||[]).flatMap(s=>s.ids)).some(avail));
+ bot(`${T("whatExplore")} <span style='color:#7b8190'>${T("timeNote")}</span>`);
+ var _cg=block("catgrid",cs.map((c)=>`<button class="catcard" onclick="openCat(${CATS.indexOf(c)})"><span class="catpic"><img class="${catImg(c)===LOGO?"lg":"ph"}" src="${catImg(c)}" loading="lazy" onerror="catFallback(this)"></span><span class="catlabel">${cn(c.name)}</span></button>`).join(""));_bigTarget=_cg;block("chips",`<button class="chip alt" onclick="mainChips()">${IC.home}${lbl("home")}</button>`);}
+function openCat(i){const c=CATS[i];me(cn(c.name));if(c.subs){const ss=c.subs.filter(s=>s.ids.some(avail));bot(`<b>${cn(c.name)}</b> — ${T("pickType")}:`);
+  block("chips",ss.map((s)=>`<button class="chip" onclick="openSub(${i},${c.subs.indexOf(s)})">${cn(s.name)}</button>`).join("")+`<button class="chip alt" onclick="explore()">${IC.back}${lbl("back")}</button>`);
+ }else{bot(`<b>${cn(c.name)}</b> — ${T("tapAdd")}:`);grid(c.ids);}}
+function openSub(i,j){const s=CATS[i].subs[j];me(cn(s.name));bot(`<b>${cn(s.name)}</b> — ${T("tapAdd")}:`);grid(s.ids);}
+function info(){me("Store info");bot(`📍 <b>Bon Bon, ${outlet}</b><br>🕖 Open 6:30 AM – 11:00 PM, all days<br>🅿️ Valet parking available<br>❄️ AC &amp; Non-AC dining halls<br>📞 0422-xxxxxxx`);exploreBar();}
+function banquet(){me("Banquet hall enquiry");bot(`We'd be glad to host your event at <b>${outlet}</b>! 🎉 Our hall seats up to 250 with pure-veg catering. Leave your details and our banquet manager will call you.`);
+ openSheet(`<h2>Banquet enquiry</h2><div class="fld"><label>Name</label><input id="bn"></div><div class="fld"><label>Phone</label><input id="bp" inputmode="tel"></div><div class="fld"><label>Event date</label><input id="bd" placeholder="e.g. 15 Aug"></div><div class="fld"><label>Approx. guests</label><input id="bg" inputmode="numeric"></div><button class="btn" onclick="closeModal();bot('✅ Thanks! Our banquet manager will call you shortly. (Lead captured for staff.)')">Submit enquiry</button>`);}
+
+/* ---------- voice ----------
+   Primary: record audio and send to /api/stt (Sarvam) for accurate Indian-language transcription.
+   Fallback: the browser's built-in SpeechRecognition (used if recording isn't supported or
+   Sarvam isn't configured). */
+window.__VDBG=window.__VDBG||false;
+function vdbg(m){try{if(!window.__VDBG)return;var d=document.getElementById('__vdbg');if(!d){d=document.createElement('div');d.id='__vdbg';d.style.cssText='position:fixed;left:6px;bottom:6px;z-index:99999;max-width:88vw;background:rgba(0,0,0,.85);color:#31ff8f;font:11px/1.45 monospace;padding:7px 9px;border-radius:7px;white-space:pre-wrap';d.onclick=function(){d.style.display='none';};document.body.appendChild(d);}var line=(new Date().toLocaleTimeString().replace(/\s?[AP]M/i,''))+'  '+m;d.textContent=line+'\n'+d.textContent;d.textContent=d.textContent.split('\n').slice(0,14).join('\n');}catch(e){}}
+function setMic(on){document.getElementById("mic").classList.toggle("on",on);}
+function heard(t){const inp=document.getElementById("inp");inp.value=(inp.value?inp.value.trim()+" ":"")+t;}
+function simHeard(){const s=["something light and not too spicy","what's good for breakfast","show me the dosa varieties","I'd like a sweet dish","recommend a good cold drink"];
+ bot("🎙️ <i>(Voice needs Chrome with mic permission — simulating a query for this demo)</i>");setTimeout(()=>heard(s[Math.floor(Math.random()*s.length)]),500);}
+const SLANG={en:'en-IN',ta:'ta-IN',hi:'hi-IN',ml:'ml-IN',te:'te-IN',kn:'kn-IN'};
+let listening=false,mediaRec=null,chunks=[],micStream=null,sttBroken=false,srBroken=false,recog=null;
+// Brave (and some privacy browsers) start the Web Speech engine but block Google's service, so it
+// returns nothing and never errors. Detect Brave up front and go straight to live server streaming.
+try{if(navigator.brave&&navigator.brave.isBrave){navigator.brave.isBrave().then(function(v){if(v){srBroken=true;vdbg("Brave detected → using live server streaming");}});}}catch(e){}
+// "sidecar" recorder: while the browser shows live words, we also capture clean audio and run
+// one accurate Sarvam pass on stop (full context = Claude-like accuracy) that refines the text.
+let sideRec=null,sideStream=null,sideChunks=[];
+let voiceBase="",oldPH="",meterRAF=null,meterCtx=null,meterTimer=null,recStart=0,busy=false,voiceLocked=false;
+let liveTimer=null,liveBusy=false,liveSeq=0;
+let segTimer=null,segText="";const SEG_MS=2200; // segmented live transcription (Brave/no-SR path)
+// real-time streaming state
+let sttWs=null,pcmCtx=null,pcmNode=null,pcmSrc=null,wsMode=false,wsGotData=false,wsText="";
+// Voice input, ChatGPT-style: tap to record, a live sound-wave reacts to the guest's voice,
+// and when they tap stop we transcribe the whole clip (via Sarvam) and drop the text in the box.
+// One consistent flow on every browser (Chrome, Brave, Firefox, iOS) — no live-engine surprises.
+function recordVoice(){
+ if(listening){stopVoice();return;}
+ if(busy)return;
+ voiceLocked=false;
+ startRecording();
+}
 function startRecording(){
  if(!(navigator.mediaDevices&&navigator.mediaDevices.getUserMedia&&window.MediaRecorder)){simHeard();return;}
  navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true,channelCount:1}}).then(function(stream){
@@ -1437,7 +1552,7 @@ function slugify(s){return s.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^
   var pa=new URLSearchParams(location.search).get("outlet");
   if(!pa){try{var pp=(window.parent&&window.parent!==window?window.parent.location.pathname:location.pathname).split("/").filter(Boolean);if(pp[0]==="bonbon"&&pp[1])pa=pp[1];}catch(e){}}
   var o=pa&&OUTLETS.find(function(x){return slugify(x)===pa;});
-  chooseOutlet(o||OUTLETS[0],true);fetch('/api/bonbon/menu').then(function(r){return r.json();}).then(function(d){if(d&&d.items&&d.items.length)bbApplyLiveMenu(d.items);}).catch(function(){}).then(function(){bbBoot();});
+  chooseOutlet(o||OUTLETS[0],true);bbBoot();
 })();
 </script>
 </body>

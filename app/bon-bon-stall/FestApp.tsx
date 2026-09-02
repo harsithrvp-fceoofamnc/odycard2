@@ -10,7 +10,7 @@ const STALLS = [
   { key: "bonbon", name: "Bon Bon",         tag: "THE GOURMET ICE CREAM",    pic: "/bon_bon_scoop.png" },
   { key: "kimchi", name: "Kim Chi & Ramen", tag: "INDO ASIAN FOOD",          pic: "/kimchi_ramen.png" },
 ];
-const V = 1; // bump to bust the iframe cache after a rebuild
+const V = 2; // bump to bust the iframe cache after a rebuild
 
 export default function FestApp() {
   const [phase, setPhase] = useState<"splash" | "intro" | "pick">("splash");
