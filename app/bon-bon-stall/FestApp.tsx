@@ -20,12 +20,20 @@ export default function FestApp() {
   const [open, setOpen] = useState<string | null>(null);
   const [mid, setMid] = useState(1);
   const [shown, setShown] = useState(false);
+  // The splash starts at opacity 0 on a black screen and is raised one frame later, so the
+  // mark fades UP out of the black before it fades away — mounting it already-lit would
+  // give React nothing to transition from and the logo would just pop in.
+  const [lit, setLit] = useState(false);
   // The stall cards wait for the waiter: he rises from the bottom first, and only once he
   // has settled do the three menu blocks come up behind him.
   const [cardsUp, setCardsUp] = useState(false);
   const timer = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  useEffect(() => { const t = setTimeout(() => setPhase("intro"), 2600); return () => clearTimeout(t); }, []);
+  useEffect(() => {
+    const r = requestAnimationFrame(() => setLit(true));
+    const t = setTimeout(() => setPhase("intro"), 3600);
+    return () => { cancelAnimationFrame(r); clearTimeout(t); };
+  }, []);
   useEffect(() => {
     if (phase !== "intro") return;
     const t = setTimeout(() => setShown(true), 1150);
@@ -77,7 +85,7 @@ export default function FestApp() {
       <style>{CSS}</style>
       <div id="phone">
 
-        <div className={"splash" + (phase === "splash" ? " in" : "")}>
+        <div className={"splash" + (phase === "splash" && lit ? " in" : "")}>
           <img src="/odysra_logo.png" alt="Odysra" />
         </div>
 
@@ -146,9 +154,12 @@ const CSS = `
   box-shadow:0 0 44px rgba(0,0,0,.5)}
 
 .splash{position:absolute;inset:0;z-index:60;background:#000;display:flex;align-items:center;
-  justify-content:center;opacity:0;pointer-events:none;transition:opacity 1.5s ease}
+  justify-content:center;opacity:0;pointer-events:none;transition:opacity 1.6s ease}
 .splash.in{opacity:1}
-.splash img{width:52%;max-width:220px;filter:drop-shadow(0 0 46px rgba(255,255,255,.22))}
+/* the mark also drifts up a hair as it lights, which reads as "settling" rather than blinking */
+.splash img{width:66%;max-width:290px;filter:drop-shadow(0 0 46px rgba(255,255,255,.22));
+  transform:scale(.94);transition:transform 2.6s cubic-bezier(.33,.02,.2,1)}
+.splash.in img{transform:none}
 
 .hero{position:absolute;left:0;bottom:0;z-index:30;height:84vh;max-height:680px;transform:translateX(-120%);
   opacity:0;transition:transform 1.7s cubic-bezier(.33,.02,.2,1),opacity .9s ease}
@@ -168,7 +179,8 @@ const CSS = `
 .taphint{position:absolute;left:0;right:0;bottom:24px;z-index:40;text-align:center;font-size:9.5px;
   font-weight:800;letter-spacing:.3em;color:#5a5058;animation:pulse 2.1s infinite}
 @keyframes pulse{0%,100%{opacity:.3}50%{opacity:1}}
-.tapzone{position:absolute;inset:0;z-index:28}
+/* above the waiter (30), the bubble (32) and the hint (40): a tap ANYWHERE continues */
+.tapzone{position:absolute;inset:0;z-index:50}
 
 .craving{position:absolute;top:0;left:0;right:0;z-index:20;text-align:center;padding:30px 22px 0;
   transform:translateY(-150%);opacity:0;transition:transform 1.5s cubic-bezier(.33,.02,.2,1),opacity 1s ease}
