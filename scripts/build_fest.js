@@ -376,7 +376,13 @@ function build(stallKey, stalls) {
     ' return \'<div class="tags">\'+m.tagtxt.split(",").map(function(t){\n' +
     '   return \'<span class="tag t-\'+t.replace(/ /g,"")+\'">\'+(t==="BESTSELLER"?"\\u2605":"\\u2726")+" "+t+"</span>";\n' +
     ' }).join("")+"</div>";}');
-  extra.push(".tags{margin:2px 0 4px}",
+  // Cards used to stretch to the tallest in the row and .sfoot pushed the price to the
+  // bottom, so a short card next to a two-line one with badges was mostly empty space.
+  // align-items:start lets each card be its own height and the price sits under the name.
+  extra.push(".grid{align-items:start}",
+    ".dish.simple .sbd{padding:12px 13px;gap:4px}",
+    ".sfoot{margin-top:6px}",
+    ".tags{margin:1px 0 2px}",
     ".tag{display:inline-block;margin:0 7px 0 0;font-size:11.5px;font-weight:800;letter-spacing:.02em;color:var(--gold)}",
     ".t-NEW{color:#1f9d55}");
   // 5a2 ── the description leaves the card; it belongs to the info button.
@@ -385,7 +391,7 @@ function build(stallKey, stalls) {
     'function compactCard(id){const m=MENU[id];\n' +
     ' return `<div class="dish simple" data-id="${id}"><div class="sbd">' +
     '<div class="srow"><span class="vegdot${m.nv?\' nv\':\'\'}"></span><div class="nm">${dn(id)}</div></div>' +
-    '${tagsHTML(m)}<div class="meta">${dishMeta(id)}</div>' +
+    '${tagsHTML(m)}${dishMeta(id)?`<div class="meta">${dishMeta(id)}</div>`:""}' +
     '<div class="sfoot"><div class="pr">\u20b9${m.p}</div><div class="frow">${dishFooter(id)}</div></div>' +
     '</div></div>`;}');
 
@@ -399,8 +405,8 @@ function build(stallKey, stalls) {
   {
     const chips = (sk.filters || []).map((f) => {
       const [kind, val, icon, label] = {
-        veg:    ["diet", 1, "\\u{1F7E2}", "Veg only"],
-        nonveg: ["diet", 2, "\\u{1F534}", "Non-veg only"],
+        veg:    ["diet", 1, "", "Veg only"],
+        nonveg: ["diet", 2, "", "Non-veg only"],
         best:   ["tag", "BESTSELLER", "\\u2605", "Bestsellers"],
         must:   ["tag", "MUST TRY", "\\u2726", "Must try"],
         neu:    ["tag", "NEW", "\\u2726", "New"],
@@ -408,7 +414,7 @@ function build(stallKey, stalls) {
       const on = kind === "diet" ? `FDIET===${val}` : `FTAG===${JSON.stringify(val)}`;
       const arg = kind === "diet" ? val : `&quot;${val}&quot;`;
       const fn = kind === "diet" ? `setDiet(${val})` : `setTag(${arg})`;
-      return `'<button class="chip '+(${on}?'go':'alt')+'" onclick="${fn}">${icon} ${label}</button>'`;
+      return `'<button class="chip '+(${on}?'go':'alt')+'" onclick="${fn}">${(icon+" "+label).trim()}</button>'`;
     });
     if (!chips.length) chips.push("''");
 
@@ -419,7 +425,11 @@ function build(stallKey, stalls) {
       "function filterChips(){return " + chips.join("+") + ";}\n" +
       "function setDiet(v){FDIET=(FDIET===v?0:v);odyga('filter_click',{filter:v===1?'veg':'non-veg',active:FDIET===v});refilter();}\n" +
       "function setTag(t){FTAG=(FTAG===t?\"\":t);odyga('filter_click',{filter:t,active:FTAG===t});refilter();}\n" +
-      "function refilter(){if(LASTCAT>=0)openCat(LASTCAT);else showCats();}\n" +
+      "function showTagged(){var ids=Object.keys(MENU).filter(avail);\n" +
+      " if(!ids.length){bot('Nothing matches that filter.');block('chips',filterChips());return;}\n" +
+      " bot('<b>'+(FTAG==='BESTSELLER'?'Bestsellers':FTAG==='NEW'?'New':'Must try')+'</b>:');\n" +
+      " renderGrid(ids);exploreBar();}\n" +
+      "function refilter(){if(FTAG){LASTCAT=-1;showTagged();}else if(LASTCAT>=0)openCat(LASTCAT);else showCats();}\n" +
       "const avail=id=>(FDIET!==1||!MENU[id].nv)&&(FDIET!==2||!!MENU[id].nv)" +
         "&&(!FTAG||hasTag(id,FTAG))" +
         "&&(!TIME_FILTER||!OPEN||(HOUR>=MENU[id].h[0]&&HOUR<MENU[id].h[1]));"
