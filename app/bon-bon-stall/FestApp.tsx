@@ -11,7 +11,7 @@ const STALLS = [
   { key: "bonbon", name: "Bon Bon",         tag: "THE GOURMET ICE CREAM",    pic: "/bon_bon_scoop.png" },
   { key: "kimchi", name: "Kim Chi & Ramen", tag: "INDO ASIAN FOOD",          pic: "/kimchi_ramen.png" },
 ];
-const V = 29; // bump to bust the iframe cache after a rebuild
+const V = 30; // bump to bust the iframe cache after a rebuild
 
 export default function FestApp() {
   const [phase, setPhase] = useState<"splash" | "intro" | "pick">("splash");
@@ -75,15 +75,8 @@ export default function FestApp() {
       <style>{CSS}</style>
       <div id="phone">
 
-        {/* All three, so a guest knows up front that this one code opens every stall.
-            Each sits on a white tile: Kim Chi's mark is mostly black and would vanish
-            against the black splash otherwise. */}
         <div className={"splash" + (phase === "splash" ? " in" : "")}>
-          <div className="lg3">
-            {STALLS.map((s) => (
-              <span key={s.key}><img src={`/fest/logo_${s.key}.png`} alt={s.name} /></span>
-            ))}
-          </div>
+          <img src="/logo_web.png" alt="" />
         </div>
 
         <div className={"craving" + (phase === "pick" ? " in" : "")}>
@@ -126,7 +119,7 @@ export default function FestApp() {
           <img src="/fest/mascot_wave.png" alt="" />
         </div>
         <div className={"herobub" + (phase === "intro" && shown ? " in" : "")}>
-          <div className="bubble"><div className="t">Welcome! 👋 I&apos;m your waiter today.</div></div>
+          <div className="hline">Welcome! 👋<br />I&apos;m your waiter today.</div>
         </div>
         {phase === "intro" && shown && <div className="taphint">TAP TO CONTINUE</div>}
         {phase === "intro" && <div className="tapzone" onClick={() => { if (!shown) return; track("intro_continue"); setPhase("pick"); }} />}
@@ -153,10 +146,7 @@ const CSS = `
 .splash{position:absolute;inset:0;z-index:60;background:#000;display:flex;align-items:center;
   justify-content:center;opacity:0;pointer-events:none;transition:opacity 1.5s ease}
 .splash.in{opacity:1}
-.lg3{display:flex;flex-direction:column;align-items:center;gap:16px;width:80%;max-width:330px}
-.lg3 span{width:100%;height:96px;background:#fff;border-radius:18px;display:flex;align-items:center;
-  justify-content:center;padding:12px 18px;box-shadow:0 10px 34px rgba(255,120,160,.18)}
-.lg3 img{max-width:100%;max-height:100%;object-fit:contain;display:block}
+.splash img{width:80%;max-width:330px;filter:drop-shadow(0 0 40px rgba(255,120,160,.35))}
 
 .hero{position:absolute;left:0;bottom:0;z-index:30;height:70vh;max-height:540px;transform:translateX(-120%);
   opacity:0;transition:transform 1.7s cubic-bezier(.33,.02,.2,1),opacity .9s ease}
@@ -167,9 +157,10 @@ const CSS = `
 .herobub{position:absolute;left:44%;bottom:70%;right:16px;z-index:32;opacity:0;
   transform:translateY(12px) scale(.95);transition:opacity .7s ease,transform .95s cubic-bezier(.33,.02,.2,1)}
 .herobub.in{opacity:1;transform:none}
-/* no speech-bubble tail — it read as a notch cut out of the card */
-.bubble{position:relative;background:#fff;border-radius:20px;padding:15px 17px;box-shadow:0 18px 46px rgba(0,0,0,.55)}
-.bubble .t{font-size:15px;line-height:1.5;color:#1c1a1f;font-weight:500}
+/* Not a bubble — the waiter's line is set like the "What are you in the mood for?"
+   heading, so the two intro beats read as one voice. */
+.hline{font-size:23px;font-weight:800;color:#fff;letter-spacing:-.03em;line-height:1.25;
+  text-shadow:0 2px 22px rgba(0,0,0,.75)}
 .taphint{position:absolute;left:0;right:0;bottom:24px;z-index:40;text-align:center;font-size:9.5px;
   font-weight:800;letter-spacing:.3em;color:#5a5058;animation:pulse 2.1s infinite}
 @keyframes pulse{0%,100%{opacity:.3}50%{opacity:1}}

@@ -76,7 +76,7 @@ const SKIN = {
     // #811226 is too dark to read as text or a border on black, so the on-black accent is
     // the same hue lifted. The fills (.me bubble, active chip) keep the true brand maroon.
     accentDark: "#e8557c",
-    accentRgb: "255,255,255",
+    accentRgb: "0,0,0",
     hasAwning: false,
   },
   kimchi: {
@@ -89,7 +89,7 @@ const SKIN = {
     promote: ["kr_s_kwingst", "kr_mc_cramen", "kr_m_cmongol", "kr_mc_svramen"],
     // Kim Chi is the only stall with new dishes on it — the whole Mongolian line.
     filters: ["veg", "nonveg", "best", "must", "neu"],
-    accentRgb: "255,255,255",
+    accentRgb: "0,0,0",
     accentDark: "#ff4d55",   // its own red already carries on black
     hasAwning: false, lanterns: true,
   },
@@ -103,7 +103,7 @@ const SKIN = {
     // Seoul Street Wrap ₹230. Green Flag Burger only exists the one way.
     promote: ["dv_b_green", "dv_b_csig", "dv_x_ricec", "dv_w_seoc"],
     filters: ["veg", "nonveg", "best", "must"],
-    accentRgb: "255,255,255",
+    accentRgb: "0,0,0",
     accentDark: "#ffc400",
     hasAwning: false,
   },
@@ -571,11 +571,11 @@ function build(stallKey, stalls) {
     // the header is now just the logo, lit from behind
     "header.woodhdr{background:#000;box-shadow:none;border:0;min-height:168px;" +
       "padding:26px 12px 20px;position:relative;overflow:visible}",
-    `header.woodhdr:before{content:"";position:absolute;left:50%;top:52%;width:330px;height:330px;` +
+    `header.woodhdr:before{content:"";position:absolute;left:50%;top:52%;width:460px;height:300px;` +
       `transform:translate(-50%,-50%);pointer-events:none;z-index:0;` +
-      `background:radial-gradient(circle,${ACC}55,transparent 66%);animation:odyglow 5.6s ease-in-out infinite}`,
-    "@keyframes odyglow{0%,100%{opacity:.5;transform:translate(-50%,-50%) scale(.92)}" +
-      "50%{opacity:1;transform:translate(-50%,-50%) scale(1.08)}}",
+      `background:radial-gradient(circle,${ACC}1f,transparent 62%);animation:odyglow 6.4s ease-in-out infinite}`,
+    "@keyframes odyglow{0%,100%{opacity:.35;transform:translate(-50%,-50%) scale(.94)}" +
+      "50%{opacity:.75;transform:translate(-50%,-50%) scale(1.06)}}",
     ".woodhdr .woodlogo{position:relative;z-index:2;width:62%;max-width:262px;animation:none}",
     ".awnbar{display:none}",
     "#shutterframe{display:none!important}",
@@ -593,10 +593,14 @@ function build(stallKey, stalls) {
     `.dish .pr,.pr,.lbpr{color:${ACC}}`,
     `.chip{background:#181818;border:1.3px solid ${ACC};color:${ACC}}`,
     ".chip.alt{background:#151515;border-color:#333;color:#d2d2d2}",
-    `.chip.go{background:${ACC};color:#0b0b0b;border-color:${ACC}}`,
+    `.chip.go{background:${ACC};color:#fff;border-color:${ACC}}`,
     `.infob{background:#181818;border:1.3px solid #2c2c2c;color:${ACC}}`,
     `.typing .dot{background:${ACC}}`,
-    `.tag{color:${ACC}}`
+    `.tag{color:${ACC}}`,
+    // barely-there depth: on black the fill and the hairline do the separating
+    ".bot,.dish.simple{box-shadow:0 1px 2px rgba(0,0,0,.45)}",
+    ".chip{box-shadow:none}",
+    ".lbcard{box-shadow:0 10px 40px rgba(0,0,0,.75)}"
   );
 
   // 8 ── every per-stall override lands here, at the very end of the stylesheet.
