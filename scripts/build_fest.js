@@ -68,26 +68,28 @@ const SKIN = {
     vars: { blue: "#811226", ink: "#2a1212", mut: "#9a8585", line: "#ecdcdc", cream: "#f2e0de",
             gold: "#811226", card: "#fffdfc", brandtop: "#811226", brandbot: "#5a0c1a" },
     wood: "/wood_web.jpg", awning: "/awning_web.png", shutter: "/shutter_web.jpg", logo: "/logo_web.png",
-    greet: "Hi! 🍦 Welcome to Bon Bon Ice Creams — what are you craving today?",
+    greet: "Hi! 🍦 Welcome to Bon Bon Ice Creams — what are you craving today?", emoji: "🍨",
     hasAwning: true,
   },
   kimchi: {
     file: "kimchi", title: "Kim Chi & Ramen — Menu",
-    vars: { blue: "#c8141e", ink: "#1a1412", mut: "#8e8285", line: "#f4dcde", cream: "#fbe6e6",
+    vars: { blue: "#c8141e", ink: "#1a1412", mut: "#8e8285", line: "#f0cccc", cream: "#e9bcbc",
             gold: "#c8141e", card: "#ffffff", brandtop: "#d8323c", brandbot: "#96101c" },
     wood: "/fest/kimchi_board.png", awning: "/fest/kimchi_awning.png",
     shutter: "/fest/kimchi_shutter.png", logo: "/fest/logo_kimchi.png",
-    greet: "Hi! 🍜 Welcome to Kim Chi & Ramen — what are you craving today?",
-    // its own board art is white — the stock dark scrim is what was turning it grey
-    board: "header.woodhdr{background:#fff url('/fest/kimchi_board.png') center/cover;box-shadow:inset 0 -8px 16px rgba(0,0,0,.10)}",
-    hasAwning: true, lanterns: "/fest/kimchi_lanterns.png",
+    greet: "Hi! 🍜 Welcome to Kim Chi & Ramen — what are you craving today?", emoji: "🍜",
+    // its own board art is white — the stock dark scrim is what was turning it grey.
+    // No awning here either, so the board needs its own height, as D'VOUR's does.
+    board: "header.woodhdr{background:#fff url('/fest/kimchi_board.png') center/cover;" +
+           "box-shadow:inset 0 -8px 16px rgba(0,0,0,.10);min-height:196px;padding:16px 12px 22px}",
+    hasAwning: false, lanterns: true,
   },
   dvour: {
     file: "dvour", title: "D'VOUR — Menu",
     vars: { blue: "#a87c00", ink: "#16151a", mut: "#8b8a92", line: "#e8e8ec", cream: "#eeeef0",
             gold: "#ffc400", card: "#ffffff", brandtop: "#1d1d1f", brandbot: "#050505" },
     wood: "", awning: "", shutter: "/fest/dvour_shutter.png", logo: "/fest/logo_dvour.png",
-    greet: "Hi! 🍔 Welcome to D'VOUR — what are you craving today?",
+    greet: "Hi! 🍔 Welcome to D'VOUR — what are you craving today?", emoji: "🍔",
     // Flat black board, yellow rule along the bottom, no image and no awning at all.
     // The other two stalls read as a tall header because the board (~145px) has an awning
     // hanging under it — 105-125px of art less its -42px pull, so ~63-83px more. With no
@@ -95,6 +97,8 @@ const SKIN = {
     board: "header.woodhdr{background:#0b0b0c;border-bottom:3px solid #ffc400;box-shadow:none;" +
            "min-height:210px;padding:20px 12px 26px}" +
            "\n  .woodhdr .woodlogo{width:68%;max-width:296px}",
+    // The boot splash is white by default, and the D'VOUR logo is white — invisible.
+    bootveil: "#0b0b0c",
     hasAwning: false,
   },
 };
@@ -266,13 +270,26 @@ function build(stallKey, stalls) {
   // 4d ── D'VOUR has no awning at all, so the chat's awning allowance goes with it.
   if (!sk.hasAwning) extra.push(".awnbar{display:none}", "#chat{padding-top:14px}");
 
-  // 4e ── Kim Chi's lanterns hang from the very top, flanking the logo on the board.
-  // z-index 4 puts them over the awning (3) so they read as hanging in front, and 86% width
-  // keeps them off the screen edges and stops them growing taller than the board.
+  // 4e ── Kim Chi's two lanterns hang from the top of the board, one each side of the logo.
+  // They're separate images, not the one wide PNG, because a pendulum has to swing about
+  // its OWN cord: rotating a single image containing both would pivot them around a point
+  // between them and slide them sideways. transform-origin sits on each cord (45% / 54% of
+  // the crop), and the two run at different speeds so they don't march in lockstep.
   if (sk.lanterns) {
-    extra.push("#lanterns{position:absolute;top:0;left:7%;width:86%;z-index:4;pointer-events:none}");
-    s = s.replace(/(<header class="woodhdr")/, `<img id="lanterns" src="${sk.lanterns}" alt="">$1`);
+    extra.push(
+      ".lantern{position:absolute;top:0;width:17%;z-index:4;pointer-events:none}",
+      ".lantern.l{left:3%;transform-origin:45% 0;animation:swayL 5.2s ease-in-out infinite}",
+      ".lantern.r{right:3%;transform-origin:54% 0;animation:swayR 6.1s ease-in-out infinite}",
+      "@keyframes swayL{0%,100%{transform:rotate(-3.5deg)}50%{transform:rotate(3.5deg)}}",
+      "@keyframes swayR{0%,100%{transform:rotate(3deg)}50%{transform:rotate(-3deg)}}"
+    );
+    s = s.replace(/(<header class="woodhdr")/,
+      '<img class="lantern l" src="/fest/kimchi_lantern_l.png" alt="">' +
+      '<img class="lantern r" src="/fest/kimchi_lantern_r.png" alt="">$1');
   }
+
+  // 4g ── the boot splash behind the shutter, which shows the stall logo while art loads.
+  if (sk.bootveil) extra.push(`#bootveil{background:${sk.bootveil}}`);
 
   // 4f ── no language globe. It isn't just unused here, it's broken: setLang() re-runs
   // showGreeting(), which reads GREET[lang], and the fest build ships English only — any
@@ -292,35 +309,51 @@ function build(stallKey, stalls) {
       "border:1.5px solid var(--line);box-shadow:0 1px 4px rgba(0,0,0,.12)}"
   );
 
-  // 5b ── categories are plain text blocks: no photo, so no ice cream cup on the ramen menu.
+  // 5b ── categories exactly as Sree Annapoorna does them: a wrapping row of chips.
+  // No photo, which also kills the bug where Bon Bon's ice-cream shot was the fallback
+  // image for every Kim Chi and D'VOUR category.
   s = replaceFn(s, "explore",
     'function explore(){me(T("exploreMore"));const cs=CATS.filter(c=>(c.ids||(c.subs||[]).flatMap(s=>s.ids)).some(avail));\n' +
     ' bot(`${T("whatExplore")}`);\n' +
-    ' var _cg=block("catgrid",cs.map((c)=>`<button class="catcard" onclick="openCat(${CATS.indexOf(c)})">${cn(c.name)}</button>`).join(""));_bigTarget=_cg;\n' +
-    ' block("chips",`<button class="chip alt" onclick="mainChips()">${IC.home}${lbl("home")}</button>`);}');
+    ' block("chips",cs.map((c)=>`<button class="chip" onclick="openCat(${CATS.indexOf(c)})">${cn(c.name)}</button>`).join("")' +
+    '+`<button class="chip alt" onclick="mainChips()">${IC.home}${lbl("home")}</button>`);}');
   extra.push(
-    ".catgrid{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin:6px 0 2px}",
-    ".catcard{display:flex;align-items:center;justify-content:center;min-height:86px;" +
-      "background:var(--card);border:1.5px solid var(--line);border-radius:16px;" +
-      "padding:18px 14px;font-size:16.5px;font-weight:700;color:var(--ink);text-align:center;line-height:1.3;" +
-      "box-shadow:0 2px 10px rgba(0,0,0,.07);transition:transform .15s ease}",
-    ".catcard:active{transform:scale(.97)}",
-    ".catpic{display:none}"
+    ".chips{gap:9px}",
+    ".chip{font-size:15.5px;padding:10px 17px;border-radius:22px}",
+    ".catgrid,.catpic{display:none}"
   );
 
   // 5c ── the ⓘ button is a circle
   extra.push(".infob{width:38px;height:38px;padding:0;border-radius:50%;flex:0 0 auto;align-self:center;" +
     "display:flex;align-items:center;justify-content:center}");
 
-  // 6 ── no letter-by-letter typing: the whole line lands at once
+  // 6 ── the waiter "types" first, then the whole line lands at once.
+  // No letter-by-letter reveal (you asked for the full sentence in one go), but the bubble
+  // opens as three bouncing dots for a beat so it feels like he's writing it. The SAME node
+  // becomes the message, so callers that keep the return value (anchorReply) still work.
   s = replaceFn(s, "bot",
     'function bot(html,onDone){\n' +
-    '  var d=document.createElement("div");d.className="msg bot";chat.appendChild(d);\n' +
+    '  var d=document.createElement("div");d.className="msg bot typing";\n' +
+    '  d.innerHTML=\'<span class="dot"></span><span class="dot"></span><span class="dot"></span>\';\n' +
+    '  chat.appendChild(d);toBottom();\n' +
     '  var s=String(html==null?"":html);\n' +
-    '  if(/<[a-z!\\/][\\s\\S]*>/i.test(s))d.innerHTML=s;else d.textContent=s;\n' +
-    '  toBottom();if(onDone)onDone();return d;\n' +
+    '  setTimeout(function(){\n' +
+    '    d.classList.remove("typing");\n' +
+    '    if(/<[a-z!\\/][\\s\\S]*>/i.test(s))d.innerHTML=s;else d.textContent=s;\n' +
+    '    toBottom();if(onDone)onDone();\n' +
+    '  },560);\n' +
+    '  return d;\n' +
     '}'
   );
+
+  // 7b ── the two hardcoded ice-cream lines. "Here are some of our favourites 🍨" and
+  // "Here are our sweet favourites 🍨" are Bon Bon's, and they were showing on the burger
+  // and ramen stalls too. Same sentence, that stall's emoji, nothing "sweet" about a burger.
+  s = s.replace(/const FRESH=\{[\s\S]*?\};/,
+    `const FRESH={en:"Here are some of our favourites ${sk.emoji}\u{1F447}"};`);
+  s = replaceFn(s, "showSpecials",
+    'function showSpecials(quiet){const best=topDishes();if(!quiet)me("Today\'s picks");\n' +
+    ` bot(\`Here are today's favourites ${sk.emoji}\u{1F447}\`);renderGrid(best);mainChips();}`);
 
   // 7 ── the opening line
   s = s.replace(/const GREET=\{[\s\S]*?\};/, `const GREET={en:${JSON.stringify(sk.greet)}};`);

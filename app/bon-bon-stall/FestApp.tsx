@@ -10,7 +10,7 @@ const STALLS = [
   { key: "bonbon", name: "Bon Bon",         tag: "THE GOURMET ICE CREAM",    pic: "/bon_bon_scoop.png" },
   { key: "kimchi", name: "Kim Chi & Ramen", tag: "INDO ASIAN FOOD",          pic: "/kimchi_ramen.png" },
 ];
-const V = 4; // bump to bust the iframe cache after a rebuild
+const V = 6; // bump to bust the iframe cache after a rebuild
 
 export default function FestApp() {
   const [phase, setPhase] = useState<"splash" | "intro" | "pick">("splash");
@@ -43,6 +43,24 @@ export default function FestApp() {
     return () => { if (timer.current) clearInterval(timer.current); };
   }, [phase, open, autoplay]);
 
+  // Swipe the carousel. The cards are <button>s, so a drag across them was being read as a
+  // tap and nothing moved — these live on the stage wrapper and only act past a 45px
+  // threshold, which leaves an ordinary tap on the centre card working as before.
+  const swipe = useRef<{ x: number; y: number } | null>(null);
+  const swiped = useRef(false); // so the click that ends a swipe doesn't also open the stall
+  const onDown = (x: number, y: number) => { swipe.current = { x, y }; };
+  const onUp = (x: number, y: number) => {
+    const s = swipe.current;
+    swipe.current = null;
+    if (!s) return;
+    const dx = x - s.x;
+    if (Math.abs(dx) < 45 || Math.abs(dx) < Math.abs(y - s.y)) return; // a tap, or a scroll
+    setMid((m) => (m + (dx < 0 ? 1 : 2)) % 3);
+    autoplay();
+    swiped.current = true;
+    setTimeout(() => { swiped.current = false; }, 0);
+  };
+
   // the stall pages post back when the customer taps their back button
   useEffect(() => {
     const h = (e: MessageEvent) => { if (e.data === "fest:back") setOpen(null); };
@@ -68,13 +86,20 @@ export default function FestApp() {
           <img src="/fest/mascot_stand.png" alt="" />
         </div>
 
-        <div className={"stage" + (cardsUp ? " up" : "")}>
+        <div className={"stage" + (cardsUp ? " up" : "")}
+          onTouchStart={(e) => onDown(e.touches[0].clientX, e.touches[0].clientY)}
+          onTouchEnd={(e) => onUp(e.changedTouches[0].clientX, e.changedTouches[0].clientY)}
+          onPointerDown={(e) => { if (e.pointerType === "mouse") onDown(e.clientX, e.clientY); }}
+          onPointerUp={(e) => { if (e.pointerType === "mouse") onUp(e.clientX, e.clientY); }}>
           {STALLS.map((s, i) => {
             const d = (i - mid + 3) % 3;
             const pos = d === 0 ? "mid" : d === 1 ? "right" : "left";
             return (
               <button key={s.key} className={`scard ${pos} k-${s.key}`}
-                onClick={() => { if (pos !== "mid") { setMid(i); autoplay(); } else setOpen(s.key); }}>
+                onClick={() => {
+                  if (swiped.current) return;
+                  if (pos !== "mid") { setMid(i); autoplay(); } else setOpen(s.key);
+                }}>
                 <img className="sbg" src={s.pic} alt="" />
                 <div className="sveil" />
                 <img className="slg" src={`/fest/logo_${s.key}.png`} alt="" />
@@ -151,7 +176,8 @@ const CSS = `
   background:radial-gradient(circle,rgba(255,150,190,.12),transparent 68%);opacity:0;transition:opacity 1.6s ease}
 .bigglow.in{opacity:1}
 
-.stage{position:absolute;left:0;right:0;bottom:10%;height:360px;z-index:12;perspective:1200px}
+.stage{position:absolute;left:0;right:0;bottom:10%;height:360px;z-index:12;perspective:1200px;
+  touch-action:pan-y}
 .scard{position:absolute;left:50%;top:0;width:238px;height:352px;margin-left:-119px;border-radius:26px;
   overflow:hidden;opacity:0;display:block;
   transition:transform .62s cubic-bezier(.25,.9,.3,1),opacity .55s ease,filter .55s ease}

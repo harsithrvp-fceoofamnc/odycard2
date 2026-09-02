@@ -349,10 +349,9 @@
   /* ---- fest stall overrides ---- */
   #langbar{display:none!important}
   .bot:before{content:"";position:absolute;left:-42px;bottom:0;width:34px;height:34px;border-radius:50%;background:#fff url('/fest/mascot_face.png') center bottom / 100% auto no-repeat;border:1.5px solid var(--line);box-shadow:0 1px 4px rgba(0,0,0,.12)}
-  .catgrid{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin:6px 0 2px}
-  .catcard{display:flex;align-items:center;justify-content:center;min-height:86px;background:var(--card);border:1.5px solid var(--line);border-radius:16px;padding:18px 14px;font-size:16.5px;font-weight:700;color:var(--ink);text-align:center;line-height:1.3;box-shadow:0 2px 10px rgba(0,0,0,.07);transition:transform .15s ease}
-  .catcard:active{transform:scale(.97)}
-  .catpic{display:none}
+  .chips{gap:9px}
+  .chip{font-size:15.5px;padding:10px 17px;border-radius:22px}
+  .catgrid,.catpic{display:none}
   .infob{width:38px;height:38px;padding:0;border-radius:50%;flex:0 0 auto;align-self:center;display:flex;align-items:center;justify-content:center}
   #bar{display:none!important}
   </style>
@@ -394,7 +393,7 @@ const OUTLETS=["Bon Bon"];
 const LOGO="/logo_web.png";
 const GREET={en:"Hi! 🍦 Welcome to Bon Bon Ice Creams — what are you craving today?"};
 const LANGS=[["en","English"],["ta","தமிழ்"],["hi","हिन्दी"],["ml","മലയാളം"],["te","తెలుగు"],["kn","ಕನ್ನಡ"]];
-const FRESH={en:"Here are some of our favourites 🍨👇",ta:"எங்கள் சில பிடித்தவை 🍨👇",hi:"हमारी कुछ पसंदीदा 🍨👇",ml:"ഞങ്ങളുടെ ചില പ്രിയപ്പെട്ടവ 🍨👇",te:"మా కొన్ని ఇష్టమైనవి 🍨👇",kn:"ನಮ್ಮ ಕೆಲವು ಮೆಚ್ಚಿನವು 🍨👇"};
+const FRESH={en:"Here are some of our favourites 🍨👇"};
 const NAMES={
  idli:{ta:"இட்லி",hi:"इडली",ml:"ഇഡ്ലി",te:"ఇడ్లీ",kn:"ಇಡ್ಲಿ"},
  vada:{ta:"மெது வடா",hi:"मेदु वड़ा",ml:"മേദു വട",te:"మేదు వడ",kn:"ಮೇದು ವಡ"},
@@ -756,10 +755,16 @@ const chat=document.getElementById("chat");
 // Anything containing HTML markup (tags) renders instantly so markup never leaks.
 // Returns the bubble element immediately; the typing runs in the background.
 function bot(html,onDone){
-  var d=document.createElement("div");d.className="msg bot";chat.appendChild(d);
+  var d=document.createElement("div");d.className="msg bot typing";
+  d.innerHTML='<span class="dot"></span><span class="dot"></span><span class="dot"></span>';
+  chat.appendChild(d);toBottom();
   var s=String(html==null?"":html);
-  if(/<[a-z!\/][\s\S]*>/i.test(s))d.innerHTML=s;else d.textContent=s;
-  toBottom();if(onDone)onDone();return d;
+  setTimeout(function(){
+    d.classList.remove("typing");
+    if(/<[a-z!\/][\s\S]*>/i.test(s))d.innerHTML=s;else d.textContent=s;
+    toBottom();if(onDone)onDone();
+  },560);
+  return d;
 }
 function me(t){window.__started=true;if(window.__bbHdrUpdate)setTimeout(window.__bbHdrUpdate,60);const d=document.createElement("div");d.className="msg me";d.textContent=t;chat.appendChild(d);toBottom();}
 function block(cls,html){const d=document.createElement("div");d.className=cls;d.innerHTML=html;chat.appendChild(d);toBottom();return d;}
@@ -851,8 +856,8 @@ async function showGreeting(instant){window.__bbHold=true;var pre=chat.querySele
 function returningChips(){block("chips",`<button class="chip go" onclick="showUsual()">${IC.star}${lbl("myUsual")}</button><button class="chip" onclick="showNew()">${IC.star}${lbl("somethingNew")}</button><button class="chip alt" onclick="explore()">${IC.menu}${lbl("exploreFull")}</button><button class="chip alt" onclick="forgetMe()">${IC.x}${lbl("notYou")}</button>`);}
 function showUsual(){var c=getCustomer()||{};var ids=(c.last||[]).filter(function(i){return MENU[i]&&avail(i);});me(lbl("myUsual"));if(!ids.length){bot(T("noUsual"));return showNew(true);}var rb=bot(T("usualIntro"));renderGrid(ids.slice(0,6));exploreBar();anchorReply(rb);}
 function showNew(skipMe){var c=getCustomer()||{};var prev=c.last||[];if(!skipMe)me(lbl("somethingNew"));var pool=Object.keys(MENU).filter(function(i){return MENU[i].best&&avail(i)&&prev.indexOf(i)<0;});if(pool.length<4)pool=Object.keys(MENU).filter(function(i){return avail(i)&&prev.indexOf(i)<0;});var rb=bot(T("newIntro"));renderGrid(shuffle(pool).slice(0,6));exploreBar();anchorReply(rb);}
-function showSpecials(quiet){const best=topDishes();if(!quiet)me("Today's specials");
- bot(`Here are our sweet favourites 🍨👇`);renderGrid(best);mainChips();}
+function showSpecials(quiet){const best=topDishes();if(!quiet)me("Today's picks");
+ bot(`Here are today's favourites 🍨👇`);renderGrid(best);mainChips();}
 function mainChips(){block("chips",`<button class="chip go" onclick="explore()">${IC.menu}${lbl("exploreFull")}</button><button class="chip alt" onclick="showSpecials()">${IC.star}${lbl("specialsLong")}</button>`);}
 let fbRating=0,fbCur="";
 const FBTOPICS=["Food & Taste","Service","Cleanliness","Ambience","Staff","Value for Money","App Experience"];
@@ -870,8 +875,7 @@ function catFallback(el){el.onerror=null;el.src="/cat_default.jpg";}
 function catImg(c){if(CATPIC[c.name])return CATPIC[c.name];var ids=(c.ids||(c.subs||[]).flatMap(function(s){return s.ids;})).filter(avail);for(var k=0;k<ids.length;k++){if(MENU[ids[k]]&&MENU[ids[k]].ph)return MENU[ids[k]].ph;}return "/cat_default.jpg";}
 function explore(){me(T("exploreMore"));const cs=CATS.filter(c=>(c.ids||(c.subs||[]).flatMap(s=>s.ids)).some(avail));
  bot(`${T("whatExplore")}`);
- var _cg=block("catgrid",cs.map((c)=>`<button class="catcard" onclick="openCat(${CATS.indexOf(c)})">${cn(c.name)}</button>`).join(""));_bigTarget=_cg;
- block("chips",`<button class="chip alt" onclick="mainChips()">${IC.home}${lbl("home")}</button>`);}
+ block("chips",cs.map((c)=>`<button class="chip" onclick="openCat(${CATS.indexOf(c)})">${cn(c.name)}</button>`).join("")+`<button class="chip alt" onclick="mainChips()">${IC.home}${lbl("home")}</button>`);}
 function openCat(i){const c=CATS[i];me(cn(c.name));if(c.subs){const ss=c.subs.filter(s=>s.ids.some(avail));bot(`<b>${cn(c.name)}</b> — ${T("pickType")}:`);
   block("chips",ss.map((s)=>`<button class="chip" onclick="openSub(${i},${c.subs.indexOf(s)})">${cn(s.name)}</button>`).join("")+`<button class="chip alt" onclick="explore()">${IC.back}${lbl("back")}</button>`);
  }else{bot(`<b>${cn(c.name)}</b> — ${T("tapAdd")}:`);grid(c.ids);}}
