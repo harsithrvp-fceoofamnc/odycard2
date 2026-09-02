@@ -59,17 +59,29 @@ export function middleware(req: NextRequest) {
 
   // Always open: Next internals, static files (not .html), the gate screen and gate API,
   // the public sign-up / login pages.
+  //
+  // The VIT food-stall pages are PUBLIC on purpose — guests reach them by scanning a QR
+  // code at the stall, so there is no access code to type and nobody to log in as:
+  //   /bon-bon-stall        the intro + "what are you in the mood for" stall picker
+  //   /fest/<stall>/…       each stall's own menu page, loaded in the iframe
+  // These must be listed BEFORE the "/bon-bon" demo-gate rule below, otherwise
+  // "/bon-bon-stall" is swallowed by that prefix. And /fest/**/index.html ends in ".html",
+  // so it is deliberately NOT covered by isStatic — without this line it fell all the way
+  // through to the catch-all and every stall bounced to the gate, then the hub.
+  const isFest = pathname === "/bon-bon-stall" || pathname.startsWith("/fest/");
   const isStatic = /\.[a-zA-Z0-9]+$/.test(pathname) && !pathname.endsWith(".html");
   if (
     pathname.startsWith("/_next") ||
     pathname === "/favicon.ico" ||
     isStatic ||
+    isFest ||
     pathname === "/" ||
     pathname === "/harsith" ||
     pathname === "/harsith.html" ||
     pathname === "/menu" ||
     pathname.startsWith("/menu/") ||
     pathname.startsWith("/api/gate") ||
+    pathname.startsWith("/api/fest/") ||
     pathname.startsWith("/login") ||
     pathname.startsWith("/signup")
   ) {
