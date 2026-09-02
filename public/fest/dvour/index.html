@@ -376,7 +376,7 @@
 </div>
 <script>
 const MENU={
- dv_b_green:{n:"Green Flag Burger",p:150,e:"🍔",h:[[8,23]],q:"",pt:8,ph:"",d:"Grill patty, layered fresh veggies, cheese melt, bun hug - bite heaven",veg:1,tagtxt:"BESTSELLER"},
+ dv_b_green:{n:"Green Flag Burger",p:150,e:"🍔",h:[[8,23]],q:"",pt:8,ph:"",d:"Grill patty, layered fresh veggies, cheese melt, bun hug - bite heaven",veg:1,tagtxt:"BESTSELLER",promoted:1},
  dv_b_nash:{n:"Nashville Burger",p:230,e:"🍔",h:[[8,23]],q:"",pt:8,ph:"",d:"Spicy crispy patty, tangy pickles, creamy mayo, soft bun - fiery buzz",veg:1},
  dv_b_korean:{n:"Korean Burger",p:230,e:"🍔",h:[[8,23]],q:"",pt:8,ph:"",d:"Korean spiced patty, kimchi crunch, gochujang mayo, soft bun - bold bite",veg:1,tagtxt:"MUST TRY"},
  dv_b_makhani:{n:"Makhani Gravy Burger",p:250,e:"🍔",h:[[8,23]],q:"",pt:8,ph:"",d:"Grill patty glazed in rich, buttery makhani gravy with a cheese melt, soft bun - desi comfort",veg:1,tagtxt:"NEW"},
@@ -392,7 +392,7 @@ const MENU={
  dv_b_cjal:{n:"Cheese & Jalapeño Chicken Burger",p:250,e:"🍔",h:[[8,23]],q:"",pt:8,ph:"",d:"Crispy chicken, cheese melt and pickled jalapeños, soft bun - sharp and cheesy",veg:0,nv:1},
  dv_b_cavo:{n:"Avocado Chicken Burger",p:270,e:"🍔",h:[[8,23]],q:"",pt:8,ph:"",d:"Crispy chicken with creamy avocado sauce, crisp lettuce and tomato, soft bun - cool and creamy",veg:0,nv:1},
  dv_b_cbuff:{n:"Buffalo Chicken Burger",p:290,e:"🍔",h:[[8,23]],q:"",pt:8,ph:"",d:"Crispy chicken, buffalo hot sauce, cool ranch drizzle, soft bun - zesty kick in every bite",veg:0,nv:1},
- dv_b_csig:{n:"Signature Burger",p:290,e:"🍔",h:[[8,23]],q:"",pt:8,ph:"",d:"Chef's special chicken patty, secret sauce, melted cheese, fresh layers - pure gourmet bite",veg:0,nv:1},
+ dv_b_csig:{n:"Signature Burger",p:290,e:"🍔",h:[[8,23]],q:"",pt:8,ph:"",d:"Chef's special chicken patty, secret sauce, melted cheese, fresh layers - pure gourmet bite",veg:0,nv:1,promoted:1},
  dv_b_cdunk:{n:"Cheese Dunk Burger",p:300,e:"🍔",h:[[8,23]],q:"",pt:8,ph:"",d:"Loaded with cheese inside and outside, ready to dunk for the ultimate melt down",veg:0,nv:1},
  dv_b_cdouble:{n:"Double Decker Burger",p:350,e:"🍔",h:[[8,23]],q:"",pt:8,ph:"",d:"Two juicy patties, double cheese, extra layers - twice the taste, twice the joy",veg:0,nv:1},
  dv_b_noroti:{n:"No Roti Burger",p:350,e:"🍔",h:[[8,23]],q:"",pt:8,ph:"",d:"Flame grilled patty stacked with cheddar, fresh layers and house made sauce, soft bun",veg:0,nv:1,tagtxt:"NEW"},
@@ -408,12 +408,12 @@ const MENU={
  dv_w_yinv:{n:"Yin & Yang Garlic Burst Wrap (Veg)",p:250,e:"🌯",h:[[8,23]],q:"",pt:8,ph:"",d:"A garlicky rush of flavour in this juicy roll with onions, tomatoes, lettuce and fillet",veg:1},
  dv_w_yinc:{n:"Yin & Yang Garlic Burst Wrap (Chicken)",p:270,e:"🌯",h:[[8,23]],q:"",pt:8,ph:"",d:"A garlicky rush of flavour in this juicy roll with onions, tomatoes, lettuce and fillet",veg:0,nv:1},
  dv_w_seov:{n:"Seoul Street Wrap (Veg)",p:210,e:"🌯",h:[[8,23]],q:"",pt:8,ph:"",d:"Enjoy the Korean flavours of this big, juicy paneer or chicken roll",veg:1,tagtxt:"BESTSELLER"},
- dv_w_seoc:{n:"Seoul Street Wrap (Chicken)",p:230,e:"🌯",h:[[8,23]],q:"",pt:8,ph:"",d:"Enjoy the Korean flavours of this big, juicy paneer or chicken roll",veg:0,nv:1,tagtxt:"BESTSELLER"},
+ dv_w_seoc:{n:"Seoul Street Wrap (Chicken)",p:230,e:"🌯",h:[[8,23]],q:"",pt:8,ph:"",d:"Enjoy the Korean flavours of this big, juicy paneer or chicken roll",veg:0,nv:1,tagtxt:"BESTSELLER",promoted:1},
  dv_w_swtv:{n:"Sweet Chilli Wrap (Veg)",p:200,e:"🌯",h:[[8,23]],q:"",pt:8,ph:"",d:"A rush of sweet chilli flavour in this juicy roll with onions, tomatoes and lettuce",veg:1},
  dv_w_swtc:{n:"Sweet Chilli Wrap (Chicken)",p:220,e:"🌯",h:[[8,23]],q:"",pt:8,ph:"",d:"A rush of sweet chilli flavour in this juicy roll with onions, tomatoes and lettuce",veg:0,nv:1},
  dv_x_ricev:{n:"Mexican Rice (Veg)",p:190,e:"🌮",h:[[8,23]],q:"",pt:8,ph:"",d:"Fragrant Mexican style rice tossed with golden seared paneer, sweet corn and bell peppers",veg:1},
  dv_x_noodv:{n:"Mexican Noodles (Veg)",p:190,e:"🌮",h:[[8,23]],q:"",pt:8,ph:"",d:"Golden seared paneer cubes folded into rich, buttery noodles with warm Mexican spices and peppers",veg:1},
- dv_x_ricec:{n:"Mexican Rice (Chicken)",p:220,e:"🌮",h:[[8,23]],q:"",pt:8,ph:"",d:"Smoky seasoned chicken layered over mildly spiced Mexican rice with peppers and corn",veg:0,nv:1},
+ dv_x_ricec:{n:"Mexican Rice (Chicken)",p:220,e:"🌮",h:[[8,23]],q:"",pt:8,ph:"",d:"Smoky seasoned chicken layered over mildly spiced Mexican rice with peppers and corn",veg:0,nv:1,promoted:1},
  dv_x_noodc:{n:"Mexican Noodles (Chicken)",p:220,e:"🌮",h:[[8,23]],q:"",pt:8,ph:"",d:"Creamy, mildly spiced noodles with tender chicken bites and sauced vegetables",veg:0,nv:1},
  dv_d_mint:{n:"Virgin Mint Mojito",p:80,e:"🥤",h:[[8,23]],q:"",pt:8,ph:"",d:"",veg:1},
  dv_d_blue:{n:"Blue Curaçao Mojito",p:80,e:"🥤",h:[[8,23]],q:"",pt:8,ph:"",d:"",veg:1},

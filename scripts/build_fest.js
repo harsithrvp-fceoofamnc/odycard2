@@ -69,6 +69,9 @@ const SKIN = {
             gold: "#811226", card: "#fffdfc", brandtop: "#811226", brandbot: "#5a0c1a" },
     wood: "/wood_web.jpg", awning: "/awning_web.png", shutter: "/shutter_web.jpg", logo: "/logo_web.png",
     greet: "Hi! 🍦 Welcome to Bon Bon Ice Creams — what are you craving today?", emoji: "🍨",
+    // The dishes the stall pushes: they fill the opening "our favourites" grid and
+    // "Today's picks". topDishes() prefers anything flagged promoted over its own guess.
+    promote: ["bb_lotus", "bb_caramel", "bb_bub_cookie", "bb_spanish"],
     hasAwning: true,
   },
   kimchi: {
@@ -78,6 +81,7 @@ const SKIN = {
     wood: "/fest/kimchi_board.png", awning: "/fest/kimchi_awning.png",
     shutter: "/fest/kimchi_shutter.png", logo: "/fest/logo_kimchi.png",
     greet: "Hi! 🍜 Welcome to Kim Chi & Ramen — what are you craving today?", emoji: "🍜",
+    promote: ["kr_s_kwingst", "kr_mc_cramen", "kr_m_cmongol", "kr_mc_svramen"],
     // Wooden planks behind the chat, running VERTICALLY — /fest/wood_vertical.jpg is
     // wood_web.jpg rotated 90°, since the stock texture's planks lie flat. Sized to cover
     // the phone so it never tiles, which would put a seam straight across the grain.
@@ -96,6 +100,9 @@ const SKIN = {
             gold: "#ffc400", card: "#ffffff", brandtop: "#1d1d1f", brandbot: "#050505" },
     wood: "", awning: "", shutter: "/fest/dvour_shutter.png", logo: "/fest/logo_dvour.png",
     greet: "Hi! 🍔 Welcome to D'VOUR — what are you craving today?", emoji: "🍔",
+    // Chicken versions where the dish comes both ways: Signature ₹290, Mexican Rice ₹220,
+    // Seoul Street Wrap ₹230. Green Flag Burger only exists the one way.
+    promote: ["dv_b_green", "dv_b_csig", "dv_x_ricec", "dv_w_seoc"],
     accentRgb: "0,0,0",
     // Flat black board, yellow rule along the bottom, no image and no awning at all.
     // The other two stalls read as a tall header because the board (~145px) has an awning
@@ -111,8 +118,10 @@ const SKIN = {
 };
 
 /* ── turn a stall into the chatbot's MENU / CATS shapes ── */
-function menuJs(stall) {
+function menuJs(stall, sk) {
   const entries = [];
+  const promote = new Set(sk.promote || []);
+  const seen = new Set();
   for (const c of stall.cats) {
     // The emoji still tags each dish card, but it is stripped off the category NAME —
     // the category blocks are plain text. Match pictographs specifically so a category
@@ -124,6 +133,7 @@ function menuJs(stall) {
       if (!it.veg) o += ",nv:1";
       if (it.tag) o += `,tagtxt:${JSON.stringify(it.tag)}`;
       if (it.off) o += ",off:1";
+      if (promote.has(it.id)) { o += ",promoted:1"; seen.add(it.id); }
       o += "}";
       entries.push(` ${it.id}:${o}`);
     }
@@ -133,6 +143,8 @@ function menuJs(stall) {
     const name = em ? c.label.slice(em[0].length) : c.label;
     return ` {name:${JSON.stringify(name)},ids:${JSON.stringify(c.items.map((i) => i.id))}}`;
   });
+  // A promoted id that matches nothing is a silent no-op at runtime — catch it here.
+  for (const id of promote) if (!seen.has(id)) throw new Error(`promote: no such item "${id}" in ${stall.key}`);
   return { menu: "const MENU={\n" + entries.join(",\n") + "\n};", cats: "const CATS=[\n" + cats.join(",\n") + "\n];" };
 }
 
@@ -187,7 +199,7 @@ function build(stallKey, stalls) {
   const stall = stalls[stallKey];
   const sk = SKIN[stallKey];
   let s = fs.readFileSync(SRC, "utf8");
-  const { menu, cats } = menuJs(stall);
+  const { menu, cats } = menuJs(stall, sk);
   const extra = []; // CSS appended last, so it wins on source order without !important spam
 
   // 1 ── swap MENU and CATS
