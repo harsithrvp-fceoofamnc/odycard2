@@ -367,29 +367,12 @@ function build(stallKey, stalls) {
       "border:1.5px solid var(--line);box-shadow:0 1px 4px rgba(0,0,0,.12)}"
   );
 
-  // 5a1 ── the BESTSELLER / MUST TRY / NEW badges.
-  // tagsHTML() reads m.best and m.must, but menuJs writes the label into m.tagtxt, so no
-  // badge has ever rendered on these pages. Read the label directly, and split on commas:
-  // the Mongolian dishes are MUST TRY *and* NEW, which two booleans could never express.
-  s = replaceFn(s, "tagsHTML",
-    'function tagsHTML(m){if(!m.tagtxt)return "";\n' +
-    ' return \'<div class="tags">\'+m.tagtxt.split(",").map(function(t){\n' +
-    '   return \'<span class="tag t-\'+t.replace(/ /g,"")+\'">\'+(t==="BESTSELLER"?"\\u2605":"\\u2726")+" "+t+"</span>";\n' +
-    ' }).join("")+"</div>";}');
-  // Cards used to stretch to the tallest in the row and .sfoot pushed the price to the
-  // bottom, so a short card next to a two-line one with badges was mostly empty space.
-  // align-items:start lets each card be its own height and the price sits under the name.
-  // Every card the same size. The badge is lifted out of the flow onto the card's top-left
-  // corner as a sticker, so a dish with two badges is no taller than one with none — that
-  // difference was the whole reason the blocks came out uneven. A fixed min-height plus the
-  // price pinned to the bottom keeps them aligned across rows as well as within one.
-  extra.push(".grid{align-items:stretch}",
-    ".dish.simple{position:relative;min-height:126px}",
-    ".dish.simple .sbd{padding:27px 13px 12px;gap:4px}",
-    ".sfoot{margin-top:auto}",
-    ".tags{position:absolute;top:7px;left:11px;right:11px;margin:0;display:flex;flex-wrap:wrap;gap:5px;pointer-events:none}",
-    ".tag{display:inline-block;margin:0;font-size:9.5px;font-weight:800;letter-spacing:.04em;color:#fff;background:var(--gold);padding:3px 8px;border-radius:20px;line-height:1.15}",
-    ".t-NEW{background:#1f9d55}");
+  // 5a1 ── no badges on the dish cards.
+  // The BESTSELLER / MUST TRY / NEW labels stay in the data (MENU[id].tagtxt) because the
+  // filters read them, but nothing is drawn on the card — the pills were noise, and they
+  // were what made the cards uneven in the first place.
+  s = replaceFn(s, "tagsHTML", 'function tagsHTML(){return "";}');
+
   // 5a2 ── the description leaves the card; it belongs to the info button.
   // Everything else about the card is untouched: veg dot, name, badge, price, the button.
   s = replaceFn(s, "compactCard",

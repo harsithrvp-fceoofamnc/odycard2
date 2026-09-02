@@ -359,13 +359,6 @@
   #bootveil .bootlogo{aspect-ratio:auto}
   #langbar{display:none!important}
   .bot:before{content:"";position:absolute;left:-42px;bottom:0;width:34px;height:34px;border-radius:50%;background:#fff url('/fest/mascot_face.png') center bottom / 100% auto no-repeat;border:1.5px solid var(--line);box-shadow:0 1px 4px rgba(0,0,0,.12)}
-  .grid{align-items:stretch}
-  .dish.simple{position:relative;min-height:126px}
-  .dish.simple .sbd{padding:27px 13px 12px;gap:4px}
-  .sfoot{margin-top:auto}
-  .tags{position:absolute;top:7px;left:11px;right:11px;margin:0;display:flex;flex-wrap:wrap;gap:5px;pointer-events:none}
-  .tag{display:inline-block;margin:0;font-size:9.5px;font-weight:800;letter-spacing:.04em;color:#fff;background:var(--gold);padding:3px 8px;border-radius:20px;line-height:1.15}
-  .t-NEW{background:#1f9d55}
   .chips{gap:9px}
   .chip{font-size:15.5px;padding:10px 17px;border-radius:22px}
   .catgrid,.catpic{display:none}
@@ -858,10 +851,7 @@ function photoUrl(id){return MENU[id].ph||LOGO;}
 function fmtTime(t){var hr=Math.floor(t),mn=Math.round((t-hr)*60),ap=hr<12?"AM":"PM",hh=hr%12;if(hh===0)hh=12;return hh+(mn?":"+("0"+mn).slice(-2):"")+ap;}
 function fmtWin(id){var h=MENU[id].h;if(!h||!h.length)return"";return h.map(function(w){return fmtTime(w[0])+"–"+fmtTime(w[1]);}).join(", ");}
 function dishMeta(id){var m=MENU[id],p=[];if(m.q)p.push(m.q);return p.join(" · ");}
-function tagsHTML(m){if(!m.tagtxt)return "";
- return '<div class="tags">'+m.tagtxt.split(",").map(function(t){
-   return '<span class="tag t-'+t.replace(/ /g,"")+'">'+(t==="BESTSELLER"?"\u2605":"\u2726")+" "+t+"</span>";
- }).join("")+"</div>";}
+function tagsHTML(){return "";}
 function compactCard(id){const m=MENU[id];
  return `<div class="dish simple" data-id="${id}"><div class="sbd"><div class="srow"><span class="vegdot${m.nv?' nv':''}"></span><div class="nm">${dn(id)}</div></div>${tagsHTML(m)}${dishMeta(id)?`<div class="meta">${dishMeta(id)}</div>`:""}<div class="sfoot"><div class="pr">₹${m.p}</div><div class="frow">${dishFooter(id)}</div></div></div></div>`;}
 function dishCard(id){const m=MENU[id];
