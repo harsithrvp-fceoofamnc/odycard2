@@ -29,8 +29,44 @@ function bbSessionAlive(token?: string): boolean {
 // (root shows the menu, clean URL, no access gate). Static assets + /menu itself pass through.
 const BONBON_MENU_HOSTS = new Set(["bonbonicecreams.com", "www.bonbonicecreams.com"]);
 
+// ── EVENT LOCKDOWN ─────────────────────────────────────────────────────────────
+// Set EVENT_ONLY=1 in the Vercel environment for the duration of the VIT pop-up and the
+// site becomes the food stall and nothing else: the stall pages serve normally, the bare
+// domain redirects to them, and every other route 404s. Unset it (or set it to anything
+// other than "1") and the whole site is back, instantly, with no code to restore.
+//
+// Deliberately NOT a redirect for the blocked routes — a 404 tells a curious guest there
+// is nothing there, where a redirect advertises that /bon-bon-stall exists.
+const EVENT_ONLY = process.env.EVENT_ONLY === "1";
+
+// What stays reachable during the event.
+function eventAllows(pathname: string): boolean {
+  return (
+    pathname === "/bon-bon-stall" ||
+    pathname.startsWith("/fest/") ||
+    pathname.startsWith("/api/fest/") ||
+    pathname.startsWith("/_next") ||
+    pathname === "/favicon.ico" ||
+    // every image, font and stylesheet the stall pulls in
+    (/\.[a-zA-Z0-9]+$/.test(pathname) && !pathname.endsWith(".html"))
+  );
+}
+
 export function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
+
+  if (EVENT_ONLY) {
+    if (pathname === "/") {
+      const url = req.nextUrl.clone();
+      url.pathname = "/bon-bon-stall";
+      url.search = "";
+      return NextResponse.redirect(url);
+    }
+    if (!eventAllows(pathname)) {
+      return new NextResponse("Not found", { status: 404, headers: { "content-type": "text/plain" } });
+    }
+    return NextResponse.next();
+  }
 
   const host = (req.headers.get("host") || "").toLowerCase().split(":")[0];
   if (BONBON_MENU_HOSTS.has(host)) {
