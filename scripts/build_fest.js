@@ -379,12 +379,17 @@ function build(stallKey, stalls) {
   // Cards used to stretch to the tallest in the row and .sfoot pushed the price to the
   // bottom, so a short card next to a two-line one with badges was mostly empty space.
   // align-items:start lets each card be its own height and the price sits under the name.
-  extra.push(".grid{align-items:start}",
-    ".dish.simple .sbd{padding:12px 13px;gap:4px}",
-    ".sfoot{margin-top:6px}",
-    ".tags{margin:1px 0 2px}",
-    ".tag{display:inline-block;margin:0 7px 0 0;font-size:11.5px;font-weight:800;letter-spacing:.02em;color:var(--gold)}",
-    ".t-NEW{color:#1f9d55}");
+  // Every card the same size. The badge is lifted out of the flow onto the card's top-left
+  // corner as a sticker, so a dish with two badges is no taller than one with none — that
+  // difference was the whole reason the blocks came out uneven. A fixed min-height plus the
+  // price pinned to the bottom keeps them aligned across rows as well as within one.
+  extra.push(".grid{align-items:stretch}",
+    ".dish.simple{position:relative;min-height:126px}",
+    ".dish.simple .sbd{padding:27px 13px 12px;gap:4px}",
+    ".sfoot{margin-top:auto}",
+    ".tags{position:absolute;top:7px;left:11px;right:11px;margin:0;display:flex;flex-wrap:wrap;gap:5px;pointer-events:none}",
+    ".tag{display:inline-block;margin:0;font-size:9.5px;font-weight:800;letter-spacing:.04em;color:#fff;background:var(--gold);padding:3px 8px;border-radius:20px;line-height:1.15}",
+    ".t-NEW{background:#1f9d55}");
   // 5a2 ── the description leaves the card; it belongs to the info button.
   // Everything else about the card is untouched: veg dot, name, badge, price, the button.
   s = replaceFn(s, "compactCard",
@@ -422,14 +427,17 @@ function build(stallKey, stalls) {
       "const avail=id=>!TIME_FILTER||!OPEN||(HOUR>=MENU[id].h[0]&&HOUR<MENU[id].h[1]);",
       "var FDIET=0,FTAG=\"\",LASTCAT=-1;\n" +
       "function hasTag(id,t){return (MENU[id].tagtxt||\"\").split(\",\").indexOf(t)>=0;}\n" +
+      "function anchorGrid(g){exploreBar();_bigTarget=g;toBottom();}\n" +
       "function filterChips(){return " + chips.join("+") + ";}\n" +
       "function setDiet(v){FDIET=(FDIET===v?0:v);odyga('filter_click',{filter:v===1?'veg':'non-veg',active:FDIET===v});refilter();}\n" +
       "function setTag(t){FTAG=(FTAG===t?\"\":t);odyga('filter_click',{filter:t,active:FTAG===t});refilter();}\n" +
-      "function showTagged(){var ids=Object.keys(MENU).filter(avail);\n" +
-      " if(!ids.length){bot('Nothing matches that filter.');block('chips',filterChips());return;}\n" +
-      " bot('<b>'+(FTAG==='BESTSELLER'?'Bestsellers':FTAG==='NEW'?'New':'Must try')+'</b>:');\n" +
-      " renderGrid(ids);exploreBar();}\n" +
-      "function refilter(){if(FTAG){LASTCAT=-1;showTagged();}else if(LASTCAT>=0)openCat(LASTCAT);else showCats();}\n" +
+      "function filterLabel(){var p=[];if(FDIET===1)p.push('Veg');if(FDIET===2)p.push('Non-veg');\n" +
+      " if(FTAG)p.push(FTAG==='BESTSELLER'?'Bestsellers':FTAG==='NEW'?'New':'Must try');\n" +
+      " return p.join(' \\u00b7 ');}\n" +
+      "function showFiltered(){var ids=Object.keys(MENU).filter(avail);\n" +
+      " if(!ids.length){bot('Nothing on the menu matches that.');block('chips',filterChips());return;}\n" +
+      " bot('<b>'+filterLabel()+'</b>:');anchorGrid(renderGrid(ids));}\n" +
+      "function refilter(){if(FDIET||FTAG){LASTCAT=-1;showFiltered();}else if(LASTCAT>=0)openCat(LASTCAT);else showCats();}\n" +
       "const avail=id=>(FDIET!==1||!MENU[id].nv)&&(FDIET!==2||!!MENU[id].nv)" +
         "&&(!FTAG||hasTag(id,FTAG))" +
         "&&(!TIME_FILTER||!OPEN||(HOUR>=MENU[id].h[0]&&HOUR<MENU[id].h[1]));"
@@ -443,7 +451,7 @@ function build(stallKey, stalls) {
       ' var ids=(c.ids||[]).filter(avail);\n' +
       ' if(!ids.length){bot("Nothing in <b>"+cn(c.name)+"</b> matches that filter.");\n' +
       '  block("chips",filterChips()+`<button class="chip alt" onclick="LASTCAT=-1;explore()">${IC.back}${lbl("back")}</button>`);return;}\n' +
-      ' bot(`<b>${cn(c.name)}</b>:`);renderGrid(ids);exploreBar();}');
+      ' bot(`<b>${cn(c.name)}</b>:`);anchorGrid(renderGrid(ids));}');
   }
 
   // 5a4 ── analytics.
@@ -487,6 +495,9 @@ function build(stallKey, stalls) {
     "display:flex;align-items:center;justify-content:center}");
 
   // 6 ── the waiter "types" first, then the whole line lands at once.
+  // The delayed swap only re-scrolls if this bubble is still the newest thing in the
+  // chat. Without that check it fired 560ms after a filter had already rendered a grid
+  // below it, scrolling straight past the dishes to the bottom of the list.
   // No letter-by-letter reveal (you asked for the full sentence in one go), but the bubble
   // opens as three bouncing dots for a beat so it feels like he's writing it. The SAME node
   // becomes the message, so callers that keep the return value (anchorReply) still work.
@@ -499,7 +510,8 @@ function build(stallKey, stalls) {
     '  setTimeout(function(){\n' +
     '    d.classList.remove("typing");\n' +
     '    if(/<[a-z!\\/][\\s\\S]*>/i.test(s))d.innerHTML=s;else d.textContent=s;\n' +
-    '    toBottom();if(onDone)onDone();\n' +
+    '    if(d===chat.lastElementChild)toBottom();\n' +
+'    if(onDone)onDone();\n' +
     '  },560);\n' +
     '  return d;\n' +
     '}'

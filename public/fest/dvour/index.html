@@ -355,12 +355,13 @@
   #bootveil{background:#0b0b0c}
   #langbar{display:none!important}
   .bot:before{content:"";position:absolute;left:-42px;bottom:0;width:34px;height:34px;border-radius:50%;background:#fff url('/fest/mascot_face.png') center bottom / 100% auto no-repeat;border:1.5px solid var(--line);box-shadow:0 1px 4px rgba(0,0,0,.12)}
-  .grid{align-items:start}
-  .dish.simple .sbd{padding:12px 13px;gap:4px}
-  .sfoot{margin-top:6px}
-  .tags{margin:1px 0 2px}
-  .tag{display:inline-block;margin:0 7px 0 0;font-size:11.5px;font-weight:800;letter-spacing:.02em;color:var(--gold)}
-  .t-NEW{color:#1f9d55}
+  .grid{align-items:stretch}
+  .dish.simple{position:relative;min-height:126px}
+  .dish.simple .sbd{padding:27px 13px 12px;gap:4px}
+  .sfoot{margin-top:auto}
+  .tags{position:absolute;top:7px;left:11px;right:11px;margin:0;display:flex;flex-wrap:wrap;gap:5px;pointer-events:none}
+  .tag{display:inline-block;margin:0;font-size:9.5px;font-weight:800;letter-spacing:.04em;color:#fff;background:var(--gold);padding:3px 8px;border-radius:20px;line-height:1.15}
+  .t-NEW{background:#1f9d55}
   .chips{gap:9px}
   .chip{font-size:15.5px;padding:10px 17px;border-radius:22px}
   .catgrid,.catpic{display:none}
@@ -793,14 +794,17 @@ const TIME_FILTER=false; // DEMO: false = show ALL dishes/categories. Set to tru
 const OPEN=Object.keys(MENU).some(id=>HOUR>=MENU[id].h[0]&&HOUR<MENU[id].h[1]);
 var FDIET=0,FTAG="",LASTCAT=-1;
 function hasTag(id,t){return (MENU[id].tagtxt||"").split(",").indexOf(t)>=0;}
+function anchorGrid(g){exploreBar();_bigTarget=g;toBottom();}
 function filterChips(){return '<button class="chip '+(FDIET===1?'go':'alt')+'" onclick="setDiet(1)">Veg only</button>'+'<button class="chip '+(FDIET===2?'go':'alt')+'" onclick="setDiet(2)">Non-veg only</button>'+'<button class="chip '+(FTAG==="BESTSELLER"?'go':'alt')+'" onclick="setTag(&quot;BESTSELLER&quot;)">\u2605 Bestsellers</button>'+'<button class="chip '+(FTAG==="MUST TRY"?'go':'alt')+'" onclick="setTag(&quot;MUST TRY&quot;)">\u2726 Must try</button>';}
 function setDiet(v){FDIET=(FDIET===v?0:v);odyga('filter_click',{filter:v===1?'veg':'non-veg',active:FDIET===v});refilter();}
 function setTag(t){FTAG=(FTAG===t?"":t);odyga('filter_click',{filter:t,active:FTAG===t});refilter();}
-function showTagged(){var ids=Object.keys(MENU).filter(avail);
- if(!ids.length){bot('Nothing matches that filter.');block('chips',filterChips());return;}
- bot('<b>'+(FTAG==='BESTSELLER'?'Bestsellers':FTAG==='NEW'?'New':'Must try')+'</b>:');
- renderGrid(ids);exploreBar();}
-function refilter(){if(FTAG){LASTCAT=-1;showTagged();}else if(LASTCAT>=0)openCat(LASTCAT);else showCats();}
+function filterLabel(){var p=[];if(FDIET===1)p.push('Veg');if(FDIET===2)p.push('Non-veg');
+ if(FTAG)p.push(FTAG==='BESTSELLER'?'Bestsellers':FTAG==='NEW'?'New':'Must try');
+ return p.join(' \u00b7 ');}
+function showFiltered(){var ids=Object.keys(MENU).filter(avail);
+ if(!ids.length){bot('Nothing on the menu matches that.');block('chips',filterChips());return;}
+ bot('<b>'+filterLabel()+'</b>:');anchorGrid(renderGrid(ids));}
+function refilter(){if(FDIET||FTAG){LASTCAT=-1;showFiltered();}else if(LASTCAT>=0)openCat(LASTCAT);else showCats();}
 function odyga(n,p){try{if(window.parent&&window.parent!==window)window.parent.postMessage({__odyga:{name:n,params:Object.assign({stall:STALL_KEY},p||{})}},location.origin);}catch(e){}}
 const STALL_KEY="dvour";
 const avail=id=>(FDIET!==1||!MENU[id].nv)&&(FDIET!==2||!!MENU[id].nv)&&(!FTAG||hasTag(id,FTAG))&&(!TIME_FILTER||!OPEN||(HOUR>=MENU[id].h[0]&&HOUR<MENU[id].h[1]));
@@ -818,7 +822,8 @@ function bot(html,onDone){
   setTimeout(function(){
     d.classList.remove("typing");
     if(/<[a-z!\/][\s\S]*>/i.test(s))d.innerHTML=s;else d.textContent=s;
-    toBottom();if(onDone)onDone();
+    if(d===chat.lastElementChild)toBottom();
+    if(onDone)onDone();
   },560);
   return d;
 }
@@ -946,7 +951,7 @@ function openCat(i){if(!CATS[i])return;LASTCAT=i;const c=CATS[i];me(cn(c.name));
  var ids=(c.ids||[]).filter(avail);
  if(!ids.length){bot("Nothing in <b>"+cn(c.name)+"</b> matches that filter.");
   block("chips",filterChips()+`<button class="chip alt" onclick="LASTCAT=-1;explore()">${IC.back}${lbl("back")}</button>`);return;}
- bot(`<b>${cn(c.name)}</b>:`);renderGrid(ids);exploreBar();}
+ bot(`<b>${cn(c.name)}</b>:`);anchorGrid(renderGrid(ids));}
 function openSub(i,j){const s=CATS[i].subs[j];me(cn(s.name));bot(`<b>${cn(s.name)}</b> — ${T("tapAdd")}:`);grid(s.ids);}
 function info(){me("Store info");bot(`📍 <b>Bon Bon, ${outlet}</b><br>🕖 Open 6:30 AM – 11:00 PM, all days<br>🅿️ Valet parking available<br>❄️ AC &amp; Non-AC dining halls<br>📞 0422-xxxxxxx`);exploreBar();}
 function banquet(){me("Banquet hall enquiry");bot(`We'd be glad to host your event at <b>${outlet}</b>! 🎉 Our hall seats up to 250 with pure-veg catering. Leave your details and our banquet manager will call you.`);
