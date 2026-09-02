@@ -431,7 +431,7 @@ const OUTLETS=["Bon Bon"];
 const LOGO="/fest/logo_dvour.png";
 const GREET={en:"Hi! 🍔 Welcome to D'VOUR — what are you craving today?"};
 const LANGS=[["en","English"],["ta","தமிழ்"],["hi","हिन्दी"],["ml","മലയാളം"],["te","తెలుగు"],["kn","ಕನ್ನಡ"]];
-const FRESH={en:"Here are some of our favourites 🍔👇"};
+const FRESH={en:"These are today's specials 🍔👇"};
 const NAMES={
  idli:{ta:"இட்லி",hi:"इडली",ml:"ഇഡ്ലി",te:"ఇడ్లీ",kn:"ಇಡ್ಲಿ"},
  vada:{ta:"மெது வடா",hi:"मेदु वड़ा",ml:"മേദു വട",te:"మేదు వడ",kn:"ಮೇದು ವಡ"},
@@ -895,7 +895,7 @@ function returningChips(){block("chips",`<button class="chip go" onclick="showUs
 function showUsual(){var c=getCustomer()||{};var ids=(c.last||[]).filter(function(i){return MENU[i]&&avail(i);});me(lbl("myUsual"));if(!ids.length){bot(T("noUsual"));return showNew(true);}var rb=bot(T("usualIntro"));renderGrid(ids.slice(0,6));exploreBar();anchorReply(rb);}
 function showNew(skipMe){var c=getCustomer()||{};var prev=c.last||[];if(!skipMe)me(lbl("somethingNew"));var pool=Object.keys(MENU).filter(function(i){return MENU[i].best&&avail(i)&&prev.indexOf(i)<0;});if(pool.length<4)pool=Object.keys(MENU).filter(function(i){return avail(i)&&prev.indexOf(i)<0;});var rb=bot(T("newIntro"));renderGrid(shuffle(pool).slice(0,6));exploreBar();anchorReply(rb);}
 function showSpecials(quiet){const best=topDishes();if(!quiet)me("Today's picks");
- bot(`Here are today's favourites 🍔👇`);renderGrid(best);mainChips();}
+ bot(`Here are today's specials 🍔👇`);renderGrid(best);mainChips();}
 function mainChips(){block("chips",`<button class="chip go" onclick="explore()">${IC.menu}${lbl("exploreFull")}</button><button class="chip alt" onclick="showSpecials()">${IC.star}${lbl("specialsLong")}</button>`);}
 let fbRating=0,fbCur="";
 const FBTOPICS=["Food & Taste","Service","Cleanliness","Ambience","Staff","Value for Money","App Experience"];

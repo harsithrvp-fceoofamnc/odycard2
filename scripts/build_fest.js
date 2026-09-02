@@ -400,14 +400,16 @@ function build(stallKey, stalls) {
     '}'
   );
 
-  // 7b ── the two hardcoded ice-cream lines. "Here are some of our favourites 🍨" and
-  // "Here are our sweet favourites 🍨" are Bon Bon's, and they were showing on the burger
-  // and ramen stalls too. Same sentence, that stall's emoji, nothing "sweet" about a burger.
+  // 7b ── the line the waiter says over the promoted dishes.
+  // Two problems with the stock copy: it was Bon Bon's ("our sweet favourites 🍨"), ice-cream
+  // emoji and all, on the burger and ramen stalls; and "favourites" doesn't tell a guest that
+  // these are the ones the stall is actually pushing today. Both now say specials, in that
+  // stall's emoji — the greeting grid and the "Today's specials" chip land on the same idea.
   s = s.replace(/const FRESH=\{[\s\S]*?\};/,
-    `const FRESH={en:"Here are some of our favourites ${sk.emoji}\u{1F447}"};`);
+    `const FRESH={en:"These are today's specials ${sk.emoji}\u{1F447}"};`);
   s = replaceFn(s, "showSpecials",
     'function showSpecials(quiet){const best=topDishes();if(!quiet)me("Today\'s picks");\n' +
-    ` bot(\`Here are today's favourites ${sk.emoji}\u{1F447}\`);renderGrid(best);mainChips();}`);
+    ` bot(\`Here are today's specials ${sk.emoji}\u{1F447}\`);renderGrid(best);mainChips();}`);
 
   // 7 ── the opening line
   s = s.replace(/const GREET=\{[\s\S]*?\};/, `const GREET={en:${JSON.stringify(sk.greet)}};`);
