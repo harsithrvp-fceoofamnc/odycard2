@@ -79,7 +79,7 @@ const SKIN = {
     vars: { blue: "#c8141e", ink: "#1a1412", mut: "#8e8285", line: "#e8b4b4", cream: "#2b2427",
             gold: "#c8141e", card: "#ffffff", brandtop: "#d8323c", brandbot: "#96101c" },
     wood: "/fest/kimchi_board.png", awning: "/fest/kimchi_awning.png",
-    shutter: "/fest/kimchi_shutter.png", logo: "/fest/logo_kimchi.png",
+    shutter: "/kimchi_new_shutter.png", logo: "/fest/logo_kimchi.png",
     greet: "Hi! 🍜 Welcome to Kim Chi & Ramen — what are you craving today?", emoji: "🍜",
     promote: ["kr_s_kwingst", "kr_mc_cramen", "kr_m_cmongol", "kr_mc_svramen"],
     // Wooden planks behind the chat, running VERTICALLY — /fest/wood_vertical.jpg is

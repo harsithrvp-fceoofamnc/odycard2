@@ -334,7 +334,7 @@
 
   #shutterframe{position:absolute;left:0;right:0;bottom:0;top:150px;z-index:2;overflow:hidden;display:none}
   #shutterframe.on{display:block}
-  #shutter{position:absolute;left:0;right:0;top:0;height:100%;background:#5a0c1a url('/fest/kimchi_shutter.png') center/cover no-repeat;box-shadow:0 7px 16px rgba(0,0,0,.30);transform:translateY(0);transition:transform 1.15s cubic-bezier(.5,.05,.2,1);will-change:transform}
+  #shutter{position:absolute;left:0;right:0;top:0;height:100%;background:#5a0c1a url('/kimchi_new_shutter.png') center/cover no-repeat;box-shadow:0 7px 16px rgba(0,0,0,.30);transform:translateY(0);transition:transform 1.15s cubic-bezier(.5,.05,.2,1);will-change:transform}
   #shutter.up{transform:translateY(-100%)}
 
   .catgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:4px 0 2px}
@@ -1512,7 +1512,7 @@ function bbBoot(){
   var sh=document.getElementById("shutter");
   var bar=document.getElementById("bar");
   var start=Date.now(),MIN=1900,done=false;   // hold long enough for the slow fade-in + a beat
-  var imgs=["/fest/kimchi_board.png","/fest/logo_kimchi.png","/fest/kimchi_awning.png?v=3","/fest/kimchi_shutter.png"],left=imgs.length;
+  var imgs=["/fest/kimchi_board.png","/fest/logo_kimchi.png","/fest/kimchi_awning.png?v=3","/kimchi_new_shutter.png"],left=imgs.length;
   function showShutter(){ if(!frame)return;
     var aw=document.querySelector(".awnbar"),hd=document.querySelector("header.woodhdr"),ph=document.getElementById("phone");
     var ref=(aw&&aw.offsetParent!==null)?aw.getBoundingClientRect().top:(hd?hd.getBoundingClientRect().bottom:0);
