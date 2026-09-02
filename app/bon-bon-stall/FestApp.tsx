@@ -78,7 +78,7 @@ export default function FestApp() {
       <div id="phone">
 
         <div className={"splash" + (phase === "splash" ? " in" : "")}>
-          <img src="/logo_web.png" alt="" />
+          <img src="/odysra_logo.png" alt="Odysra" />
         </div>
 
         <div className={"craving" + (phase === "pick" ? " in" : "")}>
@@ -148,7 +148,7 @@ const CSS = `
 .splash{position:absolute;inset:0;z-index:60;background:#000;display:flex;align-items:center;
   justify-content:center;opacity:0;pointer-events:none;transition:opacity 1.5s ease}
 .splash.in{opacity:1}
-.splash img{width:80%;max-width:330px;filter:drop-shadow(0 0 40px rgba(255,120,160,.35))}
+.splash img{width:52%;max-width:220px;filter:drop-shadow(0 0 46px rgba(255,255,255,.22))}
 
 .hero{position:absolute;left:0;bottom:0;z-index:30;height:84vh;max-height:680px;transform:translateX(-120%);
   opacity:0;transition:transform 1.7s cubic-bezier(.33,.02,.2,1),opacity .9s ease}
