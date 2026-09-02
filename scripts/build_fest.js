@@ -65,58 +65,46 @@ function readFestMenu() {
 const SKIN = {
   bonbon: {
     file: "bonbon", title: "Bon Bon — Menu",
-    vars: { blue: "#811226", ink: "#2a1212", mut: "#9a8585", line: "#ecdcdc", cream: "#f2e0de",
-            gold: "#811226", card: "#fffdfc", brandtop: "#811226", brandbot: "#5a0c1a" },
+    vars: { blue: "#811226", ink: "#f1f1f1", mut: "#9d9d9d", line: "#242424", cream: "#000000",
+            gold: "#811226", card: "#161616", brandtop: "#811226", brandbot: "#5a0c1a" },
     wood: "/wood_web.jpg", awning: "/awning_web.png", shutter: "/shutter_web.jpg", logo: "/logo_web.png",
     greet: "Hi! 🍦 Welcome to Bon Bon Ice Creams — what are you craving today?", emoji: "🍨",
     // The dishes the stall pushes: they fill the opening "our favourites" grid and
     // "Today's picks". topDishes() prefers anything flagged promoted over its own guess.
     promote: ["bb_lotus", "bb_caramel", "bb_bub_cookie", "bb_spanish"],
     filters: ["best", "must"],   // every Bon Bon item is veg, so no diet filter
-    hasAwning: true,
+    // #811226 is too dark to read as text or a border on black, so the on-black accent is
+    // the same hue lifted. The fills (.me bubble, active chip) keep the true brand maroon.
+    accentDark: "#e8557c",
+    accentRgb: "255,255,255",
+    hasAwning: false,
   },
   kimchi: {
     file: "kimchi", title: "Kim Chi & Ramen — Menu",
-    vars: { blue: "#c8141e", ink: "#1a1412", mut: "#8e8285", line: "#e8b4b4", cream: "#2b2427",
-            gold: "#c8141e", card: "#ffffff", brandtop: "#d8323c", brandbot: "#96101c" },
+    vars: { blue: "#c8141e", ink: "#f1f1f1", mut: "#9d9d9d", line: "#242424", cream: "#000000",
+            gold: "#c8141e", card: "#161616", brandtop: "#d8323c", brandbot: "#96101c" },
     wood: "/fest/kimchi_board.png", awning: "/fest/kimchi_awning.png",
     shutter: "/kimchi_new_shutter.png", logo: "/fest/logo_kimchi.png",
     greet: "Hi! 🍜 Welcome to Kim Chi & Ramen — what are you craving today?", emoji: "🍜",
     promote: ["kr_s_kwingst", "kr_mc_cramen", "kr_m_cmongol", "kr_mc_svramen"],
     // Kim Chi is the only stall with new dishes on it — the whole Mongolian line.
     filters: ["veg", "nonveg", "best", "must", "neu"],
-    // Wooden planks behind the chat, running VERTICALLY — /fest/wood_vertical.jpg is
-    // wood_web.jpg rotated 90°, since the stock texture's planks lie flat. Sized to cover
-    // the phone so it never tiles, which would put a seam straight across the grain.
-    // --cream stays as the colour behind it, and the glows invert to white to suit it.
-    pageBg: "linear-gradient(rgba(0,0,0,.34),rgba(0,0,0,.34)),url('/fest/wood_vertical.jpg')",
     accentRgb: "255,255,255",
-    // its own board art is white — the stock dark scrim is what was turning it grey.
-    // No awning here either, so the board needs its own height, as D'VOUR's does.
-    board: "header.woodhdr{background:#fff url('/fest/kimchi_board.png') center/cover;" +
-           "box-shadow:inset 0 -8px 16px rgba(0,0,0,.10);min-height:196px;padding:16px 12px 22px;position:relative}",
+    accentDark: "#ff4d55",   // its own red already carries on black
     hasAwning: false, lanterns: true,
   },
   dvour: {
     file: "dvour", title: "D'VOUR — Menu",
-    vars: { blue: "#a87c00", ink: "#16151a", mut: "#8b8a92", line: "#e8e8ec", cream: "#eeeef0",
-            gold: "#ffc400", card: "#ffffff", brandtop: "#1d1d1f", brandbot: "#050505" },
+    vars: { blue: "#a87c00", ink: "#f1f1f1", mut: "#9d9d9d", line: "#242424", cream: "#000000",
+            gold: "#ffc400", card: "#161616", brandtop: "#1d1d1f", brandbot: "#050505" },
     wood: "", awning: "", shutter: "/fest/dvour_shutter.png", logo: "/fest/logo_dvour.png",
     greet: "Hi! 🍔 Welcome to D'VOUR — what are you craving today?", emoji: "🍔",
     // Chicken versions where the dish comes both ways: Signature ₹290, Mexican Rice ₹220,
     // Seoul Street Wrap ₹230. Green Flag Burger only exists the one way.
     promote: ["dv_b_green", "dv_b_csig", "dv_x_ricec", "dv_w_seoc"],
     filters: ["veg", "nonveg", "best", "must"],
-    accentRgb: "0,0,0",
-    // Flat black board, yellow rule along the bottom, no image and no awning at all.
-    // The other two stalls read as a tall header because the board (~145px) has an awning
-    // hanging under it — 105-125px of art less its -42px pull, so ~63-83px more. With no
-    // awning D'VOUR looked half the height, so the board itself carries it: 210px.
-    board: "header.woodhdr{background:#0b0b0c;border-bottom:3px solid #ffc400;box-shadow:none;" +
-           "min-height:210px;padding:20px 12px 26px}" +
-           "\n  .woodhdr .woodlogo{width:68%;max-width:296px}",
-    // The boot splash is white by default, and the D'VOUR logo is white — invisible.
-    bootveil: "#0b0b0c",
+    accentRgb: "255,255,255",
+    accentDark: "#ffc400",
     hasAwning: false,
   },
 };
@@ -558,6 +546,58 @@ function build(stallKey, stalls) {
     'function exploreBar(){block("chips",`<button class="chip go" onclick="explore()">${IC.menu}${lbl("exploreMore")}</button>' +
     '<button class="chip alt" onclick="showAll()">${IC.menu}View full menu</button>' +
     '<button class="chip alt" onclick="showSpecials()">${IC.star}${lbl("specials")}</button>`+filterChips());}');
+
+  // 7b2 ── no shutter. bbBoot existed to roll one up over the board; with no board it is
+  // just a delay. Fade the black veil and go straight to the greeting.
+  s = replaceFn(s, "bbBoot",
+    'function bbBoot(){\n' +
+    '  var veil=document.getElementById("bootveil"),frame=document.getElementById("shutterframe");\n' +
+    '  if(frame&&frame.parentNode)frame.parentNode.removeChild(frame);\n' +
+    '  setTimeout(function(){ if(veil)veil.classList.add("gone");\n' +
+    '    setTimeout(function(){ if(veil&&veil.parentNode)veil.parentNode.removeChild(veil); showGreeting(); },760);\n' +
+    '  },700);\n' +
+    '}');
+
+  // 7c ── THE DARK LOOK.
+  // Everything the shop-front theatre added — board art, awning, page texture, the shutter
+  // reveal — is gone. What's left is the intro's own black, the stall logo with a slow
+  // breathing glow, and the chat. This block is pushed last so it beats the stock rules
+  // without needing !important on every line.
+  const ACC = sk.accentDark;
+  extra.push(
+    "#phone{background:#000;background-image:none}",
+    "#chat{background:transparent;padding-top:12px}",
+
+    // the header is now just the logo, lit from behind
+    "header.woodhdr{background:#000;box-shadow:none;border:0;min-height:168px;" +
+      "padding:26px 12px 20px;position:relative;overflow:visible}",
+    `header.woodhdr:before{content:"";position:absolute;left:50%;top:52%;width:330px;height:330px;` +
+      `transform:translate(-50%,-50%);pointer-events:none;z-index:0;` +
+      `background:radial-gradient(circle,${ACC}55,transparent 66%);animation:odyglow 5.6s ease-in-out infinite}`,
+    "@keyframes odyglow{0%,100%{opacity:.5;transform:translate(-50%,-50%) scale(.92)}" +
+      "50%{opacity:1;transform:translate(-50%,-50%) scale(1.08)}}",
+    ".woodhdr .woodlogo{position:relative;z-index:2;width:62%;max-width:262px;animation:none}",
+    ".awnbar{display:none}",
+    "#shutterframe{display:none!important}",
+    "#bootveil{background:#000}",
+
+    // dark surfaces
+    ".bot{background:#161616;border:1px solid #242424;color:var(--ink)}",
+    ".dish.simple{background:#161616;border:1px solid #242424}",
+    ".vegdot{background:#161616}",
+    ".lbcard{background:#141414}",
+    `.lbcard .meta,.lbcard .lbdesc{color:#a6a6a6}`,
+
+    // colour lives only in the bubbles, the toggles and the type
+    `.me{background:var(--blue);color:#fff}`,
+    `.dish .pr,.pr,.lbpr{color:${ACC}}`,
+    `.chip{background:#181818;border:1.3px solid ${ACC};color:${ACC}}`,
+    ".chip.alt{background:#151515;border-color:#333;color:#d2d2d2}",
+    `.chip.go{background:${ACC};color:#0b0b0b;border-color:${ACC}}`,
+    `.infob{background:#181818;border:1.3px solid #2c2c2c;color:${ACC}}`,
+    `.typing .dot{background:${ACC}}`,
+    `.tag{color:${ACC}}`
+  );
 
   // 8 ── every per-stall override lands here, at the very end of the stylesheet.
   // #bar needs !important: bbBoot and chooseOutlet both put the bar back by setting

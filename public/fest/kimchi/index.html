@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
 <title>Kim Chi & Ramen — Menu</title>
 <style>
-  :root{--blue:#c8141e;--ink:#1a1412;--mut:#8e8285;--line:#e8b4b4;--cream:#2b2427;--gold:#c8141e;--card:#ffffff;--brandtop:#d8323c;--brandbot:#96101c;}
+  :root{--blue:#c8141e;--ink:#f1f1f1;--mut:#9d9d9d;--line:#242424;--cream:#000000;--gold:#c8141e;--card:#161616;--brandtop:#d8323c;--brandbot:#96101c;}
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   html{height:100%;overscroll-behavior:none}
   body{margin:0;background:#000;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;display:flex;justify-content:center;align-items:center;min-height:100vh;min-height:100dvh;height:100dvh;overflow:hidden;overscroll-behavior:none}
@@ -347,8 +347,6 @@
   .catlabel{font-size:14px;font-weight:700;color:var(--ink);text-align:center;line-height:1.15}
 
   /* ---- fest stall overrides ---- */
-  #phone{background-image:linear-gradient(rgba(0,0,0,.34),rgba(0,0,0,.34)),url('/fest/wood_vertical.jpg');background-size:cover,cover;background-position:center,center;background-repeat:no-repeat,no-repeat}
-  header.woodhdr{background:#fff url('/fest/kimchi_board.png') center/cover;box-shadow:inset 0 -8px 16px rgba(0,0,0,.10);min-height:196px;padding:16px 12px 22px;position:relative}
   .awnbar{display:none}
   #chat{padding-top:14px}
   .lantern{position:absolute;top:0;width:17%;z-index:4;pointer-events:none}
@@ -368,6 +366,28 @@
   .chip{font-size:15.5px;padding:10px 17px;border-radius:22px}
   .catgrid,.catpic{display:none}
   .infob{width:38px;height:38px;padding:0;border-radius:50%;flex:0 0 auto;align-self:center;display:flex;align-items:center;justify-content:center}
+  #phone{background:#000;background-image:none}
+  #chat{background:transparent;padding-top:12px}
+  header.woodhdr{background:#000;box-shadow:none;border:0;min-height:168px;padding:26px 12px 20px;position:relative;overflow:visible}
+  header.woodhdr:before{content:"";position:absolute;left:50%;top:52%;width:330px;height:330px;transform:translate(-50%,-50%);pointer-events:none;z-index:0;background:radial-gradient(circle,#ff4d5555,transparent 66%);animation:odyglow 5.6s ease-in-out infinite}
+  @keyframes odyglow{0%,100%{opacity:.5;transform:translate(-50%,-50%) scale(.92)}50%{opacity:1;transform:translate(-50%,-50%) scale(1.08)}}
+  .woodhdr .woodlogo{position:relative;z-index:2;width:62%;max-width:262px;animation:none}
+  .awnbar{display:none}
+  #shutterframe{display:none!important}
+  #bootveil{background:#000}
+  .bot{background:#161616;border:1px solid #242424;color:var(--ink)}
+  .dish.simple{background:#161616;border:1px solid #242424}
+  .vegdot{background:#161616}
+  .lbcard{background:#141414}
+  .lbcard .meta,.lbcard .lbdesc{color:#a6a6a6}
+  .me{background:var(--blue);color:#fff}
+  .dish .pr,.pr,.lbpr{color:#ff4d55}
+  .chip{background:#181818;border:1.3px solid #ff4d55;color:#ff4d55}
+  .chip.alt{background:#151515;border-color:#333;color:#d2d2d2}
+  .chip.go{background:#ff4d55;color:#0b0b0b;border-color:#ff4d55}
+  .infob{background:#181818;border:1.3px solid #2c2c2c;color:#ff4d55}
+  .typing .dot{background:#ff4d55}
+  .tag{color:#ff4d55}
   #bar{display:none!important}
   </style>
 </head>
@@ -1544,30 +1564,11 @@ document.addEventListener("click",function(ev){var lb=document.getElementById("l
 // Here we just wait for the header assets, then fade the whole white screen out (logo fades
 // with it = fade-out at exit), and only THEN play the welcome greeting.
 function bbBoot(){
-  var veil=document.getElementById("bootveil");
-  var frame=document.getElementById("shutterframe");
-  var sh=document.getElementById("shutter");
-  var bar=document.getElementById("bar");
-  var start=Date.now(),MIN=1900,done=false;   // hold long enough for the slow fade-in + a beat
-  var imgs=["/fest/kimchi_board.png","/fest/logo_kimchi.png","/fest/kimchi_awning.png?v=3","/kimchi_new_shutter.png"],left=imgs.length;
-  function showShutter(){ if(!frame)return;
-    var aw=document.querySelector(".awnbar"),hd=document.querySelector("header.woodhdr"),ph=document.getElementById("phone");
-    var ref=(aw&&aw.offsetParent!==null)?aw.getBoundingClientRect().top:(hd?hd.getBoundingClientRect().bottom:0);
-    if(ph)frame.style.top=Math.max(0,ref-ph.getBoundingClientRect().top)+"px";
-    if(bar)bar.style.visibility="hidden";
-    frame.classList.add("on");
-  }
-  function finish(){ if(done)return; done=true;
-    showShutter();                                                            // put the shutter up (still hidden behind the white veil)
-    if(veil)veil.classList.add("gone");                                       // lift the white boot screen -> shutter revealed (shows through scallops)
-    setTimeout(function(){ if(veil&&veil.parentNode)veil.parentNode.removeChild(veil); }, 1160);
-    setTimeout(function(){ if(sh)sh.classList.add("up"); }, 1520);            // roll the shutter straight up behind the awning
-    setTimeout(function(){ if(bar)bar.style.visibility=""; }, 2450);          // input bar reappears as the shutter clears it
-    setTimeout(function(){ if(frame&&frame.parentNode)frame.parentNode.removeChild(frame); showGreeting(); }, 2780); // chat revealed -> welcome
-  }
-  function ready(){ setTimeout(finish, Math.max(0, MIN-(Date.now()-start))); }
-  imgs.forEach(function(src){ var im=new Image(); im.onload=im.onerror=function(){ if(--left<=0)ready(); }; im.src=src; });
-  setTimeout(function(){ if(!done)ready(); }, 3600);
+  var veil=document.getElementById("bootveil"),frame=document.getElementById("shutterframe");
+  if(frame&&frame.parentNode)frame.parentNode.removeChild(frame);
+  setTimeout(function(){ if(veil)veil.classList.add("gone");
+    setTimeout(function(){ if(veil&&veil.parentNode)veil.parentNode.removeChild(veil); showGreeting(); },760);
+  },700);
 }
 (function(){
   var ce=document.getElementById("chat"),wd=document.querySelector("header.woodhdr");
