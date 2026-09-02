@@ -531,7 +531,26 @@ function build(stallKey, stalls) {
   if (!s.includes(GREET_TAIL)) throw new Error("greeting tail not found");
   s = s.replace(GREET_TAIL,
     " if(!instant)await sleep(200);mainChips();window.__bbHold=false;" +
-    "var _p=g.previousElementSibling;_bigTarget=(_p&&/msg/.test(_p.className))?_p:g;toBottom();}");
+    "_bigTarget=chat.firstElementChild||g;toBottom();}");
+
+  // 7a0 ── how far the logo header is allowed to collapse.
+  // Stock behaviour is binary: the header is either full height or yanked entirely off
+  // screen, and it only ever collapses once window.__started is true — i.e. after the
+  // guest taps something. So on the greeting it stayed at full height, the chat scrolled
+  // underneath it, and the first bubble came out sliced across the middle.
+  // Now it is proportional: on the opening response it slides up 45%, so the logo is
+  // partly tucked away but still clearly there and nothing is cut; from the guest's first
+  // tap onward it collapses the whole way and the chat gets the full screen.
+  {
+    const OLD = 'wd.style.marginTop = v ? (-wd.offsetHeight)+"px" : "";';
+    if (!s.includes(OLD)) throw new Error("header collapse not found");
+    s = s.replace(OLD,
+      'wd.style.marginTop = v ? (-Math.round(wd.offsetHeight*(window.__started?1:0.45)))+"px" : "";');
+    // and let it start collapsing during the greeting, not only after the first tap
+    const OLD2 = 'var show = (!window.__started) || ce.scrollTop<=6;';
+    if (!s.includes(OLD2)) throw new Error("header show test not found");
+    s = s.replace(OLD2, 'var show = ce.scrollTop<=6;');
+  }
 
   // 7a1 ── gentle, boundary-aware auto-scroll.
   // The old target was grid.offsetTop-82, an arbitrary offset that regularly landed

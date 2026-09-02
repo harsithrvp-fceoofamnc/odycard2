@@ -955,7 +955,7 @@ async function showGreeting(instant){window.__bbHold=true;var pre=chat.querySele
  await new Promise(function(r){bot(FRESH[lang],r);});
  if(!instant)await sleep(300);
  const best=topDishes();const g=block("grid",best.map(dishCard).join(""));
- if(!instant)await sleep(200);mainChips();window.__bbHold=false;var _p=g.previousElementSibling;_bigTarget=(_p&&/msg/.test(_p.className))?_p:g;toBottom();}
+ if(!instant)await sleep(200);mainChips();window.__bbHold=false;_bigTarget=chat.firstElementChild||g;toBottom();}
 function returningChips(){block("chips",`<button class="chip go" onclick="showUsual()">${IC.star}${lbl("myUsual")}</button><button class="chip" onclick="showNew()">${IC.star}${lbl("somethingNew")}</button><button class="chip alt" onclick="explore()">${IC.menu}${lbl("exploreFull")}</button><button class="chip alt" onclick="forgetMe()">${IC.x}${lbl("notYou")}</button>`);}
 function showUsual(){var c=getCustomer()||{};var ids=(c.last||[]).filter(function(i){return MENU[i]&&avail(i);});me(lbl("myUsual"));if(!ids.length){bot(T("noUsual"));return showNew(true);}var rb=bot(T("usualIntro"));renderGrid(ids.slice(0,6));exploreBar();anchorReply(rb);}
 function showNew(skipMe){var c=getCustomer()||{};var prev=c.last||[];if(!skipMe)me(lbl("somethingNew"));var pool=Object.keys(MENU).filter(function(i){return MENU[i].best&&avail(i)&&prev.indexOf(i)<0;});if(pool.length<4)pool=Object.keys(MENU).filter(function(i){return avail(i)&&prev.indexOf(i)<0;});var rb=bot(T("newIntro"));renderGrid(shuffle(pool).slice(0,6));exploreBar();anchorReply(rb);}
@@ -1602,12 +1602,12 @@ function bbBoot(){
   function setCol(v){
     if(col===v||lock)return;
     col=v;lock=true;
-    wd.style.marginTop = v ? (-wd.offsetHeight)+"px" : "";
+    wd.style.marginTop = v ? (-Math.round(wd.offsetHeight*(window.__started?1:0.45)))+"px" : "";
     setTimeout(function(){lock=false;update();},400);   // ignore our own reflow, then resync
   }
   function update(){
     if(lock)return;
-    var show = (!window.__started) || ce.scrollTop<=6;
+    var show = ce.scrollTop<=6;
     setCol(!show);
   }
   ce.addEventListener("scroll",update,{passive:true});
