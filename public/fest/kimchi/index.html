@@ -945,13 +945,12 @@ async function showGreeting(instant){window.__bbHold=true;var pre=chat.querySele
    returningChips();
    return;
  }
- if(!instant){let t=pre||typingBubble();await sleep(pre?300:500);t.remove();pre=null;}else if(pre){pre.remove();pre=null;}
+ if(pre){pre.remove();pre=null;}
  bot(GREET[lang].replace("%t",part()).replace("%o",outlet||""));
- if(!instant){await sleep(450);let t=typingBubble();await sleep(600);t.remove();}
+ if(!instant)await sleep(340);
  bot(FRESH[lang]);
- if(!instant)await sleep(300);
- const best=topDishes();const g=block("grid","");
- for(const id of best){g.insertAdjacentHTML("beforeend",dishCard(id));toBottom();if(!instant)await sleep(260);}
+ if(!instant)await sleep(620);
+ const best=topDishes();const g=block("grid",best.map(dishCard).join(""));
  if(!instant)await sleep(200);mainChips();window.__bbHold=false;_bigTarget=g;toBottom();}
 function returningChips(){block("chips",`<button class="chip go" onclick="showUsual()">${IC.star}${lbl("myUsual")}</button><button class="chip" onclick="showNew()">${IC.star}${lbl("somethingNew")}</button><button class="chip alt" onclick="explore()">${IC.menu}${lbl("exploreFull")}</button><button class="chip alt" onclick="forgetMe()">${IC.x}${lbl("notYou")}</button>`);}
 function showUsual(){var c=getCustomer()||{};var ids=(c.last||[]).filter(function(i){return MENU[i]&&avail(i);});me(lbl("myUsual"));if(!ids.length){bot(T("noUsual"));return showNew(true);}var rb=bot(T("usualIntro"));renderGrid(ids.slice(0,6));exploreBar();anchorReply(rb);}

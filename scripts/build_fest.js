@@ -530,6 +530,27 @@ function build(stallKey, stalls) {
   s = s.replace(' if(!instant)await sleep(200);mainChips();window.__bbHold=false;_bigTarget=g;toBottom();}'.replace("window.__bbHold=false;_bigTarget=g;toBottom();",""), ' if(!instant)await sleep(200);mainChips();window.__bbHold=false;_bigTarget=g;toBottom();}');
   if (!s.includes("window.__bbHold=false;_bigTarget=g")) throw new Error("greeting tail not found");
 
+  // 7a2 ── one typing animation per line, and the grid lands whole.
+  // showGreeting used to raise its own typingBubble() and then call bot(), which raises a
+  // second set of dots — so every line flickered dots, dots, text. bot() is now the only
+  // thing that shows typing. The favourites grid was also being built card by card at
+  // 260ms a piece, which read as the whole thing typing itself out; it is one insert now.
+  {
+    const reps = [
+      ["if(!instant){let t=pre||typingBubble();await sleep(pre?300:500);t.remove();pre=null;}else if(pre){pre.remove();pre=null;}",
+       "if(pre){pre.remove();pre=null;}"],
+      ["if(!instant){await sleep(450);let t=typingBubble();await sleep(600);t.remove();}",
+       "if(!instant)await sleep(340);"],
+      ["if(!instant)await sleep(300);\n const best=topDishes();const g=block(\"grid\",\"\");\n" +
+       " for(const id of best){g.insertAdjacentHTML(\"beforeend\",dishCard(id));toBottom();if(!instant)await sleep(260);}",
+       "if(!instant)await sleep(620);\n const best=topDishes();const g=block(\"grid\",best.map(dishCard).join(\"\"));"],
+    ];
+    for (const [from, to] of reps) {
+      if (!s.includes(from)) throw new Error("greeting shape changed: " + from.slice(0, 46));
+      s = s.replace(from, to);
+    }
+  }
+
   // 7 ── the opening line
   s = s.replace(/const GREET=\{[\s\S]*?\};/, `const GREET={en:${JSON.stringify(sk.greet)}};`);
 
