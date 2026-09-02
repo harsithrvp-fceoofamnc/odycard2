@@ -73,13 +73,13 @@ const SKIN = {
   },
   kimchi: {
     file: "kimchi", title: "Kim Chi & Ramen — Menu",
-    vars: { blue: "#c8141e", ink: "#1a1412", mut: "#8e8285", line: "#e8b4b4", cream: "#141013",
+    vars: { blue: "#c8141e", ink: "#1a1412", mut: "#8e8285", line: "#e8b4b4", cream: "#2b2427",
             gold: "#c8141e", card: "#ffffff", brandtop: "#d8323c", brandbot: "#96101c" },
     wood: "/fest/kimchi_board.png", awning: "/fest/kimchi_awning.png",
     shutter: "/fest/kimchi_shutter.png", logo: "/fest/logo_kimchi.png",
     greet: "Hi! 🍜 Welcome to Kim Chi & Ramen — what are you craving today?", emoji: "🍜",
-    // Near-black page behind the white board — the red-and-black street-food look — which
-    // also means every glow has to invert: white shadows, not Bon Bon's maroon.
+    // A soft charcoal behind the white board — the red-and-black street-food look without
+    // going flat black — which also means the glows invert: white, not Bon Bon's maroon.
     accentRgb: "255,255,255",
     // its own board art is white — the stock dark scrim is what was turning it grey.
     // No awning here either, so the board needs its own height, as D'VOUR's does.
