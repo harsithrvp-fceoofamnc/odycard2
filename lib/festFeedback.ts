@@ -8,9 +8,22 @@
 // no SQL to inject; the protection that does matter is strict validation of what a
 // stranger with a QR code is allowed to write, and that lives in the API route.
 
+import crypto from "crypto";
 import { bbDb } from "@/lib/bonbon";
 
 export const FEST_FEEDBACK = "fest_feedback";
+
+// ── Access to the feedback board ─────────────────────────────────────────────
+// Same code as the hub (GATE_CODE), but its own cookie: unlocking the board does not
+// unlock the chatbot demo, and unlocking the demo does not reveal the board.
+export const FEEDBACK_COOKIE = "ody_fb";
+
+/** Signed cookie value, so nobody can just set ody_fb=ok in devtools. */
+export function feedbackCookieValue(): string {
+  const secret = process.env.SESSION_SECRET || "dev-insecure-secret-change-me";
+  return crypto.createHmac("sha256", secret).update("fest-feedback:v1").digest("hex").slice(0, 32);
+}
+
 
 /** The only stalls that may appear on a feedback document. */
 export const FEEDBACK_STALLS = ["bonbon", "kimchi", "dvour"] as const;

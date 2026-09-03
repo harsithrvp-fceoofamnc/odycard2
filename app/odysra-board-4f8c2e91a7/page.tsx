@@ -1,18 +1,22 @@
-import Link from "next/link";
-import { requireBB } from "@/lib/bonbon";
-import { listFeedback, summarise, type Feedback } from "@/lib/festFeedback";
+import { cookies } from "next/headers";
+import CodeGate from "./CodeGate";
+import { FEEDBACK_COOKIE, feedbackCookieValue, listFeedback, summarise, type Feedback } from "@/lib/festFeedback";
 
 // Guest feedback from the three fest stalls.
 //
-// Server component: the gate runs on the server before a single byte of feedback is
-// serialised into the page. An unauthenticated visitor gets the sign-in prompt and
-// nothing else — there is no client-side "hide the div" to defeat, and no API call
-// they could replay, because /api/fest/feedback's GET is admin-only too.
+// Two layers, because either alone is thin:
+//   1. the path is long and random, so it is not in anyone's URL bar or a crawler's index
+//   2. an access code, checked server-side, because a URL leaks the moment it is shared
+//
+// This is a server component, so the gate runs before a single byte of feedback is
+// serialised into the page. There is no client-side "hide the div" to defeat.
 export const dynamic = "force-dynamic";
 
 export default async function FestFeedbackPage() {
-  const session = await requireBB(["admin"]);
-  if (!session) return <Locked />;
+  const jar = await cookies();
+  // compared against an HMAC of a fixed string, so ody_fb cannot be forged in devtools
+  const unlocked = jar.get(FEEDBACK_COOKIE)?.value === feedbackCookieValue();
+  if (!unlocked) return <Locked />;
 
   let rows: Feedback[] = [];
   let failed = false;
@@ -79,14 +83,13 @@ export default async function FestFeedbackPage() {
 }
 
 function Locked() {
+  // Deliberately says nothing about what is behind it.
   return (
     <main style={S.page}>
-      <div style={{ ...S.wrap, maxWidth: 380, paddingTop: 80 }}>
-        <h1 style={S.h1}>Stall feedback</h1>
-        <p style={{ ...S.sub, marginBottom: 22 }}>Sign in as the owner to read guest feedback.</p>
-        <Link href="/bon-bon/login" style={S.btn}>
-          Sign in
-        </Link>
+      <div style={{ ...S.wrap, maxWidth: 340, paddingTop: 90 }}>
+        <h1 style={{ ...S.h1, fontSize: 22 }}>Odysra</h1>
+        <p style={{ ...S.sub, marginBottom: 26 }}>Private board.</p>
+        <CodeGate />
       </div>
     </main>
   );
