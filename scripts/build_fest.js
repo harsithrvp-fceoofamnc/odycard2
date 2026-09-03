@@ -542,8 +542,10 @@ function build(stallKey, stalls) {
   {
     const OLD = 'wd.style.marginTop = v ? (-wd.offsetHeight)+"px" : "";';
     if (!s.includes(OLD)) throw new Error("header collapse not found");
-    s = s.replace(OLD,
-      'wd.style.marginTop = v ? (-Math.round(wd.offsetHeight*(window.__started?1:0.45)))+"px" : "";');
+    // Always "": the logo bar never collapses, slides or half-hides. It is a short
+    // strip pinned to the top and the chat scrolls beneath it — no moving black band,
+    // and nothing left for the scroll listener to fight with.
+    s = s.replace(OLD, 'wd.style.marginTop = "";');
     // Let it start collapsing during the greeting, not only after the first tap — and give
     // it hysteresis. With one threshold the collapse re-triggers its own test: collapsing
     // shifts the content up, that fires a scroll event, scrollTop drops back under the line,
@@ -649,14 +651,20 @@ function build(stallKey, stalls) {
     "#chat{background:transparent;padding-top:12px}",
 
     // the header is now just the logo, lit from behind
-    "header.woodhdr{background:#000;box-shadow:none;border:0;min-height:168px;" +
-      "padding:26px 12px 20px;position:relative;overflow:visible}",
-    `header.woodhdr:before{content:"";position:absolute;left:50%;top:52%;width:460px;height:300px;` +
+    // A short black strip with the mark on it, fixed height, no transition. overflow is
+    // hidden so the glow and the lanterns cannot spill down over the chat and read as
+    // a second box under the logo.
+    "header.woodhdr{background:#000;box-shadow:none;border:0;min-height:0;height:104px;" +
+      "padding:10px 12px;position:relative;overflow:hidden;transition:none;flex:none}",
+    `header.woodhdr:before{content:"";position:absolute;left:50%;top:50%;width:330px;height:190px;` +
       `transform:translate(-50%,-50%);pointer-events:none;z-index:0;` +
       `background:radial-gradient(circle,${ACC}1f,transparent 62%);animation:odyglow 6.4s ease-in-out infinite}`,
     "@keyframes odyglow{0%,100%{opacity:.35;transform:translate(-50%,-50%) scale(.94)}" +
       "50%{opacity:.75;transform:translate(-50%,-50%) scale(1.06)}}",
-    ".woodhdr .woodlogo{position:relative;z-index:2;width:62%;max-width:262px;animation:none}",
+    ".woodhdr .woodlogo{position:relative;z-index:2;width:auto;max-width:70%;height:100%;" +
+      "object-fit:contain;animation:none}",
+    // sized by height now, so they fit the shorter strip instead of hanging past it
+    ".lantern{width:auto;height:88px;top:2px}",
     ".awnbar{display:none}",
     "#bootveil{background:#000}",
     "#shutterframe{top:0;z-index:6}",
