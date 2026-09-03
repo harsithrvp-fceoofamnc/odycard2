@@ -375,17 +375,21 @@
   .woodhdr .woodlogo{position:relative;z-index:2;width:72%;max-width:300px;animation:odymark 4s ease-in-out infinite}
   #bootveil{background:#000}
   #shutterframe{top:0;z-index:6}
+  .sheet{background:rgba(18,18,20,.82);background-image:none;-webkit-backdrop-filter:blur(22px) saturate(1.2);backdrop-filter:blur(22px) saturate(1.2);border:1px solid rgba(255,255,255,.08);border-bottom:0;color:var(--ink)}
+  #modal{background:rgba(0,0,0,.55)}
+  .sheet h2{color:var(--ink)}
   .fbh{font-size:17px;font-weight:800;color:var(--ink);margin:2px 0 14px}
   .fbrow{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 12px;font-size:14px;font-weight:600;color:var(--ink)}
   .odystars{display:flex;gap:4px}
   .fbst{width:34px;height:34px;border:0;background:none;font-size:23px;line-height:1;padding:0;color:#3a3a3a;cursor:pointer;transition:color .15s ease,transform .15s ease}
   .fbst.on{color:#ff4d55}
   .fbst:active{transform:scale(.88)}
-  .fbtxt{width:100%;box-sizing:border-box;background:#111;border:1px solid #2c2c2c;border-radius:12px;color:var(--ink);font:inherit;font-size:14px;padding:10px 12px;resize:none;margin:2px 0 8px}
+  .fbtxt{width:100%;box-sizing:border-box;background:rgba(0,0,0,.42);border:1px solid rgba(255,255,255,.14);border-radius:12px;color:var(--ink);font:inherit;font-size:14px;padding:10px 12px;resize:none;margin:2px 0 8px}
   .fbtxt:focus{outline:none;border-color:#ff4d55}
   .fbtxt::placeholder{color:#6c6c6c}
   .fbmsg{min-height:16px;font-size:12.5px;color:#c98a8a;margin:0 0 8px}
   .fbbtn{width:100%;justify-content:center;margin:0 0 8px}
+  .sheet .chip.alt{background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.14)}
   .fbbtn:disabled{opacity:.4;cursor:default}
   .fbthx{font-size:14px;color:var(--mut);margin:0 0 16px}
   .bot{background:#161616;border:1px solid #242424;color:var(--ink)}
@@ -845,7 +849,8 @@ function filterPass(id){if(!FILTER)return true;
  if(FILTER==='nonveg')return !!MENU[id].nv;
  return hasTag(id,FILTER);}
 function anchorGrid(g,after){window.__userScroll=false;(after||exploreBar)();var p=g.previousElementSibling;_bigTarget=(p&&/msg/.test(p.className))?p:g;toBottom();}
-function filterChips(){return '<button class="chip '+(FILTER==="veg"?'go':'alt')+'" onclick="setFilter(&quot;veg&quot;)">Veg only</button>'+'<button class="chip '+(FILTER==="nonveg"?'go':'alt')+'" onclick="setFilter(&quot;nonveg&quot;)">Non-veg only</button>'+'<button class="chip '+(FILTER==="BESTSELLER"?'go':'alt')+'" onclick="setFilter(&quot;BESTSELLER&quot;)">★ Bestsellers</button>'+'<button class="chip '+(FILTER==="MUST TRY"?'go':'alt')+'" onclick="setFilter(&quot;MUST TRY&quot;)">✦ Must try</button>'+'<button class="chip '+(FILTER==="NEW"?'go':'alt')+'" onclick="setFilter(&quot;NEW&quot;)">✦ New</button>'+'<button class="chip alt" onclick="odyFeedback()">\u2606 Feedback</button>';}
+function newChip(){return '<button class="chip '+(FILTER==="NEW"?'go':'alt')+'" onclick="setFilter(&quot;NEW&quot;)">✦ New</button>';}
+function filterChips(){return '<button class="chip '+(FILTER==="veg"?'go':'alt')+'" onclick="setFilter(&quot;veg&quot;)">Veg only</button>'+'<button class="chip '+(FILTER==="nonveg"?'go':'alt')+'" onclick="setFilter(&quot;nonveg&quot;)">Non-veg only</button>'+'<button class="chip '+(FILTER==="BESTSELLER"?'go':'alt')+'" onclick="setFilter(&quot;BESTSELLER&quot;)">★ Bestsellers</button>'+'<button class="chip '+(FILTER==="MUST TRY"?'go':'alt')+'" onclick="setFilter(&quot;MUST TRY&quot;)">✦ Must try</button>'+'<button class="chip alt" onclick="odyFeedback()">\u2606 Feedback</button>';}
 var FB={food:0,app:0};
 function fbStarRow(k){var h='';for(var i=1;i<=5;i++){h+='<button class="fbst'+(FB[k]>=i?' on':'')+'" onclick="fbSet(&quot;'+k+'&quot;,'+i+')" aria-label="'+i+' out of 5">\u2605</button>';}return h;}
 function fbSet(k,n){FB[k]=n;fbPaint();}
@@ -977,7 +982,7 @@ function upsell(){if(upsold)return;const ids=Object.keys(cart);if(!ids.length||i
  setTimeout(()=>{block("pair",`<p>Add a drink? Our <b>${names}</b> go beautifully with your order.</p><div class="row">${sug.map(s=>`<div class="pi" data-id="${s}"><div class="e"><img src="${LOGO}"></div><div class="n">${dn(s)}</div><div class="pifoot">${pairFoot(s)}</div></div>`).join("")}</div>`);exploreBar();},420);}
 
 /* ---------- conversation ---------- */
-function exploreBar(){block("chips",`<button class="chip go" onclick="explore()">${IC.menu}${lbl("exploreMore")}</button><button class="chip alt" onclick="showAll()">${IC.menu}View full menu</button><button class="chip alt" onclick="showSpecials()">${IC.star}${lbl("specials")}</button>`+filterChips());}
+function exploreBar(){block("chips",`<button class="chip go" onclick="explore()">${IC.menu}${lbl("exploreMore")}</button><button class="chip alt" onclick="showAll()">${IC.menu}View full menu</button>`+newChip()+`<button class="chip alt" onclick="showSpecials()">${IC.star}${lbl("specials")}</button>`+filterChips());}
 function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
 function typingBubble(){const d=document.createElement("div");d.className="msg bot typing";d.innerHTML='<span class="dot"></span><span class="dot"></span><span class="dot"></span>';chat.appendChild(d);toBottom();return d;}
 function topDishes(){var pr=Object.keys(MENU).filter(i=>MENU[i].promoted&&avail(i));if(pr.length)return pr.slice(0,6);
@@ -1007,7 +1012,7 @@ function showNew(skipMe){var c=getCustomer()||{};var prev=c.last||[];if(!skipMe)
 function showSpecials(quiet){FILTER="";LASTCAT=-1;const best=topDishes();if(!quiet)me("Today's picks");
  odyga("view_promotion",{promotion_name:"Today's specials"});
  bot(`Here are today's specials 🍜👇`);anchorGrid(renderGrid(best),mainChips);}
-function mainChips(){block("chips",`<button class="chip go" onclick="explore()">${IC.menu}${lbl("exploreFull")}</button><button class="chip alt" onclick="showAll()">${IC.menu}View full menu</button><button class="chip alt" onclick="showSpecials()">${IC.star}${lbl("specialsLong")}</button>`+filterChips());}
+function mainChips(){block("chips",`<button class="chip go" onclick="explore()">${IC.menu}${lbl("exploreFull")}</button><button class="chip alt" onclick="showAll()">${IC.menu}View full menu</button>`+newChip()+`<button class="chip alt" onclick="showSpecials()">${IC.star}${lbl("specialsLong")}</button>`+filterChips());}
 let fbRating=0,fbCur="";
 const FBTOPICS=["Food & Taste","Service","Cleanliness","Ambience","Staff","Value for Money","App Experience"];
 function openFeedback(){const rb=bot("What would you like to share feedback about? 😊");block("chips",FBTOPICS.map(a=>`<button class="chip" onclick="fbTopic('${a}')">${a}</button>`).join("")+`<button class="chip alt" onclick="fbCustom()">${IC.note}Something else</button><button class="chip alt" onclick="mainChips()">${IC.back}Done</button>`);}

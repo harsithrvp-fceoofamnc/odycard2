@@ -396,11 +396,16 @@ function build(stallKey, stalls) {
       must:   ["MUST TRY",   "\u2726 Must try"],
       neu:    ["NEW",        "\u2726 New"],
     };
-    const chips = (sk.filters || []).map((f) => {
+    const chipJs = (f) => {
       const [val, label] = FILTERS[f];
       return `'<button class="chip '+(FILTER===${JSON.stringify(val)}?'go':'alt')`
         + `+'" onclick="setFilter(&quot;${val}&quot;)">${label}</button>'`;
-    });
+    };
+    // "New" leads the row rather than trailing the diet filters — it is the thing the
+    // stall wants noticed, so it sits ahead of "Today's specials" instead of below it.
+    const hasNew = (sk.filters || []).includes("neu");
+    const newChip = hasNew ? chipJs("neu") : "''";
+    const chips = (sk.filters || []).filter((f) => f !== "neu").map(chipJs);
     if (!chips.length) chips.push("''");
 
     s = s.replace(
@@ -418,6 +423,7 @@ function build(stallKey, stalls) {
       "function anchorGrid(g,after){window.__userScroll=false;(after||exploreBar)();_bigTarget=g;toBottom();}\n" +
       // The feedback toggle rides in the same row as the filters, so it is present on
       // every chip row the guest ever sees without a second layout to maintain.
+      "function newChip(){return " + newChip + ";}\n" +
       "function filterChips(){return " + chips.join("+") +
       "+'<button class=\"chip alt\" onclick=\"odyFeedback()\">\\u2606 Feedback</button>';}\n" +
 
@@ -663,11 +669,11 @@ function build(stallKey, stalls) {
   // button-only, so the rows keep just the two that browse: full menu and today's picks.
   s = replaceFn(s, "mainChips",
     'function mainChips(){block("chips",`<button class="chip go" onclick="explore()">${IC.menu}${lbl("exploreFull")}</button>' +
-    '<button class="chip alt" onclick="showAll()">${IC.menu}View full menu</button>' +
+    '<button class="chip alt" onclick="showAll()">${IC.menu}View full menu</button>`+newChip()+`' +
     '<button class="chip alt" onclick="showSpecials()">${IC.star}${lbl("specialsLong")}</button>`+filterChips());}');
   s = replaceFn(s, "exploreBar",
     'function exploreBar(){block("chips",`<button class="chip go" onclick="explore()">${IC.menu}${lbl("exploreMore")}</button>' +
-    '<button class="chip alt" onclick="showAll()">${IC.menu}View full menu</button>' +
+    '<button class="chip alt" onclick="showAll()">${IC.menu}View full menu</button>`+newChip()+`' +
     '<button class="chip alt" onclick="showSpecials()">${IC.star}${lbl("specials")}</button>`+filterChips());}');
 
   // 7b2 ── the shutter reveal, back by request.
@@ -710,6 +716,14 @@ function build(stallKey, stalls) {
     "#shutterframe{top:0;z-index:6}",
 
     // ── feedback sheet ──
+    // The stock sheet is cream with a gold circle pattern baked into the background
+    // shorthand — on a black stall page it landed as a white slab, and white-on-cream text
+    // vanished. Overriding `background` (not background-color) drops the pattern with it.
+    ".sheet{background:rgba(18,18,20,.82);background-image:none;" +
+      "-webkit-backdrop-filter:blur(22px) saturate(1.2);backdrop-filter:blur(22px) saturate(1.2);" +
+      "border:1px solid rgba(255,255,255,.08);border-bottom:0;color:var(--ink)}",
+    "#modal{background:rgba(0,0,0,.55)}",
+    ".sheet h2{color:var(--ink)}",
     ".fbh{font-size:17px;font-weight:800;color:var(--ink);margin:2px 0 14px}",
     ".fbrow{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 12px;" +
       "font-size:14px;font-weight:600;color:var(--ink)}",
@@ -719,12 +733,13 @@ function build(stallKey, stalls) {
       "color:#3a3a3a;cursor:pointer;transition:color .15s ease,transform .15s ease}",
     `.fbst.on{color:${ACC}}`,
     ".fbst:active{transform:scale(.88)}",
-    ".fbtxt{width:100%;box-sizing:border-box;background:#111;border:1px solid #2c2c2c;border-radius:12px;" +
+    ".fbtxt{width:100%;box-sizing:border-box;background:rgba(0,0,0,.42);border:1px solid rgba(255,255,255,.14);border-radius:12px;" +
       "color:var(--ink);font:inherit;font-size:14px;padding:10px 12px;resize:none;margin:2px 0 8px}",
     `.fbtxt:focus{outline:none;border-color:${ACC}}`,
     ".fbtxt::placeholder{color:#6c6c6c}",
     ".fbmsg{min-height:16px;font-size:12.5px;color:#c98a8a;margin:0 0 8px}",
     ".fbbtn{width:100%;justify-content:center;margin:0 0 8px}",
+    ".sheet .chip.alt{background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.14)}",
     ".fbbtn:disabled{opacity:.4;cursor:default}",
     ".fbthx{font-size:14px;color:var(--mut);margin:0 0 16px}",
 
