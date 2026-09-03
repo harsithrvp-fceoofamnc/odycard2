@@ -169,7 +169,7 @@ const CSS = `
 .hero.out{transform:translateX(-120%);opacity:0;transition:transform 1.2s cubic-bezier(.5,0,.75,.1),opacity .8s}
 .hero img{height:100%;width:auto;display:block;filter:drop-shadow(0 0 50px rgba(255,190,140,.18))}
 /* sits beside his head, not his shoulder */
-.herobub{position:absolute;left:44%;bottom:70%;right:16px;z-index:32;opacity:0;
+.herobub{position:absolute;left:44%;bottom:80%;right:16px;z-index:32;opacity:0;
   transform:translateY(12px) scale(.95);transition:opacity .7s ease,transform .95s cubic-bezier(.33,.02,.2,1)}
 .herobub.in{opacity:1;transform:none}
 /* Set exactly like "What are you in the mood for?" — same sizes, same gradient — so the
