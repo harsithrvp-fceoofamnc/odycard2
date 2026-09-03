@@ -13,7 +13,7 @@ const STALLS = [
   { key: "bonbon", name: "Bon Bon",         pic: "/bon_bon_scoop.png", logo: "/fest/logo_bonbon.png" },
   { key: "kimchi", name: "Kim Chi & Ramen", pic: "/kimchi_ramen.png", logo: "/kimchi_new_logo.png" },
 ];
-const V = 47; // bump to bust the iframe cache after a rebuild
+const V = 48; // bump to bust the iframe cache after a rebuild
 
 // "Work with us" on the picker opens WhatsApp with the first message already written, so
 // someone who is curious does not have to think of an opening line. 91 = India.
@@ -217,10 +217,10 @@ const CSS = `
 /* Under the cards, above the safe area. Deliberately low-contrast — it is a credit line,
    not a call to action competing with the three stalls. */
 .odyline{position:absolute;left:0;right:0;bottom:14px;z-index:20;text-align:center;
-  font-size:11px;font-weight:600;letter-spacing:.02em;color:#6d6d73;text-decoration:none;
+  font-size:14px;font-weight:600;letter-spacing:.01em;color:#85858c;text-decoration:none;
   padding:8px 12px;opacity:0;pointer-events:none;transition:opacity .9s ease .5s,color .2s ease}
 .odyline.in{opacity:1;pointer-events:auto}
-.odyline b{color:#b9b9c0;font-weight:800}
+.odyline b{color:#d2d2d8;font-weight:800}
 .odyline:active{color:#9a9aa2}
 
 .stage{position:absolute;left:0;right:0;bottom:10%;height:360px;z-index:12;perspective:1200px;
