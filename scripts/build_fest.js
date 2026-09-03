@@ -654,14 +654,17 @@ function build(stallKey, stalls) {
     // The logo bar at its original size, and nailed down: fixed height, no transition,
     // and (with the collapse gone) no margin ever applied to it. It behaves like a
     // picture placed on the page — the chat scrolls underneath, it does not move.
-    "header.woodhdr{background:#000;box-shadow:none;border:0;min-height:168px;" +
+    "header.woodhdr{background:#000;box-shadow:none;border:0;min-height:190px;" +
       "padding:26px 12px 20px;position:relative;overflow:visible;transition:none;flex:none}",
-    `header.woodhdr:before{content:"";position:absolute;left:50%;top:52%;width:460px;height:300px;` +
+    `header.woodhdr:before{content:"";position:absolute;left:50%;top:52%;width:500px;height:330px;` +
       `transform:translate(-50%,-50%);pointer-events:none;z-index:0;` +
-      `background:radial-gradient(circle,${ACC}1f,transparent 62%);animation:odyglow 6.4s ease-in-out infinite}`,
-    "@keyframes odyglow{0%,100%{opacity:.35;transform:translate(-50%,-50%) scale(.94)}" +
-      "50%{opacity:.75;transform:translate(-50%,-50%) scale(1.06)}}",
-    ".woodhdr .woodlogo{position:relative;z-index:2;width:62%;max-width:262px;animation:none}",
+      `background:radial-gradient(circle,${ACC}33,transparent 64%);animation:odyglow 6.4s ease-in-out infinite}`,
+    "@keyframes odyglow{0%,100%{opacity:.4;transform:translate(-50%,-50%) scale(.94)}" +
+      "50%{opacity:.85;transform:translate(-50%,-50%) scale(1.06)}}",
+    // hglow is the chatbot's own breathing light ON the mark. Killing it with
+    // animation:none left only the faint wash behind, which read as no lighting at all.
+    ".woodhdr .woodlogo{position:relative;z-index:2;width:72%;max-width:300px;" +
+      "animation:hglow 4s ease-in-out infinite}",
     ".awnbar{display:none}",
     "#bootveil{background:#000}",
     "#shutterframe{top:0;z-index:6}",
