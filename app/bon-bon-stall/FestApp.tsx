@@ -13,7 +13,13 @@ const STALLS = [
   { key: "bonbon", name: "Bon Bon",         pic: "/bon_bon_scoop.png", logo: "/fest/logo_bonbon.png" },
   { key: "kimchi", name: "Kim Chi & Ramen", pic: "/kimchi_ramen.png", logo: "/kimchi_new_logo.png" },
 ];
-const V = 45; // bump to bust the iframe cache after a rebuild
+const V = 46; // bump to bust the iframe cache after a rebuild
+
+// "Work with us" on the picker opens WhatsApp with the first message already written, so
+// someone who is curious does not have to think of an opening line. 91 = India.
+const WA =
+  "https://wa.me/917448674496?text=" +
+  encodeURIComponent("Hi Odysra! I saw your menu at the VIT stall and wanted to talk about a project.");
 
 export default function FestApp() {
   const [phase, setPhase] = useState<"splash" | "intro" | "pick">("splash");
@@ -97,6 +103,14 @@ export default function FestApp() {
         <div className={"big" + (phase === "pick" ? " in" : "")}>
           <img src="/fest/mascot_stand.png" alt="" />
         </div>
+
+        {/* Quiet credit line that doubles as the way in for work. rel="noreferrer" so the
+            WhatsApp tab is not handed a window.opener back into this page. */}
+        <a className={"odyline" + (phase === "pick" ? " in" : "")}
+          href={WA} target="_blank" rel="noopener noreferrer"
+          onClick={() => track("contact_odysra", { channel: "whatsapp", from: "picker" })}>
+          Built by <b>Odysra</b> · work with us
+        </a>
 
         <div className={"stage" + (cardsUp ? " up" : "")}
           onTouchStart={(e) => onDown(e.touches[0].clientX, e.touches[0].clientY)}
@@ -199,6 +213,15 @@ const CSS = `
 .bigglow{position:absolute;left:50%;bottom:-6%;width:420px;height:420px;transform:translateX(-50%);z-index:4;
   background:radial-gradient(circle,rgba(255,150,190,.12),transparent 68%);opacity:0;transition:opacity 1.6s ease}
 .bigglow.in{opacity:1}
+
+/* Under the cards, above the safe area. Deliberately low-contrast — it is a credit line,
+   not a call to action competing with the three stalls. */
+.odyline{position:absolute;left:0;right:0;bottom:14px;z-index:20;text-align:center;
+  font-size:11px;font-weight:600;letter-spacing:.02em;color:#6d6d73;text-decoration:none;
+  padding:8px 12px;opacity:0;pointer-events:none;transition:opacity .9s ease .5s,color .2s ease}
+.odyline.in{opacity:1;pointer-events:auto}
+.odyline b{color:#b9b9c0;font-weight:800}
+.odyline:active{color:#9a9aa2}
 
 .stage{position:absolute;left:0;right:0;bottom:10%;height:360px;z-index:12;perspective:1200px;
   touch-action:pan-y}

@@ -416,7 +416,44 @@ function build(stallKey, stalls) {
       // unconditionally — renderGrid only self-anchors past 2 dishes, so a 2-dish result
       // used to scroll straight past itself.
       "function anchorGrid(g,after){window.__userScroll=false;(after||exploreBar)();_bigTarget=g;toBottom();}\n" +
-      "function filterChips(){return " + chips.join("+") + ";}\n" +
+      // The feedback toggle rides in the same row as the filters, so it is present on
+      // every chip row the guest ever sees without a second layout to maintain.
+      "function filterChips(){return " + chips.join("+") +
+      "+'<button class=\"chip alt\" onclick=\"odyFeedback()\">\\u2606 Feedback</button>';}\n" +
+
+      // ── Feedback sheet ────────────────────────────────────────────────────
+      // Two ratings kept separate on purpose: the FOOD is the stall's, the APP is ours.
+      // Send stays disabled until both are set; the comment is optional, because a guest
+      // in a queue will give you stars and nothing else, and that is still worth having.
+      "var FB={food:0,app:0};\n" +
+      "function fbStarRow(k){var h='';for(var i=1;i<=5;i++){h+='<button class=\"fbst'+(FB[k]>=i?' on':'')+" +
+      "'\" onclick=\"fbSet(&quot;'+k+'&quot;,'+i+')\" aria-label=\"'+i+' out of 5\">\\u2605</button>';}return h;}\n" +
+      "function fbSet(k,n){FB[k]=n;fbPaint();}\n" +
+      "function fbPaint(){var f=document.getElementById('fbFood'),a=document.getElementById('fbApp')," +
+      "b=document.getElementById('fbSend');\n" +
+      " if(f)f.innerHTML=fbStarRow('food');if(a)a.innerHTML=fbStarRow('app');\n" +
+      " if(b)b.disabled=!(FB.food&&FB.app);}\n" +
+      "function odyFeedback(){FB={food:0,app:0};\n" +
+      " sheet.innerHTML='<h3 class=\"fbh\">How did we do?</h3>'+\n" +
+      "  '<div class=\"fbrow\"><span>The food</span><span id=\"fbFood\" class=\"odystars\"></span></div>'+\n" +
+      "  '<div class=\"fbrow\"><span>This menu app</span><span id=\"fbApp\" class=\"odystars\"></span></div>'+\n" +
+      "  '<textarea id=\"fbTxt\" class=\"fbtxt\" rows=\"3\" maxlength=\"500\" placeholder=\"Anything else? (optional)\"></textarea>'+\n" +
+      "  '<div id=\"fbMsg\" class=\"fbmsg\"></div>'+\n" +
+      "  '<button id=\"fbSend\" class=\"chip go fbbtn\" onclick=\"sendFeedback()\" disabled>Send feedback</button>'+\n" +
+      "  '<button class=\"chip alt fbbtn\" onclick=\"closeModal()\">Not now</button>';\n" +
+      " modal.style.display='flex';fbPaint();odyga('feedback_open',{});}\n" +
+      "function sendFeedback(){var b=document.getElementById('fbSend');if(!b||b.disabled)return;\n" +
+      " var t=document.getElementById('fbTxt'),msg=document.getElementById('fbMsg');\n" +
+      " var txt=t?t.value:'';b.disabled=true;msg.textContent='Sending\\u2026';\n" +
+      " fetch('/api/fest/feedback',{method:'POST',headers:{'Content-Type':'application/json'},\n" +
+      "  body:JSON.stringify({stall:STALL_KEY,food:FB.food,app:FB.app,comment:txt})})\n" +
+      " .then(function(r){return r.json().catch(function(){return {};}).then(function(j){\n" +
+      "   if(!r.ok)throw new Error(j.error||'Could not send.');return j;});})\n" +
+      " .then(function(){odyga('feedback_submit',{food:FB.food,app:FB.app,has_comment:txt?1:0});\n" +
+      "  sheet.innerHTML='<h3 class=\"fbh\">Thank you \\u{1F64F}</h3>'+\n" +
+      "   '<p class=\"fbthx\">This goes straight to the team.</p>'+\n" +
+      "   '<button class=\"chip go fbbtn\" onclick=\"closeModal()\">Done</button>';})\n" +
+      " .catch(function(e){msg.textContent=(e&&e.message)||'Could not send. Try again.';b.disabled=false;});}\n" +
       "function setFilter(v){FILTER=(FILTER===v?\"\":v);odyga('filter_click',{filter:v,active:FILTER===v});refilter();}\n" +
       "function filterLabel(){return FILTER==='veg'?'Veg':FILTER==='nonveg'?'Non-veg'\n" +
       "  :FILTER==='BESTSELLER'?'Bestsellers':FILTER==='NEW'?'New':'Must try';}\n" +
@@ -671,6 +708,25 @@ function build(stallKey, stalls) {
       "animation:odymark 4s ease-in-out infinite}",
     "#bootveil{background:#000}",
     "#shutterframe{top:0;z-index:6}",
+
+    // ── feedback sheet ──
+    ".fbh{font-size:17px;font-weight:800;color:var(--ink);margin:2px 0 14px}",
+    ".fbrow{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 12px;" +
+      "font-size:14px;font-weight:600;color:var(--ink)}",
+    ".odystars{display:flex;gap:4px}",
+    // grey until chosen, brand colour once lit — the tap target stays 34px either way
+    ".fbst{width:34px;height:34px;border:0;background:none;font-size:23px;line-height:1;padding:0;" +
+      "color:#3a3a3a;cursor:pointer;transition:color .15s ease,transform .15s ease}",
+    `.fbst.on{color:${ACC}}`,
+    ".fbst:active{transform:scale(.88)}",
+    ".fbtxt{width:100%;box-sizing:border-box;background:#111;border:1px solid #2c2c2c;border-radius:12px;" +
+      "color:var(--ink);font:inherit;font-size:14px;padding:10px 12px;resize:none;margin:2px 0 8px}",
+    `.fbtxt:focus{outline:none;border-color:${ACC}}`,
+    ".fbtxt::placeholder{color:#6c6c6c}",
+    ".fbmsg{min-height:16px;font-size:12.5px;color:#c98a8a;margin:0 0 8px}",
+    ".fbbtn{width:100%;justify-content:center;margin:0 0 8px}",
+    ".fbbtn:disabled{opacity:.4;cursor:default}",
+    ".fbthx{font-size:14px;color:var(--mut);margin:0 0 16px}",
 
     // dark surfaces
     ".bot{background:#161616;border:1px solid #242424;color:var(--ink)}",

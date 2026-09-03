@@ -50,6 +50,11 @@ function eventAllows(pathname: string): boolean {
     pathname === "/bon-bon-stall" ||
     pathname.startsWith("/fest/") ||
     pathname.startsWith("/api/fest/") ||
+    // Reading guest feedback during the event. Safe to expose: the page itself gates on
+    // requireBB(["admin"]) server-side, and the login it sends you to is allowed with it.
+    pathname === "/fest-feedback" ||
+    pathname === "/bon-bon/login" ||
+    pathname.startsWith("/api/bonbon/auth/") ||
     pathname.startsWith("/_next") ||
     pathname === "/favicon.ico" ||
     // every image, font and stylesheet the stall pulls in
