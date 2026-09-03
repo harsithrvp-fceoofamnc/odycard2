@@ -364,10 +364,10 @@
   #phone{background:#000;background-image:none}
   #chat{background:transparent;padding-top:12px}
   header.woodhdr{background:#000;box-shadow:none;border:0;min-height:190px;padding:26px 12px 20px;position:relative;overflow:visible;transition:none;flex:none}
-  header.woodhdr:before{content:"";position:absolute;left:50%;top:52%;width:500px;height:330px;transform:translate(-50%,-50%);pointer-events:none;z-index:0;background:radial-gradient(circle,#ffc40033,transparent 64%);animation:odyglow 6.4s ease-in-out infinite}
-  @keyframes odyglow{0%,100%{opacity:.4;transform:translate(-50%,-50%) scale(.94)}50%{opacity:.85;transform:translate(-50%,-50%) scale(1.06)}}
-  .woodhdr .woodlogo{position:relative;z-index:2;width:72%;max-width:300px;animation:hglow 4s ease-in-out infinite}
-  .awnbar{display:none}
+  header.woodhdr:before{content:"";position:absolute;left:50%;top:52%;width:500px;height:330px;transform:translate(-50%,-50%);pointer-events:none;z-index:0;background:radial-gradient(circle,#ffc40026,transparent 64%);animation:odyglow 6.4s ease-in-out infinite}
+  @keyframes odyglow{0%,100%{opacity:.3;transform:translate(-50%,-50%) scale(.94)}50%{opacity:.6;transform:translate(-50%,-50%) scale(1.06)}}
+  @keyframes odymark{0%,100%{filter:drop-shadow(0 0 5px rgba(255,255,255,.26)) drop-shadow(0 0 14px rgba(255,255,255,.15)) drop-shadow(0 3px 5px rgba(0,0,0,.45))}50%{filter:drop-shadow(0 0 7px rgba(255,255,255,.38)) drop-shadow(0 0 20px rgba(255,255,255,.22)) drop-shadow(0 3px 5px rgba(0,0,0,.45))}}
+  .woodhdr .woodlogo{position:relative;z-index:2;width:72%;max-width:300px;animation:odymark 4s ease-in-out infinite}
   #bootveil{background:#000}
   #shutterframe{top:0;z-index:6}
   .bot{background:#161616;border:1px solid #242424;color:var(--ink)}
@@ -399,7 +399,7 @@
   <div class="awnbar"><img src="/awning_web.png?v=3" alt=""></div>
   <div class="langbar" id="langbar"></div>
   <div id="shutterframe"><div id="shutter"></div></div><div id="wm"></div>
-  <div id="chat"></div><script>(function(){var c=document.getElementById("chat"),h=document.querySelector("header.woodhdr");window.__mountLogo=function(){if(h&&c&&c.firstChild!==h)c.insertBefore(h,c.firstChild);};window.__mountLogo();})();</script>
+  <div id="chat"></div><script>(function(){var c=document.getElementById("chat"),h=document.querySelector("header.woodhdr"),a=document.querySelector(".awnbar");window.__mountLogo=function(){if(!c)return;if(h&&c.firstChild!==h)c.insertBefore(h,c.firstChild);if(a&&h&&a.previousSibling!==h)c.insertBefore(a,h.nextSibling);};window.__mountLogo();})();</script>
   <div class="barwrap" id="bar" aria-hidden="true"><textarea id="inp" tabindex="-1" readonly></textarea></div>
   <div id="modal" onclick="if(event.target.id==='modal')closeModal()"><div class="sheet" id="sheet"></div></div>
   <div id="lb" onclick="if(event.target.id==='lb')closeLb()"></div>

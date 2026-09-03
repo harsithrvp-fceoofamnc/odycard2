@@ -77,7 +77,7 @@ const SKIN = {
     // the same hue lifted. The fills (.me bubble, active chip) keep the true brand maroon.
     accentDark: "#e8557c",
     accentRgb: "0,0,0",
-    hasAwning: false,
+    hasAwning: true,
   },
   kimchi: {
     file: "kimchi", title: "Kim Chi & Ramen — Menu",
@@ -287,6 +287,11 @@ function build(stallKey, stalls) {
 
   // 4d ── D'VOUR has no awning at all, so the chat's awning allowance goes with it.
   if (!sk.hasAwning) extra.push(".awnbar{display:none}", "#chat{padding-top:14px}");
+  // Bon Bon keeps its awning. It sits directly under the logo and, because it is sticky
+  // inside the scroller, it peels off the logo and pins itself to the top as you scroll —
+  // the same move the old board UI made.
+  else extra.push("#chat>.awnbar{display:block;position:sticky;top:0;z-index:5;" +
+                  "width:130%;margin:-3px 0 -42px -15%;pointer-events:none}");
 
   // 4e ── Kim Chi's two lanterns hang from the top of the board, one each side of the logo.
   // They're separate images, not the one wide PNG, because a pendulum has to swing about
@@ -658,14 +663,17 @@ function build(stallKey, stalls) {
       "padding:26px 12px 20px;position:relative;overflow:visible;transition:none;flex:none}",
     `header.woodhdr:before{content:"";position:absolute;left:50%;top:52%;width:500px;height:330px;` +
       `transform:translate(-50%,-50%);pointer-events:none;z-index:0;` +
-      `background:radial-gradient(circle,${ACC}33,transparent 64%);animation:odyglow 6.4s ease-in-out infinite}`,
-    "@keyframes odyglow{0%,100%{opacity:.4;transform:translate(-50%,-50%) scale(.94)}" +
-      "50%{opacity:.85;transform:translate(-50%,-50%) scale(1.06)}}",
-    // hglow is the chatbot's own breathing light ON the mark. Killing it with
-    // animation:none left only the faint wash behind, which read as no lighting at all.
+      `background:radial-gradient(circle,${ACC}26,transparent 64%);animation:odyglow 6.4s ease-in-out infinite}`,
+    "@keyframes odyglow{0%,100%{opacity:.3;transform:translate(-50%,-50%) scale(.94)}" +
+      "50%{opacity:.6;transform:translate(-50%,-50%) scale(1.06)}}",
+    // The mark's own breathing light. This is the stock hglow at about half strength —
+    // hglow peaks at .75/.45 white, which blew out against pure black.
+    "@keyframes odymark{0%,100%{filter:drop-shadow(0 0 5px rgba(255,255,255,.26))" +
+      " drop-shadow(0 0 14px rgba(255,255,255,.15)) drop-shadow(0 3px 5px rgba(0,0,0,.45))}" +
+      "50%{filter:drop-shadow(0 0 7px rgba(255,255,255,.38))" +
+      " drop-shadow(0 0 20px rgba(255,255,255,.22)) drop-shadow(0 3px 5px rgba(0,0,0,.45))}}",
     ".woodhdr .woodlogo{position:relative;z-index:2;width:72%;max-width:300px;" +
-      "animation:hglow 4s ease-in-out infinite}",
-    ".awnbar{display:none}",
+      "animation:odymark 4s ease-in-out infinite}",
     "#bootveil{background:#000}",
     "#shutterframe{top:0;z-index:6}",
 
@@ -717,8 +725,10 @@ function build(stallKey, stalls) {
       // detaches it but does not destroy it, so the same node goes straight back in —
       // re-querying after the clear would find nothing.
       '<script>(function(){var c=document.getElementById("chat"),' +
-      'h=document.querySelector("header.woodhdr");' +
-      'window.__mountLogo=function(){if(h&&c&&c.firstChild!==h)c.insertBefore(h,c.firstChild);};' +
+      'h=document.querySelector("header.woodhdr"),' +
+      'a=document.querySelector(".awnbar");' +
+      'window.__mountLogo=function(){if(!c)return;if(h&&c.firstChild!==h)c.insertBefore(h,c.firstChild);' +
+      'if(a&&h&&a.previousSibling!==h)c.insertBefore(a,h.nextSibling);};' +
       'window.__mountLogo();})();</script>');
 
     const CLEAR = 'chat.innerHTML="";';
