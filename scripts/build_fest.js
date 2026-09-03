@@ -694,6 +694,42 @@ function build(stallKey, stalls) {
     ".lbcard{box-shadow:0 10px 40px rgba(0,0,0,.75)}"
   );
 
+  // 7g ── the logo scrolls WITH the chat, like a picture placed in a page.
+  //
+  // Stock, header.woodhdr is a flex sibling of #chat, so it is welded to the top of the
+  // viewport forever and the messages slide underneath it. Moving it INSIDE #chat makes
+  // it the first thing in the scrolling column: it is there when the menu opens, it
+  // scrolls up and off as you read, and it comes back when you scroll to the top. Same
+  // size, same glow, no collapse, no sticky.
+  //
+  // It has to be moved at runtime rather than written into the markup, because
+  // chooseOutlet does chat.innerHTML="" on the deferred path — a static child would be
+  // wiped out right before the greeting. So: a mover defined the moment #chat is parsed,
+  // called immediately and again after every clear.
+  {
+    const CHATDIV = '<div id="chat"></div>';
+    if (!s.includes(CHATDIV)) throw new Error("#chat div not found");
+    s = s.replace(CHATDIV, CHATDIV +
+      // h is captured ONCE, here, while the header is still in the markup. innerHTML=""
+      // detaches it but does not destroy it, so the same node goes straight back in —
+      // re-querying after the clear would find nothing.
+      '<script>(function(){var c=document.getElementById("chat"),' +
+      'h=document.querySelector("header.woodhdr");' +
+      'window.__mountLogo=function(){if(h&&c&&c.firstChild!==h)c.insertBefore(h,c.firstChild);};' +
+      'window.__mountLogo();})();</script>');
+
+    const CLEAR = 'chat.innerHTML="";';
+    if (!s.includes(CLEAR)) throw new Error("chat clear not found");
+    s = s.split(CLEAR).join(CLEAR + 'window.__mountLogo&&window.__mountLogo();');
+
+    // #chat pads 14px/9px; the logo strip is cancelled out of that so it runs edge to edge
+    // exactly as it did when it was its own bar.
+    extra.push(
+      "#chat{padding-top:0}",
+      "#chat>header.woodhdr{flex:none;margin:0 -9px 8px}"
+    );
+  }
+
   // 8 ── every per-stall override lands here, at the very end of the stylesheet.
   // #bar needs !important: bbBoot and chooseOutlet both put the bar back by setting
   // element styles (display:"" / visibility:"") as the shutter lifts.

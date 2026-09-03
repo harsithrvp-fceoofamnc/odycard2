@@ -388,6 +388,8 @@
   .bot,.dish.simple{box-shadow:0 1px 2px rgba(0,0,0,.45)}
   .chip{box-shadow:none}
   .lbcard{box-shadow:0 10px 40px rgba(0,0,0,.75)}
+  #chat{padding-top:0}
+  #chat>header.woodhdr{flex:none;margin:0 -9px 8px}
   #bar{display:none!important}
   </style>
 </head>
@@ -397,7 +399,7 @@
   <div class="awnbar"><img src="/awning_web.png?v=3" alt=""></div>
   <div class="langbar" id="langbar"></div>
   <div id="shutterframe"><div id="shutter"></div></div><div id="wm"></div>
-  <div id="chat"></div>
+  <div id="chat"></div><script>(function(){var c=document.getElementById("chat"),h=document.querySelector("header.woodhdr");window.__mountLogo=function(){if(h&&c&&c.firstChild!==h)c.insertBefore(h,c.firstChild);};window.__mountLogo();})();</script>
   <div class="barwrap" id="bar" aria-hidden="true"><textarea id="inp" tabindex="-1" readonly></textarea></div>
   <div id="modal" onclick="if(event.target.id==='modal')closeModal()"><div class="sheet" id="sheet"></div></div>
   <div id="lb" onclick="if(event.target.id==='lb')closeLb()"></div>
@@ -839,11 +841,11 @@ function anchorTop(){}
 function anchorReply(){}
 
 /* ---------- outlet picker ---------- */
-function renderOutlets(){chat.innerHTML="";document.getElementById("phone").classList.add("outletview");document.getElementById("bar").style.display="none";document.getElementById("wm").style.display="none";document.getElementById("back").style.display="none";document.getElementById("hname").textContent="Bon Bon";document.getElementById("hsub").textContent=T("chooseSub");bot(T("welcome"));
+function renderOutlets(){chat.innerHTML="";window.__mountLogo&&window.__mountLogo();document.getElementById("phone").classList.add("outletview");document.getElementById("bar").style.display="none";document.getElementById("wm").style.display="none";document.getElementById("back").style.display="none";document.getElementById("hname").textContent="Bon Bon";document.getElementById("hsub").textContent=T("chooseSub");bot(T("welcome"));
  block("outlet",OUTLETS.map(o=>`<button onclick="chooseOutlet('${o}')">${IC.pin}${o}</button>`).join(""));
  block("wmark",`<img src="${LOGO}"><div class="cap">${T("pureVeg")}</div>`);}
 function setUrl(){}
-function chooseOutlet(o,defer){document.getElementById("phone").classList.remove("outletview");document.getElementById("bar").style.display="";document.getElementById("wm").style.display="";document.getElementById("back").style.display="";document.getElementById("inp").placeholder=T("ask");outlet=o;document.getElementById("hname").textContent="Bon Bon";document.getElementById("hsub").textContent="AI Menu — powered by Odysra";setUrl("/bon-bon");if(defer){chat.innerHTML="";typingBubble();return;}showGreeting();}
+function chooseOutlet(o,defer){document.getElementById("phone").classList.remove("outletview");document.getElementById("bar").style.display="";document.getElementById("wm").style.display="";document.getElementById("back").style.display="";document.getElementById("inp").placeholder=T("ask");outlet=o;document.getElementById("hname").textContent="Bon Bon";document.getElementById("hsub").textContent="AI Menu — powered by Odysra";setUrl("/bon-bon");if(defer){chat.innerHTML="";window.__mountLogo&&window.__mountLogo();typingBubble();return;}showGreeting();}
 function goOutlets(){cart={};notes={};cartAO={};upsold=false;outlet=null;refreshCart();closeModal();setUrl("/bon-bon");renderOutlets();}
 
 /* ---------- dishes ---------- */
@@ -902,7 +904,7 @@ function topDishes(){var pr=Object.keys(MENU).filter(i=>MENU[i].promoted&&avail(
  if(b.length<4)b=b.concat(Object.keys(MENU).filter(i=>avail(i)&&!b.includes(i)));
  if(!b.length)b=Object.keys(MENU).filter(i=>MENU[i].best);
  return b.slice(0,4);}
-async function showGreeting(instant){window.__bbHold=true;var pre=chat.querySelector(".typing");if(!pre)chat.innerHTML="";upsold=false;
+async function showGreeting(instant){window.__bbHold=true;var pre=chat.querySelector(".typing");if(!pre)chat.innerHTML="";window.__mountLogo&&window.__mountLogo();upsold=false;
  var cust=getCustomer();
  if(cust&&cust.name){
    if(!instant){let t=pre||typingBubble();await sleep(pre?300:450);t.remove();pre=null;}else if(pre){pre.remove();pre=null;}
