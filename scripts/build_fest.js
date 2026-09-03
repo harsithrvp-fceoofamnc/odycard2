@@ -651,20 +651,17 @@ function build(stallKey, stalls) {
     "#chat{background:transparent;padding-top:12px}",
 
     // the header is now just the logo, lit from behind
-    // A short black strip with the mark on it, fixed height, no transition. overflow is
-    // hidden so the glow and the lanterns cannot spill down over the chat and read as
-    // a second box under the logo.
-    "header.woodhdr{background:#000;box-shadow:none;border:0;min-height:0;height:104px;" +
-      "padding:10px 12px;position:relative;overflow:hidden;transition:none;flex:none}",
-    `header.woodhdr:before{content:"";position:absolute;left:50%;top:50%;width:330px;height:190px;` +
+    // The logo bar at its original size, and nailed down: fixed height, no transition,
+    // and (with the collapse gone) no margin ever applied to it. It behaves like a
+    // picture placed on the page — the chat scrolls underneath, it does not move.
+    "header.woodhdr{background:#000;box-shadow:none;border:0;min-height:168px;" +
+      "padding:26px 12px 20px;position:relative;overflow:visible;transition:none;flex:none}",
+    `header.woodhdr:before{content:"";position:absolute;left:50%;top:52%;width:460px;height:300px;` +
       `transform:translate(-50%,-50%);pointer-events:none;z-index:0;` +
       `background:radial-gradient(circle,${ACC}1f,transparent 62%);animation:odyglow 6.4s ease-in-out infinite}`,
     "@keyframes odyglow{0%,100%{opacity:.35;transform:translate(-50%,-50%) scale(.94)}" +
       "50%{opacity:.75;transform:translate(-50%,-50%) scale(1.06)}}",
-    ".woodhdr .woodlogo{position:relative;z-index:2;width:auto;max-width:70%;height:100%;" +
-      "object-fit:contain;animation:none}",
-    // sized by height now, so they fit the shorter strip instead of hanging past it
-    ".lantern{width:auto;height:88px;top:2px}",
+    ".woodhdr .woodlogo{position:relative;z-index:2;width:62%;max-width:262px;animation:none}",
     ".awnbar{display:none}",
     "#bootveil{background:#000}",
     "#shutterframe{top:0;z-index:6}",
