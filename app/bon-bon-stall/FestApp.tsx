@@ -163,7 +163,9 @@ const CSS = `
 
 .hero{position:absolute;left:0;bottom:0;z-index:30;height:84vh;max-height:680px;transform:translateX(-120%);
   opacity:0;transition:transform 1.7s cubic-bezier(.33,.02,.2,1),opacity .9s ease}
-.hero.in{transform:translateX(-6%);opacity:1}
+/* dropped so his head clears "Welcome! I'm your waiter today." — same size, he just
+   stands lower and his shoes run off the bottom edge, which reads as depth anyway */
+.hero.in{transform:translateX(-6%) translateY(14%);opacity:1}
 .hero.out{transform:translateX(-120%);opacity:0;transition:transform 1.2s cubic-bezier(.5,0,.75,.1),opacity .8s}
 .hero img{height:100%;width:auto;display:block;filter:drop-shadow(0 0 50px rgba(255,190,140,.18))}
 /* sits beside his head, not his shoulder */
