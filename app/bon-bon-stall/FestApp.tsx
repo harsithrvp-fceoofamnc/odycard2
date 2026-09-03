@@ -13,7 +13,7 @@ const STALLS = [
   { key: "bonbon", name: "Bon Bon",         pic: "/bon_bon_scoop.png", logo: "/fest/logo_bonbon.png" },
   { key: "kimchi", name: "Kim Chi & Ramen", pic: "/kimchi_ramen.png", logo: "/kimchi_new_logo.png" },
 ];
-const V = 44; // bump to bust the iframe cache after a rebuild
+const V = 45; // bump to bust the iframe cache after a rebuild
 
 export default function FestApp() {
   const [phase, setPhase] = useState<"splash" | "intro" | "pick">("splash");
@@ -191,10 +191,10 @@ const CSS = `
 .craving .g{background:linear-gradient(95deg,#ff4d8d,#c14ff0 55%,#7c5cff);-webkit-background-clip:text;
   background-clip:text;-webkit-text-fill-color:transparent;font-size:30px;display:block}
 
-.big{position:absolute;left:50%;bottom:0;z-index:5;height:86vh;max-height:700px;
+.big{position:absolute;left:50%;bottom:0;z-index:5;height:80vh;max-height:660px;
   transform:translateX(-50%) translateY(30%);opacity:0;
   transition:transform 1.8s cubic-bezier(.33,.02,.2,1),opacity 1.2s ease}
-.big.in{transform:translateX(-50%) translateY(-7%);opacity:1}
+.big.in{transform:translateX(-50%) translateY(4%);opacity:1}
 .big img{height:100%;width:auto;display:block;filter:drop-shadow(0 0 60px rgba(255,190,140,.16))}
 .bigglow{position:absolute;left:50%;bottom:-6%;width:420px;height:420px;transform:translateX(-50%);z-index:4;
   background:radial-gradient(circle,rgba(255,150,190,.12),transparent 68%);opacity:0;transition:opacity 1.6s ease}

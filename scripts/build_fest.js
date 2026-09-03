@@ -77,7 +77,7 @@ const SKIN = {
     // the same hue lifted. The fills (.me bubble, active chip) keep the true brand maroon.
     accentDark: "#e8557c",
     accentRgb: "0,0,0",
-    hasAwning: true,
+    hasAwning: false,
   },
   kimchi: {
     file: "kimchi", title: "Kim Chi & Ramen — Menu",
@@ -287,11 +287,6 @@ function build(stallKey, stalls) {
 
   // 4d ── D'VOUR has no awning at all, so the chat's awning allowance goes with it.
   if (!sk.hasAwning) extra.push(".awnbar{display:none}", "#chat{padding-top:14px}");
-  // Bon Bon keeps its awning. It sits directly under the logo and, because it is sticky
-  // inside the scroller, it peels off the logo and pins itself to the top as you scroll —
-  // the same move the old board UI made.
-  else extra.push("#chat>.awnbar{display:block;position:sticky;top:0;z-index:5;" +
-                  "width:130%;margin:-3px 0 -42px -15%;pointer-events:none}");
 
   // 4e ── Kim Chi's two lanterns hang from the top of the board, one each side of the logo.
   // They're separate images, not the one wide PNG, because a pendulum has to swing about
@@ -725,10 +720,8 @@ function build(stallKey, stalls) {
       // detaches it but does not destroy it, so the same node goes straight back in —
       // re-querying after the clear would find nothing.
       '<script>(function(){var c=document.getElementById("chat"),' +
-      'h=document.querySelector("header.woodhdr"),' +
-      'a=document.querySelector(".awnbar");' +
-      'window.__mountLogo=function(){if(!c)return;if(h&&c.firstChild!==h)c.insertBefore(h,c.firstChild);' +
-      'if(a&&h&&a.previousSibling!==h)c.insertBefore(a,h.nextSibling);};' +
+      'h=document.querySelector("header.woodhdr");' +
+      'window.__mountLogo=function(){if(h&&c&&c.firstChild!==h)c.insertBefore(h,c.firstChild);};' +
       'window.__mountLogo();})();</script>');
 
     const CLEAR = 'chat.innerHTML="";';
