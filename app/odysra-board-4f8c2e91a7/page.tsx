@@ -12,6 +12,15 @@ import { FEEDBACK_COOKIE, feedbackCookieValue, listFeedback, summarise, type Fee
 // serialised into the page. There is no client-side "hide the div" to defeat.
 export const dynamic = "force-dynamic";
 
+// Belt and braces: even if the URL ever leaks, do not let it into a search index.
+// This lives on the page rather than in robots.txt, because robots.txt is public and
+// naming the path there would hand it to exactly the people we are hiding it from.
+export const metadata = {
+  title: "Odysra",
+  robots: { index: false, follow: false, nocache: true,
+            googleBot: { index: false, follow: false } },
+};
+
 export default async function FestFeedbackPage() {
   const jar = await cookies();
   // compared against an HMAC of a fixed string, so ody_fb cannot be forged in devtools
