@@ -13,7 +13,7 @@ const STALLS = [
   { key: "bonbon", name: "Bon Bon",         pic: "/bon_bon_scoop.png", logo: "/fest/logo_bonbon.png" },
   { key: "kimchi", name: "Kim Chi & Ramen", pic: "/kimchi_ramen.png", logo: "/kimchi_new_logo.png" },
 ];
-const V = 48; // bump to bust the iframe cache after a rebuild
+const V = 49; // bump to bust the iframe cache after a rebuild
 
 // "Work with us" on the picker opens WhatsApp with the first message already written, so
 // someone who is curious does not have to think of an opening line. 91 = India.
@@ -109,7 +109,7 @@ export default function FestApp() {
         <a className={"odyline" + (phase === "pick" ? " in" : "")}
           href={WA} target="_blank" rel="noopener noreferrer"
           onClick={() => track("contact_odysra", { channel: "whatsapp", from: "picker" })}>
-          Built by <b>Odysra</b> · work with us
+          Built by Odysra · <b>Click here to contact us</b>
         </a>
 
         <div className={"stage" + (cardsUp ? " up" : "")}
@@ -220,7 +220,8 @@ const CSS = `
   font-size:14px;font-weight:600;letter-spacing:.01em;color:#85858c;text-decoration:none;
   padding:8px 12px;opacity:0;pointer-events:none;transition:opacity .9s ease .5s,color .2s ease}
 .odyline.in{opacity:1;pointer-events:auto}
-.odyline b{color:#d2d2d8;font-weight:800}
+.odyline b{color:#e6e6ec;font-weight:800;text-decoration:underline;text-underline-offset:3px;
+  text-decoration-thickness:1px}
 .odyline:active{color:#9a9aa2}
 
 .stage{position:absolute;left:0;right:0;bottom:10%;height:360px;z-index:12;perspective:1200px;
