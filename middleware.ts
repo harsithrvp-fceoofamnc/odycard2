@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { SITE_COOKIE, verifySiteToken, siteAuthConfigured } from "@/lib/siteAuth";
 
 // Two separate gates live here:
 //  1. The DEMO gate (ody_gate cookie, access code 333221) protects the chatbot demo
@@ -29,50 +30,68 @@ function bbSessionAlive(token?: string): boolean {
 // (root shows the menu, clean URL, no access gate). Static assets + /menu itself pass through.
 const BONBON_MENU_HOSTS = new Set(["bonbonicecreams.com", "www.bonbonicecreams.com"]);
 
-// ── EVENT LOCKDOWN ─────────────────────────────────────────────────────────────
-// ON BY DEFAULT for the VIT pop-up. The site is the food stall and nothing else:
-// odysra.com redirects to /bon-bon-stall, the stall pages serve, every other route 404s.
+// ── SITE LOGIN ────────────────────────────────────────────────────────────────
+// The whole site now sits behind one username and password. This REPLACES the old
+// 333221 access code, which was a shared number with no identity behind it that
+// could not be changed without a deploy.
 //
-// TO BRING THE WHOLE SITE BACK AFTER THE EVENT — either is enough, no code to restore:
-//   • set EVENT_ONLY=0 in the Vercel environment and redeploy, or
-//   • change the line below to `=== "1"` and push.
+// It is enforced here, in the middleware, rather than page by page. That matters:
+// a per-page check protects only the pages somebody remembered to add it to, while
+// this runs before ANY route resolves, so a deep link straight to /bon-bon or
+// /admin/whatever hits the same wall as the front door.
 //
-// It defaults to locked rather than open on purpose: forgetting to set an env var should
-// leave the site safe, not leave every admin page exposed on the day of the event.
+// Credentials live in SITE_USER / SITE_PASS in the environment. If either is unset
+// the site fails CLOSED — everyone is bounced to /enter, which explains what to set.
+// A missing env var should lock the door, not leave it open.
 //
-// Blocked routes get a 404, deliberately, not a redirect — a 404 tells a curious guest
-// there is nothing there, where a redirect would advertise that /bon-bon-stall exists.
-const EVENT_ONLY = process.env.EVENT_ONLY !== "0";
+// After signing in the visitor gets a signed, HttpOnly, 7-day cookie and is not asked
+// again — including on the pages they reach from the hub.
+const SITE_OPEN = new Set<string>(["/enter"]);
 
-// What stays reachable during the event.
-function eventAllows(pathname: string): boolean {
+function sitePublic(pathname: string): boolean {
   return (
-    pathname === "/bon-bon-stall" ||
-    pathname.startsWith("/fest/") ||
-    pathname.startsWith("/api/fest/") ||
-    // The feedback board. Long random path so it is not guessable or crawlable, and the
-    // page itself still asks for an access code server-side before rendering anything.
-    // Its unlock endpoint is already covered by the /api/fest/ prefix above.
-    pathname === "/odysra-board-4f8c2e91a7" ||
+    SITE_OPEN.has(pathname) ||
+    pathname.startsWith("/api/site-auth/") ||   // the sign-in endpoint itself
     pathname.startsWith("/_next") ||
     pathname === "/favicon.ico" ||
-    // every image, font and stylesheet the stall pulls in
+    pathname === "/robots.txt" ||
+    pathname === "/sitemap.xml" ||
+    // images, fonts and stylesheets — but NOT .html, which is a page in disguise
     (/\.[a-zA-Z0-9]+$/.test(pathname) && !pathname.endsWith(".html"))
   );
 }
 
-export function middleware(req: NextRequest) {
+export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
-  if (EVENT_ONLY) {
-    if (pathname === "/") {
+  // ── the site gate. Nothing below this runs for a signed-out visitor. ──
+  if (!sitePublic(pathname)) {
+    const token = req.cookies.get(SITE_COOKIE)?.value;
+    const signedIn = siteAuthConfigured() && !!(await verifySiteToken(token));
+    if (!signedIn) {
+      // An API call gets a 401 rather than an HTML redirect, so fetch() sees a clear
+      // failure instead of silently parsing a login page as if it were data.
+      if (pathname.startsWith("/api/")) {
+        return NextResponse.json({ error: "Not signed in" }, { status: 401 });
+      }
       const url = req.nextUrl.clone();
-      url.pathname = "/bon-bon-stall";
+      url.pathname = "/enter";
       url.search = "";
+      // remember where they were going, so the deep link still works after signing in
+      url.searchParams.set("next", pathname + (req.nextUrl.search || ""));
       return NextResponse.redirect(url);
     }
-    if (!eventAllows(pathname)) {
-      return new NextResponse("Not found", { status: 404, headers: { "content-type": "text/plain" } });
+  }
+
+  // Signed in from here on. The old 333221 demo gate is gone: one login covers the
+  // hub and everything reachable from it.
+  if (pathname === "/enter") {
+    const token = req.cookies.get(SITE_COOKIE)?.value;
+    if (siteAuthConfigured() && (await verifySiteToken(token))) {
+      const url = req.nextUrl.clone();
+      url.pathname = "/hub";
+      url.search = "";
+      return NextResponse.redirect(url);   // already in — skip the form
     }
     return NextResponse.next();
   }
@@ -89,7 +108,9 @@ export function middleware(req: NextRequest) {
     return NextResponse.rewrite(url);
   }
 
-  const gated = req.cookies.get("ody_gate")?.value === "ok";
+  // The old access-code cookie is no longer consulted: reaching this line means the
+  // site login already passed. Left as a constant so the branches below read the same.
+  const gated = true;
   const hasSession = !!req.cookies.get("ody_session")?.value;
   const hasBB = bbSessionAlive(req.cookies.get("bb_session")?.value);
 
@@ -102,17 +123,10 @@ export function middleware(req: NextRequest) {
     pathname.startsWith("/bon-bon/kitchen") ||
     pathname.startsWith("/bon-bon/waiter");
 
-  // Always open: Next internals, static files (not .html), the gate screen and gate API,
-  // the public sign-up / login pages.
-  //
-  // The VIT food-stall pages are PUBLIC on purpose — guests reach them by scanning a QR
-  // code at the stall, so there is no access code to type and nobody to log in as:
-  //   /bon-bon-stall        the intro + "what are you in the mood for" stall picker
-  //   /fest/<stall>/…       each stall's own menu page, loaded in the iframe
-  // These must be listed BEFORE the "/bon-bon" demo-gate rule below, otherwise
-  // "/bon-bon-stall" is swallowed by that prefix. And /fest/**/index.html ends in ".html",
-  // so it is deliberately NOT covered by isStatic — without this line it fell all the way
-  // through to the catch-all and every stall bounced to the gate, then the hub.
+  // Reachable once signed in. The VIT stall pages are listed here because
+  // /fest/**/index.html ends in ".html" and so is deliberately NOT covered by isStatic;
+  // without the line it falls to the catch-all and bounces to the hub. They are no longer
+  // public — the site login in front of this function now covers them too.
   const isFest = pathname === "/bon-bon-stall" || pathname.startsWith("/fest/");
   const isStatic = /\.[a-zA-Z0-9]+$/.test(pathname) && !pathname.endsWith(".html");
   if (
@@ -158,10 +172,7 @@ export function middleware(req: NextRequest) {
       }
       return NextResponse.next();
     }
-    const url = req.nextUrl.clone();
-    url.pathname = "/";
-    if (pathname.startsWith("/annapoorna") || pathname.startsWith("/restaurant")) url.searchParams.set("next", pathname);
-    return NextResponse.redirect(url);
+    return NextResponse.next();
   }
 
   // Platform dashboards: require a session cookie (role checked server-side in the layout).
@@ -176,9 +187,10 @@ export function middleware(req: NextRequest) {
   // All other APIs enforce their own auth — let them through.
   if (pathname.startsWith("/api/")) return NextResponse.next();
 
-  // Anything else (legacy paths) → back to the gate.
+  // Anything else (legacy paths) → the hub, which is the real front door now.
   const url = req.nextUrl.clone();
-  url.pathname = "/";
+  url.pathname = "/hub";
+  url.search = "";
   return NextResponse.redirect(url);
 }
 

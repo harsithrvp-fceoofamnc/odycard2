@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#2a0a14">
+<title>Bon Bon — Welcome</title>
+<style>
+/* ────────────────────────────────────────────────────────────────────────────
+   Bon Bon welcome screen — DEMO.
+
+   Both images sit NEXT TO this file and are referenced by bare relative names:
+     bonbon_bg.png       the parlour interior  (941x1672, opaque)
+     bonbon_captain.png  the waiter            (1024x1536, transparent)
+
+   Relative, not "/bonbon_menu_bg.png" — an absolute path only resolves when the
+   page is served from the site root, so opening the file directly showed a black
+   screen with floating text and no pictures. Relative names work both ways.
+
+   Order of the entrance, which is the whole point of the screen:
+     1. the room fades up
+     2. the waiter walks in FROM THE LEFT and settles
+     3. only then does the copy slide in FROM THE RIGHT
+     4. the tap pill last
+   ──────────────────────────────────────────────────────────────────────────── */
+:root{
+  --pink:#f0399b;
+  --pinklt:#ff6ab4;
+  --ink:#ffffff;
+  --mut:#e8d2da;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden;background:#14050a}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",sans-serif;
+  display:flex;align-items:center;justify-content:center;
+}
+#stage{
+  position:relative;width:100%;max-width:520px;height:100dvh;overflow:hidden;
+  background:#14050a;box-shadow:0 0 50px rgba(0,0,0,.6);
+}
+
+/* ── 1. the room ────────────────────────────────────────────────────────── */
+#bg{
+  position:absolute;inset:0;z-index:0;
+  background:url("bonbon_bg.png") center/cover no-repeat;
+  transform:scale(1.1);opacity:0;
+  transition:opacity 1.3s ease, transform 10s cubic-bezier(.22,.5,.3,1);
+}
+#bg.in{opacity:1;transform:scale(1)}
+/* darker under the copy on the right and along the bottom, so text stays readable
+   whatever part of the photo ends up behind it */
+#scrim{
+  position:absolute;inset:0;z-index:1;pointer-events:none;
+  background:
+    linear-gradient(180deg, rgba(18,4,9,.55) 0%, rgba(18,4,9,.10) 24%, rgba(18,4,9,.28) 60%, rgba(10,2,6,.92) 100%),
+    radial-gradient(115% 68% at 80% 33%, rgba(8,2,5,.62), transparent 64%);
+}
+
+/* ── 2. the waiter, entering from the left ──────────────────────────────
+   The wrapper is left:0;right:0 (NOT left:50%) — an absolutely positioned box
+   with left:50% and auto width has its shrink-to-fit capped at half the frame,
+   which squashes a 0.67-aspect source. Sized by height inside a full-width
+   wrapper, the aspect is safe. */
+#hero{
+  position:absolute;left:0;right:0;bottom:0;z-index:3;height:82%;
+  transform:translateX(-62%);opacity:0;
+  transition:transform 1.5s cubic-bezier(.24,.02,.18,1), opacity .7s ease;
+}
+#hero.in{transform:translateX(0);opacity:1}
+#hero img{
+  height:100%;width:auto;display:block;margin-left:-9%;
+  filter:drop-shadow(0 26px 34px rgba(0,0,0,.55));
+}
+
+/* ── 3. the copy, entering from the right ─────────────────────────────── */
+#copy{
+  position:absolute;right:18px;left:43%;top:25%;z-index:5;
+  opacity:0;transform:translateX(46%);
+  transition:opacity .7s ease, transform 1.1s cubic-bezier(.24,.02,.18,1);
+}
+#copy.in{opacity:1;transform:none}
+h1{
+  font-size:31px;line-height:1.16;font-weight:800;letter-spacing:-.02em;color:var(--ink);
+  text-shadow:0 2px 20px rgba(0,0,0,.8);
+}
+h1 .hi{display:block;font-size:35px;margin-bottom:2px}
+h1 .cap{color:var(--pink);font-weight:900;
+  text-shadow:0 0 26px rgba(240,57,155,.45),0 2px 14px rgba(0,0,0,.65)}
+#sub{
+  margin-top:14px;font-size:15px;line-height:1.45;font-weight:500;color:var(--mut);
+  text-shadow:0 2px 14px rgba(0,0,0,.85);max-width:16em;
+}
+#rule{
+  margin-top:16px;width:0;height:4px;border-radius:99px;
+  background:linear-gradient(90deg,var(--pink),var(--pinklt));
+  box-shadow:0 0 16px rgba(240,57,155,.55);
+  transition:width .9s cubic-bezier(.22,.6,.3,1) .45s;
+}
+#copy.in #rule{width:74px}
+
+/* ── 4. tap to continue ─────────────────────────────────────────────────
+   The whole screen is the tap target; this pill is only the signpost. */
+#tap{
+  position:absolute;left:50%;bottom:34px;z-index:7;transform:translateX(-50%) translateY(10px);
+  display:flex;align-items:center;gap:14px;padding:13px 15px 13px 26px;
+  border-radius:99px;border:1.5px solid rgba(240,57,155,.75);
+  background:rgba(18,6,11,.72);
+  -webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);
+  color:#fff;font-size:16px;font-weight:600;white-space:nowrap;
+  opacity:0;transition:opacity .8s ease,transform .8s cubic-bezier(.28,.03,.2,1);
+  animation:breathe 2.8s ease-in-out infinite;
+}
+#tap.in{opacity:1;transform:translateX(-50%) translateY(0)}
+#tap .arw{
+  width:36px;height:36px;border-radius:50%;display:grid;place-items:center;
+  background:linear-gradient(140deg,var(--pink),#c81f78);font-size:17px;
+  box-shadow:0 4px 16px rgba(240,57,155,.5);
+}
+@keyframes breathe{
+  0%,100%{box-shadow:0 0 0 0 rgba(240,57,155,.34)}
+  70%    {box-shadow:0 0 0 16px rgba(240,57,155,0)}
+}
+#zone{position:absolute;inset:0;z-index:9;cursor:pointer}
+
+/* where the tap leads — placeholder until the chat is built */
+#next{
+  position:absolute;inset:0;z-index:20;background:#0d0308;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;
+  text-align:center;padding:0 34px;opacity:0;pointer-events:none;transition:opacity .7s ease;
+}
+#next.in{opacity:1;pointer-events:auto}
+#next h2{font-size:22px;font-weight:800;color:#fff}
+#next p{font-size:14.5px;color:#a58c96;line-height:1.5}
+#next button{
+  margin-top:6px;border:0;border-radius:99px;padding:12px 26px;cursor:pointer;
+  background:#fff;color:#14050a;font:inherit;font-size:14px;font-weight:700;
+}
+
+@media (max-height:700px){
+  #copy{top:21%}
+  h1{font-size:27px} h1 .hi{font-size:30px} #sub{font-size:14px;margin-top:11px}
+  #hero{height:76%}
+  #tap{bottom:24px}
+}
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="bg"></div>
+  <div id="scrim"></div>
+
+  <div id="hero"><img src="bonbon_captain.png" alt=""></div>
+
+  <div id="copy">
+    <h1>
+      <span class="hi">Welcome!</span>
+      I&rsquo;m your <span class="cap">Waiter</span> today.
+    </h1>
+    <p id="sub">Tell me what you&rsquo;re craving, I&rsquo;ll take care of the rest!</p>
+    <div id="rule"></div>
+  </div>
+
+  <div id="tap">Tap to continue <span class="arw">&rarr;</span></div>
+  <div id="zone"></div>
+
+  <div id="next">
+    <h2>Chat goes here</h2>
+    <p>This is where the Bon Bon menu chat opens. The demo stops here &mdash; the welcome screen is what we&rsquo;re judging.</p>
+    <button onclick="restart()">Watch it again</button>
+  </div>
+</div>
+
+<script>
+var bg=document.getElementById("bg"), hero=document.getElementById("hero"),
+    copy=document.getElementById("copy"), tap=document.getElementById("tap"),
+    next=document.getElementById("next"), timers=[];
+
+function at(ms,fn){ timers.push(setTimeout(fn,ms)); }
+
+// Strictly sequential: the copy does not start until the waiter's 1.5s walk-in has
+// finished, so he arrives and THEN is spoken for, rather than the two overlapping.
+function play(){
+  timers.forEach(clearTimeout); timers=[];
+  [bg,hero,copy,tap,next].forEach(function(el){ el.classList.remove("in"); });
+  requestAnimationFrame(function(){
+    at(60,   function(){ bg.classList.add("in");   });  // room
+    at(900,  function(){ hero.classList.add("in"); });  // waiter walks in (1.5s)
+    at(2500, function(){ copy.classList.add("in"); });  // copy slides in from the right
+    at(3500, function(){ tap.classList.add("in");  });  // invitation
+  });
+}
+
+document.getElementById("zone").addEventListener("click", function(){
+  if(!tap.classList.contains("in")) return;   // ignore taps during the entrance
+  next.classList.add("in");
+});
+function restart(){ next.classList.remove("in"); play(); }
+
+// hold the first frame until both pictures are decoded, so the room never appears
+// half-loaded — but never hang on a slow connection
+var left=2, go=function(){ if(--left<=0) play(); };
+["bonbon_bg.png","bonbon_captain.png"].forEach(function(src){
+  var i=new Image(); i.onload=go; i.onerror=go; i.src=src;
+});
+setTimeout(function(){ if(left>0){ left=0; play(); } }, 3000);
+</script>
+</body>
+</html>
