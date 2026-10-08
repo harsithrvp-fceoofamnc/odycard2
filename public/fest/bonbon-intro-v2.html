@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#000000">
+<title>Bon Bon — Intro</title>
+<style>
+/* ────────────────────────────────────────────────────────────────────────────
+   Bon Bon intro — DEMO v2.
+
+   Assets all sit NEXT TO this file, referenced by bare relative names so the page
+   works both when opened straight off disk and when served from odysra.com:
+     bonbon_logo_mark.png   the Bon Bon mark      (for the splash)
+     bonbon_shutter.jpg     the shop shutter      (same one the chatbot uses)
+     bonbon_bg.png          the parlour interior
+     bonbon_captain.png     the waiter
+
+   Beats, in order:
+     1. black screen, the mark fades UP and back out
+     2. the shutter rolls up, revealing the room
+     3. the room sits at FULL clarity for a moment — no scrim at all
+     4. the waiter walks in from the left, and only then does the room dim behind him
+     5. the copy slides in from the right
+     6. tap to continue
+   ──────────────────────────────────────────────────────────────────────────── */
+:root{
+  --pink:#f0399b;
+  --pinklt:#ff6ab4;
+  --ink:#ffffff;
+  --mut:#e8d2da;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden;background:#000}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",sans-serif;
+  display:flex;align-items:center;justify-content:center;
+}
+#stage{
+  position:relative;width:100%;max-width:520px;height:100dvh;overflow:hidden;
+  background:#000;box-shadow:0 0 50px rgba(0,0,0,.6);
+}
+
+/* ── 1. splash ─────────────────────────────────────────────────────────────
+   Mounted at opacity 0 and raised a frame later, so the mark fades UP out of the
+   black rather than popping in with the page. */
+#splash{
+  position:absolute;inset:0;z-index:60;background:#000;
+  display:flex;align-items:center;justify-content:center;
+  opacity:0;pointer-events:none;transition:opacity 1.1s ease;
+}
+#splash.in{opacity:1}
+#splash img{
+  width:62%;max-width:280px;transform:scale(.94);
+  transition:transform 2.4s cubic-bezier(.33,.02,.2,1);
+  filter:drop-shadow(0 0 44px rgba(240,57,155,.30));
+}
+#splash.in img{transform:none}
+
+/* ── 2. the shutter ────────────────────────────────────────────────────────
+   Full screen, sitting over the room, then rolled straight up out of frame. The
+   thin highlight at its bottom edge is the lip of a real shutter catching light —
+   without it the panel reads as a flat rectangle sliding away. */
+#shutterframe{position:absolute;inset:0;z-index:40;overflow:hidden;pointer-events:none}
+#shutter{
+  position:absolute;left:0;right:0;top:0;height:100%;
+  background:#5a0c1a url("bonbon_shutter.jpg") center/cover no-repeat;
+  box-shadow:0 8px 22px rgba(0,0,0,.5);
+  transform:translateY(0);
+  transition:transform 1.5s cubic-bezier(.52,.04,.22,1);
+  will-change:transform;
+}
+#shutter:after{
+  content:"";position:absolute;left:0;right:0;bottom:0;height:5px;
+  background:linear-gradient(180deg,rgba(255,255,255,.42),rgba(0,0,0,.55));
+}
+#shutterframe.up #shutter{transform:translateY(-102%)}
+
+/* ── 3. the room ───────────────────────────────────────────────────────────
+   Revealed at full clarity. #dim is a SEPARATE layer that starts fully
+   transparent, so the photo is genuinely untouched until the waiter arrives. */
+#bg{
+  position:absolute;inset:0;z-index:0;
+  background:url("bonbon_bg.png") center/cover no-repeat;
+  transform:scale(1.06);
+  transition:transform 12s cubic-bezier(.22,.5,.3,1);
+}
+#bg.push{transform:scale(1)}
+#dim{
+  position:absolute;inset:0;z-index:1;pointer-events:none;opacity:0;
+  transition:opacity 1.5s ease;
+  background:
+    linear-gradient(180deg, rgba(18,4,9,.50) 0%, rgba(18,4,9,.06) 24%, rgba(18,4,9,.26) 60%, rgba(10,2,6,.90) 100%),
+    radial-gradient(115% 68% at 80% 33%, rgba(8,2,5,.60), transparent 64%);
+}
+#dim.in{opacity:1}
+
+/* ── 4. the waiter, entering from the left ────────────────────────────────
+   The wrapper is left:0;right:0 — NOT left:50%. An absolutely positioned box with
+   left:50% and auto width has its shrink-to-fit capped at half the frame, which
+   squashes a 0.67-aspect source. Sized by height inside a full-width wrapper. */
+#hero{
+  position:absolute;left:0;right:0;bottom:0;z-index:3;height:82%;
+  transform:translateX(-64%);opacity:0;
+  transition:transform 1.5s cubic-bezier(.24,.02,.18,1), opacity .7s ease;
+}
+#hero.in{transform:translateX(0);opacity:1}
+#hero img{
+  height:100%;width:auto;display:block;margin-left:-9%;
+  filter:drop-shadow(0 26px 34px rgba(0,0,0,.55));
+}
+
+/* ── 5. the copy, entering from the right ─────────────────────────────── */
+#copy{
+  position:absolute;right:18px;left:43%;top:25%;z-index:5;
+  opacity:0;transform:translateX(46%);
+  transition:opacity .7s ease, transform 1.1s cubic-bezier(.24,.02,.18,1);
+}
+#copy.in{opacity:1;transform:none}
+h1{
+  font-size:31px;line-height:1.16;font-weight:800;letter-spacing:-.02em;color:var(--ink);
+  text-shadow:0 2px 20px rgba(0,0,0,.8);
+}
+h1 .hi{display:block;font-size:35px;margin-bottom:2px}
+h1 .cap{color:var(--pink);font-weight:900;
+  text-shadow:0 0 26px rgba(240,57,155,.45),0 2px 14px rgba(0,0,0,.65)}
+#sub{
+  margin-top:14px;font-size:15px;line-height:1.45;font-weight:500;color:var(--mut);
+  text-shadow:0 2px 14px rgba(0,0,0,.85);max-width:16em;
+}
+#rule{
+  margin-top:16px;width:0;height:4px;border-radius:99px;
+  background:linear-gradient(90deg,var(--pink),var(--pinklt));
+  box-shadow:0 0 16px rgba(240,57,155,.55);
+  transition:width .9s cubic-bezier(.22,.6,.3,1) .45s;
+}
+#copy.in #rule{width:74px}
+
+/* ── 6. tap to continue ───────────────────────────────────────────────── */
+#tap{
+  position:absolute;left:50%;bottom:34px;z-index:7;transform:translateX(-50%) translateY(10px);
+  display:flex;align-items:center;gap:14px;padding:13px 15px 13px 26px;
+  border-radius:99px;border:1.5px solid rgba(240,57,155,.75);
+  background:rgba(18,6,11,.72);
+  -webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);
+  color:#fff;font-size:16px;font-weight:600;white-space:nowrap;
+  opacity:0;transition:opacity .8s ease,transform .8s cubic-bezier(.28,.03,.2,1);
+  animation:breathe 2.8s ease-in-out infinite;
+}
+#tap.in{opacity:1;transform:translateX(-50%) translateY(0)}
+#tap .arw{
+  width:36px;height:36px;border-radius:50%;display:grid;place-items:center;
+  background:linear-gradient(140deg,var(--pink),#c81f78);font-size:17px;
+  box-shadow:0 4px 16px rgba(240,57,155,.5);
+}
+@keyframes breathe{
+  0%,100%{box-shadow:0 0 0 0 rgba(240,57,155,.34)}
+  70%    {box-shadow:0 0 0 16px rgba(240,57,155,0)}
+}
+#zone{position:absolute;inset:0;z-index:9;cursor:pointer}
+
+/* where the tap leads — placeholder until the chat is built */
+#next{
+  position:absolute;inset:0;z-index:70;background:#0d0308;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;
+  text-align:center;padding:0 34px;opacity:0;pointer-events:none;transition:opacity .7s ease;
+}
+#next.in{opacity:1;pointer-events:auto}
+#next h2{font-size:22px;font-weight:800;color:#fff}
+#next p{font-size:14.5px;color:#a58c96;line-height:1.5}
+#next button{
+  margin-top:6px;border:0;border-radius:99px;padding:12px 26px;cursor:pointer;
+  background:#fff;color:#14050a;font:inherit;font-size:14px;font-weight:700;
+}
+
+@media (max-height:700px){
+  #copy{top:21%}
+  h1{font-size:27px} h1 .hi{font-size:30px} #sub{font-size:14px;margin-top:11px}
+  #hero{height:76%}
+  #tap{bottom:24px}
+}
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="bg"></div>
+  <div id="dim"></div>
+
+  <div id="hero"><img src="bonbon_captain.png" alt=""></div>
+
+  <div id="copy">
+    <h1>
+      <span class="hi">Welcome!</span>
+      I&rsquo;m your <span class="cap">Waiter</span> today.
+    </h1>
+    <p id="sub">Tell me what you&rsquo;re craving, I&rsquo;ll take care of the rest!</p>
+    <div id="rule"></div>
+  </div>
+
+  <div id="tap">Tap to continue <span class="arw">&rarr;</span></div>
+  <div id="zone"></div>
+
+  <div id="shutterframe"><div id="shutter"></div></div>
+  <div id="splash"><img src="bonbon_logo_mark.png" alt="Bon Bon"></div>
+
+  <div id="next">
+    <h2>Chat goes here</h2>
+    <p>This is where the Bon Bon menu chat opens. The demo stops here.</p>
+    <button onclick="restart()">Watch it again</button>
+  </div>
+</div>
+
+<script>
+var splash = document.getElementById("splash"),
+    frame  = document.getElementById("shutterframe"),
+    bg     = document.getElementById("bg"),
+    dim    = document.getElementById("dim"),
+    hero   = document.getElementById("hero"),
+    copy   = document.getElementById("copy"),
+    tap    = document.getElementById("tap"),
+    next   = document.getElementById("next"),
+    timers = [];
+
+function at(ms, fn){ timers.push(setTimeout(fn, ms)); }
+
+function play(){
+  timers.forEach(clearTimeout); timers = [];
+  [splash, hero, copy, tap, next].forEach(function(el){ el.classList.remove("in"); });
+  dim.classList.remove("in");
+  bg.classList.remove("push");
+  frame.classList.remove("up");
+
+  requestAnimationFrame(function(){
+    at(80,   function(){ splash.classList.add("in"); });   // mark fades up out of black
+    at(2300, function(){ splash.classList.remove("in"); }); // and back out (1.1s)
+    at(3400, function(){                                    // shutter rolls up (1.5s)
+      frame.classList.add("up");
+      bg.classList.add("push");                             // room starts its slow push-in
+    });
+    // 3.4 + 1.5 = 4.9s: the room is fully revealed and completely unfiltered here.
+    at(5600, function(){ hero.classList.add("in"); });      // waiter walks in (1.5s)
+    at(5900, function(){ dim.classList.add("in");  });      // and the room dims behind him
+    at(7200, function(){ copy.classList.add("in"); });      // copy slides in from the right
+    at(8200, function(){ tap.classList.add("in");  });
+  });
+}
+
+document.getElementById("zone").addEventListener("click", function(){
+  if(!tap.classList.contains("in")) return;   // ignore taps during the entrance
+  next.classList.add("in");
+});
+function restart(){ next.classList.remove("in"); play(); }
+
+// Hold the first frame until every picture is decoded — a shutter that rolls up on a
+// half-loaded room ruins the reveal. Never hang on a slow connection, though.
+var pending = 4, go = function(){ if(--pending <= 0) play(); };
+["bonbon_logo_mark.png","bonbon_shutter.jpg","bonbon_bg.png","bonbon_captain.png"]
+  .forEach(function(src){ var i = new Image(); i.onload = go; i.onerror = go; i.src = src; });
+setTimeout(function(){ if(pending > 0){ pending = 0; play(); } }, 4000);
+</script>
+</body>
+</html>

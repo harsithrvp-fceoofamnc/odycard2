@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#000000">
+<title>Bon Bon — Intro</title>
+<style>
+/* ────────────────────────────────────────────────────────────────────────────
+   Bon Bon intro — DEMO v3.
+
+   Assets sit NEXT TO this file, referenced by bare relative names so the page works
+   both opened straight off disk and served from odysra.com:
+     bonbon_logo_mark.png  bonbon_shutter.jpg  bonbon_bg.png  bonbon_captain.png
+
+   Beats:
+     1. black, the mark fades up and out
+     2. the shutter rolls up
+     3. the room appears at full clarity, zooming OUT from a push-in
+     4. the waiter is already walking in from the left as it clears; the room
+        dims behind him
+     5. the copy slides in from the right
+     6. TAP — the waiter leaves to the left, the copy leaves to the right,
+        and the chat rises as a translucent panel with the room still visible
+        behind it
+   ──────────────────────────────────────────────────────────────────────────── */
+:root{
+  --pink:#f0399b;
+  --pinklt:#ff6ab4;
+  --maroon:#7d1230;
+  --ink:#ffffff;
+  --mut:#e8d2da;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden;background:#000}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",sans-serif;
+  display:flex;align-items:center;justify-content:center;
+}
+#stage{
+  position:relative;width:100%;max-width:520px;height:100dvh;overflow:hidden;
+  background:#000;box-shadow:0 0 50px rgba(0,0,0,.6);
+}
+
+/* ── splash ─────────────────────────────────────────────────────────────── */
+#splash{
+  position:absolute;inset:0;z-index:60;background:#000;
+  display:flex;align-items:center;justify-content:center;
+  opacity:0;pointer-events:none;transition:opacity 1s ease;
+}
+#splash.in{opacity:1}
+#splash img{
+  width:62%;max-width:280px;transform:scale(.94);
+  transition:transform 2s cubic-bezier(.33,.02,.2,1);
+  filter:drop-shadow(0 0 44px rgba(240,57,155,.30));
+}
+#splash.in img{transform:none}
+
+/* ── shutter ────────────────────────────────────────────────────────────── */
+#shutterframe{position:absolute;inset:0;z-index:40;overflow:hidden;pointer-events:none}
+#shutter{
+  position:absolute;left:0;right:0;top:0;height:100%;
+  background:#5a0c1a url("bonbon_shutter.jpg") center/cover no-repeat;
+  box-shadow:0 8px 22px rgba(0,0,0,.5);
+  transform:translateY(0);
+  transition:transform 1.1s cubic-bezier(.52,.04,.22,1);
+  will-change:transform;
+}
+/* the lit lip, so it reads as a rolling shutter rather than a sliding rectangle */
+#shutter:after{
+  content:"";position:absolute;left:0;right:0;bottom:0;height:5px;
+  background:linear-gradient(180deg,rgba(255,255,255,.42),rgba(0,0,0,.55));
+}
+#shutterframe.up #shutter{transform:translateY(-102%)}
+
+/* ── the room. #dim is a SEPARATE layer starting fully transparent, so the photo
+      is genuinely untouched until the waiter arrives. ────────────────────── */
+#bg{
+  position:absolute;inset:0;z-index:0;
+  background:url("bonbon_bg.png") center/cover no-repeat;
+  /* starts pushed in and pulls BACK to 1 — a zoom-out, and big enough and quick
+     enough to be felt. 1.06 over 12s was technically moving and visually static. */
+  transform:scale(1.20);
+  transition:transform 6s cubic-bezier(.16,.6,.28,1);
+}
+#bg.push{transform:scale(1)}
+#dim{
+  position:absolute;inset:0;z-index:1;pointer-events:none;opacity:0;
+  transition:opacity 1.4s ease;
+  background:
+    linear-gradient(180deg, rgba(18,4,9,.50) 0%, rgba(18,4,9,.06) 24%, rgba(18,4,9,.26) 60%, rgba(10,2,6,.90) 100%),
+    radial-gradient(115% 68% at 80% 33%, rgba(8,2,5,.60), transparent 64%);
+}
+#dim.in{opacity:1}
+/* once the chat is up the room needs to sit further back, or the text on the glass fights it */
+#dim.deep{opacity:1;background:linear-gradient(180deg,rgba(10,2,6,.72),rgba(6,1,4,.88))}
+
+/* ── the waiter. left:0;right:0 — NOT left:50%, which caps an abspos box's
+      shrink-to-fit at half the frame and squashes a 0.67-aspect source. ──── */
+#hero{
+  position:absolute;left:0;right:0;bottom:0;z-index:3;height:82%;
+  transform:translateX(-64%);opacity:0;
+  transition:transform 1.4s cubic-bezier(.24,.02,.18,1), opacity .6s ease;
+}
+#hero.in{transform:translateX(0);opacity:1}
+#hero.out{transform:translateX(-78%);opacity:0;
+  transition:transform 1s cubic-bezier(.5,0,.75,.1), opacity .8s ease}
+#hero img{
+  height:100%;width:auto;display:block;margin-left:-9%;
+  filter:drop-shadow(0 26px 34px rgba(0,0,0,.55));
+}
+
+/* ── the copy ───────────────────────────────────────────────────────────── */
+#copy{
+  position:absolute;right:18px;left:43%;top:25%;z-index:5;
+  opacity:0;transform:translateX(46%);
+  transition:opacity .6s ease, transform 1s cubic-bezier(.24,.02,.18,1);
+}
+#copy.in{opacity:1;transform:none}
+#copy.out{opacity:0;transform:translateX(60%);
+  transition:opacity .7s ease, transform 1s cubic-bezier(.5,0,.75,.1)}
+h1{
+  font-size:31px;line-height:1.16;font-weight:800;letter-spacing:-.02em;color:var(--ink);
+  text-shadow:0 2px 20px rgba(0,0,0,.8);
+}
+h1 .hi{display:block;font-size:35px;margin-bottom:2px}
+h1 .cap{color:var(--pink);font-weight:900;
+  text-shadow:0 0 26px rgba(240,57,155,.45),0 2px 14px rgba(0,0,0,.65)}
+#sub{
+  margin-top:14px;font-size:15px;line-height:1.45;font-weight:500;color:var(--mut);
+  text-shadow:0 2px 14px rgba(0,0,0,.85);max-width:16em;
+}
+#rule{
+  margin-top:16px;width:0;height:4px;border-radius:99px;
+  background:linear-gradient(90deg,var(--pink),var(--pinklt));
+  box-shadow:0 0 16px rgba(240,57,155,.55);
+  transition:width .9s cubic-bezier(.22,.6,.3,1) .4s;
+}
+#copy.in #rule{width:74px}
+
+/* ── tap to continue ────────────────────────────────────────────────────── */
+#tap{
+  position:absolute;left:50%;bottom:34px;z-index:7;transform:translateX(-50%) translateY(10px);
+  display:flex;align-items:center;gap:14px;padding:13px 15px 13px 26px;
+  border-radius:99px;border:1.5px solid rgba(240,57,155,.75);
+  background:rgba(18,6,11,.72);
+  -webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);
+  color:#fff;font-size:16px;font-weight:600;white-space:nowrap;
+  opacity:0;transition:opacity .6s ease,transform .7s cubic-bezier(.28,.03,.2,1);
+  animation:breathe 2.8s ease-in-out infinite;
+}
+#tap.in{opacity:1;transform:translateX(-50%) translateY(0)}
+#tap.out{opacity:0;transform:translateX(-50%) translateY(24px);animation:none}
+#tap .arw{
+  width:36px;height:36px;border-radius:50%;display:grid;place-items:center;
+  background:linear-gradient(140deg,var(--pink),#c81f78);font-size:17px;
+  box-shadow:0 4px 16px rgba(240,57,155,.5);
+}
+@keyframes breathe{
+  0%,100%{box-shadow:0 0 0 0 rgba(240,57,155,.34)}
+  70%    {box-shadow:0 0 0 16px rgba(240,57,155,0)}
+}
+#zone{position:absolute;inset:0;z-index:9;cursor:pointer}
+
+/* ────────────────────────────────────────────────────────────────────────
+   THE CHAT — a translucent sheet over the room, not a new screen.
+   backdrop-filter blurs whatever is behind it, so the parlour stays visible
+   through the glass instead of being replaced by a flat panel.
+   ──────────────────────────────────────────────────────────────────────── */
+#chatwrap{
+  position:absolute;left:0;right:0;bottom:0;top:0;z-index:12;
+  display:flex;flex-direction:column;
+  transform:translateY(100%);opacity:0;pointer-events:none;
+  transition:transform 1s cubic-bezier(.24,.02,.18,1), opacity .6s ease;
+}
+#chatwrap.in{transform:translateY(0);opacity:1;pointer-events:auto}
+
+#chead{
+  flex:none;display:flex;align-items:center;gap:11px;padding:14px 16px;
+  background:rgba(22,6,13,.55);
+  -webkit-backdrop-filter:blur(24px) saturate(1.3);backdrop-filter:blur(24px) saturate(1.3);
+  border-bottom:1px solid rgba(255,255,255,.10);
+}
+#chead img{height:34px;width:auto;display:block}
+#chead .who{font-size:12.5px;color:#e7c9d6;font-weight:600}
+#chead .who b{display:block;font-size:15px;color:#fff;font-weight:800}
+#chead .dot{width:7px;height:7px;border-radius:50%;background:#39d98a;margin-left:auto;
+  box-shadow:0 0 10px rgba(57,217,138,.8)}
+
+#clog{
+  flex:1;overflow-y:auto;padding:16px 14px 8px;display:flex;flex-direction:column;gap:10px;
+  background:rgba(16,4,9,.42);
+  -webkit-backdrop-filter:blur(22px) saturate(1.2);backdrop-filter:blur(22px) saturate(1.2);
+  scrollbar-width:none;
+}
+#clog::-webkit-scrollbar{display:none}
+
+.msg{display:flex;gap:9px;align-items:flex-end;max-width:88%}
+.msg.me{align-self:flex-end;flex-direction:row-reverse}
+.av{
+  flex:none;width:30px;height:30px;border-radius:50%;overflow:hidden;
+  background:#3a0d1d center/220% no-repeat url("bonbon_captain.png");
+  background-position:50% 8%;border:1px solid rgba(255,255,255,.18);
+}
+.bub{
+  padding:11px 14px;border-radius:16px;font-size:14.5px;line-height:1.45;color:#fff;
+  background:rgba(255,255,255,.13);border:1px solid rgba(255,255,255,.14);
+  -webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);
+}
+.msg.me .bub{background:linear-gradient(140deg,var(--pink),#b81c6e);border-color:transparent}
+
+/* the typing dots the real chatbot shows before every line */
+.dots{display:flex;gap:4px;padding:14px 15px}
+.dots i{width:6px;height:6px;border-radius:50%;background:#ffb8d9;display:block;
+  animation:blink 1.2s infinite}
+.dots i:nth-child(2){animation-delay:.18s}
+.dots i:nth-child(3){animation-delay:.36s}
+@keyframes blink{0%,60%,100%{opacity:.25}30%{opacity:1}}
+
+.cards{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:2px 0 2px 39px}
+.card{
+  padding:12px;border-radius:14px;background:rgba(255,255,255,.11);
+  border:1px solid rgba(255,255,255,.14);
+  -webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);
+}
+.card .n{font-size:14px;font-weight:700;color:#fff;line-height:1.25}
+.card .p{margin-top:8px;font-size:14px;font-weight:800;color:var(--pinklt)}
+
+#cchips{
+  flex:none;display:flex;gap:8px;padding:10px 14px;overflow-x:auto;
+  background:rgba(16,4,9,.42);
+  -webkit-backdrop-filter:blur(22px);backdrop-filter:blur(22px);
+  scrollbar-width:none;
+}
+#cchips::-webkit-scrollbar{display:none}
+.chip{
+  flex:none;padding:10px 15px;border-radius:99px;font:inherit;font-size:13.5px;font-weight:600;
+  color:#fff;cursor:pointer;white-space:nowrap;
+  background:rgba(255,255,255,.11);border:1px solid rgba(255,255,255,.16);
+}
+.chip.go{background:linear-gradient(140deg,var(--pink),#b81c6e);border-color:transparent}
+
+#cbar{
+  flex:none;display:flex;gap:9px;align-items:center;padding:11px 14px calc(14px + env(safe-area-inset-bottom));
+  background:rgba(22,6,13,.62);
+  -webkit-backdrop-filter:blur(24px);backdrop-filter:blur(24px);
+  border-top:1px solid rgba(255,255,255,.10);
+}
+#cin{
+  flex:1;min-width:0;background:rgba(0,0,0,.34);border:1px solid rgba(255,255,255,.16);
+  border-radius:99px;color:#fff;font:inherit;font-size:15px;padding:12px 16px;outline:none;
+}
+#cin::placeholder{color:#b596a4}
+#cin:focus{border-color:rgba(240,57,155,.7)}
+#csend{
+  flex:none;width:44px;height:44px;border-radius:50%;border:0;cursor:pointer;color:#fff;
+  font-size:17px;background:linear-gradient(140deg,var(--pink),#b81c6e);
+  box-shadow:0 4px 16px rgba(240,57,155,.45);
+}
+#cback{
+  position:absolute;left:12px;top:calc(12px + env(safe-area-inset-top));z-index:14;
+  width:34px;height:34px;border-radius:11px;border:0;cursor:pointer;
+  background:rgba(0,0,0,.42);color:#fff;font-size:19px;line-height:1;
+  -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);
+  opacity:0;pointer-events:none;transition:opacity .5s ease;
+}
+#cback.in{opacity:1;pointer-events:auto}
+
+@media (max-height:700px){
+  #copy{top:21%}
+  h1{font-size:27px} h1 .hi{font-size:30px} #sub{font-size:14px;margin-top:11px}
+  #hero{height:76%}
+  #tap{bottom:24px}
+}
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="bg"></div>
+  <div id="dim"></div>
+
+  <div id="hero"><img src="bonbon_captain.png" alt=""></div>
+
+  <div id="copy">
+    <h1>
+      <span class="hi">Welcome!</span>
+      I&rsquo;m your <span class="cap">Waiter</span> today.
+    </h1>
+    <p id="sub">Tell me what you&rsquo;re craving, I&rsquo;ll take care of the rest!</p>
+    <div id="rule"></div>
+  </div>
+
+  <div id="tap">Tap to continue <span class="arw">&rarr;</span></div>
+  <div id="zone"></div>
+
+  <!-- above the room, below the splash: rolls up to reveal the parlour -->
+  <div id="shutterframe"><div id="shutter"></div></div>
+  <div id="splash"><img src="bonbon_logo_mark.png" alt="Bon Bon"></div>
+
+  <!-- the chat sheet: translucent, with the parlour still showing through -->
+  <div id="chatwrap">
+    <div id="chead">
+      <img src="bonbon_logo_mark.png" alt="Bon Bon">
+      <div class="who"><b>Bon Bon</b>Your waiter, online</div>
+      <div class="dot"></div>
+    </div>
+    <div id="clog"></div>
+    <div id="cchips"></div>
+    <div id="cbar">
+      <input id="cin" placeholder="What are you craving?" autocomplete="off">
+      <button id="csend" aria-label="Send">&#10148;</button>
+    </div>
+  </div>
+  <button id="cback" aria-label="Back">&lsaquo;</button>
+</div>
+
+<script>
+var splash=document.getElementById("splash"), frame=document.getElementById("shutterframe"),
+    bg=document.getElementById("bg"),   dim=document.getElementById("dim"),
+    hero=document.getElementById("hero"), copy=document.getElementById("copy"),
+    tap=document.getElementById("tap"),  chat=document.getElementById("chatwrap"),
+    clog=document.getElementById("clog"), chips=document.getElementById("cchips"),
+    cin=document.getElementById("cin"),  cback=document.getElementById("cback"),
+    timers=[], opened=false;
+
+function at(ms,fn){ timers.push(setTimeout(fn,ms)); }
+
+/* ── the entrance ───────────────────────────────────────────────────────────
+   Tightened: the room is revealed at 3.5s and the waiter starts exactly ONE
+   SECOND later, so there is a beat of clean picture and then he is straight in. */
+function play(){
+  timers.forEach(clearTimeout); timers=[];
+  opened=false;
+  [splash,hero,copy,tap,chat,cback].forEach(function(el){ el.classList.remove("in"); });
+  [hero,copy,tap].forEach(function(el){ el.classList.remove("out"); });
+  dim.classList.remove("in"); dim.classList.remove("deep");
+  bg.classList.remove("push"); frame.classList.remove("up");
+  clog.innerHTML=""; chips.innerHTML="";
+
+  requestAnimationFrame(function(){
+    at(60,   function(){ splash.classList.add("in"); });
+    at(1300, function(){ splash.classList.remove("in"); });
+    at(2000, function(){ frame.classList.add("up"); bg.classList.add("push"); });
+    // The shutter clears at 2000 + 1100 = 3100. The waiter starts at 2700, so he is
+    // already walking in as the room appears — no gap of empty background.
+    at(2700, function(){ hero.classList.add("in"); });
+    at(3000, function(){ dim.classList.add("in");  });
+    at(3300, function(){ copy.classList.add("in"); });
+    at(4100, function(){ tap.classList.add("in");  });
+  });
+}
+
+/* ── the handover ───────────────────────────────────────────────────────────
+   The waiter walks back out to the LEFT, the copy leaves to the RIGHT, and only
+   once they are clear does the chat rise. */
+function openChat(){
+  if(opened) return; opened=true;
+  hero.classList.remove("in"); hero.classList.add("out");
+  copy.classList.remove("in"); copy.classList.add("out");
+  tap.classList.add("out");
+  dim.classList.add("deep");
+  at(700, function(){
+    chat.classList.add("in");
+    cback.classList.add("in");
+    startChat();
+  });
+}
+document.getElementById("zone").addEventListener("click", function(){
+  if(!tap.classList.contains("in")) return;   // ignore taps during the entrance
+  openChat();
+});
+cback.addEventListener("click", play);
+
+/* ── the chat itself (canned — this is a demo of the LOOK) ───────────────── */
+var MENU = {
+  "Ice creams":[["Lotus Biscoff",180],["Death by Chocolate",160],["Spanish Delight",170],["Caramel Nutty Crunch",170]],
+  "Shakes":    [["Hopscotch Butterscotch Bubble Shake",150],["Oreo Cookie Milkshake",140],["Brownie Fudge Shake",160],["Filter Coffee Shake",130]],
+  "Today's specials":[["Lotus Biscoff",180],["Caramel Nutty Crunch",170],["Bubblegum Cookie",150],["Spanish Delight",170]]
+};
+
+function scroll(){ clog.scrollTop = clog.scrollHeight; }
+
+function bubble(text, mine){
+  var m=document.createElement("div"); m.className="msg"+(mine?" me":"");
+  m.innerHTML=(mine?"":'<div class="av"></div>')+'<div class="bub">'+text+'</div>';
+  clog.appendChild(m); scroll(); return m;
+}
+function typing(){
+  var m=document.createElement("div"); m.className="msg";
+  m.innerHTML='<div class="av"></div><div class="bub dots"><i></i><i></i><i></i></div>';
+  clog.appendChild(m); scroll(); return m;
+}
+/* every line lands the way the real chatbot does: dots first, then the bubble */
+function say(text, after){
+  var t=typing();
+  setTimeout(function(){ t.remove(); bubble(text,false); if(after) after(); }, 620);
+}
+function cards(list){
+  var g=document.createElement("div"); g.className="cards";
+  g.innerHTML=list.map(function(d){
+    return '<div class="card"><div class="n">'+d[0]+'</div><div class="p">₹'+d[1]+'</div></div>';
+  }).join("");
+  clog.appendChild(g); scroll();
+}
+function setChips(list){
+  chips.innerHTML="";
+  list.forEach(function(label,i){
+    var b=document.createElement("button");
+    b.className="chip"+(i===0?" go":""); b.textContent=label;
+    b.onclick=function(){ pick(label); };
+    chips.appendChild(b);
+  });
+}
+function pick(label){
+  bubble(label,true);
+  var list=MENU[label];
+  if(list) say("Here you go 👇", function(){ cards(list); });
+  else     say("Good choice — I'll get that sorted for you.");
+}
+function startChat(){
+  clog.innerHTML="";
+  say("Hi! 🍦 Welcome to Bon Bon Ice Creams — what are you craving today?", function(){
+    setChips(["Today's specials","Ice creams","Shakes","Something cold"]);
+  });
+}
+function send(){
+  var v=cin.value.trim(); if(!v) return;
+  cin.value=""; bubble(v,true);
+  say("Let me look at that for you — here's what I'd pick 👇", function(){
+    cards(MENU["Today's specials"]);
+  });
+}
+document.getElementById("csend").addEventListener("click", send);
+cin.addEventListener("keydown", function(e){ if(e.key==="Enter") send(); });
+
+/* hold the first frame until every picture is decoded — a shutter rolling up on a
+   half-loaded room ruins the reveal. Never hang on a slow connection. */
+var pending=4, go=function(){ if(--pending<=0) play(); };
+["bonbon_logo_mark.png","bonbon_shutter.jpg","bonbon_bg.png","bonbon_captain.png"]
+  .forEach(function(src){ var i=new Image(); i.onload=go; i.onerror=go; i.src=src; });
+setTimeout(function(){ if(pending>0){ pending=0; play(); } }, 4000);
+</script>
+</body>
+</html>
