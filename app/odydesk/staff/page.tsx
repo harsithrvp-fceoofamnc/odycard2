@@ -8,7 +8,7 @@ export default function OdyDeskStaff() {
     <>
       <style>{`html,body{height:100%;overflow:hidden;overscroll-behavior:none;background:#000}`}</style>
       <iframe
-        src="/odydesk/staff/index.html?v=5"
+        src="/odydesk/staff/index.html?v=6"
         title="OdyDesk Staff"
         allow="camera"
         style={{ position: "fixed", inset: 0, width: "100%", height: "100%", border: "none" }}
