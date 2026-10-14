@@ -84,6 +84,7 @@
       if (p === '/auth/v1/logout') return json(null, 204)
       if (p === '/rest/v1/profiles') { var l = lodgeOf(current); return json({ id: 'lodge-' + current, role: 'manager', full_name: l.name, lodge_id: l.id, lodges: { id: l.id, name: l.name, code: l.code } }) }
       if (p === '/rest/v1/app_settings') return json({ photo_quality: 'balanced' })
+      if (p === '/rest/v1/rpc/staff_lodges') { var t0 = document.getElementById('demo-tag'); if (t0) t0.style.display = 'none' }
       if (p === '/rest/v1/rpc/staff_lodges') return json(LODGES.map(function (l) { return { id: l.id, name: l.name } }))
       if (p === '/rest/v1/guest_batches') {
         var list = batches(visible()), from = q.get('captured_at')
