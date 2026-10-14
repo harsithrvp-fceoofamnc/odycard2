@@ -150,7 +150,7 @@
   document.addEventListener('DOMContentLoaded', function () {
     var tag = document.createElement('div')
     tag.id = 'demo-tag'
-    tag.textContent = 'DEMO · passcode 246810'
+    tag.textContent = 'DEMO · passcode 123456'
     tag.setAttribute('style', 'white-space:nowrap;position:fixed;left:50%;bottom:calc(6px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:9999;pointer-events:none;' +
       'font:600 11px/1 -apple-system,Inter,Arial,sans-serif;letter-spacing:.06em;color:rgba(255,255,255,.9);background:rgba(0,0,0,.45);' +
       'padding:6px 10px;border-radius:999px;border:1px solid rgba(255,255,255,.2);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)')
