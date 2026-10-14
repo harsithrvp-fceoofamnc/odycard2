@@ -151,6 +151,7 @@ export async function middleware(req: NextRequest) {
   if (
     pathname.startsWith("/hub") ||
     pathname.startsWith("/demos") ||
+    pathname.startsWith("/odydesk") ||
     pathname.startsWith("/annapoorna") ||
     pathname.startsWith("/restaurant") ||
     pathname.startsWith("/bon-bon") ||

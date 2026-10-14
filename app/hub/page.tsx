@@ -36,6 +36,13 @@ const GROUPS: Group[] = [
     ],
   },
   {
+    label: "OdyDesk",
+    accent: "#b8893a",
+    items: [
+      { title: "Staff app", sub: "Lodge guest ID register — demo, fake data", href: "/odydesk/staff" },
+    ],
+  },
+  {
     label: "Operations demos",
     accent: "#c08a2e",
     items: [
