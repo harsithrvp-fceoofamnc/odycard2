@@ -74,7 +74,7 @@
     var u = new URL(url), p = u.pathname, q = u.searchParams
     var method = ((init && init.method) || (input && input.method) || 'GET').toUpperCase()
     var body = init && init.body
-    return wait(250 + Math.random() * 350).then(function () {
+    return wait(120 + Math.random() * 160).then(function () {
       if (p === '/auth/v1/token') {
         try { var e = JSON.parse(body).email || ''; var m = e.match(/lodge-(.+)@/); if (m) current = m[1] } catch (x) { /* */ }
         var t = document.getElementById('demo-tag'); if (t) t.style.display = 'none'
