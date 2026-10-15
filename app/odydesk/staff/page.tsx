@@ -6,5 +6,5 @@
 import OdyDeskFrame from "@/components/OdyDeskFrame";
 
 export default function OdyDeskStaff() {
-  return <OdyDeskFrame src="/odydesk/staff/index.html?v=9" title="OdyDesk Staff" allow="camera" />;
+  return <OdyDeskFrame src="/odydesk/staff/index.html?v=11" title="OdyDesk Staff" allow="camera" />;
 }
