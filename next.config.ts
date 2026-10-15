@@ -10,6 +10,11 @@ const nextConfig: NextConfig = {
           { key: "Access-Control-Allow-Origin", value: "*" },
         ],
       },
+      // OdyDesk demos: always fetch the newest page after a deploy (phones were showing an old copy)
+      {
+        source: "/odydesk/:app/index.html",
+        headers: [{ key: "Cache-Control", value: "no-cache, no-store, must-revalidate" }],
+      },
     ];
   },
   // Serve the static study planner (public/harsith.html) at the clean /harsith URL
