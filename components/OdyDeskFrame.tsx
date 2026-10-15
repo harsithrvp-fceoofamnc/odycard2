@@ -31,7 +31,7 @@ export default function OdyDeskFrame({ src, title, allow }: { src: string; title
       setPhase("reveal");
       // fade the loader away slowly, then remove it
       setTimeout(() => { setPhase("done"); w.__odyCover = false; }, 120);
-      setTimeout(() => setPhase("gone"), 120 + 1000);
+      setTimeout(() => setPhase("gone"), 120 + 1500);
     };
     const t = setInterval(() => {
       try {
@@ -46,7 +46,7 @@ export default function OdyDeskFrame({ src, title, allow }: { src: string; title
         const busy = doc!.readyState !== "complete" || !!doc!.querySelector('[data-loading="1"]');
         if (busy) { quietSince = 0; return; }
         if (!quietSince) quietSince = now;
-        if (now - quietSince >= 350 && now - revealAt >= 1100) finish();
+        if (now - quietSince >= 350 && now - revealAt >= 1600) finish();
       } catch {
         finish();
       }
