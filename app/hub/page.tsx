@@ -40,6 +40,7 @@ const GROUPS: Group[] = [
     accent: "#b8893a",
     items: [
       { title: "Staff app", sub: "Lodge guest ID register — demo, fake data", href: "/odydesk/staff" },
+      { title: "Admin app", sub: "Owner dashboard + insights — demo, fake data", href: "/odydesk/admin" },
     ],
   },
   {
