@@ -8,7 +8,7 @@ export default function OdyDeskAdmin() {
     <>
       <style>{`html,body{height:100%;overflow:hidden;overscroll-behavior:none;background:#000}`}</style>
       <iframe
-        src="/odydesk/admin/index.html?v=1"
+        src="/odydesk/admin/index.html?v=8"
         title="OdyDesk Admin"
         style={{ position: "fixed", inset: 0, width: "100%", height: "100%", border: "none" }}
       />
