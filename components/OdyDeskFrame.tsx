@@ -10,43 +10,51 @@ import { LOADER_CSS, OdyLoaderScreen, type Phase } from "./OdyLoaderScreen";
  *   1. "cover"  – solid black, the Odysra logo spinning in the middle
  *   2. "reveal" – the app has drawn its first real screen: the black turns see-through and
  *                 the app fades in underneath the logo
- *   3. "done"   – the app has fully loaded: the loading screen fades away
+ *   3. "done"   – the app and its data have fully loaded: the loading screen fades away slowly
  */
 
 export default function OdyDeskFrame({ src, title, allow }: { src: string; title: string; allow?: string }) {
   const frame = useRef<HTMLIFrameElement>(null);
   const [phase, setPhase] = useState<Phase>("cover");
-  const loaded = useRef(false);
 
-  // step 2: as soon as the app inside has drawn something, start revealing it
   useEffect(() => {
+    const w = window as unknown as { __odyCover?: boolean };
+    w.__odyCover = true; // tells the app not to draw its own (second) logo meanwhile
+    let revealAt = 0;
+    let quietSince = 0;
+    let finished = false;
+    const finish = () => {
+      if (finished) return;
+      finished = true;
+      clearInterval(t);
+      clearTimeout(giveUp);
+      setPhase("reveal");
+      // fade the loader away slowly, then remove it
+      setTimeout(() => { setPhase("done"); w.__odyCover = false; }, 120);
+      setTimeout(() => setPhase("gone"), 120 + 1000);
+    };
     const t = setInterval(() => {
       try {
         const doc = frame.current?.contentDocument;
         const root = doc?.getElementById("root");
-        if (root && root.childElementCount > 0 && !root.querySelector("[data-boot]")) {
-          setPhase((p) => (p === "cover" ? "reveal" : p));
-          // fully loaded (also covers a load that finished before React was ready)
-          if (doc?.readyState === "complete") { finish(); clearInterval(t); }
-        }
+        const drawn = !!root && root.childElementCount > 0 && !root.querySelector("[data-boot]") && !!root.firstElementChild?.childElementCount;
+        if (!drawn) return;
+        const now = Date.now();
+        // step 2: the app has drawn its first screen -> black turns see-through, page fades in below
+        if (!revealAt) { revealAt = now; setPhase("reveal"); }
+        // step 3: everything loaded (page + its data) and calm for a moment -> loader fades away
+        const busy = doc!.readyState !== "complete" || !!doc!.querySelector('[data-loading="1"]');
+        if (busy) { quietSince = 0; return; }
+        if (!quietSince) quietSince = now;
+        if (now - quietSince >= 350 && now - revealAt >= 1100) finish();
       } catch {
-        clearInterval(t);
+        finish();
       }
-    }, 80);
+    }, 100);
     // never leave people waiting on the loader
-    const giveUp = setTimeout(() => finish(), 12000);
-    return () => { clearInterval(t); clearTimeout(giveUp); };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    const giveUp = setTimeout(finish, 15000);
+    return () => { clearInterval(t); clearTimeout(giveUp); w.__odyCover = false; };
   }, []);
-
-  const finish = () => {
-    if (loaded.current) return;
-    loaded.current = true;
-    setPhase((p) => (p === "cover" ? "reveal" : p));
-    // let the reveal show for a moment, then fade the loader out and remove it
-    setTimeout(() => setPhase("done"), 450);
-    setTimeout(() => setPhase("gone"), 450 + 800);
-  };
 
   return (
     <>
@@ -57,7 +65,6 @@ export default function OdyDeskFrame({ src, title, allow }: { src: string; title
         title={title}
         allow={allow}
         className={`odf${phase === "cover" ? "" : " on"}`}
-        onLoad={finish}
       />
       <OdyLoaderScreen phase={phase} />
     </>
